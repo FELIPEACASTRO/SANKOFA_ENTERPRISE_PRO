@@ -109,7 +109,6 @@ def health_check():
     })
 
 @app.route('/api/status', methods=['GET'])
-@with_error_handling(category=ErrorCategory.ML_MODEL, severity=ErrorSeverity.LOW)
 def get_status():
     """Status detalhado do sistema"""
     metrics = fraud_engine.get_performance_metrics()
@@ -130,7 +129,6 @@ def get_status():
 # ==========================================
 
 @app.route('/api/fraud/predict', methods=['POST'])
-@with_error_handling(category=ErrorCategory.ML_MODEL, severity=ErrorSeverity.HIGH)
 def predict_fraud():
     """
     Prediz fraude para uma ou mais transações
@@ -217,7 +215,6 @@ def predict_fraud():
     })
 
 @app.route('/api/fraud/batch', methods=['POST'])
-@with_error_handling(category=ErrorCategory.ML_MODEL, severity=ErrorSeverity.HIGH)
 def predict_fraud_batch():
     """
     Processa lote grande de transações com otimização
