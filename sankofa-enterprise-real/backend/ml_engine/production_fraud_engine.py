@@ -92,7 +92,13 @@ class ProductionFraudEngine:
         Args:
             config: Configuração customizada (opcional)
         """
-        self.config = get_config().ml if config is None else config
+        if config is None:
+            app_config = get_config()
+            self.confidence_threshold = app_config.ml.confidence_threshold
+            self.model_path_str = app_config.ml.model_path
+        else:
+            self.confidence_threshold = config.get('confidence_threshold', 0.5)
+            self.model_path_str = config.get('model_path', './models')
         
         # Modelos base do ensemble
         self.base_models = {
@@ -138,9 +144,9 @@ class ProductionFraudEngine:
         
         # Estado e métricas
         self.is_trained = False
-        self.threshold = self.config.confidence_threshold
+        self.threshold = self.confidence_threshold
         self.metrics: Optional[ModelMetrics] = None
-        self.model_path = Path(self.config.model_path)
+        self.model_path = Path(self.model_path_str)
         
         # Rules para precision boosting
         self.precision_rules = self._initialize_precision_rules()
@@ -477,7 +483,7 @@ class ProductionFraudEngine:
         
         try:
             if filepath is None:
-                filepath = self.model_path / f"fraud_engine_v{self.VERSION}.joblib"
+                filepath = str(self.model_path / f"fraud_engine_v{self.VERSION}.joblib")
             
             model_data = {
                 'version': self.VERSION,

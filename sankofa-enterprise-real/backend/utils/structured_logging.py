@@ -43,11 +43,12 @@ class StructuredLogger:
         }
         
         if extra:
-            entry.update(extra)
+            for key, value in extra.items():
+                entry[key] = value
         
         if exception:
             entry['error'] = {
-                'type': type(exception).__name__,
+                'type': exception.__class__.__name__,
                 'message': str(exception),
                 'traceback': traceback.format_exc()
             }
