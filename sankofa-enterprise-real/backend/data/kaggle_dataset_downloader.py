@@ -210,9 +210,12 @@ class KaggleDatasetDownloader:
             logger.error(f"❌ Failed to download '{dataset.name}': {e}")
             dataset.download_status = 'failed'
             
-            # Limpar diretório temporário
-            if temp_dir.exists():
-                shutil.rmtree(temp_dir)
+            # Limpar diretório temporário se foi criado
+            try:
+                if 'temp_dir' in locals() and temp_dir.exists():
+                    shutil.rmtree(temp_dir)
+            except Exception:
+                pass
             
             return False
     

@@ -214,6 +214,10 @@ class RealDataTrainer:
         # Calcular tempo total
         total_time = (datetime.now() - start_time).total_seconds()
         
+        # Verificar se métricas foram calculadas
+        if engine.metrics is None:
+            raise RuntimeError("Training failed - no metrics available")
+        
         # Resultados
         results = {
             'dataset_name': dataset_name,
