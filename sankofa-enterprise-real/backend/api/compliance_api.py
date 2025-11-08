@@ -45,5 +45,6 @@ def share_fraud():
         return jsonify({"success": False, "message": "Falha ao compartilhar dados de fraude."}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8445, debug=True)
+    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(host="0.0.0.0", port=8445, debug=debug_mode)
 

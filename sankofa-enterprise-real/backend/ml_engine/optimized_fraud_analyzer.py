@@ -248,7 +248,7 @@ class OptimizedFraudAnalyzer:
                 return 0.40
         
         # Análise baseada no hash do CPF (para novos CPFs)
-        cpf_hash = hashlib.md5(cpf.encode()).hexdigest()
+        cpf_hash = hashlib.sha256(cpf.encode()).hexdigest()
         frequency_indicator = int(cpf_hash[:2], 16) / 255.0
         
         # Distribuição mais sensível
@@ -359,7 +359,7 @@ class OptimizedFraudAnalyzer:
             str(transaction.get('localizacao', ''))
         ]
         hash_input = '|'.join(key_fields)
-        return hashlib.md5(hash_input.encode()).hexdigest()
+        return hashlib.sha256(hash_input.encode()).hexdigest()
     
     def _analyze_location_risk(self, localizacao):
         """Análise de risco de localização (mantida do original)"""

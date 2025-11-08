@@ -360,4 +360,5 @@ if __name__ == "__main__":
     logger.info("Iniciando gerador de transações em tempo real...")
     transaction_generator.start_generation(interval=3.0)  # Uma transação a cada 3 segundos
     
-    app.run(host="localhost", port=8445, debug=True, threaded=True)
+    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(host="localhost", port=8445, debug=debug_mode, threaded=True)

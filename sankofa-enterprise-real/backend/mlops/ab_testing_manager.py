@@ -275,7 +275,7 @@ class ABTestingManager:
         """Seleção baseada em hash para consistência"""
         # Usar ID da transação ou CPF para hash consistente
         hash_key = transaction_data.get('id', transaction_data.get('cliente_cpf', 'default'))
-        hash_value = int(hashlib.md5(str(hash_key).encode()).hexdigest(), 16) % 100
+        hash_value = int(hashlib.sha256(str(hash_key).encode()).hexdigest(), 16) % 100
         
         cumulative = 0
         for variant in variants:

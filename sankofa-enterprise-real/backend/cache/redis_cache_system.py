@@ -147,7 +147,7 @@ class CacheKeyManager:
         """Gera chave de cache determinística"""
         # Cria hash dos argumentos
         key_data = f"{prefix}:{args}:{sorted(kwargs.items())}"
-        key_hash = hashlib.md5(key_data.encode()).hexdigest()
+        key_hash = hashlib.sha256(key_data.encode()).hexdigest()
         
         return f"{self.namespace}:{prefix}:{key_hash}"
     

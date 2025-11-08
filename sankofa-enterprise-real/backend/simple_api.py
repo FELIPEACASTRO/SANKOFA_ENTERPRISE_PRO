@@ -113,4 +113,5 @@ def get_transactions():
 if __name__ == "__main__":
     logger.info("🚀 Iniciando Sankofa Enterprise Pro API Simplificada...")
     logger.info("✅ API pronta para receber requisições")
-    app.run(host="localhost", port=8445, debug=True, threaded=True)
+    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(host="localhost", port=8445, debug=debug_mode, threaded=True)

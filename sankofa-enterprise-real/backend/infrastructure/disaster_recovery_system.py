@@ -206,10 +206,11 @@ class DisasterRecoverySystem:
         try:
             if service_config['url'].startswith('http'):
                 # Verificação HTTP
+                verify_ssl = os.getenv('VERIFY_SSL_CERTS', 'True').lower() == 'true'
                 response = requests.get(
                     service_config['url'],
                     timeout=service_config['timeout'],
-                    verify=False  # Para HTTPS auto-assinado
+                    verify=verify_ssl
                 )
                 
                 response_time = (time.time() - start_time) * 1000
@@ -468,7 +469,7 @@ class DisasterRecoverySystem:
         """Calcula checksum MD5 do arquivo"""
         import hashlib
         
-        hash_md5 = hashlib.md5()
+        hash_md5 = hashlib.sha256()
         with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
                 hash_md5.update(chunk)

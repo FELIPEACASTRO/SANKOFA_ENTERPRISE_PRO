@@ -232,7 +232,7 @@ class ModelPredictor:
         try:
             # Criar hash para cache
             data_str = json.dumps(transaction_data, sort_keys=True)
-            cache_key = hashlib.md5(data_str.encode()).hexdigest()
+            cache_key = hashlib.sha256(data_str.encode()).hexdigest()
             
             # Verificar cache de predição
             if cache_key in self.prediction_cache:

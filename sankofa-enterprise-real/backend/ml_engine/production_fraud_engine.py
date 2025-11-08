@@ -218,7 +218,7 @@ class ProductionFraudEngine:
             else:
                 X_scaled = self.scaler.transform(X_selected)
             
-            return X_scaled
+            return np.asarray(X_scaled)
         
         except Exception as e:
             logger.error("Preprocessing failed", exception=e)
@@ -287,6 +287,9 @@ class ProductionFraudEngine:
             Threshold otimizado
         """
         try:
+            if self.calibrated_model is None:
+                raise ValueError("Calibrated model not initialized")
+            
             probas = self.calibrated_model.predict_proba(X_val)[:, 1]
             
             best_threshold = 0.5
@@ -294,7 +297,7 @@ class ProductionFraudEngine:
             
             for threshold in np.arange(0.1, 0.9, 0.05):
                 y_pred = (probas >= threshold).astype(int)
-                f1 = f1_score(y_val, y_pred, zero_division=0)
+                f1 = f1_score(y_val, y_pred, zero_division='warn')
                 
                 if f1 > best_f1:
                     best_f1 = f1
@@ -339,6 +342,10 @@ class ProductionFraudEngine:
                 X_processed, y, test_size=0.2, random_state=42, stratify=y
             )
             
+            # Converter para arrays numpy se necessário
+            X_val_array = np.asarray(X_val)
+            y_val_array = np.asarray(y_val)
+            
             # Treinar ensemble
             logger.info("Training ensemble...")
             self.ensemble.fit(X_train, y_train)
@@ -353,18 +360,21 @@ class ProductionFraudEngine:
             self.calibrated_model.fit(X_train, y_train)
             
             # Calibrar threshold
-            self.threshold = self._calibrate_threshold(X_val, y_val)
+            self.threshold = self._calibrate_threshold(X_val_array, y_val_array)
             
             # Calcular métricas finais
-            y_pred_proba = self.calibrated_model.predict_proba(X_val)[:, 1]
+            if self.calibrated_model is None:
+                raise ValueError("Calibrated model not initialized")
+            
+            y_pred_proba = self.calibrated_model.predict_proba(X_val_array)[:, 1]
             y_pred = (y_pred_proba >= self.threshold).astype(int)
             
             self.metrics = ModelMetrics(
-                accuracy=accuracy_score(y_val, y_pred),
-                precision=precision_score(y_val, y_pred, zero_division=0),
-                recall=recall_score(y_val, y_pred, zero_division=0),
-                f1_score=f1_score(y_val, y_pred, zero_division=0),
-                roc_auc=roc_auc_score(y_val, y_pred_proba),
+                accuracy=accuracy_score(y_val_array, y_pred),
+                precision=precision_score(y_val_array, y_pred, zero_division='warn'),
+                recall=recall_score(y_val_array, y_pred, zero_division='warn'),
+                f1_score=f1_score(y_val_array, y_pred, zero_division='warn'),
+                roc_auc=roc_auc_score(y_val_array, y_pred_proba),
                 threshold=self.threshold,
                 timestamp=datetime.utcnow().isoformat() + 'Z'
             )
@@ -410,6 +420,10 @@ class ProductionFraudEngine:
             
             # Preprocessar
             X_processed = self._preprocess_data(X, fit_transform=False)
+            
+            # Validar modelo
+            if self.calibrated_model is None:
+                raise ValueError("Calibrated model not initialized. Call fit() first.")
             
             # Predições
             y_proba = self.calibrated_model.predict_proba(X_processed)[:, 1]

@@ -189,7 +189,7 @@ class DistributedFraudCache:
         
         # Cria hash dos identificadores para chave determinística
         id_string = ':'.join(str(id) for id in identifiers)
-        id_hash = hashlib.md5(id_string.encode()).hexdigest()[:12]
+        id_hash = hashlib.sha256(id_string.encode()).hexdigest()[:12]
         
         return f"{prefix}:{subcategory}:{id_hash}"
     

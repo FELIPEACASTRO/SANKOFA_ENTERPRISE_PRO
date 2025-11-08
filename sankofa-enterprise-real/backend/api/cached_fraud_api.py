@@ -78,7 +78,7 @@ class CachedFraudAPI:
         
         # Ordena e serializa
         sorted_data = json.dumps(filtered_data, sort_keys=True, default=str)
-        return hashlib.md5(sorted_data.encode()).hexdigest()
+        return hashlib.sha256(sorted_data.encode()).hexdigest()
     
     def _register_routes(self):
         """Registra rotas da API com cache"""

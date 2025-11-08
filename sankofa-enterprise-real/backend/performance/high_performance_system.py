@@ -120,7 +120,7 @@ class HighPerformanceCache:
         else:
             sorted_data = str(data)
         
-        hash_obj = hashlib.md5(sorted_data.encode())
+        hash_obj = hashlib.sha256(sorted_data.encode())
         return f"{prefix}:{hash_obj.hexdigest()}"
     
     def _compress_data(self, data: Any) -> bytes:

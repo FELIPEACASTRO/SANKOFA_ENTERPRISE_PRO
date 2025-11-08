@@ -294,7 +294,7 @@ class FraudDetectionLoadBalancer:
         
         # Usar customer_id ou transaction_id para hash consistente
         hash_key = request_data.get('customer_id') or request_data.get('id') or 'default'
-        hash_value = int(hashlib.md5(str(hash_key).encode()).hexdigest(), 16)
+        hash_value = int(hashlib.sha256(str(hash_key).encode()).hexdigest(), 16)
         
         return servers[hash_value % len(servers)]
     
