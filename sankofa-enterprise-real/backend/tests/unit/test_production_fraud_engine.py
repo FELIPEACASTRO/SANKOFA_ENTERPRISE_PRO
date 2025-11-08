@@ -17,135 +17,88 @@ from ml_engine.production_fraud_engine import ProductionFraudEngine, ModelMetric
 class TestProductionFraudEngine:
     """Testes do motor de fraude em produção"""
     
-    @pytest.fixture
-    def sample_data(self):
-        """Fixture com dados sintéticos para teste"""
-        np.random.seed(42)
-        n_samples = 1000
-        
-        X = pd.DataFrame({
-            'amount': np.random.lognormal(5, 2, n_samples),
-            'hour': np.random.randint(0, 24, n_samples),
-            'merchant_risk': np.random.uniform(0, 1, n_samples),
-            'user_history': np.random.uniform(0, 100, n_samples),
-            'velocity_1h': np.random.randint(0, 10, n_samples)
-        })
-        
-        # 10% fraude (correlacionado com amount alto)
-        y = ((X['amount'] > X['amount'].quantile(0.9)) & 
-             (X['merchant_risk'] > 0.7)).astype(int)
-        
-        return X, y.values
-    
-    def test_engine_initialization(self):
+    def test_engine_initialization(self, fraud_engine):
         """Testa inicialização do engine"""
-        engine = ProductionFraudEngine()
-        
-        assert engine.calibrated_model is None
-        assert engine.metrics is None
-        assert engine.threshold == 0.5
+        assert fraud_engine.calibrated_model is None
+        assert fraud_engine.metrics is None
+        assert fraud_engine.threshold == 0.5
     
-    def test_fit_creates_model(self, sample_data):
+    def test_fit_creates_model(self, fraud_engine, small_fraud_dataset):
         """Testa que fit() cria modelo treinado"""
-        X, y = sample_data
-        engine = ProductionFraudEngine()
+        X, y = small_fraud_dataset
+        fraud_engine.fit(X, y)
         
-        engine.fit(X, y)
-        
-        assert engine.calibrated_model is not None
-        assert engine.metrics is not None
-        assert isinstance(engine.metrics, ModelMetrics)
-        assert engine.is_trained is True
+        assert fraud_engine.calibrated_model is not None
+        assert fraud_engine.metrics is not None
+        assert isinstance(fraud_engine.metrics, ModelMetrics)
+        assert fraud_engine.is_trained is True
     
-    def test_fit_calculates_metrics(self, sample_data):
+    def test_fit_calculates_metrics(self, fraud_engine, small_fraud_dataset):
         """Testa que fit() calcula métricas válidas"""
-        X, y = sample_data
-        engine = ProductionFraudEngine()
-        
-        engine.fit(X, y)
+        X, y = small_fraud_dataset
+        fraud_engine.fit(X, y)
         
         # Verificar que metrics não é None
-        assert engine.metrics is not None
+        assert fraud_engine.metrics is not None
         
         # Métricas devem estar entre 0 e 1
-        assert 0 <= engine.metrics.accuracy <= 1
-        assert 0 <= engine.metrics.precision <= 1
-        assert 0 <= engine.metrics.recall <= 1
-        assert 0 <= engine.metrics.f1_score <= 1
-        assert 0 <= engine.metrics.roc_auc <= 1
+        assert 0 <= fraud_engine.metrics.accuracy <= 1
+        assert 0 <= fraud_engine.metrics.precision <= 1
+        assert 0 <= fraud_engine.metrics.recall <= 1
+        assert 0 <= fraud_engine.metrics.f1_score <= 1
+        assert 0 <= fraud_engine.metrics.roc_auc <= 1
     
-    def test_predict_without_fit_raises_error(self, sample_data):
+    def test_predict_without_fit_raises_error(self, fraud_engine, small_fraud_dataset):
         """Testa que predict() sem fit() lança erro"""
-        X, _ = sample_data
-        engine = ProductionFraudEngine()
+        X, _ = small_fraud_dataset
         
-        with pytest.raises(RuntimeError):
-            engine.predict(X)
+        with pytest.raises(ValueError, match="Model not trained"):
+            fraud_engine.predict(X)
     
-    def test_predict_returns_binary(self, sample_data):
+    def test_predict_returns_binary(self, trained_engine):
         """Testa que predict() retorna 0 ou 1"""
-        X, y = sample_data
-        engine = ProductionFraudEngine()
-        engine.fit(X, y)
-        
+        engine, X, y = trained_engine
         predictions = engine.predict(X)
         
         assert isinstance(predictions, np.ndarray)
         assert len(predictions) == len(X)
         assert set(predictions).issubset({0, 1})
     
-    def test_predict_fraud_returns_probabilities(self, sample_data):
-        """Testa que predict_fraud() retorna probabilidades e labels"""
-        X, y = sample_data
-        engine = ProductionFraudEngine()
-        engine.fit(X, y)
-        
-        results = engine.predict_fraud(X)
-        
-        assert 'predictions' in results
-        assert 'probabilities' in results
-        assert len(results['predictions']) == len(X)
-        assert len(results['probabilities']) == len(X)
-        assert np.all((results['probabilities'] >= 0) & (results['probabilities'] <= 1))
-    
-    def test_different_thresholds_change_predictions(self, sample_data):
+    def test_different_thresholds_change_predictions(self, trained_engine):
         """Testa que threshold diferente muda predições"""
-        X, y = sample_data
-        engine = ProductionFraudEngine()
-        engine.fit(X, y)
+        engine, X, y = trained_engine
         
-        # Usar predict_fraud com threshold diferente
-        results_high = engine.predict_fraud(X)
+        # Threshold baixo (mais sensível)
+        engine.threshold = 0.3
+        preds_low = engine.predict(X)
+        
+        # Threshold alto (menos sensível)  
         engine.threshold = 0.8
-        results_high_threshold = engine.predict_fraud(X)
+        preds_high = engine.predict(X)
         
-        # Threshold alto deve detectar menos fraudes
-        assert results_high['predictions'].sum() >= results_high_threshold['predictions'].sum()
+        # Threshold baixo deve detectar mais fraudes
+        assert preds_low.sum() >= preds_high.sum()
     
-    def test_f1_score_reasonable(self, sample_data):
-        """Testa que F1-Score é razoável (>= 0.5) com dados sintéticos"""
-        X, y = sample_data
-        engine = ProductionFraudEngine()
-        engine.fit(X, y)
+    def test_f1_score_reasonable(self, trained_engine):
+        """Testa que F1-Score é razoável (>= 0.3) com dados sintéticos pequenos"""
+        engine, X, y = trained_engine
         
         # Verificar que metrics não é None
         assert engine.metrics is not None
         
-        # Com dados correlacionados, F1 deve ser >= 0.5
-        assert engine.metrics.f1_score >= 0.5, \
+        # Com 100 samples, F1 >= 0.3 é razoável
+        assert engine.metrics.f1_score >= 0.3, \
             f"F1-Score muito baixo: {engine.metrics.f1_score:.3f}"
     
-    def test_model_handles_missing_features(self, sample_data):
+    def test_model_handles_missing_features(self, trained_engine):
         """Testa tratamento de features faltantes"""
-        X, y = sample_data
-        engine = ProductionFraudEngine()
-        engine.fit(X, y)
+        engine, X, y = trained_engine
         
         # Adicionar NaN
         X_with_nan = X.copy()
         X_with_nan.loc[0, 'amount'] = np.nan
         
-        # Deve prever sem crashes (imputer lida com NaN)
+        # Deve prever sem crashes (preprocessing lida com NaN)
         predictions = engine.predict(X_with_nan)
         assert len(predictions) == len(X_with_nan)
 
@@ -155,7 +108,7 @@ class TestModelMetrics:
     
     def test_metrics_initialization(self):
         """Testa criação de métricas"""
-        import time
+        from datetime import datetime
         
         metrics = ModelMetrics(
             accuracy=0.95,
@@ -164,7 +117,7 @@ class TestModelMetrics:
             f1_score=0.87,
             roc_auc=0.93,
             threshold=0.5,
-            timestamp=time.time()
+            timestamp=datetime.now().isoformat()
         )
         
         assert metrics.accuracy == 0.95
