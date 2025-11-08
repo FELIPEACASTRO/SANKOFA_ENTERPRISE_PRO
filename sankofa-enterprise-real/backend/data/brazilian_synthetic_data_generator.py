@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import datetime
 import random
+import uuid
 
 class BrazilianSyntheticDataGenerator:
     def __init__(self, num_transactions=100000, fraud_rate=0.01):
@@ -48,19 +49,34 @@ class BrazilianSyntheticDataGenerator:
         # Simple fraud injection logic for demonstration
         fraud_type = random.choice(['high_value_night', 'multiple_small_pix', 'fake_boleto'])
         
+        # SEMPRE marcar como fraude quando esta função é chamada
+        transaction['isFraud'] = 1
+        
         if fraud_type == 'high_value_night':
-            if 22 <= datetime.datetime.fromisoformat(transaction['timestamp']).hour <= 5:
+            # Transação de alto valor à noite
+            ts = datetime.datetime.fromisoformat(transaction['timestamp'])
+            hour = ts.hour
+            if hour < 6 or hour >= 22:
                 transaction['value'] = round(random.uniform(5000.0, 20000.0), 2)
-                transaction['isFraud'] = 1
+            else:
+                # Forçar horário noturno
+                new_hour = random.choice([0,1,2,3,4,5,22,23])
+                ts = ts.replace(hour=new_hour)
+                transaction['timestamp'] = ts.isoformat()
+                transaction['value'] = round(random.uniform(5000.0, 20000.0), 2)
+        
         elif fraud_type == 'multiple_small_pix':
-            if transaction['transaction_type'] == 'PIX' and transaction['value'] < 100:
-                # Simulate multiple small PIX transactions from a new device
-                transaction['device_id'] = 'new_unregistered_device'
-                transaction['isFraud'] = 1
+            # Múltiplas transações PIX pequenas de dispositivo novo
+            transaction['transaction_type'] = 'PIX'
+            transaction['value'] = round(random.uniform(10.0, 99.0), 2)
+            transaction['device_id'] = 'new_unregistered_device'
+        
         elif fraud_type == 'fake_boleto':
-            if transaction['transaction_type'] == 'BOLETO':
-                transaction['receiver_account'] = 'suspicious_boleto_account'
-                transaction['isFraud'] = 1
+            # Boleto suspeito
+            transaction['transaction_type'] = 'BOLETO'
+            transaction['receiver_account'] = 'suspicious_boleto_account'
+            transaction['value'] = round(random.uniform(500.0, 5000.0), 2)
+        
         return transaction
 
     def generate_data(self):
