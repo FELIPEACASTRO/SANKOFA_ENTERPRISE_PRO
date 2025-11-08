@@ -1,0 +1,13 @@
+{
+  "accuracy": 0.783,
+  "precision": 0.1051912568306011,
+  "recall": 0.15187376725838264,
+  "f1_score": 0.12429378531073447,
+  "specificity": 0.8542176719341198,
+  "false_positive_rate": 0.14578232806588026,
+  "threshold": 0.2742221703351914,
+  "training_time_s": 40.71281862258911,
+  "prediction_time_s": 1.0851984024047852,
+  "throughput_tps": 9214.904830158368,
+  "latency_ms": 0.10851984024047852
+}

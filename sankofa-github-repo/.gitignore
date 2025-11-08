@@ -1,0 +1,10 @@
+# Datasets grandes
+*.csv
+*.zip
+*.pkl
+*.h5
+*.hdf5
+
+# Dados externos
+sankofa-enterprise-real/backend/data/*.csv
+sankofa-enterprise-real/data/external_datasets/
