@@ -52,3 +52,34 @@ The system follows a microservices-oriented architecture, separating the fronten
 - **Frontend Libraries**: React, Vite, Tailwind CSS, Radix UI, Recharts, React Router, Shadcn UI
 - **Backend Libraries**: Flask, Flask-CORS, NumPy, Pandas, Gunicorn
 - **Authentication**: JWT (JSON Web Tokens)
+
+## AIForge Analysis - Double Check Criterioso (Nov 08, 2025)
+
+**Status**: ⚠️ **Análise inicial REJEITADA - Versão corrigida disponível**
+
+### What Happened
+Foi realizada uma análise do repositório AIForge para identificar melhorias ao Sankofa. Após **Double Check ultra criterioso** pelo arquiteto técnico, a análise inicial foi **rejeitada** por conter:
+- ❌ Inventário não verificado (326+ recursos sem auditoria)
+- ❌ Ganhos irrealistas (99% accuracy sem validação)
+- ❌ ROI com matemática falha
+- ❌ Timelines otimistas demais
+- ❌ Aplicabilidade ao Brasil não validada
+
+### Corrected Analysis Available
+**File**: `docs/AIFORGE_DOUBLE_CHECK_CORRECTED.md`
+
+**Realistic Improvements** (conservative):
+- F1-Score: 0.25 → 0.72-0.85
+- Recall: ~0.75 → 0.80-0.85
+- Precision: ~0.65 → 0.75-0.85
+- AUC-ROC: N/A → 0.90-0.95
+
+**Investment**: R$ 180k (Phase 1: 6-8 weeks)
+**ROI**: ~15,000% (if validated)
+**Savings**: R$ 25-40M/month (medium bank)
+
+**Technologies Validated**:
+- Stacking Ensemble (XGBoost + LightGBM + CatBoost)
+- Real datasets (IEEE-CIS, Credit Card Fraud)
+- SHAP Explainability (BACEN compliance)
+- Optuna AutoML
