@@ -23,7 +23,6 @@ PyJWT==2.8.0
 
 # HTTP & API
 requests==2.31.0
-urllib3==2.0.4
 
 # Monitoring & Logging
 datadog==0.47.0
@@ -73,9 +72,6 @@ aioredis==2.0.1
 # Configuration
 pydantic==2.3.0
 pydantic-settings==2.0.3
-
-# Compliance & Audit
-audit-log==1.0.0
 
 # AWS SDK (for production deployment)
 boto3==1.28.57

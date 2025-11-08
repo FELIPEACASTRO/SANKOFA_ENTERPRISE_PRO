@@ -360,4 +360,4 @@ if __name__ == "__main__":
     logger.info("Iniciando gerador de transações em tempo real...")
     transaction_generator.start_generation(interval=3.0)  # Uma transação a cada 3 segundos
     
-    app.run(host="0.0.0.0", port=8445, debug=True, threaded=True)
+    app.run(host="localhost", port=8445, debug=True, threaded=True)
