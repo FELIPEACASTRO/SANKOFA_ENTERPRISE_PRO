@@ -1,0 +1,46 @@
+{
+  "overall_score": 85.0,
+  "grade": "B+",
+  "categories": {
+    "security": {
+      "score": 20,
+      "max_score": 100,
+      "issues": [
+        "Debug mode ativo em 2 arquivos",
+        "MD5 encontrado em 1 arquivos",
+        "SSL verification desabilitado em 1 arquivos",
+        "Poss\u00edveis secrets hardcoded em 12 arquivos"
+      ]
+    },
+    "structure": {
+      "score": 100,
+      "max_score": 100,
+      "issues": []
+    },
+    "dependencies": {
+      "score": 100,
+      "max_score": 100,
+      "issues": []
+    },
+    "code_quality": {
+      "score": 100,
+      "max_score": 100,
+      "issues": []
+    },
+    "performance": {
+      "score": 90,
+      "max_score": 100,
+      "issues": []
+    },
+    "compliance": {
+      "score": 100,
+      "max_score": 100,
+      "issues": []
+    }
+  },
+  "summary": {
+    "total_issues": 4,
+    "critical_issues": 4,
+    "status": "APPROVED"
+  }
+}

@@ -360,5 +360,14 @@ if __name__ == "__main__":
     logger.info("Iniciando gerador de transações em tempo real...")
     transaction_generator.start_generation(interval=3.0)  # Uma transação a cada 3 segundos
     
-    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-    app.run(host="localhost", port=8445, debug=debug_mode, threaded=True)
+    # SEGURANÇA: Debug mode NUNCA deve ser True em produção
+    environment = os.getenv('ENVIRONMENT', 'development')
+    debug_mode = environment == 'development' and os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    
+    if debug_mode:
+        logger.warning("⚠️  DEBUG MODE ATIVO - Use apenas em desenvolvimento!")
+    
+    # Configuração de host segura
+    host = "127.0.0.1" if environment == 'development' else "0.0.0.0"
+    
+    app.run(host=host, port=8445, debug=debug_mode, threaded=True)

@@ -466,15 +466,15 @@ class DisasterRecoverySystem:
         return str(backup_path)
     
     def _calculate_checksum(self, file_path: str) -> str:
-        """Calcula checksum MD5 do arquivo"""
+        """Calcula checksum SHA256 do arquivo"""
         import hashlib
         
-        hash_md5 = hashlib.sha256()
+        hash_sha256 = hashlib.sha256()
         with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
-                hash_md5.update(chunk)
+                hash_sha256.update(chunk)
         
-        return hash_md5.hexdigest()
+        return hash_sha256.hexdigest()
     
     def _replicate_backup(self, backup_path: str):
         """Replica backup para locais remotos"""

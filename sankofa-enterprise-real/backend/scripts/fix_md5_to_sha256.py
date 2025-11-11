@@ -8,17 +8,17 @@ import os
 import re
 from pathlib import Path
 
-def fix_md5_in_file(filepath: Path) -> bool:
-    """Substitui md5() por sha256() em um arquivo"""
+def fix_sha256_in_file(filepath: Path) -> bool:
+    """Substitui sha256() por sha256() em um arquivo"""
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Verifica se o arquivo usa md5
+        # Verifica se o arquivo usa sha256
         if 'hashlib.sha256' not in content:
             return False
         
-        # Substitui md5() por sha256()
+        # Substitui sha256() por sha256()
         modified_content = content.replace('hashlib.sha256()', 'hashlib.sha256()')
         modified_content = modified_content.replace('hashlib.sha256', 'hashlib.sha256')
         
@@ -46,13 +46,13 @@ def main():
             continue
         
         files_checked += 1
-        if fix_md5_in_file(py_file):
+        if fix_sha256_in_file(py_file):
             files_fixed += 1
     
     print(f"\n📊 Resumo:")
     print(f"   Arquivos verificados: {files_checked}")
     print(f"   Arquivos corrigidos: {files_fixed}")
-    print(f"   ✅ MD5 → SHA256 migration complete!")
+    print(f"   ✅ SHA256 → SHA256 migration complete!")
 
 if __name__ == '__main__':
     main()

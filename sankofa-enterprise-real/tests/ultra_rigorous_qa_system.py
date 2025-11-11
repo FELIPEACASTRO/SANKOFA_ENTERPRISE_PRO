@@ -369,7 +369,7 @@ class UltraRigorousQASystem:
             cv_scores = []
             for fold in range(5):  # 5 folds para velocidade
                 X_fold, y_fold = self._generate_ultra_realistic_fraud_data(5000)
-                engine_fold = HyperOptimizedFraudEngineV3()atencyFraudEngine()
+                engine_fold = HyperOptimizedFraudEngineV3()
                 engine_fold.fit(X_fold, y_fold)
                 fold_metrics = engine_fold.get_performance_metrics()['performance_metrics']
                 cv_scores.append(fold_metrics['f1_score'])
