@@ -303,7 +303,7 @@ class ProductionFraudEngine:
                 f1_score=round(best_f1, 3),
             )
 
-            return best_threshold
+            return float(best_threshold)
 
         except Exception as e:
             logger.error("Threshold calibration failed", exception=e)
@@ -358,11 +358,11 @@ class ProductionFraudEngine:
             y_pred = (y_pred_proba >= self.threshold).astype(int)
 
             self.metrics = ModelMetrics(
-                accuracy=accuracy_score(y_val_array, y_pred),
-                precision=precision_score(y_val_array, y_pred, zero_division="warn"),
-                recall=recall_score(y_val_array, y_pred, zero_division="warn"),
-                f1_score=f1_score(y_val_array, y_pred, zero_division="warn"),
-                roc_auc=roc_auc_score(y_val_array, y_pred_proba),
+                accuracy=float(accuracy_score(y_val_array, y_pred)),
+                precision=float(precision_score(y_val_array, y_pred, zero_division="warn")),
+                recall=float(recall_score(y_val_array, y_pred, zero_division="warn")),
+                f1_score=float(f1_score(y_val_array, y_pred, zero_division="warn")),
+                roc_auc=float(roc_auc_score(y_val_array, y_pred_proba)),
                 threshold=self.threshold,
                 timestamp=datetime.utcnow().isoformat() + "Z",
             )
@@ -385,16 +385,55 @@ class ProductionFraudEngine:
             raise
 
     @log_execution_time(logger)
-    def predict(self, X: pd.DataFrame, apply_rules: bool = True) -> List[FraudPrediction]:
+    def predict(self, X: pd.DataFrame) -> np.ndarray:
         """
-        Faz predições de fraude
+        Faz predições de fraude (sklearn-compatible)
+
+        Args:
+            X: DataFrame com features
+
+        Returns:
+            Array numpy com labels binários (0 = legítimo, 1 = fraude)
+        """
+        if not self.is_trained:
+            raise ValueError("Model not trained. Call fit() first.")
+
+        try:
+            # Preprocessar
+            X_processed = self._preprocess_data(X, fit_transform=False)
+
+            # Validar modelo
+            if self.calibrated_model is None:
+                raise ValueError("Calibrated model not initialized. Call fit() first.")
+
+            # Predições
+            y_proba = self.calibrated_model.predict_proba(X_processed)[:, 1]
+            y_pred = (y_proba >= self.threshold).astype(int)
+
+            logger.info(
+                "Predictions completed",
+                num_predictions=len(y_pred),
+                num_frauds=int(y_pred.sum()),
+                avg_time_ms=round((time.time() * 1000) / len(X) if len(X) > 0 else 0, 2),
+            )
+
+            return y_pred
+
+        except Exception as e:
+            logger.error("Prediction failed", exception=e)
+            raise
+
+    @log_execution_time(logger)
+    def predict_detailed(self, X: pd.DataFrame, apply_rules: bool = True) -> List[FraudPrediction]:
+        """
+        Faz predições detalhadas de fraude com metadados completos
 
         Args:
             X: DataFrame com features
             apply_rules: Se True, aplica regras de precision boosting
 
         Returns:
-            Lista de predições
+            Lista de predições detalhadas com risk levels, razões, etc.
         """
         if not self.is_trained:
             raise ValueError("Model not trained. Call fit() first.")
@@ -462,7 +501,7 @@ class ProductionFraudEngine:
                 predictions.append(prediction)
 
             logger.info(
-                "Predictions completed",
+                "Detailed predictions completed",
                 num_predictions=len(predictions),
                 num_frauds=sum(1 for p in predictions if p.is_fraud),
                 avg_time_ms=round(avg_time, 2),
@@ -471,7 +510,7 @@ class ProductionFraudEngine:
             return predictions
 
         except Exception as e:
-            logger.error("Prediction failed", exception=e)
+            logger.error("Detailed prediction failed", exception=e)
             raise
 
     def save(self, filepath: Optional[str] = None):

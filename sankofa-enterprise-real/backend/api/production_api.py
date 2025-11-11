@@ -189,7 +189,7 @@ def predict_fraud():
             context={'endpoint': '/api/fraud/predict'}
         )
     
-    predictions = fraud_engine.predict(df)
+    predictions = fraud_engine.predict_detailed(df)
     
     # Converter para JSON
     results = [pred.to_dict() for pred in predictions]
@@ -239,7 +239,7 @@ def predict_fraud_batch():
     all_predictions = []
     for i in range(0, len(df), batch_size):
         batch = df.iloc[i:i+batch_size]
-        predictions = fraud_engine.predict(batch)
+        predictions = fraud_engine.predict_detailed(batch)
         all_predictions.extend(predictions)
     
     results = [pred.to_dict() for pred in all_predictions]
@@ -417,7 +417,7 @@ if __name__ == "__main__":
         "🚀 Starting Sankofa Enterprise Pro - Production API",
         version=fraud_engine.VERSION,
         environment=config.environment,
-        port=8445
+        port=8000
     )
     
     # Verificar se modelo está treinado
@@ -433,8 +433,8 @@ if __name__ == "__main__":
         )
     
     app.run(
-        host="localhost",
-        port=8445,
+        host="0.0.0.0",
+        port=8000,
         debug=config.debug,
         threaded=True
     )

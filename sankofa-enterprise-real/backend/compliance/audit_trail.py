@@ -6,13 +6,21 @@ Registra todas as ações sensíveis relacionadas a compliance para garantir ras
 
 import logging
 import json
+import os
 from datetime import datetime
 from typing import Dict, Any
+from pathlib import Path
 
 # Configura um logger específico para a trilha de auditoria
 # Em um ambiente de produção, isso seria configurado para enviar logs para um sistema seguro e imutável (e.g., DataDog, Splunk)
 audit_logger = logging.getLogger("compliance_audit")
-handler = logging.FileHandler("/home/ubuntu/sankofa-enterprise-real/logs/compliance_audit.log")
+
+# Usa caminho relativo ao projeto
+project_root = Path(__file__).resolve().parent.parent.parent
+logs_dir = project_root / "logs"
+logs_dir.mkdir(exist_ok=True)
+
+handler = logging.FileHandler(logs_dir / "compliance_audit.log")
 formatter = logging.Formatter('%(asctime)s - %(message)s')
 handler.setFormatter(formatter)
 audit_logger.addHandler(handler)
