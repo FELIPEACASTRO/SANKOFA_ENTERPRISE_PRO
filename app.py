@@ -17,12 +17,15 @@ BACKEND_PATH = PROJECT_ROOT / "sankofa-enterprise-real" / "backend"
 sys.path.insert(0, str(BACKEND_PATH))
 
 # Configuração de logging
+log_dir = PROJECT_ROOT / "logs"
+log_dir.mkdir(exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('sankofa_enterprise.log')
+        logging.FileHandler(log_dir / 'sankofa_enterprise.log')
     ]
 )
 
