@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
+
 class PciDssCompliance:
     """Implementa a lógica de compliance com o PCI DSS."""
 
@@ -29,7 +30,9 @@ class PciDssCompliance:
         retention_limit_date = datetime.utcnow() - timedelta(days=self.retention_days)
 
         logger.info(f"Aplicando política de retenção de dados do PCI DSS...")
-        logger.info(f"Excluindo dados de transações anteriores a {retention_limit_date.strftime('%Y-%m-%d')}...")
+        logger.info(
+            f"Excluindo dados de transações anteriores a {retention_limit_date.strftime('%Y-%m-%d')}..."
+        )
 
         # Simulação da exclusão de dados
         # Em um caso real:
@@ -39,9 +42,13 @@ class PciDssCompliance:
 
         deleted_rows_simulation = 1500  # Número simulado de registros excluídos
 
-        print(f"[SIMULAÇÃO] {deleted_rows_simulation} registros de transações antigas foram excluídos.")
+        print(
+            f"[SIMULAÇÃO] {deleted_rows_simulation} registros de transações antigas foram excluídos."
+        )
 
-        logger.info(f"Política de retenção de dados do PCI DSS aplicada com sucesso. {deleted_rows_simulation} registros excluídos.")
+        logger.info(
+            f"Política de retenção de dados do PCI DSS aplicada com sucesso. {deleted_rows_simulation} registros excluídos."
+        )
 
     def mask_pan(self, pan: str) -> str:
         """
@@ -59,6 +66,7 @@ class PciDssCompliance:
 
         return f"{pan[:6]}{'*' * (len(pan) - 10)}{pan[-4:]}"
 
+
 # Exemplo de uso
 if __name__ == "__main__":
     pci = PciDssCompliance()
@@ -71,4 +79,3 @@ if __name__ == "__main__":
     pan2 = "98765432109876"
     print(f"PAN original: {pan1} -> Mascarado: {pci.mask_pan(pan1)}")
     print(f"PAN original: {pan2} -> Mascarado: {pci.mask_pan(pan2)}")
-

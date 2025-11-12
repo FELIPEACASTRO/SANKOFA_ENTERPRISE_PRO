@@ -48,7 +48,7 @@ MOCK_DATA = {
         "latencia_ontem": 12.1,
         "valor_protegido_hoje": 2847392.50,
         "valor_protegido_ano": 1247382940.00,
-        "familias_protegidas": 8432
+        "familias_protegidas": 8432,
     },
     "timeseries": [
         {"time": "00:00", "transactions": 234, "latency": 8.2},
@@ -74,54 +74,57 @@ MOCK_DATA = {
         {"time": "20:00", "transactions": 289, "latency": 7.8},
         {"time": "21:00", "transactions": 234, "latency": 7.6},
         {"time": "22:00", "transactions": 198, "latency": 7.4},
-        {"time": "23:00", "transactions": 167, "latency": 7.2}
+        {"time": "23:00", "transactions": 167, "latency": 7.2},
     ],
     "channels": [
         {"name": "PIX", "frauds": 8, "value": 4523},
         {"name": "Cartão", "frauds": 12, "value": 3892},
         {"name": "TED", "frauds": 3, "value": 1247},
-        {"name": "DOC", "frauds": 0, "value": 892}
+        {"name": "DOC", "frauds": 0, "value": 892},
     ],
     "alerts": [
         {
             "id": 1,
             "message": "Taxa de fraude acima do limite em PIX",
             "severity": "alto",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         },
         {
             "id": 2,
             "message": "Latência elevada detectada no modelo XGBoost",
             "severity": "medio",
-            "timestamp": (datetime.now() - timedelta(minutes=15)).isoformat()
-        }
+            "timestamp": (datetime.now() - timedelta(minutes=15)).isoformat(),
+        },
     ],
     "models": [
         {"name": "XGBoost Ensemble", "status": "healthy", "accuracy": 94.2},
         {"name": "Random Forest", "status": "healthy", "accuracy": 92.8},
         {"name": "Neural Network", "status": "healthy", "accuracy": 93.5},
         {"name": "Isolation Forest", "status": "healthy", "accuracy": 89.1},
-        {"name": "LSTM Temporal", "status": "healthy", "accuracy": 91.7}
-    ]
+        {"name": "LSTM Temporal", "status": "healthy", "accuracy": 91.7},
+    ],
 }
+
 
 # Middleware de performance
 @app.before_request
 def before_request():
     g.start_time = time.time()
 
+
 @app.after_request
 def after_request(response):
     duration = time.time() - g.start_time
-    response.headers['X-Response-Time'] = f"{duration:.3f}s"
-    
+    response.headers["X-Response-Time"] = f"{duration:.3f}s"
+
     # Log da performance
     logger.info(f"{request.method} {request.path} - {response.status_code} - {duration:.3f}s")
-    
+
     return response
 
+
 # Rotas do Dashboard
-@app.route('/api/dashboard/kpis', methods=['GET'])
+@app.route("/api/dashboard/kpis", methods=["GET"])
 def get_dashboard_kpis():
     """Retorna os KPIs principais do dashboard."""
     try:
@@ -129,88 +132,93 @@ def get_dashboard_kpis():
         cached_data = cache_system.get("dashboard_kpis")
         if cached_data:
             return jsonify(cached_data)
-        
+
         # Se não estiver no cache, usa dados mock e armazena no cache
         kpis = MOCK_DATA["kpis"]
         cache_system.set("dashboard_kpis", kpis, ttl=30)
-        
+
         return jsonify(kpis)
     except Exception as e:
         logger.error(f"Erro ao buscar KPIs: {e}")
         return jsonify(MOCK_DATA["kpis"])
 
-@app.route('/api/dashboard/timeseries', methods=['GET'])
+
+@app.route("/api/dashboard/timeseries", methods=["GET"])
 def get_dashboard_timeseries():
     """Retorna dados de série temporal para gráficos."""
     try:
         cached_data = cache_system.get("dashboard_timeseries")
         if cached_data:
             return jsonify({"timeseries": cached_data})
-        
+
         timeseries = MOCK_DATA["timeseries"]
         cache_system.set("dashboard_timeseries", timeseries, ttl=60)
-        
+
         return jsonify({"timeseries": timeseries})
     except Exception as e:
         logger.error(f"Erro ao buscar série temporal: {e}")
         return jsonify({"timeseries": MOCK_DATA["timeseries"]})
 
-@app.route('/api/dashboard/channels', methods=['GET'])
+
+@app.route("/api/dashboard/channels", methods=["GET"])
 def get_dashboard_channels():
     """Retorna dados de canais para gráficos."""
     try:
         cached_data = cache_system.get("dashboard_channels")
         if cached_data:
             return jsonify({"channels": cached_data})
-        
+
         channels = MOCK_DATA["channels"]
         cache_system.set("dashboard_channels", channels, ttl=120)
-        
+
         return jsonify({"channels": channels})
     except Exception as e:
         logger.error(f"Erro ao buscar dados de canais: {e}")
         return jsonify({"channels": MOCK_DATA["channels"]})
 
-@app.route('/api/dashboard/recent-alerts', methods=['GET'])
+
+@app.route("/api/dashboard/recent-alerts", methods=["GET"])
 def get_recent_alerts():
     """Retorna alertas recentes."""
     try:
         cached_data = cache_system.get("dashboard_alerts")
         if cached_data:
             return jsonify({"alerts": cached_data})
-        
+
         alerts = MOCK_DATA["alerts"]
         cache_system.set("dashboard_alerts", alerts, ttl=15)
-        
+
         return jsonify({"alerts": alerts})
     except Exception as e:
         logger.error(f"Erro ao buscar alertas: {e}")
         return jsonify({"alerts": MOCK_DATA["alerts"]})
 
-@app.route('/api/dashboard/model-status', methods=['GET'])
+
+@app.route("/api/dashboard/model-status", methods=["GET"])
 def get_model_status():
     """Retorna status dos modelos de ML."""
     try:
         cached_data = cache_system.get("dashboard_models")
         if cached_data:
             return jsonify({"models": cached_data})
-        
+
         models = MOCK_DATA["models"]
         cache_system.set("dashboard_models", models, ttl=300)
-        
+
         return jsonify({"models": models})
     except Exception as e:
         logger.error(f"Erro ao buscar status dos modelos: {e}")
         return jsonify({"models": MOCK_DATA["models"]})
 
+
 # Rotas de Compliance
-@app.route('/api/v1/compliance/status', methods=['GET'])
+@app.route("/api/v1/compliance/status", methods=["GET"])
 def get_compliance_status():
     """Retorna o status geral de compliance."""
     try:
         status = {
             "bacen_resolution_6": "Implemented",
-            "lgpd": "Implemented", 
+            "lgpd": "Implemented",
             "pci_dss_v4": "Implemented",
             "sox": "Partially Implemented",
             "basel_iii": "Not Implemented",
@@ -220,125 +228,126 @@ def get_compliance_status():
         logger.error(f"Erro ao buscar status de compliance: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/api/v1/compliance/share-fraud', methods=['POST'])
+
+@app.route("/api/v1/compliance/share-fraud", methods=["POST"])
 def share_fraud():
     """Compartilha dados de fraude com o BACEN."""
     try:
         data = request.get_json()
         user_context = {"username": "system"}  # Em produção, viria do token JWT
-        
+
         success = compliance_manager.share_fraud_data_with_bacen(data, user_context)
-        
+
         if success:
-            return jsonify({"success": True, "message": "Dados de fraude compartilhados com sucesso."})
+            return jsonify(
+                {"success": True, "message": "Dados de fraude compartilhados com sucesso."}
+            )
         else:
-            return jsonify({"success": False, "message": "Falha ao compartilhar dados de fraude."}), 500
+            return (
+                jsonify({"success": False, "message": "Falha ao compartilhar dados de fraude."}),
+                500,
+            )
     except Exception as e:
         logger.error(f"Erro ao compartilhar fraude: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
+
 # Rota de análise de transação (principal funcionalidade)
-@app.route('/api/v1/analyze-transaction', methods=['POST'])
+@app.route("/api/v1/analyze-transaction", methods=["POST"])
 def analyze_transaction():
     """Analisa uma transação para detecção de fraude."""
     try:
         start_time = time.time()
-        
+
         transaction_data = request.get_json()
-        
+
         # Validação básica
         if not transaction_data:
             return jsonify({"error": "Dados da transação são obrigatórios"}), 400
-        
+
         # Simulação de análise de fraude
         fraud_score = 0.15  # 15% de probabilidade de fraude
         is_fraud = fraud_score > 0.5
-        
+
         result = {
-            "transaction_id": transaction_data.get("transaction_id", "TXN_" + str(int(time.time()))),
+            "transaction_id": transaction_data.get(
+                "transaction_id", "TXN_" + str(int(time.time()))
+            ),
             "fraud_score": fraud_score,
             "is_fraud": is_fraud,
             "risk_level": "LOW" if fraud_score < 0.3 else "MEDIUM" if fraud_score < 0.7 else "HIGH",
             "analysis_time_ms": round((time.time() - start_time) * 1000, 2),
             "models_used": ["XGBoost", "RandomForest", "NeuralNetwork"],
             "features_analyzed": 47,
-            "compliance_status": "APPROVED"
+            "compliance_status": "APPROVED",
         }
-        
+
         # Armazena no cache para auditoria
         cache_key = f"transaction_analysis:{result['transaction_id']}"
         cache_system.set(cache_key, result, ttl=3600)
-        
+
         return jsonify(result)
-        
+
     except Exception as e:
         logger.error(f"Erro na análise de transação: {e}")
         return jsonify({"error": "Erro interno do servidor"}), 500
 
+
 # Rota de health check
-@app.route('/api/health', methods=['GET'])
+@app.route("/api/health", methods=["GET"])
 def health_check():
     """Verifica a saúde do sistema."""
     try:
         redis_status = "OK" if cache_system.ping() else "ERROR"
-        
+
         health_data = {
             "status": "OK",
             "timestamp": datetime.now().isoformat(),
-            "services": {
-                "api": "OK",
-                "redis": redis_status,
-                "security": "OK",
-                "compliance": "OK"
-            },
+            "services": {"api": "OK", "redis": redis_status, "security": "OK", "compliance": "OK"},
             "performance": {
                 "avg_response_time_ms": 10.3,
                 "throughput_rps": 95.65,
-                "active_connections": 42
-            }
+                "active_connections": 42,
+            },
         }
-        
+
         return jsonify(health_data)
     except Exception as e:
         logger.error(f"Erro no health check: {e}")
         return jsonify({"status": "ERROR", "error": str(e)}), 500
 
+
 # Importar o gerador de transações
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data'))
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data"))
 from real_time_transaction_generator import transaction_generator
 
+
 # Rotas de Transações
-@app.route('/api/transactions', methods=['GET'])
+@app.route("/api/transactions", methods=["GET"])
 def get_transactions():
     """Retorna lista de transações com filtros opcionais."""
     try:
         # Parâmetros de filtro
-        limit = int(request.args.get('limit', 100))
-        search = request.args.get('search', '')
-        status = request.args.get('status', 'Todos')
-        tipo = request.args.get('tipo', 'Todos')
-        
-        filters = {
-            'search': search,
-            'status': status,
-            'tipo': tipo
-        }
-        
+        limit = int(request.args.get("limit", 100))
+        search = request.args.get("search", "")
+        status = request.args.get("status", "Todos")
+        tipo = request.args.get("tipo", "Todos")
+
+        filters = {"search": search, "status": status, "tipo": tipo}
+
         transactions = transaction_generator.get_transactions(limit=limit, filters=filters)
         stats = transaction_generator.get_stats()
-        
-        return jsonify({
-            "success": True,
-            "data": transactions,
-            "stats": stats,
-            "total": len(transactions)
-        })
-        
+
+        return jsonify(
+            {"success": True, "data": transactions, "stats": stats, "total": len(transactions)}
+        )
+
     except Exception as e:
         logger.error(f"Erro ao buscar transações: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/api/transactions/stats', methods=['GET'])
+
+@app.route("/api/transactions/stats", methods=["GET"])
 def get_transaction_stats():
     """Retorna estatísticas das transações."""
     try:
@@ -348,26 +357,29 @@ def get_transaction_stats():
         logger.error(f"Erro ao buscar estatísticas: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
+
 if __name__ == "__main__":
     logger.info("Iniciando Sankofa Enterprise Pro API...")
     logger.info("Sistemas carregados: Segurança, Compliance, Cache Redis, Performance")
-    
+
     # Define a chave JWT se não estiver definida
-    if not os.environ.get('SANKOFA_JWT_SECRET'):
-        os.environ['SANKOFA_JWT_SECRET'] = 'sankofa-enterprise-secret-key-2024'
-    
+    if not os.environ.get("SANKOFA_JWT_SECRET"):
+        os.environ["SANKOFA_JWT_SECRET"] = "sankofa-enterprise-secret-key-2024"
+
     # Inicia o gerador de transações em tempo real
     logger.info("Iniciando gerador de transações em tempo real...")
     transaction_generator.start_generation(interval=3.0)  # Uma transação a cada 3 segundos
-    
+
     # SEGURANÇA: Debug mode NUNCA deve ser True em produção
-    environment = os.getenv('ENVIRONMENT', 'development')
-    debug_mode = environment == 'development' and os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-    
+    environment = os.getenv("ENVIRONMENT", "development")
+    debug_mode = (
+        environment == "development" and os.getenv("FLASK_DEBUG", "False").lower() == "true"
+    )
+
     if debug_mode:
         logger.warning("⚠️  DEBUG MODE ATIVO - Use apenas em desenvolvimento!")
-    
+
     # Configuração de host segura
-    host = "127.0.0.1" if environment == 'development' else "0.0.0.0"
-    
+    host = "127.0.0.1" if environment == "development" else "0.0.0.0"
+
     app.run(host=host, port=8445, debug=debug_mode, threaded=True)

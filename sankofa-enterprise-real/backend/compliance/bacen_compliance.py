@@ -9,6 +9,7 @@ from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
+
 class BacenCompliance:
     """Implementa a lógica de compliance com as normas do BACEN."""
 
@@ -59,4 +60,3 @@ class BacenCompliance:
 
         logger.info(f"Dados da fraude {fraud_id} compartilhados com sucesso.")
         return True
-

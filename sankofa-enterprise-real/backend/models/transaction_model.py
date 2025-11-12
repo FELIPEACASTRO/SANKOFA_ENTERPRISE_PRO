@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+
 @dataclass
 class Transaction:
     id: str
@@ -18,4 +19,3 @@ class Transaction:
     longitude: float = 0.0
     is_fraud: bool = False
     fraud_score: float = 0.0
-

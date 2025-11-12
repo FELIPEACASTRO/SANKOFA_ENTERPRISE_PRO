@@ -14,6 +14,7 @@ from .audit_trail import AuditTrail
 
 logger = logging.getLogger(__name__)
 
+
 class ComplianceManager:
     """Gerenciador central para todas as operações de compliance."""
 
@@ -24,7 +25,9 @@ class ComplianceManager:
         self.audit_trail = AuditTrail()
         logger.info("Gerenciador de Compliance inicializado.")
 
-    def share_fraud_data_with_bacen(self, fraud_data: Dict[str, Any], user_context: Dict[str, Any]) -> bool:
+    def share_fraud_data_with_bacen(
+        self, fraud_data: Dict[str, Any], user_context: Dict[str, Any]
+    ) -> bool:
         """
         Compartilha dados de fraude com o sistema do BACEN.
 
@@ -61,7 +64,9 @@ class ComplianceManager:
             logger.error(f"Erro ao compartilhar dados de fraude com o BACEN: {e}")
             return False
 
-    def handle_data_subject_request(self, request_type: str, subject_id: str, user_context: Dict[str, Any]) -> Dict[str, Any]:
+    def handle_data_subject_request(
+        self, request_type: str, subject_id: str, user_context: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Trata uma requisição de titular de dados (LGPD).
 
@@ -110,6 +115,7 @@ class ComplianceManager:
         except Exception as e:
             logger.error(f"Erro ao aplicar política de retenção do PCI DSS: {e}")
 
+
 # Exemplo de uso
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
@@ -144,4 +150,3 @@ if __name__ == "__main__":
     print("\n--- Aplicando política de retenção de dados (PCI DSS) ---")
     manager.apply_pci_dss_data_retention(user)
     print("Política de retenção aplicada.")
-

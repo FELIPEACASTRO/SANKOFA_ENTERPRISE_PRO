@@ -18,7 +18,8 @@ app = Flask(__name__)
 compliance_manager = ComplianceManager()
 security_system = EnterpriseSecuritySystem()
 
-@app.route("/api/v1/compliance/status", methods=['GET'])
+
+@app.route("/api/v1/compliance/status", methods=["GET"])
 @security_system.require_auth()
 def get_compliance_status():
     """Retorna o status geral de compliance."""
@@ -31,9 +32,10 @@ def get_compliance_status():
     }
     return jsonify({"success": True, "data": status})
 
-@app.route("/api/v1/compliance/share-fraud", methods=['POST'])
+
+@app.route("/api/v1/compliance/share-fraud", methods=["POST"])
 @security_system.require_auth()
-@security_system.require_permission('share_fraud_data')
+@security_system.require_permission("share_fraud_data")
 def share_fraud():
     """Compartilha dados de fraude com o BACEN."""
     data = request.get_json()
@@ -44,7 +46,7 @@ def share_fraud():
     else:
         return jsonify({"success": False, "message": "Falha ao compartilhar dados de fraude."}), 500
 
-if __name__ == "__main__":
-    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-    app.run(host="0.0.0.0", port=8445, debug=debug_mode)
 
+if __name__ == "__main__":
+    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() == "true"
+    app.run(host="0.0.0.0", port=8445, debug=debug_mode)

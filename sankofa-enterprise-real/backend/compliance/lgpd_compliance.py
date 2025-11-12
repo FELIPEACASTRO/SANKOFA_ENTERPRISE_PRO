@@ -10,6 +10,7 @@ from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
+
 class LgpdCompliance:
     """Implementa a lógica de compliance com a LGPD."""
 
@@ -58,7 +59,9 @@ class LgpdCompliance:
         Returns:
             Um dicionário com o resultado da operação.
         """
-        logger.info(f"Processando requisição de titular de dados (DSR) do tipo '{request_type}' para o titular '{subject_id}'.")
+        logger.info(
+            f"Processando requisição de titular de dados (DSR) do tipo '{request_type}' para o titular '{subject_id}'."
+        )
 
         # Simulação da busca de dados do titular
         user_data = {
@@ -68,7 +71,7 @@ class LgpdCompliance:
             "transactions_history": [
                 {"id": "TXN98765", "amount": 1500.75, "date": "2023-10-26"},
                 {"id": "TXN12345", "amount": 250.00, "date": "2023-10-25"},
-            ]
+            ],
         }
 
         if request_type == "ACCESS":
@@ -82,4 +85,3 @@ class LgpdCompliance:
 
         logger.info(f"Requisição de DSR para o titular '{subject_id}' concluída.")
         return result
-

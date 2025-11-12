@@ -21,10 +21,11 @@ logs_dir = project_root / "logs"
 logs_dir.mkdir(exist_ok=True)
 
 handler = logging.FileHandler(logs_dir / "compliance_audit.log")
-formatter = logging.Formatter('%(asctime)s - %(message)s')
+formatter = logging.Formatter("%(asctime)s - %(message)s")
 handler.setFormatter(formatter)
 audit_logger.addHandler(handler)
 audit_logger.setLevel(logging.INFO)
+
 
 class AuditTrail:
     """Classe responsável por registrar trilhas de auditoria de compliance."""
@@ -44,7 +45,7 @@ class AuditTrail:
                 "action": action,
                 "user": user,
                 "details": details,
-                "status": "SUCCESS"
+                "status": "SUCCESS",
             }
             # Serializa o dicionário para uma string JSON
             audit_logger.info(json.dumps(log_entry))
@@ -52,10 +53,12 @@ class AuditTrail:
             # Log de erro em caso de falha ao registrar a auditoria
             logging.error(f"Falha crítica ao registrar na trilha de auditoria: {e}")
 
+
 # Exemplo de uso
 if __name__ == "__main__":
     # Cria o diretório de logs se não existir
     import os
+
     if not os.path.exists("/home/ubuntu/sankofa-enterprise-real/logs"):
         os.makedirs("/home/ubuntu/sankofa-enterprise-real/logs")
 
@@ -67,25 +70,22 @@ if __name__ == "__main__":
     audit.log_compliance_action(
         action="SHARE_FRAUD_DATA",
         details={"destination": "BACEN", "fraud_id": "FRD123"},
-        user="compliance_officer"
+        user="compliance_officer",
     )
     print("Log de compartilhamento de dados registrado.")
 
     # Log 2: Requisição de titular de dados
     audit.log_compliance_action(
-        action="DSR_DELETE",
-        details={"subject_id": "USR456"},
-        user="data_privacy_team"
+        action="DSR_DELETE", details={"subject_id": "USR456"}, user="data_privacy_team"
     )
     print("Log de requisição de titular de dados registrado.")
 
     # Log 3: Ação do sistema
     audit.log_compliance_action(
-        action="APPLY_DATA_RETENTION",
-        details={"policy": "PCI-DSS-3.1"},
-        user="system_cron_job"
+        action="APPLY_DATA_RETENTION", details={"policy": "PCI-DSS-3.1"}, user="system_cron_job"
     )
     print("Log de ação do sistema registrado.")
 
-    print("\nVerifique o arquivo '/home/ubuntu/sankofa-enterprise-real/logs/compliance_audit.log' para ver os registros.")
-
+    print(
+        "\nVerifique o arquivo '/home/ubuntu/sankofa-enterprise-real/logs/compliance_audit.log' para ver os registros."
+    )
