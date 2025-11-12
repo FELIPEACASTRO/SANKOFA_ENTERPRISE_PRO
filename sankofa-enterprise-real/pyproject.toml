@@ -1,24 +1,30 @@
-[tool.black]
-line-length = 100
-target-version = ['py312']
-include = '\.pyi?
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.pytest.ini_options]
-testpaths = ["backend/tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
-addopts = "-v --tb=short --strict-markers"
-markers = [
-    "unit: Unit tests",
-    "integration: Integration tests",
-    "slow: Slow running tests",
+[project]
+name = "sankofa-enterprise-pro"
+version = "1.0.0"
+description = "SANKOFA ENTERPRISE PRO - Advanced ML/AI Business Intelligence Platform"
+authors = [{name = "SANKOFA Team", email = "dev@sankofa-enterprise.com"}]
+license = {text = "Proprietary"}
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
 ]
 
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+include = '\.pyi?$'
 extend-exclude = '''
 /(
-  | .git
-  | .venv
+    \.git
+  | \.venv
   | venv
   | node_modules
   | dist
@@ -32,6 +38,12 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
 ignore_missing_imports = true
+exclude = [
+    "venv/",
+    "node_modules/",
+    "dist/",
+    "build/"
+]
 
 [tool.pytest.ini_options]
 testpaths = ["backend/tests"]
@@ -43,4 +55,16 @@ markers = [
     "unit: Unit tests",
     "integration: Integration tests",
     "slow: Slow running tests",
+]
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = ["E203", "W503"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "venv",
+    "node_modules",
+    "dist",
+    "build"
 ]
