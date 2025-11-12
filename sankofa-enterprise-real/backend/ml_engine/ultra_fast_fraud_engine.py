@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 Motor de Fraude Ultra-Rápido - Versão Otimizada para Latência
@@ -183,8 +186,8 @@ ultra_fast_fraud_engine = UltraFastFraudEngine()
 
 if __name__ == "__main__":
     # Teste ultra-rápido
-    print("⚡ Testando Motor de Fraude Ultra-Rápido")
-    print("=" * 45)
+    logger.info("⚡ Testando Motor de Fraude Ultra-Rápido")
+    logger.info("=" * 45)
 
     # Gerar dados de teste
     np.random.seed(42)
@@ -221,7 +224,7 @@ if __name__ == "__main__":
         X.loc[idx, "location_risk_score"] = np.random.uniform(0.9, 1.0)
         X.loc[idx, "device_risk_score"] = np.random.uniform(0.9, 1.0)
 
-    print(f"📊 Dataset: {len(X)} transações, {y.sum()} fraudes ({y.mean()*100:.1f}%)")
+    logger.info(f"📊 Dataset: {len(X)} transações, {y.sum()} fraudes ({y.mean()*100:.1f}%)")
 
     # Treinar
     start_time = time.time()
@@ -229,7 +232,7 @@ if __name__ == "__main__":
     engine.fit(X, y)
     training_time = time.time() - start_time
 
-    print(f"⏱️ Treinamento: {training_time:.2f}s")
+    logger.info(f"⏱️ Treinamento: {training_time:.2f}s")
 
     # Testar predições
     test_sample = X.head(100)
@@ -242,13 +245,13 @@ if __name__ == "__main__":
     avg_processing_time = np.mean([p.processing_time_ms for p in predictions])
     throughput = len(predictions) / (prediction_time / 1000)
 
-    print(f"🔍 Predições: {fraud_predictions}/100 fraudes detectadas")
-    print(f"⚡ Tempo médio por predição: {avg_processing_time:.2f}ms")
-    print(f"🚀 Throughput: {throughput:.1f} TPS")
+    logger.info(f"🔍 Predições: {fraud_predictions}/100 fraudes detectadas")
+    logger.info(f"⚡ Tempo médio por predição: {avg_processing_time:.2f}ms")
+    logger.info(f"🚀 Throughput: {throughput:.1f} TPS")
 
     metrics = engine.get_performance_metrics()
-    print(f"📊 Métricas finais:")
+    logger.info(f"📊 Métricas finais:")
     for metric, value in metrics["performance_metrics"].items():
-        print(f"   {metric}: {value:.3f}")
+        logger.info(f"   {metric}: {value:.3f}")
 
-    print("🎉 Teste ultra-rápido concluído!")
+    logger.info("🎉 Teste ultra-rápido concluído!")

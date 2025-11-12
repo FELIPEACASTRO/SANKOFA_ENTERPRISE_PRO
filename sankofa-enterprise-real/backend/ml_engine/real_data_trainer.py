@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 Sankofa Enterprise Pro - Real Data Trainer
@@ -293,43 +296,43 @@ class RealDataTrainer:
 
 def main():
     """CLI para treinamento com dados reais"""
-    print("🏦 Sankofa Enterprise Pro - Real Data Trainer")
-    print("=" * 60)
+    logger.info("🏦 Sankofa Enterprise Pro - Real Data Trainer")
+    logger.info("=" * 60)
 
     trainer = RealDataTrainer()
 
-    print("\nAvailable datasets:")
-    print("1. ieee_fraud - IEEE-CIS Fraud Detection (590K transactions)")
-    print("2. credit_card - Credit Card Fraud (284K transactions)")
-    print("3. paysim - PaySim Mobile Money (636K transactions - 10% sample)")
-    print("4. bank_account - Bank Account Fraud (1M accounts)")
-    print("5. ALL - Train on all datasets")
+    logger.info("\nAvailable datasets:")
+    logger.info("1. ieee_fraud - IEEE-CIS Fraud Detection (590K transactions)")
+    logger.info("2. credit_card - Credit Card Fraud (284K transactions)")
+    logger.info("3. paysim - PaySim Mobile Money (636K transactions - 10% sample)")
+    logger.info("4. bank_account - Bank Account Fraud (1M accounts)")
+    logger.info("5. ALL - Train on all datasets")
 
     choice = input("\nSelect dataset (1-5): ")
 
     dataset_map = {"1": "ieee_fraud", "2": "credit_card", "3": "paysim", "4": "bank_account"}
 
     if choice == "5":
-        print("\n🚀 Training on ALL datasets...")
+        logger.info("\n🚀 Training on ALL datasets...")
         results = trainer.train_all_datasets()
-        print("\n✅ Training complete! Check logs for details.")
+        logger.info("\n✅ Training complete! Check logs for details.")
     elif choice in dataset_map:
         dataset_name = dataset_map[choice]
-        print(f"\n🚀 Training on {dataset_name}...")
+        logger.info(f"\n🚀 Training on {dataset_name}...")
         result = trainer.train_on_dataset(dataset_name)
 
-        print("\n📊 Results:")
-        print(f"   F1-Score: {result['metrics']['f1_score']:.3f}")
-        print(f"   Accuracy: {result['metrics']['accuracy']:.3f}")
-        print(f"   Precision: {result['metrics']['precision']:.3f}")
-        print(f"   Recall: {result['metrics']['recall']:.3f}")
-        print(f"   ROC-AUC: {result['metrics']['roc_auc']:.3f}")
-        print(f"   Training Time: {result['training_time_seconds']:.1f}s")
+        logger.info("\n📊 Results:")
+        logger.info(f"   F1-Score: {result['metrics']['f1_score']:.3f}")
+        logger.info(f"   Accuracy: {result['metrics']['accuracy']:.3f}")
+        logger.info(f"   Precision: {result['metrics']['precision']:.3f}")
+        logger.info(f"   Recall: {result['metrics']['recall']:.3f}")
+        logger.info(f"   ROC-AUC: {result['metrics']['roc_auc']:.3f}")
+        logger.info(f"   Training Time: {result['training_time_seconds']:.1f}s")
 
         if "model_path" in result:
-            print(f"\n💾 Model saved: {result['model_path']}")
+            logger.info(f"\n💾 Model saved: {result['model_path']}")
     else:
-        print("Invalid choice.")
+        logger.info("Invalid choice.")
 
 
 if __name__ == "__main__":

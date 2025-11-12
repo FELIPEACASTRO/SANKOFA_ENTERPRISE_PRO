@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 """
 Sankofa Enterprise Pro - Production Fraud Engine
 Motor consolidado de detecção de fraude enterprise-grade

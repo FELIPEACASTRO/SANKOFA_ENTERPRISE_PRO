@@ -500,10 +500,10 @@ if __name__ == "__main__":
     # Detectar drifts
     data_drifts = detector.detect_data_drift(current_data)
 
-    print("📊 Drifts de Dados Detectados:")
+    logger.info("📊 Drifts de Dados Detectados:")
     for drift in data_drifts:
         if drift.is_drift_detected:
-            print(f"  {drift.feature_name}: {drift.drift_score:.3f} ({drift.severity})")
+            logger.info(f"  {drift.feature_name}: {drift.drift_score:.3f} ({drift.severity})")
 
     # Simular predições
     current_predictions = np.random.binomial(1, 0.6, 500)  # Drift nas predições
@@ -513,12 +513,12 @@ if __name__ == "__main__":
         current_data, current_predictions, current_actuals
     )
 
-    print("\n🎯 Drifts de Conceito Detectados:")
+    logger.info("\n🎯 Drifts de Conceito Detectados:")
     for drift in concept_drifts:
         if drift.is_drift_detected:
-            print(f"  {drift.feature_name}: {drift.drift_score:.3f} ({drift.severity})")
+            logger.info(f"  {drift.feature_name}: {drift.drift_score:.3f} ({drift.severity})")
 
     # Resumo
     summary = detector.get_drift_summary()
-    print(f"\n📋 Resumo: {summary['total_drifts_detected']} drifts detectados")
-    print("🔍 Drift Detector testado com sucesso!")
+    logger.info(f"\n📋 Resumo: {summary['total_drifts_detected']} drifts detectados")
+    logger.info("🔍 Drift Detector testado com sucesso!")

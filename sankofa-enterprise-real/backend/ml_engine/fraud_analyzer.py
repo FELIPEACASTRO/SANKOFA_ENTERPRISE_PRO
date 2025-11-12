@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 Analisador de Fraude Simplificado
@@ -32,7 +35,7 @@ class SimpleFraudAnalyzer:
         # Cache de análises recentes
         self.analysis_cache = {}
 
-        print("🔍 Analisador de Fraude Simplificado inicializado")
+        logger.info("🔍 Analisador de Fraude Simplificado inicializado")
 
     def analyze_transaction(self, transaction):
         """Analisa uma transação e retorna score de fraude"""

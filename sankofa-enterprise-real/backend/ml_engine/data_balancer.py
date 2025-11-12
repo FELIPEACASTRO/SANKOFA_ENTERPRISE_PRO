@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 """
 Data Balancer - Balanceia dataset de fraude usando técnicas de resampling
 """
@@ -35,16 +38,16 @@ class DataBalancer:
         Returns:
             X_balanced, y_balanced
         """
-        print(f"Dataset original: {len(y)} samples")
-        print(f"  - Legítimas: {(y==0).sum()} ({(y==0).sum()/len(y)*100:.1f}%)")
-        print(f"  - Fraudes: {(y==1).sum()} ({(y==1).sum()/len(y)*100:.1f}%)")
+        logger.info(f"Dataset original: {len(y)} samples")
+        logger.info(f"  - Legítimas: {(y==0).sum()} ({(y==0).sum()/len(y)*100:.1f}%)")
+        logger.info(f"  - Fraudes: {(y==1).sum()} ({(y==1).sum()/len(y)*100:.1f}%)")
 
         if self.method == "class_weights":
             # Apenas calcular pesos, não modificar dataset
             classes = np.unique(y)
             class_weights = compute_class_weight("balanced", classes=classes, y=y)
             self.class_weights = {classes[i]: class_weights[i] for i in range(len(classes))}
-            print(f"\nClass weights calculados: {self.class_weights}")
+            logger.info(f"\nClass weights calculados: {self.class_weights}")
             return X, y
 
         elif self.method == "undersample":
@@ -79,11 +82,11 @@ class DataBalancer:
         X_balanced = X[balanced_idx]
         y_balanced = y[balanced_idx]
 
-        print(f"\nDataset balanceado (undersample): {len(y_balanced)} samples")
-        print(
+        logger.info(f"\nDataset balanceado (undersample): {len(y_balanced)} samples")
+        logger.info(
             f"  - Legítimas: {(y_balanced==0).sum()} ({(y_balanced==0).sum()/len(y_balanced)*100:.1f}%)"
         )
-        print(
+        logger.info(
             f"  - Fraudes: {(y_balanced==1).sum()} ({(y_balanced==1).sum()/len(y_balanced)*100:.1f}%)"
         )
 
@@ -109,11 +112,11 @@ class DataBalancer:
         X_balanced = X[balanced_idx]
         y_balanced = y[balanced_idx]
 
-        print(f"\nDataset balanceado (oversample): {len(y_balanced)} samples")
-        print(
+        logger.info(f"\nDataset balanceado (oversample): {len(y_balanced)} samples")
+        logger.info(
             f"  - Legítimas: {(y_balanced==0).sum()} ({(y_balanced==0).sum()/len(y_balanced)*100:.1f}%)"
         )
-        print(
+        logger.info(
             f"  - Fraudes: {(y_balanced==1).sum()} ({(y_balanced==1).sum()/len(y_balanced)*100:.1f}%)"
         )
 
@@ -144,11 +147,11 @@ class DataBalancer:
         X_balanced = X[balanced_idx]
         y_balanced = y[balanced_idx]
 
-        print(f"\nDataset balanceado (hybrid): {len(y_balanced)} samples")
-        print(
+        logger.info(f"\nDataset balanceado (hybrid): {len(y_balanced)} samples")
+        logger.info(
             f"  - Legítimas: {(y_balanced==0).sum()} ({(y_balanced==0).sum()/len(y_balanced)*100:.1f}%)"
         )
-        print(
+        logger.info(
             f"  - Fraudes: {(y_balanced==1).sum()} ({(y_balanced==1).sum()/len(y_balanced)*100:.1f}%)"
         )
 

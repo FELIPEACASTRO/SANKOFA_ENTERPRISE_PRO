@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 Analisador de Fraude Otimizado - Versão 2.0
@@ -40,8 +43,8 @@ class OptimizedFraudAnalyzer:
         # Padrões de fraude conhecidos
         self.fraud_patterns = self._initialize_fraud_patterns()
 
-        print("🔍 Analisador de Fraude Otimizado v2.0 inicializado")
-        print(
+        logger.info("🔍 Analisador de Fraude Otimizado v2.0 inicializado")
+        logger.info(
             f"🎯 Thresholds: Alto Risco ≥{self.high_risk_threshold}, Médio Risco ≥{self.medium_risk_threshold}"
         )
 

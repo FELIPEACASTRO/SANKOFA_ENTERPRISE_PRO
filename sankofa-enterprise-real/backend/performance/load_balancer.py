@@ -594,16 +594,18 @@ async def main():
 
             try:
                 result = await lb.forward_request(transaction)
-                print(f"Transação {transaction['id']}: {result.get('decision', 'unknown')}")
+                logger.info(f"Transação {transaction['id']}: {result.get('decision', 'unknown')}")
             except Exception as e:
-                print(f"Erro na transação {transaction['id']}: {e}")
+                logger.info(f"Erro na transação {transaction['id']}: {e}")
 
         # Status do load balancer
         status = lb.get_status()
-        print(f"\nStatus do Load Balancer:")
-        print(f"Estratégia: {status['strategy']}")
-        print(f"Servidores saudáveis: {status['servers']['healthy']}/{status['servers']['total']}")
-        print(f"Requisições processadas: {status['metrics']['total_requests']}")
+        logger.info(f"\nStatus do Load Balancer:")
+        logger.info(f"Estratégia: {status['strategy']}")
+        logger.info(
+            f"Servidores saudáveis: {status['servers']['healthy']}/{status['servers']['total']}"
+        )
+        logger.info(f"Requisições processadas: {status['metrics']['total_requests']}")
 
     finally:
         await lb.stop_health_checks()

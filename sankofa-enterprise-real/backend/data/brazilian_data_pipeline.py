@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -66,54 +69,54 @@ if __name__ == "__main__":
     integrated_dfs = integration_system.get_integrated_data()
 
     if integrated_dfs:
-        print("\nStarting data pipeline for integrated datasets...")
+        logger.info("\nStarting data pipeline for integrated datasets...")
 
         # Process Brazilian synthetic data
         if "brazilian_synthetic_fraud_data" in integrated_dfs:
             brazilian_df = integrated_dfs["brazilian_synthetic_fraud_data"]
-            print(f"\nProcessing Brazilian Synthetic Data (Shape: {brazilian_df.shape})...")
+            logger.info(f"\nProcessing Brazilian Synthetic Data (Shape: {brazilian_df.shape})...")
 
             pipeline = BrazilianDataPipeline()
             X_processed, y = pipeline.process_data(brazilian_df)
 
-            print(f"Processed X shape: {X_processed.shape}")
-            print(f"Processed y shape: {y.shape}")
+            logger.info(f"Processed X shape: {X_processed.shape}")
+            logger.info(f"Processed y shape: {y.shape}")
 
             X_train, X_test, y_train, y_test = pipeline.split_data(X_processed, y)
-            print(f"Train/Test split: {X_train.shape}/{X_test.shape}")
-            print(f"Fraud in training: {y_train.sum()} ({y_train.mean()*100:.2f}%)")
-            print(f"Fraud in testing: {y_test.sum()} ({y_test.mean()*100:.2f}%)")
+            logger.info(f"Train/Test split: {X_train.shape}/{X_test.shape}")
+            logger.info(f"Fraud in training: {y_train.sum()} ({y_train.mean()*100:.2f}%)")
+            logger.info(f"Fraud in testing: {y_test.sum()} ({y_test.mean()*100:.2f}%)")
 
         # Process creditcard_kaggle data
         if "creditcard_kaggle" in integrated_dfs:
             creditcard_df = integrated_dfs["creditcard_kaggle"]
-            print(f"\nProcessing Credit Card Kaggle Data (Shape: {creditcard_df.shape})...")
+            logger.info(f"\nProcessing Credit Card Kaggle Data (Shape: {creditcard_df.shape})...")
 
             pipeline_cc = BrazilianDataPipeline()
             X_processed_cc, y_cc = pipeline_cc.process_data(creditcard_df)
 
-            print(f"Processed X shape: {X_processed_cc.shape}")
-            print(f"Processed y shape: {y_cc.shape}")
+            logger.info(f"Processed X shape: {X_processed_cc.shape}")
+            logger.info(f"Processed y shape: {y_cc.shape}")
 
             X_train_cc, X_test_cc, y_train_cc, y_test_cc = pipeline_cc.split_data(
                 X_processed_cc, y_cc
             )
-            print(f"Train/Test split: {X_train_cc.shape}/{X_test_cc.shape}")
-            print(f"Fraud in training: {y_train_cc.sum()} ({y_train_cc.mean()*100:.2f}%)")
-            print(f"Fraud in testing: {y_test_cc.sum()} ({y_test_cc.mean()*100:.2f}%)")
+            logger.info(f"Train/Test split: {X_train_cc.shape}/{X_test_cc.shape}")
+            logger.info(f"Fraud in training: {y_train_cc.sum()} ({y_train_cc.mean()*100:.2f}%)")
+            logger.info(f"Fraud in testing: {y_test_cc.sum()} ({y_test_cc.mean()*100:.2f}%)")
 
         # Skip paysim_kaggle for now due to memory constraints
         # if 'paysim_kaggle' in integrated_dfs:
         #     paysim_df = integrated_dfs['paysim_kaggle']
-        #     print(f'\nProcessing PaySim Kaggle Data (Shape: {paysim_df.shape})...')
+        #     logger.info(f'\nProcessing PaySim Kaggle Data (Shape: {paysim_df.shape})...')
         #     pipeline_ps = BrazilianDataPipeline()
         #     X_processed_ps, y_ps = pipeline_ps.process_data(paysim_df)
-        #     print(f'Processed X shape: {X_processed_ps.shape}')
-        #     print(f'Processed y shape: {y_ps.shape}')
+        #     logger.info(f'Processed X shape: {X_processed_ps.shape}')
+        #     logger.info(f'Processed y shape: {y_ps.shape}')
         #     X_train_ps, X_test_ps, y_train_ps, y_test_ps = pipeline_ps.split_data(X_processed_ps, y_ps)
-        #     print(f'Train/Test split: {X_train_ps.shape}/{X_test_ps.shape}')
-        #     print(f'Fraud in training: {y_train_ps.sum()} ({y_train_ps.mean()*100:.2f}%)')
-        #     print(f'Fraud in testing: {y_test_ps.sum()} ({y_test_ps.mean()*100:.2f}%)')
+        #     logger.info(f'Train/Test split: {X_train_ps.shape}/{X_test_ps.shape}')
+        #     logger.info(f'Fraud in training: {y_train_ps.sum()} ({y_train_ps.mean()*100:.2f}%)')
+        #     logger.info(f'Fraud in testing: {y_test_ps.sum()} ({y_test_ps.mean()*100:.2f}%)')
 
     else:
-        print("No integrated dataframes found to process.")
+        logger.info("No integrated dataframes found to process.")

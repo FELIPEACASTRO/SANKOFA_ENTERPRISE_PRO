@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 """
 Advanced Feature Engineering - Cria features avançadas para detecção de fraude
 """

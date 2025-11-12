@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 """
 Optimized Production Fraud Engine - Motor otimizado com todas as melhorias
 Versão 2.0 - Com threshold otimizado, features avançadas, balanceamento e ensemble ponderado
@@ -95,7 +98,7 @@ class OptimizedProductionFraudEngine:
         self.training_metrics = {}
         self.class_weights = None
 
-        print(f"OptimizedProductionFraudEngine v{self.VERSION} initialized")
+        logger.info(f"OptimizedProductionFraudEngine v{self.VERSION} initialized")
 
     def train(self, df_train: pd.DataFrame, optimize_threshold: bool = True):
         """
@@ -105,14 +108,14 @@ class OptimizedProductionFraudEngine:
             df_train: DataFrame com dados de treinamento (deve ter coluna 'isFraud')
             optimize_threshold: Se True, otimiza o threshold automaticamente
         """
-        print("=" * 80)
-        print("TREINAMENTO DO MOTOR OTIMIZADO")
-        print("=" * 80)
+        logger.info("=" * 80)
+        logger.info("TREINAMENTO DO MOTOR OTIMIZADO")
+        logger.info("=" * 80)
 
         start_time = time.time()
 
         # 1. Engenharia de Features Avançada
-        print("\n[1/6] Aplicando engenharia de features avançada...")
+        logger.info("\n[1/6] Aplicando engenharia de features avançada...")
         df_features = self.feature_engineer.create_features(df_train)
 
         # Separar features e target
@@ -125,30 +128,30 @@ class OptimizedProductionFraudEngine:
         # Selecionar apenas colunas numéricas
         X = X.select_dtypes(include=[np.number])
 
-        print(f"   Features criadas: {X.shape[1]} features")
-        print(f"   Samples: {X.shape[0]}")
+        logger.info(f"   Features criadas: {X.shape[1]} features")
+        logger.info(f"   Samples: {X.shape[0]}")
 
         # 2. Split treino/validação
-        print("\n[2/6] Dividindo em treino e validação...")
+        logger.info("\n[2/6] Dividindo em treino e validação...")
         X_train, X_val, y_train, y_val = train_test_split(
             X, y, test_size=0.2, random_state=42, stratify=y
         )
 
-        print(f"   Treino: {X_train.shape[0]} samples")
-        print(f"   Validação: {X_val.shape[0]} samples")
+        logger.info(f"   Treino: {X_train.shape[0]} samples")
+        logger.info(f"   Validação: {X_val.shape[0]} samples")
 
         # 3. Balanceamento (calcular class weights)
-        print("\n[3/6] Calculando class weights...")
+        logger.info("\n[3/6] Calculando class weights...")
         _, _ = self.data_balancer.balance(X_train.values, y_train)
         self.class_weights = self.data_balancer.get_class_weights()
 
         # 4. Normalização
-        print("\n[4/6] Normalizando features...")
+        logger.info("\n[4/6] Normalizando features...")
         X_train_scaled = self.scaler.fit_transform(X_train)
         X_val_scaled = self.scaler.transform(X_val)
 
         # 5. Treinamento do Ensemble com Votação Ponderada
-        print("\n[5/6] Treinando ensemble com votação ponderada...")
+        logger.info("\n[5/6] Treinando ensemble com votação ponderada...")
 
         # Treinar modelos individuais
         rf = RandomForestClassifier(
@@ -170,22 +173,22 @@ class OptimizedProductionFraudEngine:
         )
 
         # Treinar cada modelo
-        print("   Treinando Random Forest...")
+        logger.info("   Treinando Random Forest...")
         rf.fit(X_train_scaled, y_train)
         rf_f1 = f1_score(y_val, rf.predict(X_val_scaled))
 
-        print("   Treinando Gradient Boosting...")
+        logger.info("   Treinando Gradient Boosting...")
         gb.fit(X_train_scaled, y_train)
         gb_f1 = f1_score(y_val, gb.predict(X_val_scaled))
 
-        print("   Treinando Logistic Regression...")
+        logger.info("   Treinando Logistic Regression...")
         lr.fit(X_train_scaled, y_train)
         lr_f1 = f1_score(y_val, lr.predict(X_val_scaled))
 
-        print(f"\n   F1-Scores individuais:")
-        print(f"     - Random Forest: {rf_f1:.4f}")
-        print(f"     - Gradient Boosting: {gb_f1:.4f}")
-        print(f"     - Logistic Regression: {lr_f1:.4f}")
+        logger.info(f"\n   F1-Scores individuais:")
+        logger.info(f"     - Random Forest: {rf_f1:.4f}")
+        logger.info(f"     - Gradient Boosting: {gb_f1:.4f}")
+        logger.info(f"     - Logistic Regression: {lr_f1:.4f}")
 
         # Calcular pesos proporcionais ao F1-Score
         total_f1 = rf_f1 + gb_f1 + lr_f1
@@ -193,10 +196,10 @@ class OptimizedProductionFraudEngine:
         gb_weight = gb_f1 / total_f1
         lr_weight = lr_f1 / total_f1
 
-        print(f"\n   Pesos do ensemble:")
-        print(f"     - Random Forest: {rf_weight:.3f}")
-        print(f"     - Gradient Boosting: {gb_weight:.3f}")
-        print(f"     - Logistic Regression: {lr_weight:.3f}")
+        logger.info(f"\n   Pesos do ensemble:")
+        logger.info(f"     - Random Forest: {rf_weight:.3f}")
+        logger.info(f"     - Gradient Boosting: {gb_weight:.3f}")
+        logger.info(f"     - Logistic Regression: {lr_weight:.3f}")
 
         # Criar ensemble com votação ponderada
         self.ensemble = VotingClassifier(
@@ -206,28 +209,28 @@ class OptimizedProductionFraudEngine:
         )
 
         # Treinar ensemble no dataset completo de treino
-        print("\n   Treinando ensemble completo...")
+        logger.info("\n   Treinando ensemble completo...")
         self.ensemble.fit(X_train_scaled, y_train)
 
         # Calibrar probabilidades
-        print("\n   Calibrando probabilidades...")
+        logger.info("\n   Calibrando probabilidades...")
         self.ensemble = CalibratedClassifierCV(self.ensemble, method="sigmoid", cv=3)
         self.ensemble.fit(X_train_scaled, y_train)
 
         # 6. Otimização de Threshold
         if optimize_threshold:
-            print("\n[6/6] Otimizando threshold de decisão...")
+            logger.info("\n[6/6] Otimizando threshold de decisão...")
             y_proba_val = self.ensemble.predict_proba(X_val_scaled)[:, 1]
 
             threshold_result = self.threshold_optimizer.find_optimal_threshold(y_val, y_proba_val)
 
             self.confidence_threshold = threshold_result["optimal_threshold"]
 
-            print(f"\n   Threshold otimizado: {self.confidence_threshold:.4f}")
-            print(f"   F1-Score esperado: {threshold_result['f1_score']:.4f}")
-            print(f"   Precision esperada: {threshold_result['precision']:.4f}")
-            print(f"   Recall esperado: {threshold_result['recall']:.4f}")
-            print(f"   Atende requisitos: {threshold_result['meets_requirements']}")
+            logger.info(f"\n   Threshold otimizado: {self.confidence_threshold:.4f}")
+            logger.info(f"   F1-Score esperado: {threshold_result['f1_score']:.4f}")
+            logger.info(f"   Precision esperada: {threshold_result['precision']:.4f}")
+            logger.info(f"   Recall esperado: {threshold_result['recall']:.4f}")
+            logger.info(f"   Atende requisitos: {threshold_result['meets_requirements']}")
 
         # Avaliar métricas finais
         y_pred_val = (y_proba_val >= self.confidence_threshold).astype(int)
@@ -244,17 +247,17 @@ class OptimizedProductionFraudEngine:
         self.is_trained = True
         training_time = time.time() - start_time
 
-        print("\n" + "=" * 80)
-        print("TREINAMENTO CONCLUÍDO")
-        print("=" * 80)
-        print(f"Tempo de treinamento: {training_time:.2f}s")
-        print(f"\nMétricas finais (validação):")
-        print(f"  - Accuracy: {self.training_metrics['accuracy']:.4f}")
-        print(f"  - Precision: {self.training_metrics['precision']:.4f}")
-        print(f"  - Recall: {self.training_metrics['recall']:.4f}")
-        print(f"  - F1-Score: {self.training_metrics['f1_score']:.4f}")
-        print(f"  - ROC-AUC: {self.training_metrics['roc_auc']:.4f}")
-        print("=" * 80)
+        logger.info("\n" + "=" * 80)
+        logger.info("TREINAMENTO CONCLUÍDO")
+        logger.info("=" * 80)
+        logger.info(f"Tempo de treinamento: {training_time:.2f}s")
+        logger.info(f"\nMétricas finais (validação):")
+        logger.info(f"  - Accuracy: {self.training_metrics['accuracy']:.4f}")
+        logger.info(f"  - Precision: {self.training_metrics['precision']:.4f}")
+        logger.info(f"  - Recall: {self.training_metrics['recall']:.4f}")
+        logger.info(f"  - F1-Score: {self.training_metrics['f1_score']:.4f}")
+        logger.info(f"  - ROC-AUC: {self.training_metrics['roc_auc']:.4f}")
+        logger.info("=" * 80)
 
     def predict(self, df: pd.DataFrame) -> List[FraudPrediction]:
         """

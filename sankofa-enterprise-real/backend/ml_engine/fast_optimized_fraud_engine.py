@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 Motor de Fraude Otimizado - Versão Rápida para Testes
@@ -246,8 +249,8 @@ fast_fraud_engine = FastOptimizedFraudEngine()
 
 if __name__ == "__main__":
     # Teste rápido
-    print("🚀 Testando Motor de Fraude Rápido")
-    print("=" * 40)
+    logger.info("🚀 Testando Motor de Fraude Rápido")
+    logger.info("=" * 40)
 
     # Gerar dados de teste
     np.random.seed(42)
@@ -294,7 +297,7 @@ if __name__ == "__main__":
         for i in range(1, 8):
             X.loc[idx, f"V{i}"] = np.random.normal(3, 0.5)
 
-    print(f"📊 Dataset: {len(X)} transações, {y.sum()} fraudes ({y.mean()*100:.1f}%)")
+    logger.info(f"📊 Dataset: {len(X)} transações, {y.sum()} fraudes ({y.mean()*100:.1f}%)")
 
     # Treinar
     start_time = time.time()
@@ -302,7 +305,7 @@ if __name__ == "__main__":
     engine.fit(X, y)
     training_time = time.time() - start_time
 
-    print(f"⏱️ Treinamento: {training_time:.1f}s")
+    logger.info(f"⏱️ Treinamento: {training_time:.1f}s")
 
     # Testar predições
     test_sample = X.head(100)
@@ -312,12 +315,12 @@ if __name__ == "__main__":
     fraud_predictions = sum(1 for p in predictions if p.is_fraud)
     avg_processing_time = np.mean([p.processing_time_ms for p in predictions])
 
-    print(f"🔍 Predições: {fraud_predictions}/100 fraudes detectadas")
-    print(f"⚡ Tempo médio por predição: {avg_processing_time:.2f}ms")
+    logger.info(f"🔍 Predições: {fraud_predictions}/100 fraudes detectadas")
+    logger.info(f"⚡ Tempo médio por predição: {avg_processing_time:.2f}ms")
 
     metrics = engine.get_performance_metrics()
-    print(f"📊 Métricas finais:")
+    logger.info(f"📊 Métricas finais:")
     for metric, value in metrics["performance_metrics"].items():
-        print(f"   {metric}: {value:.3f}")
+        logger.info(f"   {metric}: {value:.3f}")
 
-    print("🎉 Teste concluído!")
+    logger.info("🎉 Teste concluído!")

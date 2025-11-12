@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 import pandas as pd
 import numpy as np
 import datetime
@@ -100,11 +103,11 @@ if __name__ == "__main__":
 
     generator = BrazilianSyntheticDataGenerator(num_transactions=100000)
     df_synthetic = generator.generate_data()
-    print("\nBrazilian Synthetic Data Info:")
+    logger.info("\nBrazilian Synthetic Data Info:")
     df_synthetic.info()
-    print(f'\nTotal fraudulent transactions: {df_synthetic["isFraud"].sum()}')
+    logger.info(f'\nTotal fraudulent transactions: {df_synthetic["isFraud"].sum()}')
     df_synthetic.to_csv(
         "/home/ubuntu/sankofa-enterprise-real/data/external_datasets/brazilian_synthetic_fraud_data.csv",
         index=False,
     )
-    print("Brazilian synthetic fraud data saved to brazilian_synthetic_fraud_data.csv")
+    logger.info("Brazilian synthetic fraud data saved to brazilian_synthetic_fraud_data.csv")

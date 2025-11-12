@@ -624,14 +624,14 @@ async def main():
             status = await processor.get_task_status(task_id)
             if status and status["status"] == "completed":
                 completed += 1
-                print(f"Tarefa {task_id}: {status['result']['decision']}")
+                logger.info(f"Tarefa {task_id}: {status['result']['decision']}")
 
-        print(f"\nTarefas completadas: {completed}/10")
+        logger.info(f"\nTarefas completadas: {completed}/10")
 
         # Métricas
         metrics = processor.get_metrics()
-        print(f"Throughput: {metrics['throughput_per_second']:.1f} tasks/s")
-        print(f"Tempo médio: {metrics['avg_processing_time']:.3f}s")
+        logger.info(f"Throughput: {metrics['throughput_per_second']:.1f} tasks/s")
+        logger.info(f"Tempo médio: {metrics['avg_processing_time']:.3f}s")
 
     finally:
         await processor.shutdown()

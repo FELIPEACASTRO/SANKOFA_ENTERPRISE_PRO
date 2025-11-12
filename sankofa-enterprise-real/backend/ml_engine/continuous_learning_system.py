@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -63,7 +66,7 @@ class ContinuousLearningSystem:
         self._initialize_database()
         self._initialize_models()
 
-        print("Sistema de Aprendizado Contínuo inicializado.")
+        logger.info("Sistema de Aprendizado Contínuo inicializado.")
 
     def _initialize_database(self):
         """Inicializa banco de dados para armazenar transações de produção."""
@@ -575,7 +578,7 @@ class ContinuousLearningSystem:
 
 
 if __name__ == "__main__":
-    print("Testando Sistema de Aprendizado Contínuo...")
+    logger.info("Testando Sistema de Aprendizado Contínuo...")
 
     # Inicializar sistema
     cls = ContinuousLearningSystem()
@@ -619,7 +622,7 @@ if __name__ == "__main__":
     # Processar transações
     for trans in test_transactions:
         result = cls.predict_fraud(trans)
-        print(f"Transação {trans['id']}: {result}")
+        logger.info(f"Transação {trans['id']}: {result}")
 
     # Simular feedback de analista
     cls.add_analyst_feedback("test_001", False, "Transação legítima confirmada")
@@ -627,6 +630,6 @@ if __name__ == "__main__":
 
     # Mostrar estatísticas
     stats = cls.get_learning_stats()
-    print(f"\nEstatísticas do Sistema: {stats}")
+    logger.info(f"\nEstatísticas do Sistema: {stats}")
 
-    print("\n✅ Sistema de Aprendizado Contínuo implementado com sucesso!")
+    logger.info("\n✅ Sistema de Aprendizado Contínuo implementado com sucesso!")

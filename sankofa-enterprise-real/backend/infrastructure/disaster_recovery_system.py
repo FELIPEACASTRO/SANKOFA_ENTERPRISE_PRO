@@ -582,7 +582,7 @@ def test_disaster_recovery_system():
     """
     Testa o sistema de recuperação de desastres
     """
-    print("🚀 Testando Sistema de Recuperação de Desastres...")
+    logger.info("🚀 Testando Sistema de Recuperação de Desastres...")
 
     # Inicializa sistema
     dr_system = DisasterRecoverySystem()
@@ -595,16 +595,16 @@ def test_disaster_recovery_system():
 
     # Cria backup
     backup_info = dr_system.create_backup("incremental")
-    print(f"✅ Backup criado: {backup_info.backup_id}")
+    logger.info(f"✅ Backup criado: {backup_info.backup_id}")
 
     # Verifica status do sistema
     status = dr_system.get_system_status()
-    print(f"✅ Status do sistema obtido - Serviços monitorados: {len(status['services'])}")
+    logger.info(f"✅ Status do sistema obtido - Serviços monitorados: {len(status['services'])}")
 
     # Para monitoramento
     dr_system.stop_monitoring()
 
-    print("🎉 Teste do Sistema de Recuperação de Desastres concluído!")
+    logger.info("🎉 Teste do Sistema de Recuperação de Desastres concluído!")
 
     return dr_system, backup_info
 

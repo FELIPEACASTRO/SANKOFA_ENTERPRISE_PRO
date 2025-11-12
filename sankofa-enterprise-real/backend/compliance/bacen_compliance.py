@@ -56,7 +56,7 @@ class BacenCompliance:
 
         # Simulação de uma chamada de API
         # Em um caso real: response = requests.post(BACEN_API_ENDPOINT, json=data, headers=...)
-        print(f"[SIMULAÇÃO] Dados da fraude {fraud_id} enviados com sucesso para o BACEN.")
+        logger.info(f"[SIMULAÇÃO] Dados da fraude {fraud_id} enviados com sucesso para o BACEN.")
 
         logger.info(f"Dados da fraude {fraud_id} compartilhados com sucesso.")
         return True

@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split, TimeSeriesSplit, cross_val_score
@@ -30,13 +33,13 @@ class RealFraudModelTrainer:
         self.encoders = {}
         self.feature_names = []
         self.is_trained = False
-        print("Sistema de Treinamento de Modelos REAIS inicializado.")
+        logger.info("Sistema de Treinamento de Modelos REAIS inicializado.")
 
     def load_and_prepare_data(self):
         """Carrega e prepara os dados reais para treinamento."""
-        print("Carregando dataset bancário real...")
+        logger.info("Carregando dataset bancário real...")
         self.df = pd.read_csv(self.data_path)
-        print(f"Dataset carregado: {len(self.df)} transações")
+        logger.info(f"Dataset carregado: {len(self.df)} transações")
 
         # Converter timestamp para features temporais
         self.df["timestamp"] = pd.to_datetime(self.df["timestamp"])
@@ -83,8 +86,8 @@ class RealFraudModelTrainer:
         self.X = self.df[self.feature_names]
         self.y = self.df["is_fraud"]
 
-        print(f"Features preparadas: {len(self.feature_names)}")
-        print(
+        logger.info(f"Features preparadas: {len(self.feature_names)}")
+        logger.info(
             f"Distribuição de classes - Legítimas: {(self.y == 0).sum()}, Fraudes: {(self.y == 1).sum()}"
         )
 
@@ -92,7 +95,7 @@ class RealFraudModelTrainer:
 
     def train_models(self):
         """Treina ensemble de modelos reais com validação temporal."""
-        print("\nIniciando treinamento de modelos REAIS...")
+        logger.info("\nIniciando treinamento de modelos REAIS...")
 
         # Split temporal para evitar data leakage
         self.df_sorted = self.df.sort_values("timestamp")
@@ -156,7 +159,7 @@ class RealFraudModelTrainer:
         self.model_scores = {}
 
         for name, model in models_config.items():
-            print(f"\nTreinando {name}...")
+            logger.info(f"\nTreinando {name}...")
 
             if name in ["logistic_regression", "neural_network"]:
                 # Modelos que precisam de dados normalizados
@@ -186,7 +189,7 @@ class RealFraudModelTrainer:
 
             self.model_scores[name] = {"auc": auc_score, "auprc": auprc}
 
-            print(f"{name} - AUC: {auc_score:.4f}, AUPRC: {auprc:.4f}")
+            logger.info(f"{name} - AUC: {auc_score:.4f}, AUPRC: {auprc:.4f}")
 
         # Criar ensemble
         self._create_ensemble(X_test, X_test_scaled, y_test)
@@ -195,13 +198,13 @@ class RealFraudModelTrainer:
         self._save_models()
 
         self.is_trained = True
-        print("\n✅ Treinamento de modelos REAIS concluído com sucesso!")
+        logger.info("\n✅ Treinamento de modelos REAIS concluído com sucesso!")
 
         return self.model_scores
 
     def _create_ensemble(self, X_test, X_test_scaled, y_test):
         """Cria ensemble ponderado baseado na performance dos modelos."""
-        print("\nCriando ensemble ponderado...")
+        logger.info("\nCriando ensemble ponderado...")
 
         # Coletar predições de todos os modelos
         ensemble_predictions = []
@@ -231,8 +234,8 @@ class RealFraudModelTrainer:
         self.ensemble_weights = dict(zip(self.trained_models.keys(), weights))
         self.model_scores["ensemble"] = {"auc": ensemble_auc, "auprc": ensemble_auprc}
 
-        print(f"Ensemble - AUC: {ensemble_auc:.4f}, AUPRC: {ensemble_auprc:.4f}")
-        print(f"Pesos do ensemble: {self.ensemble_weights}")
+        logger.info(f"Ensemble - AUC: {ensemble_auc:.4f}, AUPRC: {ensemble_auprc:.4f}")
+        logger.info(f"Pesos do ensemble: {self.ensemble_weights}")
 
     def _save_models(self):
         """Salva todos os modelos e preprocessadores treinados."""
@@ -260,7 +263,7 @@ class RealFraudModelTrainer:
         }
         joblib.dump(metadata, f"{model_dir}metadata.joblib")
 
-        print(f"Modelos salvos em: {model_dir}")
+        logger.info(f"Modelos salvos em: {model_dir}")
 
     def predict_fraud(self, transaction_data):
         """Faz predição de fraude usando o ensemble treinado."""
@@ -321,7 +324,7 @@ class RealFraudModelTrainer:
 
 
 if __name__ == "__main__":
-    print("Iniciando treinamento de modelos REAIS de detecção de fraude...")
+    logger.info("Iniciando treinamento de modelos REAIS de detecção de fraude...")
 
     trainer = RealFraudModelTrainer()
 
@@ -331,12 +334,12 @@ if __name__ == "__main__":
     # Treinar modelos
     scores = trainer.train_models()
 
-    print("\n--- Resumo Final dos Modelos ---")
+    logger.info("\n--- Resumo Final dos Modelos ---")
     for model_name, metrics in scores.items():
-        print(f"{model_name}: AUC={metrics['auc']:.4f}, AUPRC={metrics['auprc']:.4f}")
+        logger.info(f"{model_name}: AUC={metrics['auc']:.4f}, AUPRC={metrics['auprc']:.4f}")
 
     # Teste de predição
-    print("\n--- Teste de Predição ---")
+    logger.info("\n--- Teste de Predição ---")
     test_transaction = {
         "valor": 5000.0,
         "tipo_transacao": "PIX",
@@ -348,7 +351,7 @@ if __name__ == "__main__":
     }
 
     result = trainer.predict_fraud(test_transaction)
-    print(f"Transação teste: {test_transaction}")
-    print(f"Resultado: {result}")
+    logger.info(f"Transação teste: {test_transaction}")
+    logger.info(f"Resultado: {result}")
 
-    print("\n✅ Sistema de modelos REAIS implementado com sucesso!")
+    logger.info("\n✅ Sistema de modelos REAIS implementado com sucesso!")

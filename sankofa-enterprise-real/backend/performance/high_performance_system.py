@@ -554,7 +554,7 @@ def create_optimized_fraud_detector(performance_system: HighPerformanceSystem):
 
 # Teste do sistema
 if __name__ == "__main__":
-    print("⚡ Testando Sistema de Alta Performance...")
+    logger.info("⚡ Testando Sistema de Alta Performance...")
 
     # Inicializa sistema
     config = PerformanceConfig(target_rps=1000, max_latency_ms=50)
@@ -564,7 +564,7 @@ if __name__ == "__main__":
     fraud_detector = create_optimized_fraud_detector(perf_system)
 
     # Teste de performance
-    print("🚀 Executando teste de throughput...")
+    logger.info("🚀 Executando teste de throughput...")
 
     start_time = time.time()
     num_requests = 100
@@ -580,33 +580,33 @@ if __name__ == "__main__":
         result = fraud_detector(transaction)
 
         if i % 20 == 0:
-            print(f"   Processadas {i+1} transações...")
+            logger.info(f"   Processadas {i+1} transações...")
 
     elapsed_time = time.time() - start_time
     rps = num_requests / elapsed_time
 
-    print(f"✅ Teste concluído:")
-    print(f"   RPS atingido: {rps:.2f}")
-    print(f"   Tempo total: {elapsed_time:.2f}s")
+    logger.info(f"✅ Teste concluído:")
+    logger.info(f"   RPS atingido: {rps:.2f}")
+    logger.info(f"   Tempo total: {elapsed_time:.2f}s")
 
     # Estatísticas do sistema
     stats = perf_system.get_system_stats()
-    print(f"✅ Estatísticas do sistema:")
-    print(f"   RPS médio: {stats['performance']['rps']}")
-    print(f"   Latência média: {stats['performance']['avg_latency_ms']}ms")
-    print(f"   P95 latência: {stats['performance']['p95_latency_ms']}ms")
-    print(f"   Hit rate cache: {stats['cache']['hit_rate_percent']}%")
-    print(f"   CPU: {stats['system']['cpu_percent']}%")
-    print(f"   Memória: {stats['system']['memory_percent']}%")
+    logger.info(f"✅ Estatísticas do sistema:")
+    logger.info(f"   RPS médio: {stats['performance']['rps']}")
+    logger.info(f"   Latência média: {stats['performance']['avg_latency_ms']}ms")
+    logger.info(f"   P95 latência: {stats['performance']['p95_latency_ms']}ms")
+    logger.info(f"   Hit rate cache: {stats['cache']['hit_rate_percent']}%")
+    logger.info(f"   CPU: {stats['system']['cpu_percent']}%")
+    logger.info(f"   Memória: {stats['system']['memory_percent']}%")
 
     # Health check
     health = perf_system.health_check()
-    print(f"✅ Health check: {health['status']}")
+    logger.info(f"✅ Health check: {health['status']}")
     for check, status in health["checks"].items():
-        print(f"   {check}: {status}")
+        logger.info(f"   {check}: {status}")
 
     # Teste de cache
-    print("🔄 Testando cache...")
+    logger.info("🔄 Testando cache...")
 
     # Primeira chamada (miss)
     start = time.time()
@@ -618,11 +618,11 @@ if __name__ == "__main__":
     result2 = fraud_detector({"id": "test_cache", "amount": 100})
     time2 = (time.time() - start) * 1000
 
-    print(f"   Primeira chamada: {time1:.2f}ms")
-    print(f"   Segunda chamada (cache): {time2:.2f}ms")
-    print(f"   Speedup: {time1/time2:.1f}x")
+    logger.info(f"   Primeira chamada: {time1:.2f}ms")
+    logger.info(f"   Segunda chamada (cache): {time2:.2f}ms")
+    logger.info(f"   Speedup: {time1/time2:.1f}x")
 
     # Encerra sistema
     perf_system.shutdown()
 
-    print("⚡ Teste do Sistema de Alta Performance concluído!")
+    logger.info("⚡ Teste do Sistema de Alta Performance concluído!")

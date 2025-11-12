@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 import pandas as pd
 import numpy as np
 from faker import Faker
@@ -23,7 +26,7 @@ class RealDataGenerator:
         self.num_merchants = num_merchants
         self.start_date = datetime.strptime(start_date, "%Y-%m-%d")
         self.end_date = datetime.strptime(end_date, "%Y-%m-%d")
-        print("Generador de Datos Reales inicializado.")
+        logger.info("Generador de Datos Reales inicializado.")
 
     def create_customers(self):
         """Crea clientes con perfiles de riesgo variados."""
@@ -37,7 +40,7 @@ class RealDataGenerator:
                 }
             )
         self.customers_df = pd.DataFrame(customers)
-        print(f"{len(self.customers_df)} clientes reales generados.")
+        logger.info(f"{len(self.customers_df)} clientes reales generados.")
 
     def create_merchants(self):
         """Crea comerciantes con categorías y riesgos asociados."""
@@ -51,7 +54,7 @@ class RealDataGenerator:
                 }
             )
         self.merchants_df = pd.DataFrame(merchants)
-        print(f"{len(self.merchants_df)} comerciantes reales generados.")
+        logger.info(f"{len(self.merchants_df)} comerciantes reales generados.")
 
     def generate_transactions(self, n_transactions=500000):
         """Genera un volumen de transacciones mezclando legítimas y fraudulentas."""
@@ -60,7 +63,7 @@ class RealDataGenerator:
 
         for i in range(n_transactions):
             if (i + 1) % 50000 == 0:
-                print(f"Generando transacción {i+1}/{n_transactions}...")
+                logger.info(f"Generando transacción {i+1}/{n_transactions}...")
 
             customer = self.customers_df.sample(1).iloc[0]
             merchant = self.merchants_df.sample(1).iloc[0]
@@ -76,7 +79,7 @@ class RealDataGenerator:
             transactions.append(transaction)
 
         self.transactions_df = pd.DataFrame(transactions)
-        print(f"Dataset final con {len(self.transactions_df)} transacciones generadas.")
+        logger.info(f"Dataset final con {len(self.transactions_df)} transacciones generadas.")
         return self.transactions_df
 
     def _create_legitimate_transaction(self, customer, merchant, total_days):
@@ -155,34 +158,34 @@ class RealDataGenerator:
 
 
 if __name__ == "__main__":
-    print("Iniciando la generación de un dataset bancario 100% REAL...")
+    logger.info("Iniciando la generación de un dataset bancario 100% REAL...")
     generator = RealDataGenerator()
     generator.create_customers()
     generator.create_merchants()
     real_transactions_df = generator.generate_transactions(n_transactions=500000)
 
     # Verificación del dataset
-    print("\n--- Análisis del Dataset Generado ---")
-    print(f"Total de transacciones: {len(real_transactions_df)}")
-    print(f"Columnas: {real_transactions_df.columns.tolist()}")
-    print("\nTipos de datos:")
-    print(real_transactions_df.info())
-    print("\nEstadísticas descriptivas del valor:")
-    print(real_transactions_df["valor"].describe())
+    logger.info("\n--- Análisis del Dataset Generado ---")
+    logger.info(f"Total de transacciones: {len(real_transactions_df)}")
+    logger.info(f"Columnas: {real_transactions_df.columns.tolist()}")
+    logger.info("\nTipos de datos:")
+    logger.info(real_transactions_df.info())
+    logger.info("\nEstadísticas descriptivas del valor:")
+    logger.info(real_transactions_df["valor"].describe())
 
     fraud_percentage = real_transactions_df["is_fraud"].mean() * 100
-    print(f"\nPorcentaje de fraude: {fraud_percentage:.3f}%")
+    logger.info(f"\nPorcentaje de fraude: {fraud_percentage:.3f}%")
 
-    print("\nDistribución de tipos de transacción:")
-    print(real_transactions_df["tipo_transacao"].value_counts(normalize=True))
+    logger.info("\nDistribución de tipos de transacción:")
+    logger.info(real_transactions_df["tipo_transacao"].value_counts(normalize=True))
 
-    print("\nEjemplo de transacciones legítimas:")
-    print(real_transactions_df[real_transactions_df["is_fraud"] == 0].head())
+    logger.info("\nEjemplo de transacciones legítimas:")
+    logger.info(real_transactions_df[real_transactions_df["is_fraud"] == 0].head())
 
-    print("\nEjemplo de transacciones fraudulentas:")
-    print(real_transactions_df[real_transactions_df["is_fraud"] == 1].head())
+    logger.info("\nEjemplo de transacciones fraudulentas:")
+    logger.info(real_transactions_df[real_transactions_df["is_fraud"] == 1].head())
 
     # Guardar en un archivo para uso futuro
     output_path = "/home/ubuntu/sankofa-enterprise-real/backend/data/real_banking_dataset.csv"
     real_transactions_df.to_csv(output_path, index=False)
-    print(f"\nDataset REAL guardado en: {output_path}")
+    logger.info(f"\nDataset REAL guardado en: {output_path}")

@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 Motor de Fraude Balanceado Rápido - QA Optimized
@@ -278,8 +281,8 @@ fast_balanced_fraud_engine = FastBalancedFraudEngine()
 
 if __name__ == "__main__":
     # Teste rápido
-    print("⚖️ Testando Motor de Fraude Balanceado Rápido")
-    print("=" * 50)
+    logger.info("⚖️ Testando Motor de Fraude Balanceado Rápido")
+    logger.info("=" * 50)
 
     # Gerar dados de teste
     np.random.seed(42)
@@ -328,7 +331,7 @@ if __name__ == "__main__":
                 X.loc[idx, "transaction_frequency_7d"] = np.random.uniform(20, 40)
                 X.loc[idx, "time_since_last_transaction_hours"] = np.random.uniform(0, 2)
 
-    print(f"📊 Dataset: {len(X)} transações, {y.sum()} fraudes ({y.mean()*100:.1f}%)")
+    logger.info(f"📊 Dataset: {len(X)} transações, {y.sum()} fraudes ({y.mean()*100:.1f}%)")
 
     # Treinar
     start_time = time.time()
@@ -336,7 +339,7 @@ if __name__ == "__main__":
     engine.fit(X, y)
     training_time = time.time() - start_time
 
-    print(f"⏱️ Treinamento: {training_time:.2f}s")
+    logger.info(f"⏱️ Treinamento: {training_time:.2f}s")
 
     # Testar predições
     test_sample = X.head(1000)
@@ -349,16 +352,16 @@ if __name__ == "__main__":
     avg_processing_time = np.mean([p.processing_time_ms for p in predictions])
     throughput = len(predictions) / (prediction_time / 1000)
 
-    print(f"🔍 Predições: {fraud_predictions}/1000 fraudes detectadas")
-    print(f"⚡ Tempo médio por predição: {avg_processing_time:.2f}ms")
-    print(f"🚀 Throughput: {throughput:.1f} TPS")
+    logger.info(f"🔍 Predições: {fraud_predictions}/1000 fraudes detectadas")
+    logger.info(f"⚡ Tempo médio por predição: {avg_processing_time:.2f}ms")
+    logger.info(f"🚀 Throughput: {throughput:.1f} TPS")
 
     metrics = engine.get_performance_metrics()
-    print(f"📊 Métricas finais:")
+    logger.info(f"📊 Métricas finais:")
     for metric, value in metrics["performance_metrics"].items():
         if isinstance(value, float):
-            print(f"   {metric}: {value:.3f}")
+            logger.info(f"   {metric}: {value:.3f}")
         else:
-            print(f"   {metric}: {value}")
+            logger.info(f"   {metric}: {value}")
 
-    print("🎉 Teste do Motor Balanceado Rápido concluído!")
+    logger.info("🎉 Teste do Motor Balanceado Rápido concluído!")

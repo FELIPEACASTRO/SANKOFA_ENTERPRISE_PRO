@@ -16,7 +16,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 def generate_ssl_certificates():
     """Gera certificados SSL auto-assinados para desenvolvimento"""
 
-    print("🔐 Gerando certificados SSL para Sankofa Enterprise Pro...")
+    logger.info("🔐 Gerando certificados SSL para Sankofa Enterprise Pro...")
 
     # Gera chave privada
     private_key = rsa.generate_private_key(
@@ -91,17 +91,17 @@ def generate_ssl_certificates():
     with open("cert.pem", "wb") as f:
         f.write(cert.public_bytes(serialization.Encoding.PEM))
 
-    print("✅ Certificados SSL gerados com sucesso!")
-    print("   - Chave privada: key.pem")
-    print("   - Certificado: cert.pem")
-    print("   - Válido por: 365 dias")
-    print("   - Domínios: localhost, 127.0.0.1, sankofa.local, api.sankofa.local")
+    logger.info("✅ Certificados SSL gerados com sucesso!")
+    logger.info("   - Chave privada: key.pem")
+    logger.info("   - Certificado: cert.pem")
+    logger.info("   - Válido por: 365 dias")
+    logger.info("   - Domínios: localhost, 127.0.0.1, sankofa.local, api.sankofa.local")
 
     # Define permissões seguras
     os.chmod("key.pem", 0o600)
     os.chmod("cert.pem", 0o644)
 
-    print("🔒 Permissões de segurança aplicadas aos certificados")
+    logger.info("🔒 Permissões de segurança aplicadas aos certificados")
 
 
 if __name__ == "__main__":

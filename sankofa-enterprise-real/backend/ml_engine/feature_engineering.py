@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 Sankofa Enterprise Pro - Automated Feature Engineering
@@ -267,8 +270,8 @@ class AutoFeatureEngineering:
 
 def main():
     """Demo de feature engineering"""
-    print("🔧 Sankofa Enterprise Pro - Auto Feature Engineering")
-    print("=" * 60)
+    logger.info("🔧 Sankofa Enterprise Pro - Auto Feature Engineering")
+    logger.info("=" * 60)
 
     # Criar dados de exemplo
     np.random.seed(42)
@@ -285,8 +288,8 @@ def main():
         }
     )
 
-    print(f"\n📊 Original dataset: {df.shape}")
-    print(df.head())
+    logger.info(f"\n📊 Original dataset: {df.shape}")
+    logger.info(df.head())
 
     # Feature engineering
     fe = AutoFeatureEngineering()
@@ -294,12 +297,12 @@ def main():
         df, use_featuretools=False, use_tsfresh=False, use_business=True  # Lento  # Lento  # Rápido
     )
 
-    print(f"\n✅ Transformed dataset: {df_transformed.shape}")
-    print(f"   Added features: {df_transformed.shape[1] - df.shape[1]}")
-    print("\nNew features:")
+    logger.info(f"\n✅ Transformed dataset: {df_transformed.shape}")
+    logger.info(f"   Added features: {df_transformed.shape[1] - df.shape[1]}")
+    logger.info("\nNew features:")
     new_features = [col for col in df_transformed.columns if col not in df.columns]
     for feat in new_features:
-        print(f"   - {feat}")
+        logger.info(f"   - {feat}")
 
 
 if __name__ == "__main__":

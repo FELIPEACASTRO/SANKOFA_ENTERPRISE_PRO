@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     audit = AuditTrail()
 
-    print("--- Registrando ações de auditoria ---")
+    logger.info("--- Registrando ações de auditoria ---")
 
     # Log 1: Compartilhamento de dados
     audit.log_compliance_action(
@@ -72,20 +72,20 @@ if __name__ == "__main__":
         details={"destination": "BACEN", "fraud_id": "FRD123"},
         user="compliance_officer",
     )
-    print("Log de compartilhamento de dados registrado.")
+    logger.info("Log de compartilhamento de dados registrado.")
 
     # Log 2: Requisição de titular de dados
     audit.log_compliance_action(
         action="DSR_DELETE", details={"subject_id": "USR456"}, user="data_privacy_team"
     )
-    print("Log de requisição de titular de dados registrado.")
+    logger.info("Log de requisição de titular de dados registrado.")
 
     # Log 3: Ação do sistema
     audit.log_compliance_action(
         action="APPLY_DATA_RETENTION", details={"policy": "PCI-DSS-3.1"}, user="system_cron_job"
     )
-    print("Log de ação do sistema registrado.")
+    logger.info("Log de ação do sistema registrado.")
 
-    print(
+    logger.info(
         "\nVerifique o arquivo '/home/ubuntu/sankofa-enterprise-real/logs/compliance_audit.log' para ver os registros."
     )

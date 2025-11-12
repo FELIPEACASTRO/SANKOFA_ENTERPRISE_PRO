@@ -42,7 +42,7 @@ class PciDssCompliance:
 
         deleted_rows_simulation = 1500  # Número simulado de registros excluídos
 
-        print(
+        logger.info(
             f"[SIMULAÇÃO] {deleted_rows_simulation} registros de transações antigas foram excluídos."
         )
 
@@ -71,11 +71,11 @@ class PciDssCompliance:
 if __name__ == "__main__":
     pci = PciDssCompliance()
 
-    print("--- Aplicando política de retenção ---")
+    logger.info("--- Aplicando política de retenção ---")
     pci.apply_data_retention_policy()
 
-    print("\n--- Mascarando PANs ---")
+    logger.info("\n--- Mascarando PANs ---")
     pan1 = "1234567890123456"
     pan2 = "98765432109876"
-    print(f"PAN original: {pan1} -> Mascarado: {pci.mask_pan(pan1)}")
-    print(f"PAN original: {pan2} -> Mascarado: {pci.mask_pan(pan2)}")
+    logger.info(f"PAN original: {pan1} -> Mascarado: {pci.mask_pan(pan1)}")
+    logger.info(f"PAN original: {pan2} -> Mascarado: {pci.mask_pan(pan2)}")

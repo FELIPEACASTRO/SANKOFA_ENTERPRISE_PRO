@@ -17,7 +17,7 @@ from backend.mlops.human_feedback_module import HumanFeedbackModule
 logger = logging.getLogger(__name__)
 
 # Blueprint para os endpoints de feedback
-feedback_bp = Blueprint("feedback", __name__, url_prefix="/api/feedback")
+feedback_bp = Bluelogger.info("feedback", __name__, url_prefix="/api/feedback")
 
 # Instância global do módulo de feedback
 feedback_module = HumanFeedbackModule()

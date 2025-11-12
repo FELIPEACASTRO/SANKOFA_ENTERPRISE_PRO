@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 Gerador de Transações em Tempo Real para Sankofa Enterprise Pro
@@ -254,12 +257,12 @@ if __name__ == "__main__":
     try:
         time.sleep(10)  # Roda por 10 segundos
         transactions = generator.get_transactions(limit=10)
-        print(f"Geradas {len(transactions)} transações:")
+        logger.info(f"Geradas {len(transactions)} transações:")
         for t in transactions:
-            print(f"  {t['id']}: R$ {t['valor']} - {t['status']} ({t['risco']})")
+            logger.info(f"  {t['id']}: R$ {t['valor']} - {t['status']} ({t['risco']})")
 
         stats = generator.get_stats()
-        print(f"\nEstatísticas: {stats}")
+        logger.info(f"\nEstatísticas: {stats}")
 
     finally:
         generator.stop_generation()

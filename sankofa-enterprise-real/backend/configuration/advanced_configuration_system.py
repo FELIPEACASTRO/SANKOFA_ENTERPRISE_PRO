@@ -662,18 +662,18 @@ def test_advanced_configuration_system():
     """
     Testa o sistema avançado de configuração
     """
-    print("🚀 Testando Sistema Avançado de Configuração...")
+    logger.info("🚀 Testando Sistema Avançado de Configuração...")
 
     # Inicializa sistema
     config_system = AdvancedConfigurationSystem()
 
     # Lista todas as regras
     all_rules = config_system.get_all_rules()
-    print(f"✅ Total de regras carregadas: {len(all_rules)}")
+    logger.info(f"✅ Total de regras carregadas: {len(all_rules)}")
 
     # Simula impacto de mudança
     simulation = config_system.simulate_impact("fraud_high_risk_threshold", 0.9)
-    print(f"✅ Simulação de impacto - Confiança: {simulation.confidence_level:.2f}")
+    logger.info(f"✅ Simulação de impacto - Confiança: {simulation.confidence_level:.2f}")
 
     # Propõe mudança
     change_id = config_system.propose_change(
@@ -682,17 +682,17 @@ def test_advanced_configuration_system():
         changed_by="admin",
         reason="Ajuste para reduzir falsos positivos",
     )
-    print(f"✅ Mudança proposta: {change_id}")
+    logger.info(f"✅ Mudança proposta: {change_id}")
 
     # Verifica mudanças pendentes
     pending = config_system.get_pending_changes()
-    print(f"✅ Mudanças pendentes: {len(pending)}")
+    logger.info(f"✅ Mudanças pendentes: {len(pending)}")
 
     # Gera resumo
     summary = config_system.get_configuration_summary()
-    print(f"✅ Resumo gerado - Categorias: {len(summary['categories'])}")
+    logger.info(f"✅ Resumo gerado - Categorias: {len(summary['categories'])}")
 
-    print("🎉 Teste do Sistema Avançado de Configuração concluído!")
+    logger.info("🎉 Teste do Sistema Avançado de Configuração concluído!")
 
     return config_system, change_id
 

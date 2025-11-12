@@ -137,16 +137,16 @@ if __name__ == "__main__":
     }
     user = {"username": "compliance_officer"}
 
-    print("\n--- Compartilhando dados de fraude com o BACEN ---")
+    logger.info("\n--- Compartilhando dados de fraude com o BACEN ---")
     success = manager.share_fraud_data_with_bacen(fraud_to_share, user)
-    print(f"Compartilhamento bem-sucedido: {success}")
+    logger.info(f"Compartilhamento bem-sucedido: {success}")
 
     # Exemplo de requisição de titular de dados
-    print("\n--- Tratando requisição de acesso a dados (LGPD) ---")
+    logger.info("\n--- Tratando requisição de acesso a dados (LGPD) ---")
     dsr_result = manager.handle_data_subject_request("ACCESS", "USR001", user)
-    print(f"Resultado da requisição: {dsr_result}")
+    logger.info(f"Resultado da requisição: {dsr_result}")
 
     # Exemplo de aplicação de política de retenção
-    print("\n--- Aplicando política de retenção de dados (PCI DSS) ---")
+    logger.info("\n--- Aplicando política de retenção de dados (PCI DSS) ---")
     manager.apply_pci_dss_data_retention(user)
-    print("Política de retenção aplicada.")
+    logger.info("Política de retenção aplicada.")

@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 Motor de Fraude Ultra-Baixa Latência - QA Final
@@ -279,8 +282,8 @@ ultra_low_latency_fraud_engine = UltraLowLatencyFraudEngine()
 
 if __name__ == "__main__":
     # Teste de latência
-    print("⚡ Testando Motor Ultra-Baixa Latência")
-    print("=" * 45)
+    logger.info("⚡ Testando Motor Ultra-Baixa Latência")
+    logger.info("=" * 45)
 
     # Dados de teste otimizados
     np.random.seed(42)
@@ -314,7 +317,7 @@ if __name__ == "__main__":
             X.loc[idx, "amount"] = np.random.uniform(15000, 30000)
             X.loc[idx, "location_risk_score"] = np.random.uniform(0.7, 0.9)
 
-    print(f"📊 Dataset: {len(X)} transações, {y.sum()} fraudes ({y.mean()*100:.1f}%)")
+    logger.info(f"📊 Dataset: {len(X)} transações, {y.sum()} fraudes ({y.mean()*100:.1f}%)")
 
     # Treinar
     start_time = time.perf_counter()
@@ -322,7 +325,7 @@ if __name__ == "__main__":
     engine.fit(X, y)
     training_time = (time.perf_counter() - start_time) * 1000
 
-    print(f"⏱️ Treinamento: {training_time:.1f}ms")
+    logger.info(f"⏱️ Treinamento: {training_time:.1f}ms")
 
     # Teste de latência com múltiplas execuções
     test_sample = X.head(1000)
@@ -343,19 +346,19 @@ if __name__ == "__main__":
     fraud_predictions = sum(1 for p in predictions if p.is_fraud)
     throughput = len(test_sample) / (avg_latency / 1000)
 
-    print(f"🔍 Predições: {fraud_predictions}/1000 fraudes detectadas")
-    print(f"⚡ Latência média: {avg_latency:.2f}ms")
-    print(f"📊 Latência P95: {p95_latency:.2f}ms")
-    print(f"📊 Latência P99: {p99_latency:.2f}ms")
-    print(f"🚀 Throughput: {throughput:.1f} TPS")
+    logger.info(f"🔍 Predições: {fraud_predictions}/1000 fraudes detectadas")
+    logger.info(f"⚡ Latência média: {avg_latency:.2f}ms")
+    logger.info(f"📊 Latência P95: {p95_latency:.2f}ms")
+    logger.info(f"📊 Latência P99: {p99_latency:.2f}ms")
+    logger.info(f"🚀 Throughput: {throughput:.1f} TPS")
 
     metrics = engine.get_performance_metrics()
-    print(f"📊 Métricas:")
+    logger.info(f"📊 Métricas:")
     for metric, value in metrics["performance_metrics"].items():
         if isinstance(value, float):
-            print(f"   {metric}: {value:.3f}")
+            logger.info(f"   {metric}: {value:.3f}")
         else:
-            print(f"   {metric}: {value}")
+            logger.info(f"   {metric}: {value}")
 
     # Teste de predição única
     single_transaction = {
@@ -371,5 +374,7 @@ if __name__ == "__main__":
     is_fraud = engine.predict_single_ultra_fast(single_transaction)
     single_latency = (time.perf_counter() - start_time) * 1000
 
-    print(f"🎯 Predição única: {'FRAUDE' if is_fraud else 'LEGÍTIMA'} ({single_latency:.3f}ms)")
-    print("🎉 Teste Ultra-Baixa Latência concluído!")
+    logger.info(
+        f"🎯 Predição única: {'FRAUDE' if is_fraud else 'LEGÍTIMA'} ({single_latency:.3f}ms)"
+    )
+    logger.info("🎉 Teste Ultra-Baixa Latência concluído!")

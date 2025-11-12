@@ -404,7 +404,6 @@ class SecureMainAPI:
             logger.info(f"{request.method} {request.path} - IP: {request.remote_addr}")
 
             # Rate limiting básico (será expandido com Redis)
-            # TODO: Implementar rate limiting com Redis
             pass
 
         @self.app.after_request
@@ -439,16 +438,20 @@ class SecureMainAPI:
         """Executa a API com HTTPS"""
         try:
             # Cria usuário admin padrão se não existir
-            try:
-                self.security_system.create_user(
-                    username="admin",
-                    email="admin@sankofa.com",
-                    password="SankoFa2025!@#",
-                    role_name="admin",
-                )
-                logger.info("Usuário admin padrão criado")
-            except:
-                logger.info("Usuário admin já existe")
+            admin_password = os.environ.get("ADMIN_PASSWORD")
+            if admin_password:
+                try:
+                    self.security_system.create_user(
+                        username="admin",
+                        email="admin@sankofa.com",
+                        password=admin_password,
+                        role_name="admin",
+                    )
+                    logger.info("Usuário admin padrão criado")
+                except:
+                    logger.info("Usuário admin já existe")
+            else:
+                logger.warning("ADMIN_PASSWORD não configurado - usuário admin não criado")
 
             # Configura SSL
             ssl_context = self.create_ssl_context()

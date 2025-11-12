@@ -527,8 +527,8 @@ if __name__ == "__main__":
     # Teste do sistema de backup
     system = BackupRecoverySystem()
 
-    print("💾 Testando Sistema de Backup e Recovery")
-    print("=" * 50)
+    logger.info("💾 Testando Sistema de Backup e Recovery")
+    logger.info("=" * 50)
 
     # Criar alguns arquivos de teste
     os.makedirs("test_data", exist_ok=True)
@@ -537,20 +537,20 @@ if __name__ == "__main__":
 
     # Testar backup completo
     job_id = system.create_full_backup("test_backup")
-    print(f"🚀 Backup iniciado: {job_id}")
+    logger.info(f"🚀 Backup iniciado: {job_id}")
 
     # Aguardar conclusão
     time.sleep(5)
 
     # Verificar status
     status = system.get_backup_status()
-    print(f"📊 Status: {status['completed_jobs']}/{status['total_jobs']} jobs concluídos")
+    logger.info(f"📊 Status: {status['completed_jobs']}/{status['total_jobs']} jobs concluídos")
 
     # Testar sistema completo
     if system.test_backup_recovery():
-        print("✅ Sistema de Backup e Recovery testado com sucesso!")
+        logger.info("✅ Sistema de Backup e Recovery testado com sucesso!")
     else:
-        print("❌ Falha no teste do sistema")
+        logger.info("❌ Falha no teste do sistema")
 
     # Limpar arquivos de teste
     if os.path.exists("test_data"):

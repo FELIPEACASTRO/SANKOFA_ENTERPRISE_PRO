@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 import pandas as pd
 import os
 import zipfile
@@ -12,14 +15,14 @@ class ExternalDatasetIntegration:
     def _unzip_file(self, zip_path, extract_to_path):
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(extract_to_path)
-        print(f"Unzipped {zip_path} to {extract_to_path}")
+        logger.info(f"Unzipped {zip_path} to {extract_to_path}")
 
     def load_and_preprocess(self, dataset_name, file_name, target_column=None):
         """Loads a dataset from a file and preprocesses it."""
         file_path = os.path.join(self.base_path, file_name)
 
         if not os.path.exists(file_path):
-            print(
+            logger.info(
                 f"Error: {file_path} not found. Please ensure the dataset is in the correct directory."
             )
             return None
@@ -35,13 +38,13 @@ class ExternalDatasetIntegration:
             else:
                 csv_files = [f for f in os.listdir(extract_path) if f.endswith(".csv")]
                 if not csv_files:
-                    print(f"Error: No CSV file found in {extract_path}")
+                    logger.info(f"Error: No CSV file found in {extract_path}")
                     return None
                 csv_file_in_zip = csv_files[0]
 
             file_path = os.path.join(extract_path, csv_file_in_zip)
 
-        print(f"Loading and preprocessing {dataset_name} from {file_path}...")
+        logger.info(f"Loading and preprocessing {dataset_name} from {file_path}...")
         df = pd.read_csv(file_path)
 
         if dataset_name == "creditcard_kaggle":
@@ -58,7 +61,7 @@ class ExternalDatasetIntegration:
             if target_column and target_column != "isFraud":
                 df = df.rename(columns={"isFraud": target_column})
 
-        print(f"{dataset_name} preprocessed successfully.")
+        logger.info(f"{dataset_name} preprocessed successfully.")
         return df
 
     def get_integrated_data(self, target_column="isFraud"):
@@ -86,11 +89,11 @@ if __name__ == "__main__":
     integration_system = ExternalDatasetIntegration()
     integrated_dfs = integration_system.get_integrated_data()
     if integrated_dfs:
-        print("\nIntegrated datasets info:")
+        logger.info("\nIntegrated datasets info:")
         for name, df in integrated_dfs.items():
-            print(f"\n--- Dataset: {name} ---")
+            logger.info(f"\n--- Dataset: {name} ---")
             df.info()
             if "isFraud" in df.columns:
-                print(f'Total fraudulent transactions: {df["isFraud"].sum()}')
+                logger.info(f'Total fraudulent transactions: {df["isFraud"].sum()}')
     else:
-        print("No data integrated.")
+        logger.info("No data integrated.")

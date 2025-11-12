@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 """
 Threshold Optimizer - Otimiza o threshold de decisão para maximizar F1-Score
 """
@@ -125,6 +128,6 @@ class ThresholdOptimizer:
 
         if save_path:
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
-            print(f"Gráfico salvo em: {save_path}")
+            logger.info(f"Gráfico salvo em: {save_path}")
 
         plt.close()

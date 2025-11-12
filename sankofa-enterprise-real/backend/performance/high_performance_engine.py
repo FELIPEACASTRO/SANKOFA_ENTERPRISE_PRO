@@ -623,17 +623,17 @@ async def main():
             }
 
             result = await engine.process_transaction(transaction)
-            print(
+            logger.info(
                 f"Transação {result.transaction_id}: {result.decision} (score: {result.fraud_score:.3f})"
             )
 
             if i % 10 == 0:
                 metrics = engine.get_metrics()
-                print(f"RPS: {metrics['requests_per_second']:.1f}")
+                logger.info(f"RPS: {metrics['requests_per_second']:.1f}")
 
         # Health check
         health = await engine.health_check()
-        print(f"Health: {health}")
+        logger.info(f"Health: {health}")
 
     finally:
         await engine.shutdown()

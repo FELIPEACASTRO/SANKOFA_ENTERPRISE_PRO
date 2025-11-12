@@ -334,26 +334,26 @@ def get_redis_url() -> str:
 
 # Teste da configuração
 if __name__ == "__main__":
-    print("🔧 Testando Sistema de Configuração Segura...")
+    logger.info("🔧 Testando Sistema de Configuração Segura...")
 
     # Valida configuração
     validation = config.validate_config()
-    print(f"✅ Configuração válida: {validation['valid']}")
+    logger.info(f"✅ Configuração válida: {validation['valid']}")
 
     if validation["issues"]:
-        print("❌ Issues encontrados:")
+        logger.info("❌ Issues encontrados:")
         for issue in validation["issues"]:
-            print(f"   - {issue}")
+            logger.info(f"   - {issue}")
 
     if validation["warnings"]:
-        print("⚠️ Warnings:")
+        logger.info("⚠️ Warnings:")
         for warning in validation["warnings"]:
-            print(f"   - {warning}")
+            logger.info(f"   - {warning}")
 
     # Testa algumas configurações
-    print(f"🔑 JWT Secret: {config.get('JWT_SECRET_KEY')[:20]}...")
-    print(f"🗄️ Database URL: {config.get_database_url()}")
-    print(f"📦 Redis URL: {config.get_redis_url()}")
-    print(f"🌐 CORS Origins: {config.get_cors_origins()}")
+    logger.info(f"🔑 JWT Secret: {config.get('JWT_SECRET_KEY')[:20]}...")
+    logger.info(f"🗄️ Database URL: {config.get_database_url()}")
+    logger.info(f"📦 Redis URL: {config.get_redis_url()}")
+    logger.info(f"🌐 CORS Origins: {config.get_cors_origins()}")
 
-    print("🔧 Teste do Sistema de Configuração Segura concluído!")
+    logger.info("🔧 Teste do Sistema de Configuração Segura concluído!")

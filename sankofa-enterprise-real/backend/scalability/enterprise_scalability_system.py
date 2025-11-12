@@ -694,7 +694,7 @@ class EnterpriseScalabilitySystem:
 
 # Teste do sistema
 if __name__ == "__main__":
-    print("🚀 Testando Sistema de Escalabilidade Enterprise...")
+    logger.info("🚀 Testando Sistema de Escalabilidade Enterprise...")
 
     # Configuração
     config = ScalabilityConfig(
@@ -723,7 +723,7 @@ if __name__ == "__main__":
 
     try:
         # Simula carga de trabalho
-        print("📊 Simulando carga de trabalho...")
+        logger.info("📊 Simulando carga de trabalho...")
 
         clients = [f"client_{i}" for i in range(10)]
         requests_per_client = 20
@@ -756,33 +756,35 @@ if __name__ == "__main__":
         # Estatísticas finais
         stats = scalability_system.get_system_stats()
 
-        print("\n✅ Teste concluído!")
-        print(f"   Total de requisições: {stats['total_requests']}")
-        print(f"   Taxa de sucesso: {stats['success_rate']:.2%}")
-        print(f"   RPS médio: {stats['requests_per_second']:.2f}")
-        print(
+        logger.info("\n✅ Teste concluído!")
+        logger.info(f"   Total de requisições: {stats['total_requests']}")
+        logger.info(f"   Taxa de sucesso: {stats['success_rate']:.2%}")
+        logger.info(f"   RPS médio: {stats['requests_per_second']:.2f}")
+        logger.info(
             f"   Instâncias saudáveis: {stats['load_balancer']['healthy_instances']}/{stats['load_balancer']['total_instances']}"
         )
-        print(f"   Circuit breakers: {len(stats['circuit_breakers'])}")
-        print(f"   Clientes ativos: {stats['rate_limiter']['active_clients']}")
-        print(f"   Instâncias auto-scaled: {stats['auto_scaler']['current_instances']}")
+        logger.info(f"   Circuit breakers: {len(stats['circuit_breakers'])}")
+        logger.info(f"   Clientes ativos: {stats['rate_limiter']['active_clients']}")
+        logger.info(f"   Instâncias auto-scaled: {stats['auto_scaler']['current_instances']}")
 
         # Testa rate limiting
-        print("\n🔒 Testando rate limiting...")
+        logger.info("\n🔒 Testando rate limiting...")
         client_stats = scalability_system.rate_limiter.get_client_stats("client_0")
-        print(f"   Cliente 0 - Utilização da janela: {client_stats['window_utilization']:.2%}")
-        print(f"   Cliente 0 - Tokens de burst: {client_stats['burst_tokens']}")
+        logger.info(
+            f"   Cliente 0 - Utilização da janela: {client_stats['window_utilization']:.2%}"
+        )
+        logger.info(f"   Cliente 0 - Tokens de burst: {client_stats['burst_tokens']}")
 
         # Testa circuit breaker
         if "fraud_detection" in stats["circuit_breakers"]:
             cb_stats = stats["circuit_breakers"]["fraud_detection"]
-            print(f"\n⚡ Circuit Breaker 'fraud_detection':")
-            print(f"   Estado: {cb_stats['state']}")
-            print(f"   Taxa de falha: {cb_stats['failure_rate']:.2%}")
-            print(f"   Total de chamadas: {cb_stats['total_calls']}")
+            logger.info(f"\n⚡ Circuit Breaker 'fraud_detection':")
+            logger.info(f"   Estado: {cb_stats['state']}")
+            logger.info(f"   Taxa de falha: {cb_stats['failure_rate']:.2%}")
+            logger.info(f"   Total de chamadas: {cb_stats['total_calls']}")
 
     finally:
         # Encerra sistema
         scalability_system.shutdown()
 
-    print("\n🚀 Teste do Sistema de Escalabilidade Enterprise concluído!")
+    logger.info("\n🚀 Teste do Sistema de Escalabilidade Enterprise concluído!")

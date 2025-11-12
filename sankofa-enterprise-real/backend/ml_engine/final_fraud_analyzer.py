@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 Analisador de Fraude Final - Versão 3.0
@@ -86,7 +89,7 @@ class FinalFraudAnalyzer:
         self.high_risk_threshold = 0.35 + (balance * 0.20)  # Aumenta para mais precisão
         self.medium_risk_threshold = 0.20 + (balance * 0.10)  # Aumenta para mais precisão
 
-        print(
+        logger.info(
             f"🎯 Thresholds ajustados para balance={balance}: Alto ≥{self.high_risk_threshold:.2f}, Médio ≥{self.medium_risk_threshold:.2f}"
         )
 
@@ -98,11 +101,11 @@ class FinalFraudAnalyzer:
         # Padrões de fraude mais agressivos
         self.fraud_patterns = self._initialize_aggressive_patterns()
 
-        print("🔍 Analisador de Fraude Final v3.0 inicializado")
-        print(
+        logger.info("🔍 Analisador de Fraude Final v3.0 inicializado")
+        logger.info(
             f"🎯 Thresholds Agressivos: Alto ≥{self.high_risk_threshold}, Médio ≥{self.medium_risk_threshold}"
         )
-        print(f"🤖 Ensemble de {len(self.ensemble_weights)} modelos")
+        logger.info(f"🤖 Ensemble de {len(self.ensemble_weights)} modelos")
 
     def _initialize_aggressive_patterns(self):
         """Inicializa padrões mais agressivos de detecção"""

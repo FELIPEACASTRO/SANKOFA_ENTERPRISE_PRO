@@ -113,15 +113,15 @@ if __name__ == "__main__":
 
     # Obter e exibir feedbacks
     all_feedback = feedback_module.get_feedback()
-    print("\nTodos os Feedbacks:\n", all_feedback)
+    logger.info("\nTodos os Feedbacks:\n", all_feedback)
 
     # Exemplo de como o feedback pode ser usado para análise
     false_positives = all_feedback[
         (all_feedback["model_prediction"] == 1) & (all_feedback["actual_label"] == 0)
     ]
-    print("\nFalsos Positivos:\n", false_positives)
+    logger.info("\nFalsos Positivos:\n", false_positives)
 
     false_negatives = all_feedback[
         (all_feedback["model_prediction"] == 0) & (all_feedback["actual_label"] == 1)
     ]
-    print("\nFalsos Negativos:\n", false_negatives)
+    logger.info("\nFalsos Negativos:\n", false_negatives)

@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 Motor de Fraude Otimizado - Versão Corrigida
@@ -637,8 +640,8 @@ optimized_fraud_engine = OptimizedFraudEngine()
 
 if __name__ == "__main__":
     # Teste do motor otimizado
-    print("🚀 Testando Motor de Fraude Otimizado")
-    print("=" * 50)
+    logger.info("🚀 Testando Motor de Fraude Otimizado")
+    logger.info("=" * 50)
 
     # Gerar dados de teste
     np.random.seed(42)
@@ -694,7 +697,7 @@ if __name__ == "__main__":
         for i in range(1, 11):  # Primeiras 10 features PCA
             X.loc[idx, f"V{i}"] = np.random.normal(2, 0.5)  # Valores anômalos
 
-    print(f"📊 Dataset: {len(X)} transações, {y.sum()} fraudes ({y.mean()*100:.1f}%)")
+    logger.info(f"📊 Dataset: {len(X)} transações, {y.sum()} fraudes ({y.mean()*100:.1f}%)")
 
     # Dividir dados
     X_train, X_test, y_train, y_test = train_test_split(
@@ -702,17 +705,17 @@ if __name__ == "__main__":
     )
 
     # Treinar motor
-    print("🔄 Treinando motor otimizado...")
+    logger.info("🔄 Treinando motor otimizado...")
     start_time = time.time()
 
     engine = OptimizedFraudEngine()
     engine.fit(X_train, y_train)
 
     training_time = time.time() - start_time
-    print(f"✅ Treinamento concluído em {training_time:.1f}s")
+    logger.info(f"✅ Treinamento concluído em {training_time:.1f}s")
 
     # Testar predições
-    print("🔍 Testando predições...")
+    logger.info("🔍 Testando predições...")
     test_sample = X_test.head(100)
     predictions = engine.predict(test_sample)
 
@@ -725,22 +728,22 @@ if __name__ == "__main__":
     recall = recall_score(y_true, y_pred, zero_division=0)
     f1 = f1_score(y_true, y_pred, zero_division=0)
 
-    print(f"📊 Performance no teste:")
-    print(f"   Accuracy: {accuracy:.3f}")
-    print(f"   Precision: {precision:.3f}")
-    print(f"   Recall: {recall:.3f}")
-    print(f"   F1-Score: {f1:.3f}")
+    logger.info(f"📊 Performance no teste:")
+    logger.info(f"   Accuracy: {accuracy:.3f}")
+    logger.info(f"   Precision: {precision:.3f}")
+    logger.info(f"   Recall: {recall:.3f}")
+    logger.info(f"   F1-Score: {f1:.3f}")
 
     # Mostrar algumas predições
-    print(f"\n🔍 Exemplos de predições:")
+    logger.info(f"\n🔍 Exemplos de predições:")
     for i, pred in enumerate(predictions[:5]):
-        print(
+        logger.info(
             f"   Transação {i+1}: {'FRAUDE' if pred.is_fraud else 'LEGÍTIMA'} "
             f"(Prob: {pred.fraud_probability:.3f}, Risco: {pred.risk_level})"
         )
 
     # Salvar modelo
     model_path = engine.save_model()
-    print(f"💾 Modelo salvo: {model_path}")
+    logger.info(f"💾 Modelo salvo: {model_path}")
 
-    print("🎉 Motor de Fraude Otimizado testado com sucesso!")
+    logger.info("🎉 Motor de Fraude Otimizado testado com sucesso!")

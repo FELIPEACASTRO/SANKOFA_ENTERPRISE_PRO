@@ -488,34 +488,34 @@ if __name__ == "__main__":
     # Teste do sistema de rotação de chaves
     system = JWTKeyRotationSystem()
 
-    print("🔐 Testando Sistema de Rotação de Chaves JWT")
-    print("=" * 50)
+    logger.info("🔐 Testando Sistema de Rotação de Chaves JWT")
+    logger.info("=" * 50)
 
     # Testar assinatura de token
     test_payload = {"user_id": "test_user", "role": "admin", "permissions": ["read", "write"]}
 
     token = system.sign_token(test_payload, expires_in_hours=1)
     if token:
-        print(f"✅ Token assinado: {token[:50]}...")
+        logger.info(f"✅ Token assinado: {token[:50]}...")
 
         # Testar verificação
         verified_payload = system.verify_token(token)
         if verified_payload:
-            print(f"✅ Token verificado: user_id = {verified_payload.get('user_id')}")
+            logger.info(f"✅ Token verificado: user_id = {verified_payload.get('user_id')}")
         else:
-            print("❌ Falha na verificação do token")
+            logger.info("❌ Falha na verificação do token")
     else:
-        print("❌ Falha na assinatura do token")
+        logger.info("❌ Falha na assinatura do token")
 
     # Testar rotação manual
     if system.rotate_keys_now("test_rotation"):
-        print("✅ Rotação manual executada com sucesso")
+        logger.info("✅ Rotação manual executada com sucesso")
     else:
-        print("❌ Falha na rotação manual")
+        logger.info("❌ Falha na rotação manual")
 
     # Verificar status
     status = system.get_rotation_status()
-    print(f"📊 Status: {status['verification_keys_count']} chaves de verificação ativas")
-    print(f"🔑 Chave atual: {status['current_key']['key_id']}")
+    logger.info(f"📊 Status: {status['verification_keys_count']} chaves de verificação ativas")
+    logger.info(f"🔑 Chave atual: {status['current_key']['key_id']}")
 
-    print("🔐 Sistema de Rotação de Chaves JWT testado com sucesso!")
+    logger.info("🔐 Sistema de Rotação de Chaves JWT testado com sucesso!")

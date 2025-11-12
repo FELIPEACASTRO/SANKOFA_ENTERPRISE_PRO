@@ -509,7 +509,7 @@ def test_advanced_mlops_pipeline():
     """
     Testa o pipeline avançado de MLOps
     """
-    print("🚀 Testando Advanced MLOps Pipeline...")
+    logger.info("🚀 Testando Advanced MLOps Pipeline...")
 
     # Inicializa pipeline
     pipeline = AdvancedMLOpsPipeline()
@@ -549,24 +549,24 @@ def test_advanced_mlops_pipeline():
         metadata={"algorithm": "RandomForest", "experiment_id": "exp_001"},
     )
 
-    print(f"✅ Modelo registrado: {version}")
+    logger.info(f"✅ Modelo registrado: {version}")
 
     # Valida performance
     validation_data = train_data.sample(200)
     validation_labels = y[:200]
 
     report = pipeline.validate_model_performance(version, validation_data, validation_labels)
-    print(f"✅ Validação concluída - F1 Score: {report.f1_score:.3f}")
+    logger.info(f"✅ Validação concluída - F1 Score: {report.f1_score:.3f}")
 
     # Promove para staging
     success = pipeline.promote_to_staging(version)
-    print(f"✅ Promoção para staging: {'Sucesso' if success else 'Falhou'}")
+    logger.info(f"✅ Promoção para staging: {'Sucesso' if success else 'Falhou'}")
 
     # Gera relatório
     deployment_report = pipeline.generate_deployment_report()
-    print(f"✅ Relatório gerado - Total de modelos: {deployment_report['total_models']}")
+    logger.info(f"✅ Relatório gerado - Total de modelos: {deployment_report['total_models']}")
 
-    print("🎉 Teste do Advanced MLOps Pipeline concluído com sucesso!")
+    logger.info("🎉 Teste do Advanced MLOps Pipeline concluído com sucesso!")
 
     return pipeline, version, report
 

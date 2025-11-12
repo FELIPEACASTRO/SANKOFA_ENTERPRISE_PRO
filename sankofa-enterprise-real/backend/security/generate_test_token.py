@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 """
 Script para gerar um token de autenticação para testes.
 """
@@ -19,12 +22,12 @@ def generate_token():
         security_system.create_user(
             "test_admin", "test_admin@sankofa.com", "StrongPassword123!", "admin"
         )
-        print("Usuário de teste 'test_admin' criado com sucesso.")
+        logger.info("Usuário de teste 'test_admin' criado com sucesso.")
     except Exception as e:
         if "UNIQUE constraint failed" in str(e):
-            print("Usuário de teste 'test_admin' já existe.")
+            logger.info("Usuário de teste 'test_admin' já existe.")
         else:
-            print(f"Erro ao criar usuário: {e}")
+            logger.info(f"Erro ao criar usuário: {e}")
 
     # 2. Autenticar o usuário e obter o token
     auth_data = security_system.authenticate_user(
@@ -32,9 +35,9 @@ def generate_token():
     )
 
     access_token = auth_data.get("access_token")
-    print(f"\n--- TOKEN DE ACESSO GERADO ---\n")
-    print(access_token)
-    print(f"\n--- FIM DO TOKEN ---\n")
+    logger.info(f"\n--- TOKEN DE ACESSO GERADO ---\n")
+    logger.info(access_token)
+    logger.info(f"\n--- FIM DO TOKEN ---\n")
 
 
 if __name__ == "__main__":

@@ -518,7 +518,7 @@ if __name__ == "__main__":
 
     # Obter resumo
     summary = manager.get_model_performance_summary()
-    print("📊 Resumo de Performance:")
-    print(json.dumps(summary, indent=2))
+    logger.info("📊 Resumo de Performance:")
+    logger.info(json.dumps(summary, indent=2))
 
-    print("\n🔄 Sistema de MLOps testado com sucesso!")
+    logger.info("\n🔄 Sistema de MLOps testado com sucesso!")

@@ -447,7 +447,7 @@ class DistributedFraudCache:
 
 # Teste do sistema
 if __name__ == "__main__":
-    print("🚀 Testando Sistema de Cache Distribuído para Fraude...")
+    logger.info("🚀 Testando Sistema de Cache Distribuído para Fraude...")
 
     # Simula sistema Redis (seria importado em produção)
     class MockRedisSystem:
@@ -514,15 +514,15 @@ if __name__ == "__main__":
 
     # Cache features
     success = fraud_cache.cache_transaction_features(transaction_id, features)
-    print(f"✅ Features cacheadas: {success}")
+    logger.info(f"✅ Features cacheadas: {success}")
 
     # Recupera features
     cached_features = fraud_cache.get_transaction_features(transaction_id)
-    print(f"✅ Features recuperadas: {cached_features['amount']}")
+    logger.info(f"✅ Features recuperadas: {cached_features['amount']}")
 
     # Testa contador de velocidade
     count = fraud_cache.increment_velocity_counter("card_usage", "1234567890", "1h")
-    print(f"✅ Contador de velocidade: {count}")
+    logger.info(f"✅ Contador de velocidade: {count}")
 
     # Testa cache de comportamento
     user_id = "user_789"
@@ -534,16 +534,16 @@ if __name__ == "__main__":
 
     fraud_cache.cache_user_behavior(user_id, behavior)
     cached_behavior = fraud_cache.get_user_behavior(user_id)
-    print(f"✅ Comportamento do usuário: {cached_behavior['avg_transaction_amount']}")
+    logger.info(f"✅ Comportamento do usuário: {cached_behavior['avg_transaction_amount']}")
 
     # Testa blacklist
     fraud_cache.add_to_blacklist("ip", "192.168.1.100", "Suspicious activity")
     is_blacklisted = fraud_cache.is_blacklisted("ip", "192.168.1.100")
-    print(f"✅ IP na blacklist: {is_blacklisted}")
+    logger.info(f"✅ IP na blacklist: {is_blacklisted}")
 
     # Estatísticas
     stats = fraud_cache.get_comprehensive_stats()
-    print(f"✅ Cache local hit rate: {stats['local_cache']['hit_rate']:.2%}")
-    print(f"✅ Sistema saudável: {stats['system_health']['redis_healthy']}")
+    logger.info(f"✅ Cache local hit rate: {stats['local_cache']['hit_rate']:.2%}")
+    logger.info(f"✅ Sistema saudável: {stats['system_health']['redis_healthy']}")
 
-    print("🚀 Teste do Sistema de Cache Distribuído para Fraude concluído!")
+    logger.info("🚀 Teste do Sistema de Cache Distribuído para Fraude concluído!")

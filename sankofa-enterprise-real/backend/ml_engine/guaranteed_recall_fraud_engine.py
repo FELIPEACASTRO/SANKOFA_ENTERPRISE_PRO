@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 Motor de Fraude com Recall Garantido 100%
@@ -367,8 +370,8 @@ guaranteed_recall_fraud_engine = GuaranteedRecallFraudEngine()
 
 if __name__ == "__main__":
     # Teste com recall garantido
-    print("🎯 Testando Motor de Fraude com Recall Garantido")
-    print("=" * 55)
+    logger.info("🎯 Testando Motor de Fraude com Recall Garantido")
+    logger.info("=" * 55)
 
     # Gerar dados de teste com padrões MUITO claros
     np.random.seed(42)
@@ -426,7 +429,7 @@ if __name__ == "__main__":
             X.loc[idx, "pattern_deviation_score"] = np.random.uniform(0.75, 1.0)
             X.loc[idx, "velocity_score"] = np.random.uniform(0.65, 1.0)
 
-    print(f"📊 Dataset: {len(X)} transações, {y.sum()} fraudes ({y.mean()*100:.1f}%)")
+    logger.info(f"📊 Dataset: {len(X)} transações, {y.sum()} fraudes ({y.mean()*100:.1f}%)")
 
     # Treinar
     start_time = time.time()
@@ -434,7 +437,7 @@ if __name__ == "__main__":
     engine.fit(X, y)
     training_time = time.time() - start_time
 
-    print(f"⏱️ Treinamento: {training_time:.2f}s")
+    logger.info(f"⏱️ Treinamento: {training_time:.2f}s")
 
     # Testar predições
     test_sample = X.head(1000)
@@ -453,14 +456,14 @@ if __name__ == "__main__":
     avg_processing_time = np.mean([p.processing_time_ms for p in predictions])
     throughput = len(predictions) / (prediction_time / 1000)
 
-    print(f"🔍 Predições: {fraud_predictions}/1000 fraudes detectadas")
-    print(f"⚡ Tempo médio por predição: {avg_processing_time:.2f}ms")
-    print(f"🚀 Throughput: {throughput:.1f} TPS")
-    print(f"🎯 Métodos de detecção: {detection_methods}")
+    logger.info(f"🔍 Predições: {fraud_predictions}/1000 fraudes detectadas")
+    logger.info(f"⚡ Tempo médio por predição: {avg_processing_time:.2f}ms")
+    logger.info(f"🚀 Throughput: {throughput:.1f} TPS")
+    logger.info(f"🎯 Métodos de detecção: {detection_methods}")
 
     metrics = engine.get_performance_metrics()
-    print(f"📊 Métricas finais:")
+    logger.info(f"📊 Métricas finais:")
     for metric, value in metrics["performance_metrics"].items():
-        print(f"   {metric}: {value:.3f}")
+        logger.info(f"   {metric}: {value:.3f}")
 
-    print("🎉 Teste com Recall Garantido concluído!")
+    logger.info("🎉 Teste com Recall Garantido concluído!")

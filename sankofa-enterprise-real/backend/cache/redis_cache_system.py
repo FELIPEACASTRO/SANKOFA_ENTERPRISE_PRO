@@ -490,7 +490,7 @@ fraud_cache_manager = FraudCacheManager(redis_cache_system)
 
 # Teste do sistema
 if __name__ == "__main__":
-    print("🚀 Testando Sistema de Cache Redis Enterprise...")
+    logger.info("🚀 Testando Sistema de Cache Redis Enterprise...")
 
     # Testa operações básicas
     test_key = "test:sankofa"
@@ -498,11 +498,11 @@ if __name__ == "__main__":
 
     # Set
     success = redis_cache_system.set(test_key, test_data, 60)
-    print(f"✅ Set: {success}")
+    logger.info(f"✅ Set: {success}")
 
     # Get
     retrieved_data = redis_cache_system.get(test_key)
-    print(f"✅ Get: {retrieved_data}")
+    logger.info(f"✅ Get: {retrieved_data}")
 
     # Testa cache de fraude
     transaction_id = "txn_123456"
@@ -515,19 +515,19 @@ if __name__ == "__main__":
 
     # Cache análise
     fraud_cache_manager.cache_transaction_analysis(transaction_id, analysis_result)
-    print("✅ Análise de transação cacheada")
+    logger.info("✅ Análise de transação cacheada")
 
     # Recupera análise
     cached_analysis = fraud_cache_manager.get_transaction_analysis(transaction_id)
-    print(f"✅ Análise recuperada: {cached_analysis['fraud_score']}")
+    logger.info(f"✅ Análise recuperada: {cached_analysis['fraud_score']}")
 
     # Testa contador de velocidade
     count = fraud_cache_manager.increment_velocity_counter("card_usage", "1234567890", "1h")
-    print(f"✅ Contador de velocidade: {count}")
+    logger.info(f"✅ Contador de velocidade: {count}")
 
     # Estatísticas
     stats = redis_cache_system.get_stats()
-    print(f"✅ Hit rate: {stats['hit_rate']:.2%}")
-    print(f"✅ Operações: {stats['operations']}")
+    logger.info(f"✅ Hit rate: {stats['hit_rate']:.2%}")
+    logger.info(f"✅ Operações: {stats['operations']}")
 
-    print("🚀 Teste do Sistema de Cache Redis Enterprise concluído!")
+    logger.info("🚀 Teste do Sistema de Cache Redis Enterprise concluído!")

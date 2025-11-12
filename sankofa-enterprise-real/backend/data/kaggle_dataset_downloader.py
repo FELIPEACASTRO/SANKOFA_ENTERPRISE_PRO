@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 Sankofa Enterprise Pro - Kaggle Dataset Downloader
@@ -284,41 +287,41 @@ class KaggleDatasetDownloader:
 
 def main():
     """CLI para download de datasets"""
-    print("🏦 Sankofa Enterprise Pro - Kaggle Dataset Downloader")
-    print("=" * 60)
+    logger.info("🏦 Sankofa Enterprise Pro - Kaggle Dataset Downloader")
+    logger.info("=" * 60)
 
     downloader = KaggleDatasetDownloader()
 
     # Listar datasets
-    print("\n📊 Available Datasets:")
+    logger.info("\n📊 Available Datasets:")
     for i, dataset in enumerate(downloader.list_datasets(), 1):
-        print(f"\n{i}. {dataset.name}")
-        print(f"   Kaggle: {dataset.kaggle_ref}")
-        print(f"   Transactions: {dataset.num_transactions:,}")
-        print(f"   Fraud Rate: {dataset.fraud_rate:.2%}")
-        print(f"   Size: {dataset.size_mb}MB")
-        print(f"   Status: {dataset.download_status}")
+        logger.info(f"\n{i}. {dataset.name}")
+        logger.info(f"   Kaggle: {dataset.kaggle_ref}")
+        logger.info(f"   Transactions: {dataset.num_transactions:,}")
+        logger.info(f"   Fraud Rate: {dataset.fraud_rate:.2%}")
+        logger.info(f"   Size: {dataset.size_mb}MB")
+        logger.info(f"   Status: {dataset.download_status}")
 
     # Download automático
-    print("\n" + "=" * 60)
+    logger.info("\n" + "=" * 60)
     choice = input("\nDownload ALL datasets? (y/n): ").lower()
 
     if choice == "y":
         results = downloader.download_all()
 
-        print("\n" + "=" * 60)
-        print("📊 Download Summary:")
-        print("=" * 60)
+        logger.info("\n" + "=" * 60)
+        logger.info("📊 Download Summary:")
+        logger.info("=" * 60)
 
         summary = downloader.get_download_summary()
-        print(f"✅ Downloaded: {summary['downloaded']}/{summary['total_datasets']}")
-        print(f"❌ Failed: {summary['failed']}")
-        print(f"📈 Total Transactions: {summary['total_transactions']:,}")
-        print(f"💾 Total Size: {summary['total_size_mb']}MB")
+        logger.info(f"✅ Downloaded: {summary['downloaded']}/{summary['total_datasets']}")
+        logger.info(f"❌ Failed: {summary['failed']}")
+        logger.info(f"📈 Total Transactions: {summary['total_transactions']:,}")
+        logger.info(f"💾 Total Size: {summary['total_size_mb']}MB")
 
-        print("\n✅ Ready to train models with REAL data!")
+        logger.info("\n✅ Ready to train models with REAL data!")
     else:
-        print("Download cancelled. Run again when ready.")
+        logger.info("Download cancelled. Run again when ready.")
 
 
 if __name__ == "__main__":
