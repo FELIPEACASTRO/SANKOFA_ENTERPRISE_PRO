@@ -1,10 +1,24 @@
-# Environment files
+# Environment files - CRÍTICO PARA SEGURANÇA
 .env
 .env.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
+.env.production
 .env.production.local
 .envrc
+
+# Arquivos de configuração sensíveis
+config/secrets.yaml
+config/production.yaml
+secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+credentials.json
+service-account.json
 
 # Python
 __pycache__/
