@@ -1,9 +1,11 @@
 # Transfer Learning para Deteccao de Fraude
 
-## 30 Historias Reais: Como a IA Aprende Padroes de Fraude
+## 60+ Historias Reais: Como a IA Aprende Padroes de Fraude
 
-**Fontes:** BERT4ETH (WWW23), FraudGT (ACM), FraudTransformer, FinBERT, Autoencoders  
-**Repositorios GitHub:** 12 projetos analisados  
+**Fontes:** BERT4ETH (WWW23), FraudGT (ACM), FraudTransformer, FinBERT, Autoencoders, LSTM/GRU (IBM), TabTransformer (Stripe), Federated Learning (Google/Swift), VAE  
+**Repositorios GitHub:** 25+ projetos analisados  
+**Papers Academicos:** ScienceDirect, IEEE Xplore, SpringerOpen, MDPI, ACM  
+**Casos Reais:** Stripe ($6B recuperados), Swift (12 bancos), IBM z/OS  
 **Ultima Atualizacao:** 27 de Novembro de 2025
 
 ---
@@ -75,6 +77,40 @@
 |   Historia 25-26: Transacao "Estranha" Detectada                             |
 |   Historia 27-28: Reconstrucao Impossivel                                    |
 |   Historia 29-30: Desvio do Padrao Normal                                    |
+|                                                                               |
+|   ═══════════════════════════════════════════════════════════════════════════|
+|   NOVAS SECOES v12.1 - TECNOLOGIAS BANCARIAS AVANCADAS                       |
+|   ═══════════════════════════════════════════════════════════════════════════|
+|                                                                               |
+|   PARTE 6: LSTM/GRU - Sequencias Temporais Bancarias (6 historias)           |
+|   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                |
+|   Historia 31-32: Memoria de Longo Prazo (IBM z/OS)                          |
+|   Historia 33-34: Atencao em Sequencias (LSTM-Attention)                     |
+|   Historia 35-36: Padroes Temporais Multi-Camada                             |
+|                                                                               |
+|   PARTE 7: TabTransformer - Caso Stripe ($6B Recuperados) (6 historias)      |
+|   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━              |
+|   Historia 37-38: De 59% para 97% em Uma Noite                               |
+|   Historia 39-40: Card Testing Attack (80% Reducao)                          |
+|   Historia 41-42: Adaptive Acceptance (Falsos Positivos)                     |
+|                                                                               |
+|   PARTE 8: Federated Learning - Multi-Bancos (6 historias)                   |
+|   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                    |
+|   Historia 43-44: 12 Bancos Globais (Google + Swift)                         |
+|   Historia 45-46: Privacidade + Precisao (GDPR Compliant)                    |
+|   Historia 47-48: Aprendizado Colaborativo sem Compartilhar Dados            |
+|                                                                               |
+|   PARTE 9: VAE - Autoencoders Variacionais (6 historias)                     |
+|   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                      |
+|   Historia 49-50: Geracao de Dados Sinteticos                                |
+|   Historia 51-52: Deteccao por Erro de Reconstrucao                          |
+|   Historia 53-54: Espaco Latente para Anomalias                              |
+|                                                                               |
+|   PARTE 10: GNN - Graph Neural Networks (6 historias)                        |
+|   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                        |
+|   Historia 55-56: NVIDIA AI Blueprint                                        |
+|   Historia 57-58: Redes de Transacoes entre Contas                           |
+|   Historia 59-60: Deteccao de Comunidades Fraudulentas                       |
 |                                                                               |
 +==============================================================================+
 ```
