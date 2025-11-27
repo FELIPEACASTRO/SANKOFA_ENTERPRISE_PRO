@@ -4,6 +4,17 @@
 
 Sankofa Enterprise Pro is a production-ready fraud detection system designed for banking environments processing 300M+ requests/day. The system combines machine learning ensemble models, real-time transaction analysis, MLOps infrastructure, and regulatory compliance (BACEN, LGPD, PCI DSS) with a React-based dashboard interface.
 
+## Documentation
+
+Complete documentation is available in the `sankofa-enterprise-real/docs/` folder:
+
+| Document | Description |
+|----------|-------------|
+| [ARQUITETURA_TECNICA.md](sankofa-enterprise-real/docs/ARQUITETURA_TECNICA.md) | Technical architecture, stack, components, APIs |
+| [DOCUMENTACAO_FUNCIONAL.md](sankofa-enterprise-real/docs/DOCUMENTACAO_FUNCIONAL.md) | Use cases, business rules, compliance |
+| [DIAGRAMAS.md](sankofa-enterprise-real/docs/DIAGRAMAS.md) | Flowcharts, architecture diagrams (Mermaid + ASCII) |
+| [MANUAL_USUARIO.md](sankofa-enterprise-real/docs/MANUAL_USUARIO.md) | User guide for dashboard operation |
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
