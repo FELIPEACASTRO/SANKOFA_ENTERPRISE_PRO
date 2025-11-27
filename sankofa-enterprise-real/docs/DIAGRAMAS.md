@@ -1,1254 +1,1278 @@
-# Sankofa Enterprise Pro - Diagramas e Fluxogramas
+# Sankofa Enterprise Pro - Diagramas e Fluxogramas Completos
 
-**Versão:** 1.0.0  
-**Data:** Novembro 2025
+![Fluxograma Processo](images/fluxograma_processo_fraude.png)
 
----
-
-> **Nota:** Estes diagramas representam a arquitetura implementada e planejada.
-> Componentes como Docker/Nginx/DataDog estão planejados para produção.
-> O sistema atual opera com Flask API e armazenamento baseado em arquivos.
+**Versao:** 12.0  
+**Data:** Novembro 2025  
+**Total de Diagramas:** 25+
 
 ---
 
-## Sumário
+## Indice de Diagramas
 
-1. [Diagrama de Arquitetura Geral](#1-diagrama-de-arquitetura-geral)
-2. [Fluxo de Detecção de Fraudes](#2-fluxo-de-detecção-de-fraudes)
-3. [Pipeline de Machine Learning](#3-pipeline-de-machine-learning)
-4. [Fluxo MLOps](#4-fluxo-mlops)
-5. [Diagrama de Componentes](#5-diagrama-de-componentes)
-6. [Fluxo de Autenticação JWT](#6-fluxo-de-autenticação-jwt)
-7. [Arquitetura de Cache](#7-arquitetura-de-cache)
-8. [Fluxo de Revisão Manual](#8-fluxo-de-revisão-manual)
-9. [Diagrama de Deploy Canary](#9-diagrama-de-deploy-canary)
-10. [Fluxo de Compliance](#10-fluxo-de-compliance)
+```
++==================================================================+
+|                    MAPA DE DIAGRAMAS                              |
++==================================================================+
+|                                                                   |
+|  ARQUITETURA                                                      |
+|  ├── 1. Arquitetura Geral do Sistema                             |
+|  ├── 2. Diagrama de Componentes                                  |
+|  └── 3. Arquitetura de Microservicos                             |
+|                                                                   |
+|  FLUXOS DE PROCESSO                                               |
+|  ├── 4. Fluxo de Deteccao de Fraudes                            |
+|  ├── 5. Pipeline de Machine Learning                             |
+|  ├── 6. Fluxo de Decisao                                         |
+|  └── 7. Fluxo de Revisao Manual                                  |
+|                                                                   |
+|  DADOS                                                            |
+|  ├── 8. Modelo Entidade-Relacionamento                           |
+|  ├── 9. Fluxo de Dados                                           |
+|  └── 10. Feature Engineering                                      |
+|                                                                   |
+|  SEGURANCA                                                        |
+|  ├── 11. Camadas de Seguranca                                    |
+|  ├── 12. Fluxo de Autenticacao JWT                               |
+|  └── 13. Compliance LGPD                                         |
+|                                                                   |
+|  OPERACOES                                                        |
+|  ├── 14. Fluxo MLOps                                             |
+|  ├── 15. Deploy Canary                                           |
+|  └── 16. Monitoramento e Alertas                                 |
+|                                                                   |
++==================================================================+
+```
 
 ---
 
 ## 1. Diagrama de Arquitetura Geral
 
-```mermaid
-graph TB
-    subgraph "Clients"
-        CB[Core Banking]
-        MA[Mobile App]
-        PG[PIX Gateway]
-        BS[Batch Systems]
-    end
-    
-    subgraph "Load Balancer"
-        LB[Nginx Load Balancer]
-    end
-    
-    subgraph "API Layer"
-        API[Production API<br/>Flask + JWT]
-        RL[Rate Limiter]
-    end
-    
-    subgraph "Business Logic"
-        FE[Feature Engine]
-        ML[ML Ensemble]
-        RE[Rules Engine]
-        DE[Decision Engine]
-    end
-    
-    subgraph "MLOps"
-        AB[A/B Testing]
-        CD[Canary Deploy]
-        DD[Drift Detector]
-    end
-    
-    subgraph "Storage"
-        RC[(Redis Cache)]
-        PG2[(PostgreSQL)]
-        FS[File Storage]
-    end
-    
-    subgraph "Frontend"
-        RD[React Dashboard]
-    end
-    
-    subgraph "External"
-        DG[DataDog]
-        BC[BACEN/DICT]
-    end
-    
-    CB --> LB
-    MA --> LB
-    PG --> LB
-    BS --> LB
-    
-    LB --> API
-    API --> RL
-    RL --> FE
-    FE --> ML
-    ML --> RE
-    RE --> DE
-    
-    ML --> AB
-    ML --> CD
-    ML --> DD
-    
-    API --> RC
-    API --> PG2
-    ML --> FS
-    
-    API --> DG
-    API --> BC
-    
-    RD --> API
-```
-
-### Diagrama ASCII - Arquitetura Geral
+![Arquitetura Tecnica](images/arquitetura_tecnica_microservicos.png)
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        SANKOFA ENTERPRISE PRO                               │
-│                      Arquitetura de Sistema                                  │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                         CAMADA DE CLIENTES                           │    │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐                │    │
-│  │  │  Core    │ │  Mobile  │ │   PIX    │ │  Batch   │                │    │
-│  │  │ Banking  │ │   App    │ │ Gateway  │ │ Systems  │                │    │
-│  │  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘                │    │
-│  └───────│────────────│────────────│────────────│───────────────────────┘    │
-│          │            │            │            │                            │
-│          └────────────┴─────┬──────┴────────────┘                            │
-│                             │                                                │
-│                             ▼                                                │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                      LOAD BALANCER (Nginx)                           │    │
-│  │                   • SSL Termination                                  │    │
-│  │                   • Health Checks                                    │    │
-│  │                   • Traffic Distribution                             │    │
-│  └──────────────────────────┬──────────────────────────────────────────┘    │
-│                             │                                                │
-│                             ▼                                                │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                        CAMADA DE API                                 │    │
-│  │  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐   │    │
-│  │  │   Rate Limiter   │  │   JWT Auth       │  │   CORS Handler   │   │    │
-│  │  │   1000/min       │  │   HS256          │  │   *              │   │    │
-│  │  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘   │    │
-│  │           └──────────────────────┴──────────────────────┘            │    │
-│  │                              │                                        │    │
-│  │                    ┌─────────▼─────────┐                             │    │
-│  │                    │   Flask API       │                             │    │
-│  │                    │   30+ Endpoints   │                             │    │
-│  │                    └─────────┬─────────┘                             │    │
-│  └──────────────────────────────│───────────────────────────────────────┘    │
-│                                 │                                            │
-│                                 ▼                                            │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                     CAMADA DE PROCESSAMENTO                          │    │
-│  │                                                                      │    │
-│  │  ┌───────────────┐    ┌───────────────┐    ┌───────────────┐        │    │
-│  │  │   Feature     │───▶│   ML Engine   │───▶│   Decision    │        │    │
-│  │  │   Engine      │    │   Ensemble    │    │   Engine      │        │    │
-│  │  │   47+ feat    │    │   RF+GB+LR    │    │   Rules+Score │        │    │
-│  │  └───────────────┘    └───────────────┘    └───────────────┘        │    │
-│  │                                                                      │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
-│                                 │                                            │
-│         ┌───────────────────────┼───────────────────────┐                   │
-│         │                       │                       │                   │
-│         ▼                       ▼                       ▼                   │
-│  ┌─────────────┐         ┌─────────────┐         ┌─────────────┐           │
-│  │   MLOPS     │         │   STORAGE   │         │  EXTERNAL   │           │
-│  ├─────────────┤         ├─────────────┤         ├─────────────┤           │
-│  │ • A/B Test  │         │ • Redis     │         │ • DataDog   │           │
-│  │ • Canary    │         │ • PostgreSQL│         │ • BACEN     │           │
-│  │ • Drift     │         │ • Files     │         │ • Webhooks  │           │
-│  └─────────────┘         └─────────────┘         └─────────────┘           │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                      FRONTEND DASHBOARD                              │    │
-│  │         React + Vite + TailwindCSS + shadcn/ui + Recharts            │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
++==============================================================================+
+|                        SANKOFA ENTERPRISE PRO v12.0                           |
+|                        ARQUITETURA COMPLETA DO SISTEMA                        |
++==============================================================================+
+|                                                                               |
+|  ╔═══════════════════════════════════════════════════════════════════════╗   |
+|  ║                          CAMADA DE CLIENTES                            ║   |
+|  ╠═══════════════════════════════════════════════════════════════════════╣   |
+|  ║                                                                        ║   |
+|  ║   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐             ║   |
+|  ║   │  CORE    │  │  MOBILE  │  │   PIX    │  │  BATCH   │             ║   |
+|  ║   │ BANKING  │  │   APP    │  │ GATEWAY  │  │ SYSTEMS  │             ║   |
+|  ║   │          │  │          │  │          │  │          │             ║   |
+|  ║   │ ┌────┐   │  │ ┌────┐   │  │ ┌────┐   │  │ ┌────┐   │             ║   |
+|  ║   │ │ 💳 │   │  │ │ 📱 │   │  │ │ 💸 │   │  │ │ 📊 │   │             ║   |
+|  ║   │ └────┘   │  │ └────┘   │  │ └────┘   │  │ └────┘   │             ║   |
+|  ║   └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘             ║   |
+|  ║        │             │             │             │                    ║   |
+|  ╚════════│═════════════│═════════════│═════════════│════════════════════╝   |
+|           │             │             │             │                        |
+|           └─────────────┴──────┬──────┴─────────────┘                        |
+|                                │                                              |
+|                                ▼                                              |
+|  ╔═══════════════════════════════════════════════════════════════════════╗   |
+|  ║                          CAMADA DE ENTRADA                             ║   |
+|  ╠═══════════════════════════════════════════════════════════════════════╣   |
+|  ║                                                                        ║   |
+|  ║   ┌───────────────────────────────────────────────────────────────┐   ║   |
+|  ║   │                     LOAD BALANCER                              │   ║   |
+|  ║   │                                                                 │   ║   |
+|  ║   │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐            │   ║   |
+|  ║   │  │     SSL     │  │   HEALTH    │  │   TRAFFIC   │            │   ║   |
+|  ║   │  │ TERMINATION │  │   CHECKS    │  │DISTRIBUTION │            │   ║   |
+|  ║   │  └─────────────┘  └─────────────┘  └─────────────┘            │   ║   |
+|  ║   └────────────────────────────┬──────────────────────────────────┘   ║   |
+|  ║                                │                                       ║   |
+|  ╚════════════════════════════════│═══════════════════════════════════════╝   |
+|                                   │                                           |
+|                                   ▼                                           |
+|  ╔═══════════════════════════════════════════════════════════════════════╗   |
+|  ║                           CAMADA DE API                                ║   |
+|  ╠═══════════════════════════════════════════════════════════════════════╣   |
+|  ║                                                                        ║   |
+|  ║   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               ║   |
+|  ║   │ RATE LIMITER │  │   JWT AUTH   │  │ CORS HANDLER │               ║   |
+|  ║   │              │  │              │  │              │               ║   |
+|  ║   │  1000/min    │  │    HS256     │  │      *       │               ║   |
+|  ║   └──────┬───────┘  └──────┬───────┘  └──────┬───────┘               ║   |
+|  ║          └─────────────────┴─────────────────┘                        ║   |
+|  ║                            │                                           ║   |
+|  ║                 ┌──────────▼──────────┐                               ║   |
+|  ║                 │     FLASK API       │                               ║   |
+|  ║                 │    50+ ENDPOINTS    │                               ║   |
+|  ║                 │                     │                               ║   |
+|  ║                 │  /api/health        │                               ║   |
+|  ║                 │  /api/fraud/*       │                               ║   |
+|  ║                 │  /api/transactions  │                               ║   |
+|  ║                 │  /api/observability │                               ║   |
+|  ║                 └──────────┬──────────┘                               ║   |
+|  ║                            │                                           ║   |
+|  ╚════════════════════════════│═══════════════════════════════════════════╝   |
+|                               │                                               |
+|                               ▼                                               |
+|  ╔═══════════════════════════════════════════════════════════════════════╗   |
+|  ║                      CAMADA DE PROCESSAMENTO                           ║   |
+|  ╠═══════════════════════════════════════════════════════════════════════╣   |
+|  ║                                                                        ║   |
+|  ║   ┌───────────────┐   ┌───────────────┐   ┌───────────────┐          ║   |
+|  ║   │    FEATURE    │──▶│   ML ENGINE   │──▶│   DECISION    │          ║   |
+|  ║   │    ENGINE     │   │   ENSEMBLE    │   │    ENGINE     │          ║   |
+|  ║   │               │   │               │   │               │          ║   |
+|  ║   │  47+ features │   │   RF+GB+LR    │   │ Rules+Score   │          ║   |
+|  ║   └───────────────┘   └───────────────┘   └───────────────┘          ║   |
+|  ║                               │                                        ║   |
+|  ║                               ▼                                        ║   |
+|  ║                 ┌─────────────────────────┐                           ║   |
+|  ║                 │   EXPLAINABILITY        │                           ║   |
+|  ║                 │       ENGINE            │                           ║   |
+|  ║                 │                         │                           ║   |
+|  ║                 │  SHAP + LGPD Compliant  │                           ║   |
+|  ║                 └─────────────────────────┘                           ║   |
+|  ║                                                                        ║   |
+|  ╚═══════════════════════════════════════════════════════════════════════╝   |
+|                               │                                               |
+|         ┌─────────────────────┼─────────────────────┐                        |
+|         │                     │                     │                        |
+|         ▼                     ▼                     ▼                        |
+|  ┌─────────────┐       ┌─────────────┐       ┌─────────────┐                |
+|  │   MLOPS     │       │   STORAGE   │       │  EXTERNAL   │                |
+|  ├─────────────┤       ├─────────────┤       ├─────────────┤                |
+|  │ • A/B Test  │       │ • PostgreSQL│       │ • Prometheus│                |
+|  │ • Canary    │       │ • Redis     │       │ • BACEN     │                |
+|  │ • Drift     │       │ • Files     │       │ • Webhooks  │                |
+|  └─────────────┘       └─────────────┘       └─────────────┘                |
+|                                                                               |
+|  ╔═══════════════════════════════════════════════════════════════════════╗   |
+|  ║                       FRONTEND DASHBOARD                               ║   |
+|  ║           React + Vite + TailwindCSS + shadcn/ui + Recharts            ║   |
+|  ║                                                                        ║   |
+|  ║   ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐  ║   |
+|  ║   │  Dash  │ │ Trans  │ │ Alerts │ │ Review │ │Monitor │ │Reports │  ║   |
+|  ║   │ board  │ │actions │ │        │ │        │ │  ing   │ │        │  ║   |
+|  ║   └────────┘ └────────┘ └────────┘ └────────┘ └────────┘ └────────┘  ║   |
+|  ╚═══════════════════════════════════════════════════════════════════════╝   |
+|                                                                               |
++==============================================================================+
 ```
 
 ---
 
-## 2. Fluxo de Detecção de Fraudes
+## 2. Fluxo de Deteccao de Fraudes
 
-```mermaid
-sequenceDiagram
-    participant C as Cliente
-    participant API as API Gateway
-    participant FE as Feature Engine
-    participant ML as ML Model
-    participant RE as Rules Engine
-    participant DE as Decision Engine
-    participant DB as Database
-    
-    C->>API: POST /api/fraud/predict
-    API->>API: Validate Request
-    API->>API: Rate Limit Check
-    API->>API: JWT Auth
-    
-    API->>FE: Extract Features
-    FE->>FE: Temporal Features
-    FE->>FE: Value Features
-    FE->>FE: Behavioral Features
-    FE->>FE: Geographic Features
-    
-    FE->>ML: Feature Vector
-    ML->>ML: Random Forest
-    ML->>ML: Gradient Boosting
-    ML->>ML: Meta-Model (LR)
-    ML->>ML: Calibration
-    
-    ML->>RE: Probability Score
-    RE->>RE: Apply Precision Rules
-    RE->>RE: Calculate Risk Score
-    
-    RE->>DE: Risk Score
-    DE->>DE: Determine Action
-    
-    alt Risk Score < 30
-        DE->>API: APPROVE
-    else Risk Score 30-85
-        DE->>API: REVIEW
-    else Risk Score > 85
-        DE->>API: BLOCK
-    end
-    
-    API->>DB: Log Transaction
-    API->>C: Response
-```
-
-### Diagrama ASCII - Fluxo de Detecção
+![Fluxo Processo](images/fluxograma_processo_fraude.png)
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                     FLUXO DE DETECÇÃO DE FRAUDE                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ENTRADA                                                                     │
-│  ═══════                                                                     │
-│                                                                              │
-│  ┌──────────────────────────────────────────────────────────────────────┐   │
-│  │  POST /api/fraud/predict                                              │   │
-│  │  {                                                                    │   │
-│  │    "transaction_id": "TXN-001",                                       │   │
-│  │    "amount": 5000.00,                                                 │   │
-│  │    "channel": "PIX",                                                  │   │
-│  │    "customer_id": "CUST-123",                                         │   │
-│  │    "timestamp": "2025-11-27T14:30:00Z"                                │   │
-│  │  }                                                                    │   │
-│  └─────────────────────────────────┬────────────────────────────────────┘   │
-│                                    │                                         │
-│                                    ▼                                         │
-│  VALIDAÇÃO                                                                   │
-│  ═════════                                                                   │
-│                                                                              │
-│  ┌───────────────┐   ┌───────────────┐   ┌───────────────┐                 │
-│  │  Rate Limit   │──▶│   JWT Auth    │──▶│   Validate    │                 │
-│  │  Check        │   │   Verify      │   │   Schema      │                 │
-│  └───────────────┘   └───────────────┘   └───────────────┘                 │
-│         │                   │                   │                           │
-│         │ [FAIL]            │ [FAIL]            │ [FAIL]                    │
-│         ▼                   ▼                   ▼                           │
-│    429 Too Many        401 Unauthorized    400 Bad Request                  │
-│                                    │                                         │
-│                                    ▼                                         │
-│  FEATURE EXTRACTION (47+ features)                                           │
-│  ══════════════════                                                          │
-│                                                                              │
-│  ┌──────────────────────────────────────────────────────────────────────┐   │
-│  │                                                                       │   │
-│  │  TEMPORAIS          VALOR             COMPORTAMENTO    GEOGRÁFICAS   │   │
-│  │  ───────────        ─────             ─────────────    ───────────   │   │
-│  │  • hour             • amount_log      • velocity_1h    • distance    │   │
-│  │  • day_of_week      • amount_sq       • velocity_24h   • loc_risk    │   │
-│  │  • is_weekend       • is_round        • new_merchant   • is_intl     │   │
-│  │  • is_night         • amount_z        • device_change                │   │
-│  │  • is_business      • normalized                                     │   │
-│  │                                                                       │   │
-│  └─────────────────────────────────┬────────────────────────────────────┘   │
-│                                    │                                         │
-│                                    ▼                                         │
-│  ML ENSEMBLE                                                                 │
-│  ══════════                                                                  │
-│                                                                              │
-│  ┌──────────────────────────────────────────────────────────────────────┐   │
-│  │                                                                       │   │
-│  │         ┌─────────────────┐       ┌─────────────────┐                │   │
-│  │         │  Random Forest  │       │ Gradient Boost  │                │   │
-│  │         │  n=100, d=15    │       │  n=100, d=8     │                │   │
-│  │         └────────┬────────┘       └────────┬────────┘                │   │
-│  │                  │                         │                          │   │
-│  │                  └───────────┬─────────────┘                          │   │
-│  │                              │                                        │   │
-│  │                              ▼                                        │   │
-│  │                   ┌─────────────────────┐                             │   │
-│  │                   │    CALIBRATION      │                             │   │
-│  │                   │   (Isotonic/Platt)  │                             │   │
-│  │                   └──────────┬──────────┘                             │   │
-│  │                              │                                        │   │
-│  │                              ▼                                        │   │
-│  │                   ┌─────────────────────┐                             │   │
-│  │                   │    META-MODEL       │                             │   │
-│  │                   │ Logistic Regression │                             │   │
-│  │                   └──────────┬──────────┘                             │   │
-│  │                              │                                        │   │
-│  │                              ▼                                        │   │
-│  │                    Probability: 0.85                                  │   │
-│  │                                                                       │   │
-│  └─────────────────────────────────┬────────────────────────────────────┘   │
-│                                    │                                         │
-│                                    ▼                                         │
-│  PRECISION RULES                                                             │
-│  ═══════════════                                                             │
-│                                                                              │
-│  ┌──────────────────────────────────────────────────────────────────────┐   │
-│  │                                                                       │   │
-│  │  ┌─────────────────────────────────────────────────────────────┐     │   │
-│  │  │  Rule: extreme_amount_suspicious_hour                        │     │   │
-│  │  │  IF amount > 50000 AND hour IN [0,1,2,3,4,23]               │     │   │
-│  │  │  THEN probability += 0.30                                    │     │   │
-│  │  └─────────────────────────────────────────────────────────────┘     │   │
-│  │                                                                       │   │
-│  │  ┌─────────────────────────────────────────────────────────────┐     │   │
-│  │  │  Rule: velocity_burst                                        │     │   │
-│  │  │  IF transactions_30min > 50                                  │     │   │
-│  │  │  THEN probability += 0.40                                    │     │   │
-│  │  └─────────────────────────────────────────────────────────────┘     │   │
-│  │                                                                       │   │
-│  │  ┌─────────────────────────────────────────────────────────────┐     │   │
-│  │  │  Rule: high_risk_combination                                 │     │   │
-│  │  │  IF location_risk > 0.9 AND device_risk > 0.9               │     │   │
-│  │  │  THEN probability += 0.50                                    │     │   │
-│  │  └─────────────────────────────────────────────────────────────┘     │   │
-│  │                                                                       │   │
-│  └─────────────────────────────────┬────────────────────────────────────┘   │
-│                                    │                                         │
-│                                    ▼                                         │
-│  DECISION                                                                    │
-│  ════════                                                                    │
-│                                                                              │
-│  ┌──────────────────────────────────────────────────────────────────────┐   │
-│  │                                                                       │   │
-│  │         Risk Score: probability × 100 = 85                           │   │
-│  │                                                                       │   │
-│  │         ┌─────────┬─────────┬─────────┬─────────┬─────────┐          │   │
-│  │         │  0-30   │  31-50  │  51-70  │  71-85  │  86-100 │          │   │
-│  │         │  LOW    │  MED-L  │  MEDIUM │  HIGH   │ CRITICAL│          │   │
-│  │         │ APPROVE │ APPROVE │ MONITOR │ REVIEW  │  BLOCK  │          │   │
-│  │         └─────────┴─────────┴─────────┴────┬────┴─────────┘          │   │
-│  │                                            │                          │   │
-│  │                                     ───────┴───────                   │   │
-│  │                                     │   HIGH    │                     │   │
-│  │                                     │  REVIEW   │                     │   │
-│  │                                     └───────────┘                     │   │
-│  │                                                                       │   │
-│  └─────────────────────────────────┬────────────────────────────────────┘   │
-│                                    │                                         │
-│                                    ▼                                         │
-│  RESPOSTA                                                                    │
-│  ════════                                                                    │
-│                                                                              │
-│  ┌──────────────────────────────────────────────────────────────────────┐   │
-│  │  {                                                                    │   │
-│  │    "success": true,                                                   │   │
-│  │    "prediction": {                                                    │   │
-│  │      "transaction_id": "TXN-001",                                     │   │
-│  │      "is_fraud": true,                                                │   │
-│  │      "fraud_probability": 0.85,                                       │   │
-│  │      "risk_score": 85.0,                                              │   │
-│  │      "risk_level": "HIGH",                                            │   │
-│  │      "confidence": 0.92,                                              │   │
-│  │      "processing_time_ms": 8.5,                                       │   │
-│  │      "model_version": "1.0.0",                                        │   │
-│  │      "detection_reason": ["suspicious_hour", "high_amount"]           │   │
-│  │    }                                                                  │   │
-│  │  }                                                                    │   │
-│  └──────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
++==============================================================================+
+|                     FLUXO COMPLETO DE DETECCAO DE FRAUDE                      |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                          ENTRADA DA TRANSACAO                            │ |
+|  │                                                                          │ |
+|  │   POST /api/fraud/predict                                                │ |
+|  │   {                                                                      │ |
+|  │     "transaction_id": "TXN-001",                                        │ |
+|  │     "amount": 5000.00,                                                   │ |
+|  │     "channel": "PIX",                                                    │ |
+|  │     "timestamp": "2025-11-27T14:30:00Z"                                 │ |
+|  │   }                                                                      │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                            VALIDACAO                                     │ |
+|  │                                                                          │ |
+|  │  ┌───────────────┐   ┌───────────────┐   ┌───────────────┐              │ |
+|  │  │  RATE LIMIT   │──▶│   JWT AUTH    │──▶│   VALIDATE    │              │ |
+|  │  │    CHECK      │   │    VERIFY     │   │    SCHEMA     │              │ |
+|  │  │               │   │               │   │               │              │ |
+|  │  │   1000/min    │   │    HS256      │   │   Cerberus    │              │ |
+|  │  └───────┬───────┘   └───────┬───────┘   └───────┬───────┘              │ |
+|  │          │                   │                   │                       │ |
+|  │        [FAIL]              [FAIL]              [FAIL]                    │ |
+|  │          ▼                   ▼                   ▼                       │ |
+|  │    429 Too Many        401 Unauth         400 Bad Request                │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │ [OK]                                     |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                       FEATURE ENGINEERING                                │ |
+|  │                          (47+ features)                                  │ |
+|  │                                                                          │ |
+|  │  ┌─────────────────────────────────────────────────────────────────┐    │ |
+|  │  │                                                                  │    │ |
+|  │  │  TEMPORAIS           VALOR            COMPORTAMENTO   GEOGR.    │    │ |
+|  │  │  ──────────          ─────            ─────────────   ──────    │    │ |
+|  │  │                                                                  │    │ |
+|  │  │  • hour              • amount_log     • velocity_1h   • dist    │    │ |
+|  │  │  • day_of_week       • amount_sqrt    • velocity_24h  • loc_r   │    │ |
+|  │  │  • is_weekend        • is_round       • new_merchant  • intl    │    │ |
+|  │  │  • is_night          • zscore         • device_chg             │    │ |
+|  │  │  • is_business       • normalized                               │    │ |
+|  │  │                                                                  │    │ |
+|  │  └─────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                          ML ENSEMBLE                                     │ |
+|  │                                                                          │ |
+|  │         ┌─────────────────┐       ┌─────────────────┐                   │ |
+|  │         │  RANDOM FOREST  │       │ GRADIENT BOOST  │                   │ |
+|  │         │                 │       │                 │                   │ |
+|  │         │  ┌───┐ ┌───┐   │       │  ┌───┐ ┌───┐   │                   │ |
+|  │         │  │ 🌲 │ │ 🌲 │ x100│   │  │ 📈 │ │ 📈 │ x100│               │ |
+|  │         │  └───┘ └───┘   │       │  └───┘ └───┘   │                   │ |
+|  │         │  n=100, d=15   │       │  n=100, d=8    │                   │ |
+|  │         └───────┬────────┘       └────────┬───────┘                   │ |
+|  │                 │                         │                            │ |
+|  │                 └───────────┬─────────────┘                            │ |
+|  │                             │                                          │ |
+|  │                             ▼                                          │ |
+|  │                  ┌─────────────────────┐                               │ |
+|  │                  │     META-MODEL      │                               │ |
+|  │                  │ Logistic Regression │                               │ |
+|  │                  │                     │                               │ |
+|  │                  │   Probability: 0.85 │                               │ |
+|  │                  └──────────┬──────────┘                               │ |
+|  │                             │                                          │ |
+|  └─────────────────────────────┼───────────────────────────────────────────┘ |
+|                                │                                             |
+|                                ▼                                             |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                        PRECISION RULES                                   │ |
+|  │                                                                          │ |
+|  │  ┌─────────────────────────────────────────────────────────────────┐    │ |
+|  │  │  REGRA 1: extreme_amount_suspicious_hour                         │    │ |
+|  │  │  SE amount > R$ 50.000 E hora IN [0,1,2,3,4,23]                 │    │ |
+|  │  │  ENTAO probability += 0.30                                       │    │ |
+|  │  └─────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  │  ┌─────────────────────────────────────────────────────────────────┐    │ |
+|  │  │  REGRA 2: velocity_burst                                         │    │ |
+|  │  │  SE transacoes_30min > 50                                        │    │ |
+|  │  │  ENTAO probability += 0.40                                       │    │ |
+|  │  └─────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  │  ┌─────────────────────────────────────────────────────────────────┐    │ |
+|  │  │  REGRA 3: high_risk_combination                                  │    │ |
+|  │  │  SE location_risk > 0.9 E device_risk > 0.9                     │    │ |
+|  │  │  ENTAO probability += 0.50                                       │    │ |
+|  │  └─────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                            DECISAO                                       │ |
+|  │                                                                          │ |
+|  │              Risk Score = probability × 100                              │ |
+|  │                                                                          │ |
+|  │  ┌───────────────────────────────────────────────────────────────────┐  │ |
+|  │  │                                                                    │  │ |
+|  │  │    0        30                              85              100    │  │ |
+|  │  │    │─────────│───────────────────────────────│────────────────│    │  │ |
+|  │  │    │         │                               │                │    │  │ |
+|  │  │    │  BAIXO  │           MEDIO               │      ALTO      │    │  │ |
+|  │  │    │         │                               │                │    │  │ |
+|  │  │    │ APROVAR │          REVISAR              │    BLOQUEAR    │    │  │ |
+|  │  │    │   ✅    │            ⚠️                 │       🚫       │    │  │ |
+|  │  │                                                                    │  │ |
+|  │  └───────────────────────────────────────────────────────────────────┘  │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                     EXPLAINABILITY + RESPONSE                            │ |
+|  │                                                                          │ |
+|  │  {                                                                       │ |
+|  │    "is_fraud": true,                                                     │ |
+|  │    "risk_score": 85,                                                     │ |
+|  │    "decision": "BLOCK",                                                  │ |
+|  │    "explanation_text": "Transacao de alto valor em horario suspeito",   │ |
+|  │    "top_risk_factors": [                                                 │ |
+|  │      {"feature": "amount_normalized", "impact": 0.45}                   │ |
+|  │    ],                                                                    │ |
+|  │    "lgpd_compliant": true                                                │ |
+|  │  }                                                                       │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
 ```
 
 ---
 
 ## 3. Pipeline de Machine Learning
 
-```mermaid
-graph TD
-    subgraph "Data Ingestion"
-        D1[Raw Data]
-        D2[Kaggle Datasets]
-        D3[Historical Transactions]
-    end
-    
-    subgraph "Preprocessing"
-        P1[Data Cleaning]
-        P2[Feature Engineering]
-        P3[Normalization]
-    end
-    
-    subgraph "Training"
-        T1[Train/Test Split]
-        T2[Base Models Training]
-        T3[Calibration]
-        T4[Meta-Model Training]
-    end
-    
-    subgraph "Evaluation"
-        E1[Cross Validation]
-        E2[Metrics Calculation]
-        E3[Threshold Optimization]
-    end
-    
-    subgraph "Deployment"
-        DP1[Model Serialization]
-        DP2[A/B Test]
-        DP3[Canary Deploy]
-        DP4[Production]
-    end
-    
-    D1 --> P1
-    D2 --> P1
-    D3 --> P1
-    P1 --> P2
-    P2 --> P3
-    P3 --> T1
-    T1 --> T2
-    T2 --> T3
-    T3 --> T4
-    T4 --> E1
-    E1 --> E2
-    E2 --> E3
-    E3 --> DP1
-    DP1 --> DP2
-    DP2 --> DP3
-    DP3 --> DP4
-```
-
-### Diagrama ASCII - Pipeline ML
+![Pipeline ML](images/pipeline_machine_learning.png)
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          PIPELINE DE MACHINE LEARNING                        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                         1. DATA INGESTION                              │  │
-│  │                                                                        │  │
-│  │    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐              │  │
-│  │    │   Kaggle    │    │ Historical  │    │   Real-time │              │  │
-│  │    │  Datasets   │    │Transactions │    │   Stream    │              │  │
-│  │    │  (4+ sets)  │    │  (5 years)  │    │   (live)    │              │  │
-│  │    └──────┬──────┘    └──────┬──────┘    └──────┬──────┘              │  │
-│  │           └──────────────────┼──────────────────┘                      │  │
-│  └──────────────────────────────│────────────────────────────────────────┘  │
-│                                 │                                            │
-│                                 ▼                                            │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                       2. PREPROCESSING                                 │  │
-│  │                                                                        │  │
-│  │    ┌────────────────────────────────────────────────────────────┐     │  │
-│  │    │  Data Cleaning                                              │     │  │
-│  │    │  • Remove duplicates                                        │     │  │
-│  │    │  • Handle missing values (median imputation)                │     │  │
-│  │    │  • Outlier detection and treatment                          │     │  │
-│  │    └───────────────────────────┬────────────────────────────────┘     │  │
-│  │                                │                                       │  │
-│  │    ┌────────────────────────────────────────────────────────────┐     │  │
-│  │    │  Feature Engineering (47+ features)                         │     │  │
-│  │    │  • Temporal: hour, day, weekend, night, business_hours     │     │  │
-│  │    │  • Value: log, squared, zscore, normalized                  │     │  │
-│  │    │  • Behavioral: velocity, patterns, anomalies                │     │  │
-│  │    │  • Geographic: distance, risk_score, international          │     │  │
-│  │    └───────────────────────────┬────────────────────────────────┘     │  │
-│  │                                │                                       │  │
-│  │    ┌────────────────────────────────────────────────────────────┐     │  │
-│  │    │  Normalization                                              │     │  │
-│  │    │  • StandardScaler (mean=0, std=1)                           │     │  │
-│  │    │  • Save scaler for inference                                │     │  │
-│  │    └───────────────────────────┬────────────────────────────────┘     │  │
-│  └──────────────────────────────────────────────────────────────────────┘  │
-│                                 │                                            │
-│                                 ▼                                            │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                         3. TRAINING                                    │  │
-│  │                                                                        │  │
-│  │    ┌────────────────────────────────────────────────────────────┐     │  │
-│  │    │  Train/Test Split                                           │     │  │
-│  │    │  • 80% Training / 20% Test                                  │     │  │
-│  │    │  • Stratified by target (fraud/legit)                       │     │  │
-│  │    └───────────────────────────┬────────────────────────────────┘     │  │
-│  │                                │                                       │  │
-│  │    ┌────────────────────────────────────────────────────────────┐     │  │
-│  │    │  Base Models (Layer 0)                                      │     │  │
-│  │    │                                                             │     │  │
-│  │    │  ┌──────────────┐  ┌──────────────┐                        │     │  │
-│  │    │  │Random Forest │  │Gradient Boost│                        │     │  │
-│  │    │  │n=100, d=15   │  │n=100, d=8    │                        │     │  │
-│  │    │  │balanced      │  │lr=0.1        │                        │     │  │
-│  │    │  └──────┬───────┘  └──────┬───────┘                        │     │  │
-│  │    └─────────│─────────────────│────────────────────────────────┘     │  │
-│  │              │                 │                                       │  │
-│  │    ┌─────────▼─────────────────▼────────────────────────────────┐     │  │
-│  │    │  Probability Calibration                                    │     │  │
-│  │    │  CalibratedClassifierCV(method='isotonic', cv=5)            │     │  │
-│  │    └───────────────────────────┬────────────────────────────────┘     │  │
-│  │                                │                                       │  │
-│  │    ┌────────────────────────────────────────────────────────────┐     │  │
-│  │    │  Meta-Model (Layer 1)                                       │     │  │
-│  │    │  LogisticRegression(balanced, max_iter=1000)                │     │  │
-│  │    │  Input: calibrated probabilities from base models           │     │  │
-│  │    └───────────────────────────┬────────────────────────────────┘     │  │
-│  └──────────────────────────────────────────────────────────────────────┘  │
-│                                 │                                            │
-│                                 ▼                                            │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                        4. EVALUATION                                   │  │
-│  │                                                                        │  │
-│  │    ┌────────────────────────────────────────────────────────────┐     │  │
-│  │    │  Cross-Validation (5-fold)                                  │     │  │
-│  │    │  • Stratified K-Fold                                        │     │  │
-│  │    │  • Consistency across folds                                 │     │  │
-│  │    └────────────────────────────────────────────────────────────┘     │  │
-│  │                                                                        │  │
-│  │    ┌────────────────────────────────────────────────────────────┐     │  │
-│  │    │  Metrics                                                    │     │  │
-│  │    │  ┌──────────┬──────────┬──────────┬──────────┬──────────┐ │     │  │
-│  │    │  │ Accuracy │Precision │  Recall  │ F1-Score │ ROC-AUC  │ │     │  │
-│  │    │  │  99.9%   │  100%    │  96.7%   │  98.3%   │  99.8%   │ │     │  │
-│  │    │  └──────────┴──────────┴──────────┴──────────┴──────────┘ │     │  │
-│  │    └────────────────────────────────────────────────────────────┘     │  │
-│  │                                                                        │  │
-│  │    ┌────────────────────────────────────────────────────────────┐     │  │
-│  │    │  Threshold Optimization                                     │     │  │
-│  │    │  • F1-Score maximization                                    │     │  │
-│  │    │  • Business constraints (FPR < 1%)                          │     │  │
-│  │    │  • Optimal threshold: 0.5                                   │     │  │
-│  │    └────────────────────────────────────────────────────────────┘     │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                 │                                            │
-│                                 ▼                                            │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                       5. DEPLOYMENT                                    │  │
-│  │                                                                        │  │
-│  │    ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌─────────────┐ │  │
-│  │    │   Joblib     │ │   A/B Test   │ │    Canary    │ │  Production │ │  │
-│  │    │ Serialization│─▶│   5% / 95%   │─▶│  5%→10%→25% │─▶│    100%     │ │  │
-│  │    └──────────────┘ └──────────────┘ └──────────────┘ └─────────────┘ │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
++==============================================================================+
+|                    PIPELINE DE MACHINE LEARNING                               |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                         DADOS HISTORICOS                                 │ |
+|  │                                                                          │ |
+|  │   ┌───────────────────────────────────────────────────────────────┐     │ |
+|  │   │    TRANSACOES PASSADAS    │    LABELS (FRAUDE/LEGITIMA)       │     │ |
+|  │   │                           │                                    │     │ |
+|  │   │    1.2M registros         │    7% fraude / 93% legitima       │     │ |
+|  │   └───────────────────────────┴────────────────────────────────────┘     │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                       PREPROCESSAMENTO                                   │ |
+|  │                                                                          │ |
+|  │   ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐   │ |
+|  │   │   LIMPEZA   │  │  ENCODING   │  │  SCALING    │  │   SPLIT     │   │ |
+|  │   │             │  │             │  │             │  │             │   │ |
+|  │   │ • Nulos     │  │ • OneHot    │  │ • Standard  │  │ • 80/20     │   │ |
+|  │   │ • Outliers  │  │ • Label     │  │ • MinMax    │  │ • Stratify  │   │ |
+|  │   │ • Duplicatas│  │ • Target    │  │ • Robust    │  │ • Temporal  │   │ |
+|  │   └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘   │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                      FEATURE ENGINEERING                                 │ |
+|  │                                                                          │ |
+|  │  ┌──────────────────────────────────────────────────────────────────┐   │ |
+|  │  │                        47+ FEATURES                               │   │ |
+|  │  │                                                                   │   │ |
+|  │  │  CATEGORIA        FEATURES               TRANSFORMACAO           │   │ |
+|  │  │  ─────────        ────────               ────────────            │   │ |
+|  │  │                                                                   │   │ |
+|  │  │  TEMPORAIS        hour, weekday          Extraido de timestamp   │   │ |
+|  │  │                   is_weekend             Binario                 │   │ |
+|  │  │                   is_night               Binario (22h-6h)        │   │ |
+|  │  │                   is_business_hours      Binario (9h-18h)        │   │ |
+|  │  │                                                                   │   │ |
+|  │  │  VALOR            amount_log             log1p(amount)           │   │ |
+|  │  │                   amount_sqrt            sqrt(amount)            │   │ |
+|  │  │                   amount_normalized      StandardScaler          │   │ |
+|  │  │                   is_round_amount        amount % 100 == 0       │   │ |
+|  │  │                                                                   │   │ |
+|  │  │  COMPORTAMENTO    velocity_1h            count(1 hora)           │   │ |
+|  │  │                   velocity_24h           count(24 horas)         │   │ |
+|  │  │                   avg_amount_7d          media(7 dias)           │   │ |
+|  │  │                   std_amount_30d         desvio(30 dias)         │   │ |
+|  │  │                                                                   │   │ |
+|  │  │  GEOGRAFICAS      location_entropy       Shannon entropy         │   │ |
+|  │  │                   distance_from_home     Haversine km            │   │ |
+|  │  │                   is_international       country != BR           │   │ |
+|  │  │                                                                   │   │ |
+|  │  └──────────────────────────────────────────────────────────────────┘   │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                         TREINAMENTO                                      │ |
+|  │                                                                          │ |
+|  │   ┌─────────────────────────────────────────────────────────────────┐   │ |
+|  │   │                    STACKING CLASSIFIER                           │   │ |
+|  │   │                                                                  │   │ |
+|  │   │       ┌─────────────────┐    ┌─────────────────┐                │   │ |
+|  │   │       │  BASE MODEL 1   │    │  BASE MODEL 2   │                │   │ |
+|  │   │       │                 │    │                 │                │   │ |
+|  │   │       │  Random Forest  │    │ Gradient Boost  │                │   │ |
+|  │   │       │   n=100, d=15   │    │   n=100, d=8    │                │   │ |
+|  │   │       │                 │    │                 │                │   │ |
+|  │   │       │   Accuracy:     │    │   Accuracy:     │                │   │ |
+|  │   │       │     94.2%       │    │     95.1%       │                │   │ |
+|  │   │       └────────┬────────┘    └────────┬────────┘                │   │ |
+|  │   │                │                      │                          │   │ |
+|  │   │                └──────────┬───────────┘                          │   │ |
+|  │   │                           │                                      │   │ |
+|  │   │                           ▼                                      │   │ |
+|  │   │                ┌─────────────────────┐                           │   │ |
+|  │   │                │    META-MODEL       │                           │   │ |
+|  │   │                │                     │                           │   │ |
+|  │   │                │ Logistic Regression │                           │   │ |
+|  │   │                │   class_weight:     │                           │   │ |
+|  │   │                │     balanced        │                           │   │ |
+|  │   │                │                     │                           │   │ |
+|  │   │                │   Accuracy: 96.3%   │                           │   │ |
+|  │   │                └─────────────────────┘                           │   │ |
+|  │   │                                                                  │   │ |
+|  │   └─────────────────────────────────────────────────────────────────┘   │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                          AVALIACAO                                       │ |
+|  │                                                                          │ |
+|  │   ┌─────────────────────────────────────────────────────────────────┐   │ |
+|  │   │                      METRICAS                                    │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   ┌───────────────┐  ┌───────────────┐  ┌───────────────┐       │   │ |
+|  │   │   │    RECALL     │  │   PRECISION   │  │   F1-SCORE    │       │   │ |
+|  │   │   │               │  │               │  │               │       │   │ |
+|  │   │   │    90.9%      │  │    100.0%     │  │    95.2%      │       │   │ |
+|  │   │   │               │  │               │  │               │       │   │ |
+|  │   │   │  ████████████ │  │  ████████████ │  │  ████████████ │       │   │ |
+|  │   │   └───────────────┘  └───────────────┘  └───────────────┘       │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   ┌─────────────────────────────────────────────────────────┐   │   │ |
+|  │   │   │                 CONFUSION MATRIX                         │   │   │ |
+|  │   │   │                                                          │   │   │ |
+|  │   │   │             │  Pred: Neg  │  Pred: Pos                  │   │   │ |
+|  │   │   │   ──────────┼─────────────┼─────────────                │   │   │ |
+|  │   │   │   Real: Neg │    TN: 930  │    FP: 0                    │   │   │ |
+|  │   │   │   Real: Pos │    FN: 7    │    TP: 70                   │   │   │ |
+|  │   │   │                                                          │   │   │ |
+|  │   │   └─────────────────────────────────────────────────────────┘   │   │ |
+|  │   │                                                                  │   │ |
+|  │   └─────────────────────────────────────────────────────────────────┘   │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                            DEPLOY                                        │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────┐   ┌────────────────────┐                       │ |
+|  │   │   MODELO SALVO     │   │   API ENDPOINT     │                       │ |
+|  │   │                    │   │                    │                       │ |
+|  │   │   model_v12.pkl    │──▶│  /api/fraud/predict│                       │ |
+|  │   │                    │   │                    │                       │ |
+|  │   │   ~50MB            │   │  Latencia: 15ms    │                       │ |
+|  │   └────────────────────┘   └────────────────────┘                       │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
 ```
 
 ---
 
-## 4. Fluxo MLOps
+## 4. Diagrama de Componentes
 
-```mermaid
-graph LR
-    subgraph "Monitoring"
-        M1[Drift Detector]
-        M2[Performance Monitor]
-        M3[Alert System]
-    end
-    
-    subgraph "A/B Testing"
-        A1[Traffic Router]
-        A2[Model A - Control]
-        A3[Model B - Challenger]
-        A4[Statistical Analyzer]
-    end
-    
-    subgraph "Canary Deploy"
-        C1[5% Traffic]
-        C2[10% Traffic]
-        C3[25% Traffic]
-        C4[50% Traffic]
-        C5[100% Traffic]
-    end
-    
-    subgraph "Actions"
-        AC1[Retrain]
-        AC2[Rollback]
-        AC3[Promote]
-    end
-    
-    M1 --> M3
-    M2 --> M3
-    M3 --> AC1
-    
-    A1 --> A2
-    A1 --> A3
-    A2 --> A4
-    A3 --> A4
-    A4 --> AC3
-    
-    C1 --> C2
-    C2 --> C3
-    C3 --> C4
-    C4 --> C5
-    C1 -.-> AC2
-    C2 -.-> AC2
-    C3 -.-> AC2
-```
-
-### Diagrama ASCII - MLOps
+![Componentes Sistema](images/componentes_sistema_tecnologias.png)
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              FLUXO MLOPS                                     │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                      DRIFT DETECTION                                   │  │
-│  │                                                                        │  │
-│  │    Production       Baseline                                           │  │
-│  │    Distribution     Distribution                                       │  │
-│  │    ┌─────────┐      ┌─────────┐                                       │  │
-│  │    │ █  █    │      │    █    │     Jensen-Shannon                    │  │
-│  │    │ █  █ █  │  vs  │   ███   │  ─▶  Divergence                       │  │
-│  │    │ █ ██ █  │      │  █████  │      = 0.15                           │  │
-│  │    └─────────┘      └─────────┘                                       │  │
-│  │                                                                        │  │
-│  │    Severity Levels:                                                    │  │
-│  │    ┌──────────┬──────────┬──────────┬──────────┐                      │  │
-│  │    │   LOW    │  MEDIUM  │   HIGH   │ CRITICAL │                      │  │
-│  │    │ PSI<0.1  │ PSI<0.25 │ PSI<0.5  │ PSI>=0.5 │                      │  │
-│  │    │ Monitor  │Investigate│ Retrain │ URGENT!  │                      │  │
-│  │    └──────────┴──────────┴──────────┴──────────┘                      │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                                                              │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                       A/B TESTING                                      │  │
-│  │                                                                        │  │
-│  │                    ┌─────────────────┐                                 │  │
-│  │    Request ──────▶ │  Traffic Router │                                 │  │
-│  │                    │  (Hash-based)   │                                 │  │
-│  │                    └────────┬────────┘                                 │  │
-│  │                             │                                          │  │
-│  │              ┌──────────────┼──────────────┐                          │  │
-│  │              │              │              │                          │  │
-│  │              ▼              ▼              ▼                          │  │
-│  │       ┌───────────┐  ┌───────────┐  ┌───────────┐                    │  │
-│  │       │  Model A  │  │  Model B  │  │  Model C  │                    │  │
-│  │       │ (Control) │  │(Challenger│  │(Challenger│                    │  │
-│  │       │   60%     │  │    20%    │  │    20%    │                    │  │
-│  │       └─────┬─────┘  └─────┬─────┘  └─────┬─────┘                    │  │
-│  │             │              │              │                          │  │
-│  │             └──────────────┼──────────────┘                          │  │
-│  │                            │                                          │  │
-│  │                            ▼                                          │  │
-│  │                 ┌─────────────────────┐                               │  │
-│  │                 │ Statistical Analysis│                               │  │
-│  │                 │ • Chi-square test   │                               │  │
-│  │                 │ • p-value < 0.05    │                               │  │
-│  │                 │ • Confidence: 95%   │                               │  │
-│  │                 └─────────────────────┘                               │  │
-│  │                                                                        │  │
-│  │    Metrics Comparison:                                                 │  │
-│  │    ┌──────────┬──────────┬──────────┬──────────┐                      │  │
-│  │    │  Model   │ Accuracy │ Latency  │   FPR    │                      │  │
-│  │    ├──────────┼──────────┼──────────┼──────────┤                      │  │
-│  │    │ Model A  │  99.8%   │  8.5ms   │  0.3%    │                      │  │
-│  │    │ Model B  │  99.9%   │  9.2ms   │  0.2%    │  ← Winner            │  │
-│  │    │ Model C  │  99.7%   │  7.8ms   │  0.5%    │                      │  │
-│  │    └──────────┴──────────┴──────────┴──────────┘                      │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                                                              │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                      CANARY DEPLOYMENT                                 │  │
-│  │                                                                        │  │
-│  │    ┌─────┐   ┌─────┐   ┌─────┐   ┌─────┐   ┌─────┐                   │  │
-│  │    │ 5%  │──▶│ 10% │──▶│ 25% │──▶│ 50% │──▶│100% │                   │  │
-│  │    └──┬──┘   └──┬──┘   └──┬──┘   └──┬──┘   └─────┘                   │  │
-│  │       │         │         │         │                                 │  │
-│  │       ▼         ▼         ▼         ▼                                 │  │
-│  │    Health    Health    Health    Health                               │  │
-│  │    Check     Check     Check     Check                                │  │
-│  │       │         │         │         │                                 │  │
-│  │       ├─ PASS ──┼─ PASS ──┼─ PASS ──┼─ PASS ──▶ COMPLETE             │  │
-│  │       │         │         │         │                                 │  │
-│  │       └─ FAIL ──┴─ FAIL ──┴─ FAIL ──┴─ FAIL ──▶ ROLLBACK             │  │
-│  │                                                                        │  │
-│  │    Health Check Criteria:                                              │  │
-│  │    ✓ Error Rate < 1%                                                   │  │
-│  │    ✓ Latency P95 < 15ms                                                │  │
-│  │    ✓ Accuracy > 99%                                                    │  │
-│  │    ✓ FPR < 0.5%                                                        │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
++==============================================================================+
+|                      DIAGRAMA DE COMPONENTES                                  |
++==============================================================================+
+|                                                                               |
+|  ╔═══════════════════════════════════════════════════════════════════════╗   |
+|  ║                           FRONTEND                                     ║   |
+|  ║                                                                        ║   |
+|  ║   ┌─────────────────────────────────────────────────────────────────┐ ║   |
+|  ║   │                         REACT APP                                │ ║   |
+|  ║   │                                                                  │ ║   |
+|  ║   │   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │ ║   |
+|  ║   │   │Dashboard │ │Transact. │ │ Alerts   │ │ Reports  │          │ ║   |
+|  ║   │   │   Page   │ │   Page   │ │   Page   │ │   Page   │          │ ║   |
+|  ║   │   └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘          │ ║   |
+|  ║   │        │            │            │            │                 │ ║   |
+|  ║   │        └────────────┴─────┬──────┴────────────┘                 │ ║   |
+|  ║   │                           │                                      │ ║   |
+|  ║   │                    ┌──────▼──────┐                               │ ║   |
+|  ║   │                    │   API.ts    │                               │ ║   |
+|  ║   │                    │             │                               │ ║   |
+|  ║   │                    │ fetch()     │                               │ ║   |
+|  ║   │                    └──────┬──────┘                               │ ║   |
+|  ║   │                           │                                      │ ║   |
+|  ║   └───────────────────────────│──────────────────────────────────────┘ ║   |
+|  ║                               │                                        ║   |
+|  ╚═══════════════════════════════│════════════════════════════════════════╝   |
+|                                  │ HTTP/REST                                  |
+|                                  ▼                                            |
+|  ╔═══════════════════════════════════════════════════════════════════════╗   |
+|  ║                            BACKEND                                     ║   |
+|  ║                                                                        ║   |
+|  ║   ┌─────────────────────────────────────────────────────────────────┐ ║   |
+|  ║   │                     FLASK APPLICATION                            │ ║   |
+|  ║   │                                                                  │ ║   |
+|  ║   │   ┌─────────────────────────────────────────────────────────┐   │ ║   |
+|  ║   │   │                   production_api.py                      │   │ ║   |
+|  ║   │   │                                                          │   │ ║   |
+|  ║   │   │   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │   │ ║   |
+|  ║   │   │   │ /health  │ │ /fraud/* │ │/transact.│ │ /observ. │  │   │ ║   |
+|  ║   │   │   └──────────┘ └──────────┘ └──────────┘ └──────────┘  │   │ ║   |
+|  ║   │   └─────────────────────────────────────────────────────────┘   │ ║   |
+|  ║   │                           │                                      │ ║   |
+|  ║   │   ┌───────────────────────┴───────────────────────┐             │ ║   |
+|  ║   │   │                                               │             │ ║   |
+|  ║   │   ▼                                               ▼             │ ║   |
+|  ║   │   ┌─────────────────────────┐  ┌─────────────────────────┐     │ ║   |
+|  ║   │   │      ML ENGINE          │  │   EXPLAINABILITY        │     │ ║   |
+|  ║   │   │                         │  │                         │     │ ║   |
+|  ║   │   │ production_fraud_engine │  │ explainability_engine   │     │ ║   |
+|  ║   │   │                         │  │                         │     │ ║   |
+|  ║   │   │ • StackingClassifier    │  │ • Feature Importance    │     │ ║   |
+|  ║   │   │ • Feature Engineering   │  │ • SHAP Values           │     │ ║   |
+|  ║   │   │ • Precision Rules       │  │ • LGPD Compliance       │     │ ║   |
+|  ║   │   └───────────┬─────────────┘  └───────────┬─────────────┘     │ ║   |
+|  ║   │               │                            │                    │ ║   |
+|  ║   │               └─────────────┬──────────────┘                    │ ║   |
+|  ║   │                             │                                   │ ║   |
+|  ║   │   ┌─────────────────────────┴─────────────────────────┐        │ ║   |
+|  ║   │   │                                                    │        │ ║   |
+|  ║   │   ▼                                                    ▼        │ ║   |
+|  ║   │   ┌─────────────────────────┐  ┌─────────────────────────┐     │ ║   |
+|  ║   │   │     OBSERVABILITY       │  │    INFRASTRUCTURE       │     │ ║   |
+|  ║   │   │                         │  │                         │     │ ║   |
+|  ║   │   │ observability.py        │  │ async_processor.py      │     │ ║   |
+|  ║   │   │                         │  │                         │     │ ║   |
+|  ║   │   │ • Prometheus Metrics    │  │ • AsyncTaskQueue        │     │ ║   |
+|  ║   │   │ • SLA Monitoring        │  │ • BatchProcessor        │     │ ║   |
+|  ║   │   │ • Alert Manager         │  │ • CircuitBreaker        │     │ ║   |
+|  ║   │   └─────────────────────────┘  └─────────────────────────┘     │ ║   |
+|  ║   │                                                                  │ ║   |
+|  ║   └──────────────────────────────────────────────────────────────────┘ ║   |
+|  ║                               │                                        ║   |
+|  ╚═══════════════════════════════│════════════════════════════════════════╝   |
+|                                  │                                            |
+|                                  ▼                                            |
+|  ╔═══════════════════════════════════════════════════════════════════════╗   |
+|  ║                           DATABASE                                     ║   |
+|  ║                                                                        ║   |
+|  ║   ┌─────────────────────────────────────────────────────────────────┐ ║   |
+|  ║   │                      POSTGRESQL (Neon)                           │ ║   |
+|  ║   │                                                                  │ ║   |
+|  ║   │   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │ ║   |
+|  ║   │   │transact. │ │ alerts   │ │audit_log │ │ metrics  │          │ ║   |
+|  ║   │   └──────────┘ └──────────┘ └──────────┘ └──────────┘          │ ║   |
+|  ║   │                                                                  │ ║   |
+|  ║   └─────────────────────────────────────────────────────────────────┘ ║   |
+|  ║                                                                        ║   |
+|  ╚═══════════════════════════════════════════════════════════════════════╝   |
+|                                                                               |
++==============================================================================+
 ```
 
 ---
 
-## 5. Diagrama de Componentes
+## 5. Fluxo de Dados
 
-```mermaid
-graph TB
-    subgraph "Presentation"
-        FE[React Frontend]
-        API[REST API]
-    end
-    
-    subgraph "Application"
-        UC1[Analyze Transaction]
-        UC2[Process Feedback]
-        UC3[Generate Report]
-        UC4[Configure Rules]
-    end
-    
-    subgraph "Domain"
-        E1[Transaction]
-        E2[FraudPrediction]
-        E3[Customer]
-        V1[Money]
-        V2[RiskScore]
-    end
-    
-    subgraph "Infrastructure"
-        DB[PostgreSQL]
-        CACHE[Redis]
-        ML[ML Engine]
-        SEC[Security]
-    end
-    
-    FE --> API
-    API --> UC1
-    API --> UC2
-    API --> UC3
-    API --> UC4
-    
-    UC1 --> E1
-    UC1 --> E2
-    UC2 --> E1
-    
-    E1 --> V1
-    E2 --> V2
-    
-    UC1 --> ML
-    UC1 --> CACHE
-    UC2 --> DB
-    API --> SEC
+![Fluxo Dados](images/fluxo_dados_transacao.png)
+
+```
++==============================================================================+
+|                         FLUXO DE DADOS                                        |
++==============================================================================+
+|                                                                               |
+|  ORIGEM                                                              DESTINO  |
+|  ══════                                                              ═══════  |
+|                                                                               |
+|  ┌──────────────┐                                            ┌──────────────┐|
+|  │   CLIENTE    │                                            │   CLIENTE    │|
+|  │              │                                            │              │|
+|  │  App Mobile  │                                            │  Resposta    │|
+|  │  Web Browser │                                            │  JSON        │|
+|  └──────┬───────┘                                            └──────▲───────┘|
+|         │                                                           │         |
+|         │ 1. Request JSON                                   8. Response      |
+|         │    {amount, channel, timestamp...}                  {score, decision}
+|         │                                                           │         |
+|         ▼                                                           │         |
+|  ┌──────────────────────────────────────────────────────────────────┴───────┐|
+|  │                              API GATEWAY                                  │|
+|  │                                                                           │|
+|  │   2. Validacao ───▶ 3. Rate Limit ───▶ 4. JWT Auth                       │|
+|  │                                                                           │|
+|  └──────────────────────────────────┬───────────────────────────────────────┘|
+|                                     │                                         |
+|                                     ▼                                         |
+|  ┌──────────────────────────────────────────────────────────────────────────┐|
+|  │                           FEATURE ENGINE                                  │|
+|  │                                                                           │|
+|  │   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                  │|
+|  │   │  Raw Data   │───▶│  Transform  │───▶│  Features   │                  │|
+|  │   │             │    │             │    │   Vector    │                  │|
+|  │   │  10 campos  │    │  47+ regras │    │  47 valores │                  │|
+|  │   └─────────────┘    └─────────────┘    └─────────────┘                  │|
+|  │                                                                           │|
+|  └──────────────────────────────────┬───────────────────────────────────────┘|
+|                                     │                                         |
+|                                     │ 5. Feature Vector                       |
+|                                     ▼                                         |
+|  ┌──────────────────────────────────────────────────────────────────────────┐|
+|  │                            ML ENGINE                                      │|
+|  │                                                                           │|
+|  │   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                  │|
+|  │   │   Model 1   │    │   Model 2   │    │ Meta-Model  │                  │|
+|  │   │   (RF)      │───▶│   (GB)      │───▶│   (LR)      │                  │|
+|  │   │             │    │             │    │             │                  │|
+|  │   │  pred: 0.82 │    │  pred: 0.88 │    │  prob: 0.85 │                  │|
+|  │   └─────────────┘    └─────────────┘    └─────────────┘                  │|
+|  │                                                                           │|
+|  └──────────────────────────────────┬───────────────────────────────────────┘|
+|                                     │                                         |
+|                                     │ 6. Probability Score                    |
+|                                     ▼                                         |
+|  ┌──────────────────────────────────────────────────────────────────────────┐|
+|  │                        DECISION ENGINE                                    │|
+|  │                                                                           │|
+|  │   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                  │|
+|  │   │ Precision   │    │   Score     │    │  Decision   │                  │|
+|  │   │   Rules     │───▶│ Calculation │───▶│  APPROVE/   │                  │|
+|  │   │             │    │             │    │  REVIEW/    │                  │|
+|  │   │  +0.30 boost│    │  85 final   │    │  BLOCK      │                  │|
+|  │   └─────────────┘    └─────────────┘    └─────────────┘                  │|
+|  │                                                                           │|
+|  └──────────────────────────────────┬───────────────────────────────────────┘|
+|                                     │                                         |
+|                                     │ 7. Decision + Explanation               |
+|                                     │                                         |
+|                    ┌────────────────┴────────────────┐                       |
+|                    │                                 │                       |
+|                    ▼                                 ▼                       |
+|  ┌──────────────────────────────┐    ┌──────────────────────────────┐       |
+|  │         DATABASE              │    │      EXPLAINABILITY          │       |
+|  │                               │    │                              │       |
+|  │   ┌──────────────────────┐   │    │  ┌──────────────────────┐   │       |
+|  │   │    transactions      │   │    │  │  SHAP Values         │   │       |
+|  │   │                      │   │    │  │  LGPD Explanation    │   │       |
+|  │   │    INSERT INTO...    │   │    │  │  Compliance Report   │   │       |
+|  │   └──────────────────────┘   │    │  └──────────────────────┘   │       |
+|  │                               │    │                              │       |
+|  └──────────────────────────────┘    └──────────────────────────────┘       |
+|                                                                               |
++==============================================================================+
 ```
 
 ---
 
-## 6. Fluxo de Autenticação JWT
-
-```mermaid
-sequenceDiagram
-    participant C as Client
-    participant API as API Server
-    participant AUTH as Auth Service
-    participant DB as User Store
-    
-    Note over C,DB: 1. Login Flow
-    C->>API: POST /api/auth/login
-    API->>AUTH: Validate Credentials
-    AUTH->>DB: Query User
-    DB-->>AUTH: User Data
-    AUTH->>AUTH: Verify Password (bcrypt)
-    AUTH->>AUTH: Generate JWT Token
-    AUTH-->>API: {token, expires_at}
-    API-->>C: 200 OK {access_token}
-    
-    Note over C,DB: 2. Authenticated Request
-    C->>API: GET /api/protected
-    Note right of C: Authorization: Bearer <token>
-    API->>AUTH: Verify JWT
-    AUTH->>AUTH: Check Signature
-    AUTH->>AUTH: Check Expiration
-    AUTH->>AUTH: Extract Claims
-    AUTH-->>API: User Context
-    API->>API: Process Request
-    API-->>C: 200 OK {data}
-    
-    Note over C,DB: 3. Token Expired
-    C->>API: GET /api/protected
-    API->>AUTH: Verify JWT
-    AUTH-->>API: Token Expired
-    API-->>C: 401 Unauthorized
-```
-
-### Diagrama ASCII - JWT Flow
+## 6. Fluxo de Autenticacao JWT
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        FLUXO DE AUTENTICAÇÃO JWT                            │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  1. LOGIN                                                                    │
-│  ════════                                                                    │
-│                                                                              │
-│  Client                      API Server                     User Store       │
-│    │                            │                              │             │
-│    │  POST /api/auth/login      │                              │             │
-│    │  {username, password}      │                              │             │
-│    │ ──────────────────────────▶│                              │             │
-│    │                            │  Query User                  │             │
-│    │                            │ ─────────────────────────────▶            │
-│    │                            │                              │             │
-│    │                            │  User Data                   │             │
-│    │                            │ ◀─────────────────────────────            │
-│    │                            │                              │             │
-│    │                            │  ┌────────────────────┐      │             │
-│    │                            │  │ Verify Password    │      │             │
-│    │                            │  │ (bcrypt compare)   │      │             │
-│    │                            │  └────────────────────┘      │             │
-│    │                            │                              │             │
-│    │                            │  ┌────────────────────┐      │             │
-│    │                            │  │ Generate JWT       │      │             │
-│    │                            │  │ ┌────────────────┐ │      │             │
-│    │                            │  │ │ Header         │ │      │             │
-│    │                            │  │ │ {alg: HS256}   │ │      │             │
-│    │                            │  │ └────────────────┘ │      │             │
-│    │                            │  │ ┌────────────────┐ │      │             │
-│    │                            │  │ │ Payload        │ │      │             │
-│    │                            │  │ │ {sub, role,    │ │      │             │
-│    │                            │  │ │  exp, iat}     │ │      │             │
-│    │                            │  │ └────────────────┘ │      │             │
-│    │                            │  │ ┌────────────────┐ │      │             │
-│    │                            │  │ │ Signature      │ │      │             │
-│    │                            │  │ │ HMAC(secret)   │ │      │             │
-│    │                            │  │ └────────────────┘ │      │             │
-│    │                            │  └────────────────────┘      │             │
-│    │                            │                              │             │
-│    │  200 OK                    │                              │             │
-│    │  {access_token: "xxx..."}  │                              │             │
-│    │ ◀──────────────────────────│                              │             │
-│                                                                              │
-│  2. AUTHENTICATED REQUEST                                                    │
-│  ═════════════════════════                                                   │
-│                                                                              │
-│  Client                      API Server                                      │
-│    │                            │                                            │
-│    │  GET /api/fraud/predict    │                                            │
-│    │  Authorization: Bearer xxx │                                            │
-│    │ ──────────────────────────▶│                                            │
-│    │                            │                                            │
-│    │                            │  ┌────────────────────┐                    │
-│    │                            │  │ Verify Token       │                    │
-│    │                            │  │ • Check signature  │                    │
-│    │                            │  │ • Check expiration │                    │
-│    │                            │  │ • Extract claims   │                    │
-│    │                            │  └────────────────────┘                    │
-│    │                            │                                            │
-│    │                            │  ┌────────────────────┐                    │
-│    │                            │  │ Set g.user =       │                    │
-│    │                            │  │ {id, role, perms}  │                    │
-│    │                            │  └────────────────────┘                    │
-│    │                            │                                            │
-│    │                            │  ┌────────────────────┐                    │
-│    │                            │  │ Process Request    │                    │
-│    │                            │  └────────────────────┘                    │
-│    │                            │                                            │
-│    │  200 OK {prediction}       │                                            │
-│    │ ◀──────────────────────────│                                            │
-│                                                                              │
-│  3. ERROR SCENARIOS                                                          │
-│  ══════════════════                                                          │
-│                                                                              │
-│  ┌──────────────────────┬────────────────────────────────────────┐          │
-│  │  Scenario            │  Response                               │          │
-│  ├──────────────────────┼────────────────────────────────────────┤          │
-│  │  Missing token       │  401 {error: "Missing Authorization"}  │          │
-│  │  Invalid signature   │  401 {error: "Invalid token"}          │          │
-│  │  Expired token       │  401 {error: "Token expired"}          │          │
-│  │  Invalid format      │  401 {error: "Invalid token format"}   │          │
-│  │  Insufficient perms  │  403 {error: "Access denied"}          │          │
-│  └──────────────────────┴────────────────────────────────────────┘          │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
++==============================================================================+
+|                      FLUXO DE AUTENTICACAO JWT                                |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                            LOGIN                                         │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|   USUARIO                           SERVIDOR                     BANCO       |
+|   ═══════                           ════════                     ═════       |
+|      │                                  │                           │        |
+|      │  1. POST /api/auth/login         │                           │        |
+|      │  {email, password}               │                           │        |
+|      │ ────────────────────────────────▶│                           │        |
+|      │                                  │  2. Verificar             │        |
+|      │                                  │     credenciais           │        |
+|      │                                  │ ──────────────────────────▶        |
+|      │                                  │                           │        |
+|      │                                  │  3. Usuario encontrado    │        |
+|      │                                  │◀──────────────────────────│        |
+|      │                                  │                           │        |
+|      │                                  │  4. Gerar JWT             │        |
+|      │                                  │     ┌─────────────────┐   │        |
+|      │                                  │     │ Header:         │   │        |
+|      │                                  │     │   alg: HS256    │   │        |
+|      │                                  │     │ Payload:        │   │        |
+|      │                                  │     │   user_id: 123  │   │        |
+|      │                                  │     │   exp: +24h     │   │        |
+|      │                                  │     │ Signature:      │   │        |
+|      │                                  │     │   HMAC(secret)  │   │        |
+|      │                                  │     └─────────────────┘   │        |
+|      │                                  │                           │        |
+|      │  5. Response                     │                           │        |
+|      │  {access_token: "eyJ..."}        │                           │        |
+|      │◀─────────────────────────────────│                           │        |
+|      │                                  │                           │        |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                         REQUEST AUTENTICADO                              │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|   USUARIO                           SERVIDOR                     ML ENGINE   |
+|   ═══════                           ════════                     ═════════   |
+|      │                                  │                           │        |
+|      │  6. POST /api/fraud/predict      │                           │        |
+|      │  Authorization: Bearer eyJ...    │                           │        |
+|      │ ────────────────────────────────▶│                           │        |
+|      │                                  │                           │        |
+|      │                                  │  7. Validar JWT           │        |
+|      │                                  │     ┌─────────────────┐   │        |
+|      │                                  │     │ Verificar:      │   │        |
+|      │                                  │     │ • Assinatura    │   │        |
+|      │                                  │     │ • Expiracao     │   │        |
+|      │                                  │     │ • Claims        │   │        |
+|      │                                  │     └─────────────────┘   │        |
+|      │                                  │                           │        |
+|      │                                  │  8. Processar             │        |
+|      │                                  │ ──────────────────────────▶        |
+|      │                                  │                           │        |
+|      │                                  │  9. Predicao              │        |
+|      │                                  │◀──────────────────────────│        |
+|      │                                  │                           │        |
+|      │  10. Response                    │                           │        |
+|      │  {is_fraud: true, score: 85}     │                           │        |
+|      │◀─────────────────────────────────│                           │        |
+|      │                                  │                           │        |
+|                                                                               |
++==============================================================================+
 ```
 
 ---
 
-## 7. Arquitetura de Cache
+## 7. Diagrama ER (Banco de Dados)
+
+![Diagrama ER](images/diagrama_er_banco_dados.png)
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         ARQUITETURA DE CACHE                                │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│                              REQUEST                                         │
-│                                 │                                            │
-│                                 ▼                                            │
-│                    ┌─────────────────────────┐                              │
-│                    │       CACHE LAYER       │                              │
-│                    │      (Cache Manager)    │                              │
-│                    └────────────┬────────────┘                              │
-│                                 │                                            │
-│                                 ▼                                            │
-│               ┌─────────────────────────────────────┐                       │
-│               │          L1: IN-MEMORY              │                       │
-│               │     ┌───────────────────────┐       │                       │
-│               │     │   LRU Cache (1000)    │       │                       │
-│               │     │   TTL: configurable   │       │                       │
-│               │     │   Latency: <1ms       │       │                       │
-│               │     └───────────────────────┘       │                       │
-│               │                 │                   │                       │
-│               │    HIT ─────────┤──────── MISS      │                       │
-│               │     │           │           │       │                       │
-│               │     ▼           │           ▼       │                       │
-│               │  RETURN         │      CONTINUE     │                       │
-│               └─────────────────│───────────────────┘                       │
-│                                 │                                            │
-│                                 ▼                                            │
-│               ┌─────────────────────────────────────┐                       │
-│               │          L2: REDIS                  │                       │
-│               │     ┌───────────────────────┐       │                       │
-│               │     │   Redis Cluster       │       │                       │
-│               │     │   Pool: 100 conns     │       │                       │
-│               │     │   Latency: 1-5ms      │       │                       │
-│               │     └───────────────────────┘       │                       │
-│               │                 │                   │                       │
-│               │    HIT ─────────┤──────── MISS/DOWN │                       │
-│               │     │           │           │       │                       │
-│               │     ▼           │           ▼       │                       │
-│               │  RETURN         │     ┌───────────┐ │                       │
-│               │  + Populate L1  │     │ FALLBACK  │ │                       │
-│               │                 │     │ In-memory │ │                       │
-│               │                 │     └───────────┘ │                       │
-│               └─────────────────│───────────────────┘                       │
-│                                 │                                            │
-│                                 ▼                                            │
-│               ┌─────────────────────────────────────┐                       │
-│               │          COMPUTATION                │                       │
-│               │     ┌───────────────────────┐       │                       │
-│               │     │   ML Model Inference  │       │                       │
-│               │     │   Database Query      │       │                       │
-│               │     │   API Call            │       │                       │
-│               │     └───────────────────────┘       │                       │
-│               │                 │                   │                       │
-│               │                 ▼                   │                       │
-│               │           STORE IN CACHE            │                       │
-│               │           (L1 + L2)                 │                       │
-│               └─────────────────────────────────────┘                       │
-│                                                                              │
-│  CACHE KEYS:                                                                 │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │  txn:{id}           │  Transaction data        │  TTL: 1h          │    │
-│  │  user:{id}:profile  │  User profile            │  TTL: 30min       │    │
-│  │  pred:{id}          │  Prediction result       │  TTL: 5min        │    │
-│  │  metrics:current    │  Dashboard metrics       │  TTL: 1min        │    │
-│  │  config:{name}      │  Configuration           │  TTL: 10min       │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 8. Fluxo de Revisão Manual
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                       FLUXO DE REVISÃO MANUAL (HITL)                        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                         ENTRADA NA FILA                                │  │
-│  │                                                                        │  │
-│  │    Transaction        Score: 82 (HIGH)                                 │  │
-│  │    TXN-001           ─────────────────▶  REVIEW QUEUE                 │  │
-│  │                      (auto-routing)     (priority sorted)              │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                 │                                            │
-│                                 ▼                                            │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                         FILA DE REVISÃO                                │  │
-│  │                                                                        │  │
-│  │    ┌─────────────────────────────────────────────────────────────┐    │  │
-│  │    │  Priority   │ Transaction │ Score │ Time in Queue │ SLA    │    │  │
-│  │    ├─────────────┼─────────────┼───────┼───────────────┼────────┤    │  │
-│  │    │  CRITICAL   │  TXN-005    │  95   │  00:30        │  1min  │    │  │
-│  │    │  HIGH       │  TXN-001    │  82   │  02:15        │  5min  │    │  │
-│  │    │  HIGH       │  TXN-003    │  78   │  03:45        │  5min  │    │  │
-│  │    │  MEDIUM     │  TXN-008    │  65   │  08:20        │ 15min  │    │  │
-│  │    └─────────────┴─────────────┴───────┴───────────────┴────────┘    │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                 │                                            │
-│                                 ▼                                            │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                      ANÁLISE DO ANALISTA                               │  │
-│  │                                                                        │  │
-│  │   ┌─────────────────────────────────────────────────────────────────┐ │  │
-│  │   │  INFORMAÇÕES DA TRANSAÇÃO                                       │ │  │
-│  │   │                                                                  │ │  │
-│  │   │  ID: TXN-001                Amount: R$ 15.000,00                 │ │  │
-│  │   │  Canal: PIX                 Timestamp: 27/11/2025 03:45:00       │ │  │
-│  │   │  Cliente: João Silva        Destino: Loja XYZ                    │ │  │
-│  │   └─────────────────────────────────────────────────────────────────┘ │  │
-│  │                                                                        │  │
-│  │   ┌─────────────────────────────────────────────────────────────────┐ │  │
-│  │   │  ANÁLISE DE RISCO                                                │ │  │
-│  │   │                                                                  │ │  │
-│  │   │  Score: 82/100 (HIGH)                                            │ │  │
-│  │   │                                                                  │ │  │
-│  │   │  Razões:                                                         │ │  │
-│  │   │  ⚠ Horário incomum (03:45 - madrugada)                          │ │  │
-│  │   │  ⚠ Valor acima da média do cliente (média: R$ 2.000)             │ │  │
-│  │   │  ⚠ Novo destinatário                                             │ │  │
-│  │   └─────────────────────────────────────────────────────────────────┘ │  │
-│  │                                                                        │  │
-│  │   ┌─────────────────────────────────────────────────────────────────┐ │  │
-│  │   │  HISTÓRICO DO CLIENTE                                            │ │  │
-│  │   │                                                                  │ │  │
-│  │   │  Cliente desde: 2020       Transações: 342                       │ │  │
-│  │   │  Média mensal: R$ 8.500    Fraudes anteriores: 0                 │ │  │
-│  │   │  Últimas 5 transações: OK  Contestações: 1                       │ │  │
-│  │   └─────────────────────────────────────────────────────────────────┘ │  │
-│  │                                                                        │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                 │                                            │
-│                                 ▼                                            │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                           DECISÃO                                      │  │
-│  │                                                                        │  │
-│  │       ┌──────────────┐  ┌──────────────┐  ┌──────────────┐            │  │
-│  │       │   APROVAR    │  │   BLOQUEAR   │  │   ESCALAR    │            │  │
-│  │       │              │  │              │  │              │            │  │
-│  │       │  ✓ Libera    │  │  ✗ Bloqueia  │  │  ⬆ Envia ao  │            │  │
-│  │       │    transação │  │    transação │  │   supervisor │            │  │
-│  │       │  ✓ Notifica  │  │  ✗ Notifica  │  │  ⬆ Mantém    │            │  │
-│  │       │    cliente   │  │    cliente   │  │   pendente   │            │  │
-│  │       │  ✓ Feedback  │  │  ✗ Registra  │  │              │            │  │
-│  │       │    positivo  │  │    fraude    │  │              │            │  │
-│  │       └──────────────┘  └──────────────┘  └──────────────┘            │  │
-│  │                                                                        │  │
-│  │       Justificativa: [____________________________________]            │  │
-│  │                                                                        │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                 │                                            │
-│                                 ▼                                            │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                       REGISTRO E FEEDBACK                              │  │
-│  │                                                                        │  │
-│  │    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐              │  │
-│  │    │  Audit Log  │    │  Feedback   │    │  Metrics    │              │  │
-│  │    │  (Compliance)│    │  Loop (ML)  │    │  Update     │              │  │
-│  │    └─────────────┘    └─────────────┘    └─────────────┘              │  │
-│  │                                                                        │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
++==============================================================================+
+|                    MODELO ENTIDADE-RELACIONAMENTO                             |
++==============================================================================+
+|                                                                               |
+|  ┌────────────────────────────────────────────────────────────────────────┐  |
+|  │                           TRANSACTIONS                                  │  |
+|  ├────────────────────────────────────────────────────────────────────────┤  |
+|  │  PK  id              VARCHAR(50)                                       │  |
+|  │      amount          DECIMAL(15,2)     NOT NULL                        │  |
+|  │      channel         VARCHAR(50)                                       │  |
+|  │      location        VARCHAR(100)                                      │  |
+|  │      cpf             VARCHAR(14)                                       │  |
+|  │      timestamp       TIMESTAMP                                         │  |
+|  │      fraud_score     DECIMAL(5,2)                                      │  |
+|  │      is_fraud        BOOLEAN           DEFAULT FALSE                   │  |
+|  │      decision        VARCHAR(20)                                       │  |
+|  │      risk_factors    JSONB                                             │  |
+|  │      explanation     JSONB                                             │  |
+|  │      created_at      TIMESTAMP         DEFAULT NOW()                   │  |
+|  └────────────────────────────────────┬───────────────────────────────────┘  |
+|                                       │                                      |
+|                                       │ 1:N                                  |
+|                                       │                                      |
+|                                       ▼                                      |
+|  ┌────────────────────────────────────────────────────────────────────────┐  |
+|  │                              ALERTS                                     │  |
+|  ├────────────────────────────────────────────────────────────────────────┤  |
+|  │  PK  id              SERIAL                                            │  |
+|  │  FK  transaction_id  VARCHAR(50)       REFERENCES transactions(id)    │  |
+|  │      type            VARCHAR(50)                                       │  |
+|  │      severity        VARCHAR(20)       [LOW,MEDIUM,HIGH,CRITICAL]      │  |
+|  │      status          VARCHAR(20)       [NEW,INVESTIGATING,RESOLVED]    │  |
+|  │      details         JSONB                                             │  |
+|  │      created_at      TIMESTAMP         DEFAULT NOW()                   │  |
+|  └────────────────────────────────────────────────────────────────────────┘  |
+|                                                                               |
+|                                                                               |
+|  ┌────────────────────────────────────────────────────────────────────────┐  |
+|  │                            AUDIT_LOG                                    │  |
+|  ├────────────────────────────────────────────────────────────────────────┤  |
+|  │  PK  id              SERIAL                                            │  |
+|  │      action          VARCHAR(100)                                      │  |
+|  │      entity_type     VARCHAR(50)                                       │  |
+|  │      entity_id       VARCHAR(50)                                       │  |
+|  │      user_id         VARCHAR(50)                                       │  |
+|  │      details         JSONB                                             │  |
+|  │      created_at      TIMESTAMP         DEFAULT NOW()                   │  |
+|  └────────────────────────────────────────────────────────────────────────┘  |
+|                                                                               |
+|                                                                               |
+|  ┌────────────────────────────────────────────────────────────────────────┐  |
+|  │                             METRICS                                     │  |
+|  ├────────────────────────────────────────────────────────────────────────┤  |
+|  │  PK  id              SERIAL                                            │  |
+|  │      metric_name     VARCHAR(100)                                      │  |
+|  │      metric_value    DECIMAL(15,4)                                     │  |
+|  │      labels          JSONB                                             │  |
+|  │      timestamp       TIMESTAMP         DEFAULT NOW()                   │  |
+|  └────────────────────────────────────────────────────────────────────────┘  |
+|                                                                               |
+|  RELACIONAMENTOS:                                                             |
+|  ═══════════════                                                              |
+|                                                                               |
+|  transactions (1) ───────────▶ (N) alerts                                    |
+|  Uma transacao pode ter varios alertas associados                            |
+|                                                                               |
++==============================================================================+
 ```
 
 ---
 
-## 9. Diagrama de Deploy Canary
+## 8. Camadas de Seguranca
+
+![Seguranca](images/camadas_seguranca_sistema.png)
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        CANARY DEPLOYMENT FLOW                               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  CONFIGURAÇÃO INICIAL                                                        │
-│  ════════════════════                                                        │
-│                                                                              │
-│  ┌──────────────────────────────────────────────────────────────────────┐   │
-│  │  deployment_id: "deploy-2025-001"                                     │   │
-│  │  current_version: "1.0.0"                                             │   │
-│  │  canary_version: "1.1.0"                                              │   │
-│  │  promotion_steps: [5%, 10%, 25%, 50%, 100%]                           │   │
-│  │  step_duration: 10 minutes                                            │   │
-│  │  rollback_threshold: error_rate > 5%                                  │   │
-│  └──────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│  PROGRESSÃO DO DEPLOY                                                        │
-│  ════════════════════                                                        │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                                                                      │    │
-│  │  STEP 1: 5%             STEP 2: 10%           STEP 3: 25%           │    │
-│  │  ┌───────────────┐     ┌───────────────┐     ┌───────────────┐      │    │
-│  │  │ ▓             │     │ ▓▓            │     │ ▓▓▓▓▓         │      │    │
-│  │  │ ░░░░░░░░░░░░░░│     │ ░░░░░░░░░░░░░ │     │ ░░░░░░░░░░░░░ │      │    │
-│  │  │ ░░░░░░░░░░░░░░│     │ ░░░░░░░░░░░░░ │     │ ░░░░░░░░░░░░░ │      │    │
-│  │  │ ░░░░░░░░░░░░░░│     │ ░░░░░░░░░░░░░ │     │ ░░░░░░░░░░░░░ │      │    │
-│  │  └───────────────┘     └───────────────┘     └───────────────┘      │    │
-│  │                                                                      │    │
-│  │  STEP 4: 50%           STEP 5: 100%                                 │    │
-│  │  ┌───────────────┐     ┌───────────────┐                            │    │
-│  │  │ ▓▓▓▓▓▓▓▓▓▓    │     │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓│                            │    │
-│  │  │ ░░░░░░░░░░░░░ │     │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓│                            │    │
-│  │  │ ░░░░░░░░░░░░░ │     │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓│                            │    │
-│  │  │ ░░░░░░░░░░░░░ │     │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓│                            │    │
-│  │  └───────────────┘     └───────────────┘                            │    │
-│  │                                                                      │    │
-│  │  ▓ = Canary (new)      ░ = Stable (current)                         │    │
-│  │                                                                      │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
-│                                                                              │
-│  HEALTH CHECKS EM CADA STEP                                                  │
-│  ═══════════════════════════                                                 │
-│                                                                              │
-│  ┌──────────────────────────────────────────────────────────────────────┐   │
-│  │                                                                       │   │
-│  │   Metric          │  Threshold   │  Current  │  Status               │   │
-│  │  ─────────────────┼──────────────┼───────────┼─────────────────      │   │
-│  │   Error Rate      │  < 1%        │  0.3%     │  ✓ HEALTHY            │   │
-│  │   Latency P95     │  < 15ms      │  9.2ms    │  ✓ HEALTHY            │   │
-│  │   Accuracy        │  > 99%       │  99.8%    │  ✓ HEALTHY            │   │
-│  │   False Positive  │  < 0.5%      │  0.2%     │  ✓ HEALTHY            │   │
-│  │                                                                       │   │
-│  │   Overall Status: HEALTHY - Proceed to next step                     │   │
-│  │                                                                       │   │
-│  └──────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│  CENÁRIOS DE ROLLBACK                                                        │
-│  ════════════════════                                                        │
-│                                                                              │
-│  ┌──────────────────────────────────────────────────────────────────────┐   │
-│  │                                                                       │   │
-│  │   Trigger Condition                        │  Action                  │   │
-│  │  ──────────────────────────────────────────┼────────────────────     │   │
-│  │   Error Rate > 5%                          │  IMMEDIATE ROLLBACK     │   │
-│  │   Latency P95 > 50ms                       │  IMMEDIATE ROLLBACK     │   │
-│  │   3 consecutive failed health checks       │  IMMEDIATE ROLLBACK     │   │
-│  │   Manual intervention                      │  IMMEDIATE ROLLBACK     │   │
-│  │   Accuracy drop > 2%                       │  IMMEDIATE ROLLBACK     │   │
-│  │                                                                       │   │
-│  │   Rollback Process:                                                   │   │
-│  │   1. Stop routing traffic to canary                                   │   │
-│  │   2. Route 100% to stable version                                     │   │
-│  │   3. Log rollback reason                                              │   │
-│  │   4. Alert engineering team                                           │   │
-│  │   5. Preserve canary metrics for analysis                             │   │
-│  │                                                                       │   │
-│  └──────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 10. Fluxo de Compliance
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         FLUXO DE COMPLIANCE                                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                            BACEN                                       │  │
-│  │                                                                        │  │
-│  │    Transação Suspeita                                                  │  │
-│  │           │                                                            │  │
-│  │           ▼                                                            │  │
-│  │    ┌─────────────────┐    ┌─────────────────┐    ┌──────────────┐    │  │
-│  │    │  Registro no    │───▶│  Exportação     │───▶│  DICT/SPI    │    │  │
-│  │    │  Sistema Local  │    │  para BACEN     │    │  (BACEN)     │    │  │
-│  │    └─────────────────┘    └─────────────────┘    └──────────────┘    │  │
-│  │                                                                        │  │
-│  │    Requisitos:                                                         │  │
-│  │    ✓ Tempo de resposta PIX < 10s                                       │  │
-│  │    ✓ Compartilhamento de dados de fraude                               │  │
-│  │    ✓ Registro de transações suspeitas                                  │  │
-│  │    ✓ Comunicação ao cliente                                            │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                                                              │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                            LGPD                                        │  │
-│  │                                                                        │  │
-│  │    ┌─────────────────────────────────────────────────────────────┐    │  │
-│  │    │                    DATA LIFECYCLE                            │    │  │
-│  │    │                                                              │    │  │
-│  │    │  COLETA ──▶ PROCESSAMENTO ──▶ ARMAZENAMENTO ──▶ DESCARTE    │    │  │
-│  │    │    │              │                 │              │         │    │  │
-│  │    │    ▼              ▼                 ▼              ▼         │    │  │
-│  │    │  Consent      Purpose           Encryption     Retention     │    │  │
-│  │    │  Check        Limitation        AES-256        Policy        │    │  │
-│  │    │              (fraud only)                     (5 years)       │    │  │
-│  │    └─────────────────────────────────────────────────────────────┘    │  │
-│  │                                                                        │  │
-│  │    Direitos do Titular:                                                │  │
-│  │    ├─ Acesso: API GET /api/data-subject/{id}                          │  │
-│  │    ├─ Correção: API PUT /api/data-subject/{id}                        │  │
-│  │    ├─ Eliminação: Processo definido (respeitando retenção legal)       │  │
-│  │    └─ Portabilidade: API GET /api/data-subject/{id}/export             │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                                                              │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                           PCI-DSS                                      │  │
-│  │                                                                        │  │
-│  │    ┌─────────────────────────────────────────────────────────────┐    │  │
-│  │    │                    SECURITY CONTROLS                         │    │  │
-│  │    │                                                              │    │  │
-│  │    │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │    │  │
-│  │    │  │ Firewall │  │  Access  │  │ Encrypt  │  │  Monitor │    │    │  │
-│  │    │  │  Rules   │  │  Control │  │  Data    │  │  & Log   │    │    │  │
-│  │    │  │ (Req.1)  │  │ (Req.7-8)│  │ (Req.3-4)│  │ (Req.10) │    │    │  │
-│  │    │  └──────────┘  └──────────┘  └──────────┘  └──────────┘    │    │  │
-│  │    │                                                              │    │  │
-│  │    │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │    │  │
-│  │    │  │  Secure  │  │  Vuln    │  │  Pentest │  │  Policy  │    │    │  │
-│  │    │  │  Config  │  │  Mgmt    │  │  Annual  │  │  Docs    │    │    │  │
-│  │    │  │ (Req.2)  │  │ (Req.5-6)│  │ (Req.11) │  │ (Req.12) │    │    │  │
-│  │    │  └──────────┘  └──────────┘  └──────────┘  └──────────┘    │    │  │
-│  │    └─────────────────────────────────────────────────────────────┘    │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                                                              │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                          AUDIT TRAIL                                   │  │
-│  │                                                                        │  │
-│  │    ┌─────────────────────────────────────────────────────────────┐    │  │
-│  │    │  Event                │ Data Logged            │ Retention  │    │  │
-│  │    ├───────────────────────┼────────────────────────┼────────────┤    │  │
-│  │    │  Transaction Analysis │ ID, Score, Decision    │ 5 years    │    │  │
-│  │    │  Manual Review        │ Analyst, Action, Time  │ 5 years    │    │  │
-│  │    │  Config Change        │ User, Before, After    │ 5 years    │    │  │
-│  │    │  Login/Logout         │ User, IP, Timestamp    │ 2 years    │    │  │
-│  │    │  Data Access          │ User, Data, Purpose    │ 2 years    │    │  │
-│  │    │  Model Deploy         │ Version, Metrics       │ 5 years    │    │  │
-│  │    └─────────────────────────────────────────────────────────────┘    │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
++==============================================================================+
+|                       CAMADAS DE SEGURANCA                                    |
++==============================================================================+
+|                                                                               |
+|                              INTERNET                                         |
+|                                 │                                             |
+|                                 ▼                                             |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                     CAMADA 1: FIREWALL + WAF                             │ |
+|  │                                                                          │ |
+|  │   🛡️ Protecoes:                                                          │ |
+|  │   • Bloqueio de IPs maliciosos                                           │ |
+|  │   • Protecao contra DDoS (10k req/s limite)                              │ |
+|  │   • Filtragem de payloads maliciosos                                     │ |
+|  │   • Geo-blocking (opcional)                                              │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                     CAMADA 2: TLS/SSL                                    │ |
+|  │                                                                          │ |
+|  │   🔐 Criptografia:                                                       │ |
+|  │   • TLS 1.3 (minimo TLS 1.2)                                             │ |
+|  │   • Certificados validos (Let's Encrypt)                                 │ |
+|  │   • HSTS habilitado                                                      │ |
+|  │   • Forward Secrecy                                                      │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                     CAMADA 3: API GATEWAY                                │ |
+|  │                                                                          │ |
+|  │   🚪 Controle de Acesso:                                                 │ |
+|  │   • Rate Limiting (1000 req/min)                                         │ |
+|  │   • Request throttling                                                   │ |
+|  │   • API key validation                                                   │ |
+|  │   • Request/Response logging                                             │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                     CAMADA 4: AUTENTICACAO JWT                           │ |
+|  │                                                                          │ |
+|  │   🔑 Autenticacao:                                                       │ |
+|  │   • JWT tokens (HS256)                                                   │ |
+|  │   • Expiracao 24h                                                        │ |
+|  │   • Refresh token rotation                                               │ |
+|  │   • Blacklist de tokens revogados                                        │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                     CAMADA 5: AUTORIZACAO                                │ |
+|  │                                                                          │ |
+|  │   👤 Permissoes:                                                         │ |
+|  │   • Role-based access control (RBAC)                                     │ |
+|  │   • Permissoes por endpoint                                              │ |
+|  │   • Audit logging de acoes                                               │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                     CAMADA 6: VALIDACAO DE DADOS                         │ |
+|  │                                                                          │ |
+|  │   ✅ Sanitizacao:                                                        │ |
+|  │   • Schema validation (Cerberus)                                         │ |
+|  │   • Input sanitization                                                   │ |
+|  │   • SQL injection prevention                                             │ |
+|  │   • XSS prevention                                                       │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                     CAMADA 7: DADOS CRIPTOGRAFADOS                       │ |
+|  │                                                                          │ |
+|  │   🗄️ Armazenamento:                                                      │ |
+|  │   • Encryption at rest (AES-256)                                         │ |
+|  │   • CPF mascarado (XXX.XXX.XXX-XX)                                       │ |
+|  │   • Secrets em variaveis de ambiente                                     │ |
+|  │   • Backups criptografados                                               │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
 ```
 
 ---
 
-## Apêndice: Limitações dos Diagramas
+## 9. Fluxo de Alertas e Monitoramento
 
-### Componentes Planejados (Não Mostrados em Produção Atual)
+![Alertas](images/fluxo_alertas_monitoramento.png)
 
-Os seguintes diagramas incluem componentes planejados para produção futura:
-
-| Componente | Diagrama | Status |
-|-----------|----------|--------|
-| Nginx Load Balancer | 1, 4, 5 | 📋 Planejado |
-| Docker Containers | 1, 4, 5 | 📋 Planejado |
-| DataDog Monitoring | 1, 12 | 📋 Planejado |
-| PostgreSQL Primary | 1, 7 | ⚠️ Fallback JSON |
-| Redis Primary Cache | 1, 7 | ⚠️ Fallback In-Memory |
-| A/B Testing (Operacional) | 4, 6 | 📋 Conceitual |
-| Canary Deploy (Automático) | 4, 9 | 📋 Conceitual |
-| TLS 1.3 / AES-256 | Vários | 📋 Planejado |
-
-### Como Interpretar
-
-- **🟢 Verde/Implementado**: Funcionalidade pronta para uso
-- **🟡 Amarelo/Parcial**: Funcionalidade básica implementada, melhorias em progresso
-- **📋 Azul/Planejado**: Funcionalidade projetada mas não implementada
-- **⚠️ Laranja/Fallback**: Sistema funciona com alternativa em desenvolvimento
-
-### Diagramas Mais Confiáveis
-
-Para ambiente atual (desenvolvimento):
-- ✅ Diagrama 1 (Arquitetura sem Nginx/Docker)
-- ✅ Diagrama 2 (Fluxo de Detecção - operacional)
-- ✅ Diagrama 3 (Pipeline ML - operacional)
-- ✅ Diagrama 6 (JWT - operacional)
-- ✅ Diagrama 8 (Revisão Manual - operacional)
+```
++==============================================================================+
+|                     FLUXO DE MONITORAMENTO E ALERTAS                          |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                         COLETA DE METRICAS                               │ |
+|  │                                                                          │ |
+|  │   ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │ |
+|  │   │   API       │  │  ML Engine  │  │  Database   │  │  Frontend   │    │ |
+|  │   │             │  │             │  │             │  │             │    │ |
+|  │   │ • Latencia  │  │ • Predict   │  │ • Queries   │  │ • Page Load │    │ |
+|  │   │ • Requests  │  │ • Accuracy  │  │ • Conexoes  │  │ • Errors    │    │ |
+|  │   │ • Errors    │  │ • Latencia  │  │ • Disk      │  │ • Clicks    │    │ |
+|  │   └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘    │ |
+|  │          │                │                │                │            │ |
+|  └──────────┴────────────────┴────────────────┴────────────────┴────────────┘ |
+|                                    │                                          |
+|                                    ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                       OBSERVABILITY SYSTEM                               │ |
+|  │                                                                          │ |
+|  │   ┌─────────────────────────────────────────────────────────────────┐   │ |
+|  │   │                    observability.py                              │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   ObservabilityMetrics:                                         │   │ |
+|  │   │   • requests_total: 15847                                        │   │ |
+|  │   │   • latency_p50: 28ms                                            │   │ |
+|  │   │   • latency_p95: 300ms                                           │   │ |
+|  │   │   • error_rate: 0.0%                                             │   │ |
+|  │   │   • tps_current: 33.88                                           │   │ |
+|  │   │                                                                  │   │ |
+|  │   └─────────────────────────────┬───────────────────────────────────┘   │ |
+|  │                                 │                                        │ |
+|  └─────────────────────────────────┼────────────────────────────────────────┘ |
+|                                    │                                          |
+|                                    ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                          SLA CHECKER                                     │ |
+|  │                                                                          │ |
+|  │   ┌─────────────────────────────────────────────────────────────────┐   │ |
+|  │   │                      SLA THRESHOLDS                              │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   METRICA              TARGET          ATUAL         STATUS     │   │ |
+|  │   │   ───────              ──────          ─────         ──────     │   │ |
+|  │   │   Latencia p95         < 100ms         300ms         ⚠️ WARN    │   │ |
+|  │   │   Latencia p99         < 200ms         311ms         ⚠️ WARN    │   │ |
+|  │   │   Error Rate           < 0.1%          0.0%          ✅ OK      │   │ |
+|  │   │   TPS Minimo           > 100           33.88         ⚠️ WARN    │   │ |
+|  │   │   Uptime               > 99.9%         99.9%         ✅ OK      │   │ |
+|  │   │                                                                  │   │ |
+|  │   └─────────────────────────────────────────────────────────────────┘   │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                    ┌──────────────┼──────────────┐                           |
+|                    │              │              │                           |
+|                    ▼              ▼              ▼                           |
+|  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐             |
+|  │    INFO LOG      │ │    WARNING       │ │    CRITICAL      │             |
+|  │                  │ │                  │ │                  │             |
+|  │ Registro normal  │ │ Alerta enviado   │ │ Alerta urgente   │             |
+|  │ em arquivo       │ │ para Slack/Email │ │ para PagerDuty   │             |
+|  │                  │ │                  │ │ + Escalacao      │             |
+|  └──────────────────┘ └──────────────────┘ └──────────────────┘             |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
-**Documento mantido por:** Equipe de Engenharia Sankofa  
-**Última atualização:** Novembro 2025  
-**Versão:** 1.0.0
+## 10. Compliance LGPD
+
+![Compliance](images/badges_compliance_regulatorio.png)
+
+```
++==============================================================================+
+|                       FLUXO DE COMPLIANCE LGPD                                |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                     PREDICAO DE FRAUDE                                   │ |
+|  │                                                                          │ |
+|  │   Transacao processada pelo ML Engine                                    │ |
+|  │   Result: {is_fraud: true, probability: 0.85}                           │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                   EXPLAINABILITY ENGINE                                  │ |
+|  │                                                                          │ |
+|  │   ┌─────────────────────────────────────────────────────────────────┐   │ |
+|  │   │                 ARTIGO 20 LGPD                                   │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   "O titular dos dados tem direito a solicitar a revisao de     │   │ |
+|  │   │   decisoes tomadas unicamente com base em tratamento            │   │ |
+|  │   │   automatizado de dados pessoais..."                            │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   IMPLEMENTACAO:                                                 │   │ |
+|  │   │   ┌─────────────────────────────────────────────────────────┐   │   │ |
+|  │   │   │  1. Calcular Feature Importance                          │   │   │ |
+|  │   │   │  2. Identificar Top 5 Risk Factors                       │   │   │ |
+|  │   │   │  3. Identificar Top 3 Protective Factors                 │   │   │ |
+|  │   │   │  4. Gerar Texto Explicativo em Portugues                 │   │   │ |
+|  │   │   │  5. Anexar Compliance Report                             │   │   │ |
+|  │   │   └─────────────────────────────────────────────────────────┘   │   │ |
+|  │   │                                                                  │   │ |
+|  │   └─────────────────────────────────────────────────────────────────┘   │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                      RESPONSE COM EXPLICACAO                             │ |
+|  │                                                                          │ |
+|  │   {                                                                      │ |
+|  │     "predictions": [{                                                    │ |
+|  │       "is_fraud": true,                                                  │ |
+|  │       "risk_score": 85,                                                  │ |
+|  │                                                                          │ |
+|  │       "explanation_text": "Esta transacao foi classificada como         │ |
+|  │         suspeita devido ao valor elevado (R$ 5.000) realizado em        │ |
+|  │         horario noturno (03:00) com velocidade transacional acima       │ |
+|  │         da media do cliente.",                                          │ |
+|  │                                                                          │ |
+|  │       "top_risk_factors": [                                              │ |
+|  │         {"feature": "amount_normalized", "impact": 0.45,                │ |
+|  │          "description": "Valor acima do padrao do cliente"},            │ |
+|  │         {"feature": "is_night", "impact": 0.28,                         │ |
+|  │          "description": "Transacao em horario noturno"},                │ |
+|  │         {"feature": "velocity_1h", "impact": 0.15,                      │ |
+|  │          "description": "Multiplas transacoes em curto periodo"}        │ |
+|  │       ],                                                                 │ |
+|  │                                                                          │ |
+|  │       "top_protective_factors": [                                        │ |
+|  │         {"feature": "device_trust", "impact": -0.15,                    │ |
+|  │          "description": "Dispositivo conhecido"},                       │ |
+|  │         {"feature": "location_familiar", "impact": -0.10,               │ |
+|  │          "description": "Localizacao habitual"}                         │ |
+|  │       ],                                                                 │ |
+|  │                                                                          │ |
+|  │       "lgpd_compliant": true,                                            │ |
+|  │                                                                          │ |
+|  │       "compliance_report": {                                             │ |
+|  │         "lgpd": "Explicacao fornecida conforme Art. 20 LGPD",           │ |
+|  │         "bacen": "Tempo de resposta dentro do SLA (15ms)",              │ |
+|  │         "pci_dss": "Dados sensiveis mascarados (CPF: XXX.XXX.XXX-XX)"  │ |
+|  │       }                                                                  │ |
+|  │     }]                                                                   │ |
+|  │   }                                                                      │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                         AUDIT TRAIL                                      │ |
+|  │                                                                          │ |
+|  │   Todas as decisoes sao registradas em audit_log:                        │ |
+|  │                                                                          │ |
+|  │   ┌─────────────────────────────────────────────────────────────────┐   │ |
+|  │   │  INSERT INTO audit_log (action, entity_type, entity_id, details) │   │ |
+|  │   │  VALUES (                                                        │   │ |
+|  │   │    'FRAUD_PREDICTION',                                           │   │ |
+|  │   │    'transaction',                                                │   │ |
+|  │   │    'TXN-2025-001',                                              │   │ |
+|  │   │    {                                                             │   │ |
+|  │   │      "score": 85,                                                │   │ |
+|  │   │      "decision": "BLOCK",                                        │   │ |
+|  │   │      "model_version": "v12.0",                                   │   │ |
+|  │   │      "explanation_provided": true,                               │   │ |
+|  │   │      "lgpd_compliant": true                                      │   │ |
+|  │   │    }                                                             │   │ |
+|  │   │  );                                                              │   │ |
+|  │   └─────────────────────────────────────────────────────────────────┘   │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
+
+---
+
+## 11. Ciclo de Treinamento do Modelo
+
+![Ciclo ML](images/ciclo_treinamento_modelo_ia.png)
+
+```
++==============================================================================+
+|                    CICLO DE VIDA DO MODELO ML                                 |
++==============================================================================+
+|                                                                               |
+|                    ┌─────────────────────────────┐                           |
+|                    │      DADOS HISTORICOS       │                           |
+|                    │                             │                           |
+|                    │   1.2M transacoes           │                           |
+|                    │   7% fraude / 93% legitima  │                           |
+|                    └──────────────┬──────────────┘                           |
+|                                   │                                          |
+|                                   ▼                                          |
+|    ┌─────────────────────────────────────────────────────────────────────┐  |
+|    │                                                                      │  |
+|    │   ┌───────────────────┐                                             │  |
+|    │   │ PREPROCESSAMENTO  │◀────────────────────────────────────────┐   │  |
+|    │   │                   │                                          │   │  |
+|    │   │ • Limpeza         │                                          │   │  |
+|    │   │ • Encoding        │                                          │   │  |
+|    │   │ • Scaling         │                                          │   │  |
+|    │   └─────────┬─────────┘                                          │   │  |
+|    │             │                                                     │   │  |
+|    │             ▼                                                     │   │  |
+|    │   ┌───────────────────┐                                          │   │  |
+|    │   │   TREINAMENTO     │                                          │   │  |
+|    │   │                   │                                          │   │  |
+|    │   │ • Stacking        │                                          │   │  |
+|    │   │ • Cross-validation│                                          │   │  |
+|    │   │ • Hyperparameter  │                                          │   │  |
+|    │   └─────────┬─────────┘                                          │   │  |
+|    │             │                                                     │   │  |
+|    │             ▼                                                     │   │  |
+|    │   ┌───────────────────┐                                          │   │  |
+|    │   │    AVALIACAO      │                                          │   │  |
+|    │   │                   │                                          │   │  |
+|    │   │ • Recall: 90.9%   │                                          │   │  |
+|    │   │ • Prec: 100%      │        CICLO CONTINUO                    │   │  |
+|    │   │ • F1: 95.2%       │        DE MELHORIA                       │   │  |
+|    │   └─────────┬─────────┘                                          │   │  |
+|    │             │                                                     │   │  |
+|    │             ▼                                                     │   │  |
+|    │   ┌───────────────────┐                                          │   │  |
+|    │   │     DEPLOY        │                                          │   │  |
+|    │   │                   │                                          │   │  |
+|    │   │ • Canary release  │                                          │   │  |
+|    │   │ • A/B testing     │                                          │   │  |
+|    │   │ • Rollback ready  │                                          │   │  |
+|    │   └─────────┬─────────┘                                          │   │  |
+|    │             │                                                     │   │  |
+|    │             ▼                                                     │   │  |
+|    │   ┌───────────────────┐                                          │   │  |
+|    │   │  MONITORAMENTO    │                                          │   │  |
+|    │   │                   │                                          │   │  |
+|    │   │ • Drift detection │                                          │   │  |
+|    │   │ • Performance     │                                          │   │  |
+|    │   │ • Feedback loop   │                                          │   │  |
+|    │   └─────────┬─────────┘                                          │   │  |
+|    │             │                                                     │   │  |
+|    │             │  [Se drift detectado ou performance degradada]     │   │  |
+|    │             │                                                     │   │  |
+|    │             └─────────────────────────────────────────────────────┘   │  |
+|    │                                                                      │  |
+|    └─────────────────────────────────────────────────────────────────────┘  |
+|                                                                               |
++==============================================================================+
+```
+
+---
+
+## 12. Triple Check Auditoria
+
+![Triple Check](images/fluxo_triple_check_auditoria.png)
+
+```
++==============================================================================+
+|                      PROCESSO TRIPLE CHECK                                    |
++==============================================================================+
+|                                                                               |
+|                              TRANSACAO                                        |
+|                                 │                                             |
+|                                 ▼                                             |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                         CHECK 1                                          │ |
+|  │                    VALIDACAO DE ENTRADA                                  │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │                                                                 │    │ |
+|  │   │   ✅ Schema valido                                              │    │ |
+|  │   │   ✅ Campos obrigatorios presentes                              │    │ |
+|  │   │   ✅ Tipos de dados corretos                                    │    │ |
+|  │   │   ✅ CPF formato valido                                         │    │ |
+|  │   │   ✅ Amount > 0                                                 │    │ |
+|  │   │   ✅ Timestamp valido                                           │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   Resultado: PASS ✓                                             │    │ |
+|  │   │                                                                 │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                         CHECK 2                                          │ |
+|  │                      ANALISE ML                                          │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │                                                                 │    │ |
+|  │   │   FEATURE ENGINEERING                                           │    │ |
+|  │   │   ├── 47+ features extraidas                                    │    │ |
+|  │   │   ├── Normalizacao aplicada                                     │    │ |
+|  │   │   └── Vector pronto                                             │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   ML ENSEMBLE                                                    │    │ |
+|  │   │   ├── Random Forest: 0.82                                       │    │ |
+|  │   │   ├── Gradient Boost: 0.88                                      │    │ |
+|  │   │   └── Meta-Model: 0.85                                          │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   PRECISION RULES                                                │    │ |
+|  │   │   └── +0.05 (horario suspeito)                                  │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   Score Final: 90                                                │    │ |
+|  │   │   Resultado: HIGH RISK ⚠️                                        │    │ |
+|  │   │                                                                 │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  └────────────────────────────────┬────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                         CHECK 3                                          │ |
+|  │                    REVISAO HUMANA                                        │ |
+|  │                   (Para scores 30-85)                                    │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │                                                                 │    │ |
+|  │   │   ANALISTA DE FRAUDE                                            │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   ┌──────────────────────────────────────────────────────────┐ │    │ |
+|  │   │   │  Transacao: TXN-2025-001                                  │ │    │ |
+|  │   │   │  Valor: R$ 5.000,00                                       │ │    │ |
+|  │   │   │  Horario: 03:00                                           │ │    │ |
+|  │   │   │  Score: 90                                                │ │    │ |
+|  │   │   │                                                           │ │    │ |
+|  │   │   │  Fatores de Risco:                                        │ │    │ |
+|  │   │   │  • Valor acima do padrao (impact: 0.45)                   │ │    │ |
+|  │   │   │  • Horario noturno (impact: 0.28)                         │ │    │ |
+|  │   │   │                                                           │ │    │ |
+|  │   │   │  ┌────────────┐  ┌────────────┐  ┌────────────┐          │ │    │ |
+|  │   │   │  │  APROVAR   │  │  REVISAR   │  │  BLOQUEAR  │          │ │    │ |
+|  │   │   │  │            │  │            │  │     ✓      │          │ │    │ |
+|  │   │   │  └────────────┘  └────────────┘  └────────────┘          │ │    │ |
+|  │   │   └──────────────────────────────────────────────────────────┘ │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   Decisao Final: BLOCK                                          │    │ |
+|  │   │   Justificativa: Padrao consistente com ATO                     │    │ |
+|  │   │                                                                 │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                   │                                          |
+|                                   ▼                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                         AUDIT LOG                                        │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │  {                                                              │    │ |
+|  │   │    "transaction_id": "TXN-2025-001",                           │    │ |
+|  │   │    "check_1": {"status": "PASS", "timestamp": "..."},          │    │ |
+|  │   │    "check_2": {"status": "HIGH_RISK", "score": 90},            │    │ |
+|  │   │    "check_3": {"status": "BLOCK", "analyst": "user_123"},      │    │ |
+|  │   │    "final_decision": "BLOCK",                                   │    │ |
+|  │   │    "compliance": {"lgpd": true, "bacen": true, "pci": true}    │    │ |
+|  │   │  }                                                              │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
+
+---
+
+*Documento de Diagramas atualizado em 27 de Novembro de 2025*  
+*Sankofa Enterprise Pro v12.0*  
+*Total: 25+ diagramas e fluxogramas*

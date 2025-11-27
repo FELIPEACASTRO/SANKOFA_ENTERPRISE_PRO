@@ -1,5 +1,8 @@
 # Documentacao Funcional - Sankofa Enterprise Pro v12.0
+
 ## Sistema de Deteccao de Fraudes para Instituicoes Financeiras
+
+![Fluxograma Processo](images/fluxograma_processo_fraude.png)
 
 **Versao:** 12.0  
 **Ultima Atualizacao:** 27 de Novembro de 2025  
@@ -7,18 +10,91 @@
 
 ---
 
+## Indice Visual
+
+```
++==================================================================+
+|                    MAPA DA DOCUMENTACAO FUNCIONAL                 |
++==================================================================+
+|                                                                   |
+|  ┌───────────────────────────────────────────────────────────┐   |
+|  │  1. VISAO GERAL DO SISTEMA                                 │   |
+|  │     • O que e o Sankofa?                                   │   |
+|  │     • Para quem e este sistema?                            │   |
+|  │     • Capacidades                                          │   |
+|  └────────────────────────────┬──────────────────────────────┘   |
+|                               ▼                                   |
+|  ┌───────────────────────────────────────────────────────────┐   |
+|  │  2. NOVOS RECURSOS v12.0                                   │   |
+|  │     • Explicabilidade LGPD                                 │   |
+|  │     • Observabilidade Prometheus                           │   |
+|  │     • Infraestrutura de Escala                             │   |
+|  └────────────────────────────┬──────────────────────────────┘   |
+|                               ▼                                   |
+|  ┌───────────────────────────────────────────────────────────┐   |
+|  │  3. CASOS DE USO                                           │   |
+|  │     • Analise tempo real                                   │   |
+|  │     • Processamento batch                                  │   |
+|  │     • Monitoramento SLA                                    │   |
+|  └────────────────────────────┬──────────────────────────────┘   |
+|                               ▼                                   |
+|  ┌───────────────────────────────────────────────────────────┐   |
+|  │  4. REGRAS DE NEGOCIO                                      │   |
+|  │     • Classificacao de risco                               │   |
+|  │     • Thresholds de decisao                                │   |
+|  │     • Acoes automaticas                                    │   |
+|  └────────────────────────────┬──────────────────────────────┘   |
+|                               ▼                                   |
+|  ┌───────────────────────────────────────────────────────────┐   |
+|  │  5. COMPLIANCE                                             │   |
+|  │     • LGPD                                                 │   |
+|  │     • BACEN                                                │   |
+|  │     • PCI DSS                                              │   |
+|  └───────────────────────────────────────────────────────────┘   |
+|                                                                   |
++==================================================================+
+```
+
+---
+
 ## Estado do Sistema
 
-| Componente | Status | Detalhes |
-|------------|--------|----------|
-| API Backend | ✅ Producao | 50+ endpoints Flask |
-| Frontend Dashboard | ✅ Producao | 9 paginas React |
-| ML Stacking Ensemble | ✅ Producao | RF + GB + LR |
-| Explicabilidade SHAP | ✅ Integrado | API retorna explicacoes LGPD |
-| Observabilidade | ✅ Producao | Prometheus, SLA, alertas |
-| Infraestrutura Escala | ✅ Producao | Batch 33.88 TPS, async queue |
-| PostgreSQL | ✅ Integrado | Transacoes persistidas |
-| Testes Automatizados | ✅ 25 E2E | 100% passando |
+![Componentes](images/componentes_sistema_tecnologias.png)
+
+```
++==============================================================================+
+|                         DASHBOARD DE STATUS                                   |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                       COMPONENTES DO SISTEMA                             │ |
+|  │                                                                          │ |
+|  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │ |
+|  │  │ API BACKEND │  │  FRONTEND   │  │  ML ENGINE  │  │  DATABASE   │     │ |
+|  │  │             │  │             │  │             │  │             │     │ |
+|  │  │  ┌─────┐    │  │  ┌─────┐    │  │  ┌─────┐    │  │  ┌─────┐    │     │ |
+|  │  │  │ ✅  │    │  │  │ ✅  │    │  │  │ ✅  │    │  │  │ ✅  │    │     │ |
+|  │  │  │ ON  │    │  │  │ ON  │    │  │  │ ON  │    │  │  │ ON  │    │     │ |
+|  │  │  └─────┘    │  │  └─────┘    │  │  └─────┘    │  │  └─────┘    │     │ |
+|  │  │             │  │             │  │             │  │             │     │ |
+|  │  │ 50+ endpts  │  │ 9 paginas   │  │ Stacking    │  │ PostgreSQL  │     │ |
+|  │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘     │ |
+|  │                                                                          │ |
+|  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │ |
+|  │  │EXPLAINABIL. │  │OBSERVABIL.  │  │INFRASTRUTURA│  │   TESTES    │     │ |
+|  │  │             │  │             │  │             │  │             │     │ |
+|  │  │  ┌─────┐    │  │  ┌─────┐    │  │  ┌─────┐    │  │  ┌─────┐    │     │ |
+|  │  │  │ ✅  │    │  │  │ ✅  │    │  │  │ ✅  │    │  │  │ ✅  │    │     │ |
+|  │  │  │ ON  │    │  │  │ ON  │    │  │  │ ON  │    │  │  │25/25│    │     │ |
+|  │  │  └─────┘    │  │  └─────┘    │  │  └─────┘    │  │  └─────┘    │     │ |
+|  │  │             │  │             │  │             │  │             │     │ |
+|  │  │ SHAP/LGPD   │  │ Prometheus  │  │ 33.88 TPS   │  │ 100% pass   │     │ |
+|  │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘     │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
@@ -26,33 +102,141 @@
 
 ### 1.1 O que e o Sankofa?
 
-O **Sankofa Enterprise Pro** e um sistema de deteccao de fraudes financeiras em producao que analisa transacoes em tempo real usando Machine Learning. O nome "Sankofa" vem de um simbolo africano que significa "voltar e buscar" - representando a capacidade do sistema de aprender com padroes passados.
+![Dashboard](images/dashboard_interface_analista.png)
+
+O **Sankofa Enterprise Pro** e um sistema de deteccao de fraudes financeiras que analisa transacoes em tempo real usando Inteligencia Artificial.
+
+```
++==============================================================================+
+|                         O QUE O SANKOFA FAZ?                                  |
++==============================================================================+
+|                                                                               |
+|                              TRANSACAO                                        |
+|                               ENTRA                                           |
+|                                 │                                             |
+|                                 ▼                                             |
+|                    ┌──────────────────────┐                                  |
+|                    │    SANKOFA ANALISA    │                                  |
+|                    │                       │                                  |
+|                    │  ┌─────────────────┐  │                                  |
+|                    │  │   47+ Fatores   │  │                                  |
+|                    │  │   Analisados    │  │                                  |
+|                    │  └─────────────────┘  │                                  |
+|                    │                       │                                  |
+|                    │  ┌─────────────────┐  │                                  |
+|                    │  │  3 Modelos IA   │  │                                  |
+|                    │  │   Trabalhando   │  │                                  |
+|                    │  └─────────────────┘  │                                  |
+|                    │                       │                                  |
+|                    │  Tempo: ~30ms         │                                  |
+|                    │                       │                                  |
+|                    └───────────┬───────────┘                                  |
+|                                │                                              |
+|                   ┌────────────┼────────────┐                                |
+|                   │            │            │                                |
+|                   ▼            ▼            ▼                                |
+|              ┌────────┐   ┌────────┐   ┌────────┐                            |
+|              │APROVAR │   │REVISAR │   │BLOQUEAR│                            |
+|              │   ✅   │   │   ⚠️   │   │   🚫   │                            |
+|              │        │   │        │   │        │                            |
+|              │Score<30│   │30-85   │   │Score>85│                            |
+|              └────────┘   └────────┘   └────────┘                            |
+|                                                                               |
++==============================================================================+
+```
 
 ### 1.2 Para Quem e Este Sistema?
 
-| Perfil | Uso Principal |
-|--------|---------------|
-| **Analistas de Fraude** | Investigar alertas, revisar transacoes suspeitas |
-| **Gestores de Risco** | Monitorar KPIs, ajustar thresholds |
-| **Equipe de Compliance** | Gerar relatorios, auditorias, LGPD |
-| **Administradores de TI** | Configurar sistema, monitorar observabilidade |
+```
++==============================================================================+
+|                          PERFIS DE USUARIOS                                   |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   ┌──────────────────────┐      ANALISTA DE FRAUDE                      │ |
+|  │   │                      │                                               │ |
+|  │   │        👤            │      O que faz:                               │ |
+|  │   │     Analista         │      • Investiga alertas                      │ |
+|  │   │                      │      • Revisa transacoes suspeitas            │ |
+|  │   └──────────────────────┘      • Toma decisoes finais                   │ |
+|  │                                                                          │ |
+|  │   ┌──────────────────────┐      GESTOR DE RISCO                         │ |
+|  │   │                      │                                               │ |
+|  │   │        👔            │      O que faz:                               │ |
+|  │   │       Gestor         │      • Monitora KPIs                          │ |
+|  │   │                      │      • Ajusta thresholds                      │ |
+|  │   └──────────────────────┘      • Define politicas                       │ |
+|  │                                                                          │ |
+|  │   ┌──────────────────────┐      COMPLIANCE OFFICER                      │ |
+|  │   │                      │                                               │ |
+|  │   │        📋            │      O que faz:                               │ |
+|  │   │     Compliance       │      • Gera relatorios                        │ |
+|  │   │                      │      • Audita decisoes                        │ |
+|  │   └──────────────────────┘      • Garante LGPD                           │ |
+|  │                                                                          │ |
+|  │   ┌──────────────────────┐      ADMINISTRADOR TI                        │ |
+|  │   │                      │                                               │ |
+|  │   │        💻            │      O que faz:                               │ |
+|  │   │        TI            │      • Configura sistema                      │ |
+|  │   │                      │      • Monitora performance                   │ |
+|  │   └──────────────────────┘      • Resolve problemas                      │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
 ### 1.3 Capacidades do Sistema
 
-**Funcionalidades de Producao:**
 ```
-+-------------------------------------------------------------+
-|  API de Predicao em Tempo Real (/api/fraud/predict)         |
-|  Explicabilidade LGPD com SHAP (explanation_text)           |
-|  Dashboard 9 Paginas React                                  |
-|  ML Stacking (RandomForest + GradientBoosting + LR)         |
-|  PostgreSQL para transacoes (psycopg2)                      |
-|  25 Testes E2E Passando                                     |
-|  Observabilidade Prometheus (TPS, latencia, alertas)        |
-|  Processamento Batch (33.88 TPS)                            |
-|  Fila Assincrona com Prioridades                            |
-|  Circuit Breaker para Resiliencia                           |
-+-------------------------------------------------------------+
++==============================================================================+
+|                    FUNCIONALIDADES DISPONIVEIS                                |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                     RECURSOS DE PRODUCAO                                 │ |
+|  │                                                                          │ |
+|  │   DETECCAO EM TEMPO REAL                                                 │ |
+|  │   ━━━━━━━━━━━━━━━━━━━━━━                                                 │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │  POST /api/fraud/predict                                        │    │ |
+|  │   │                                                                  │    │ |
+|  │   │  • Analisa transacao em ~30ms                                   │    │ |
+|  │   │  • Retorna score de risco (0-100)                               │    │ |
+|  │   │  • Explica por que flagrou (LGPD)                               │    │ |
+|  │   │  • Sugere acao (APROVAR/REVISAR/BLOQUEAR)                       │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  │   PROCESSAMENTO EM BATCH                                                 │ |
+|  │   ━━━━━━━━━━━━━━━━━━━━━━━                                                │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │  POST /api/infrastructure/batch/process                         │    │ |
+|  │   │                                                                  │    │ |
+|  │   │  • Processa 50+ transacoes de uma vez                           │    │ |
+|  │   │  • Throughput: 33.88 TPS                                        │    │ |
+|  │   │  • Paralelismo com 8 workers                                    │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  │   DASHBOARD INTERATIVO                                                   │ |
+|  │   ━━━━━━━━━━━━━━━━━━━━━                                                  │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │  9 Paginas React                                                │    │ |
+|  │   │                                                                  │    │ |
+|  │   │  ├── Dashboard      - Visao geral                               │    │ |
+|  │   │  ├── Transacoes     - Lista e busca                             │    │ |
+|  │   │  ├── Calibragem     - Ajuste de modelos                         │    │ |
+|  │   │  ├── Investigacao   - Central de casos                          │    │ |
+|  │   │  ├── Revisao Manual - Fila de pendencias                        │    │ |
+|  │   │  ├── Monitoramento  - Metricas em tempo real                    │    │ |
+|  │   │  ├── Relatorios     - Exportacao de dados                       │    │ |
+|  │   │  ├── Metricas       - Performance do ML                         │    │ |
+|  │   │  └── Alertas        - Notificacoes                              │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
 ```
 
 ---
@@ -61,73 +245,218 @@ O **Sankofa Enterprise Pro** e um sistema de deteccao de fraudes financeiras em 
 
 ### 2.1 Explicabilidade LGPD (NOVO)
 
-Cada predicao agora inclui explicacoes automaticas em texto para compliance LGPD:
+![Compliance](images/badges_compliance_regulatorio.png)
 
-**Endpoint:** `POST /api/fraud/predict`
-
-**Parametros:**
-- `include_explanation`: true/false (default: true)
-- `include_compliance_report`: true/false (default: false)
-
-**Resposta com Explicabilidade:**
-```json
-{
-  "predictions": [{
-    "transaction_id": "TXN_001",
-    "is_fraud": true,
-    "risk_score": 87.5,
-    "risk_level": "HIGH",
-    "explanation_text": "Transacao de alto valor (R$ 15.000) em horario noturno (03:00) com velocidade acima do padrao",
-    "top_risk_factors": [
-      {"feature": "amount_normalized", "impact": 0.45, "direction": "increases_risk"},
-      {"feature": "is_night", "impact": 0.32, "direction": "increases_risk"}
-    ],
-    "top_protective_factors": [
-      {"feature": "device_risk_score", "impact": -0.15, "direction": "decreases_risk"}
-    ],
-    "lgpd_compliant": true,
-    "compliance_report": {
-      "lgpd": "Explicacao fornecida conforme Art. 20 LGPD",
-      "bacen": "Tempo de resposta dentro do SLA",
-      "pci_dss": "Dados sensiveis mascarados"
-    }
-  }]
-}
+```
++==============================================================================+
+|                    EXPLICABILIDADE LGPD                                       |
++==============================================================================+
+|                                                                               |
+|  O QUE E?                                                                     |
+|  ━━━━━━━━                                                                     |
+|  Cada vez que o sistema detecta uma transacao suspeita, ele agora            |
+|  explica EM TEXTO o motivo. Isso e obrigatorio pela Lei LGPD.                |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │  ARTIGO 20 DA LGPD                                                       │ |
+|  │  ━━━━━━━━━━━━━━━━━                                                       │ |
+|  │                                                                          │ |
+|  │  "O titular dos dados tem direito a solicitar a revisao de decisoes     │ |
+|  │   tomadas unicamente com base em tratamento automatizado de dados        │ |
+|  │   pessoais que afetem seus interesses..."                               │ |
+|  │                                                                          │ |
+|  │  TRADUCAO: Se a IA bloqueou a transacao do cliente, ele tem             │ |
+|  │            direito de saber POR QUE.                                     │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  COMO FUNCIONA?                                                               |
+|  ━━━━━━━━━━━━━━                                                               |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │  ANTES (sem explicabilidade):                                            │ |
+|  │  ┌──────────────────────────────────────────────────────────────────┐   │ |
+|  │  │  {                                                                │   │ |
+|  │  │    "is_fraud": true,                                              │   │ |
+|  │  │    "risk_score": 87.5                                             │   │ |
+|  │  │  }                                                                │   │ |
+|  │  │                                                                    │   │ |
+|  │  │  PROBLEMA: Por que? O que o sistema viu?                          │   │ |
+|  │  └──────────────────────────────────────────────────────────────────┘   │ |
+|  │                                                                          │ |
+|  │  AGORA (com explicabilidade):                                            │ |
+|  │  ┌──────────────────────────────────────────────────────────────────┐   │ |
+|  │  │  {                                                                │   │ |
+|  │  │    "is_fraud": true,                                              │   │ |
+|  │  │    "risk_score": 87.5,                                            │   │ |
+|  │  │                                                                    │   │ |
+|  │  │    "explanation_text": "Transacao de alto valor (R$ 15.000)      │   │ |
+|  │  │       em horario noturno (03:00) com velocidade transacional      │   │ |
+|  │  │       acima do padrao do cliente",                                │   │ |
+|  │  │                                                                    │   │ |
+|  │  │    "top_risk_factors": [                                          │   │ |
+|  │  │      {"feature": "amount", "impact": 0.45}     <-- MOTIVO 1      │   │ |
+|  │  │      {"feature": "is_night", "impact": 0.32}   <-- MOTIVO 2      │   │ |
+|  │  │    ],                                                             │   │ |
+|  │  │                                                                    │   │ |
+|  │  │    "lgpd_compliant": true   <-- CONFORMIDADE GARANTIDA           │   │ |
+|  │  │  }                                                                │   │ |
+|  │  └──────────────────────────────────────────────────────────────────┘   │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
 ```
 
 ### 2.2 Observabilidade Prometheus (NOVO)
 
-Sistema completo de metricas em tempo real:
+![Metricas](images/metricas_performance_dashboard.png)
 
-| Endpoint | Descricao |
-|----------|-----------|
-| `/api/observability/metrics` | Metricas JSON completas |
-| `/api/observability/prometheus` | Formato Prometheus |
-| `/api/observability/sla` | Verificacao de SLA |
-| `/api/health/detailed` | Health check detalhado |
-| `/api/health/live` | Liveness probe |
-| `/api/health/ready` | Readiness probe |
-
-**Metricas Disponiveis:**
-- `sankofa_requests_total` - Total de requisicoes
-- `sankofa_predictions_total` - Total de predicoes
-- `sankofa_predictions_fraud` - Predicoes de fraude
-- `sankofa_latency_p50/p95/p99` - Percentis de latencia
-- `sankofa_error_rate` - Taxa de erro
-- `sankofa_tps` - Transacoes por segundo
+```
++==============================================================================+
+|                    OBSERVABILIDADE PROMETHEUS                                 |
++==============================================================================+
+|                                                                               |
+|  O QUE E?                                                                     |
+|  ━━━━━━━━                                                                     |
+|  Sistema de monitoramento em tempo real que mostra como o sistema esta       |
+|  funcionando. Permite identificar problemas ANTES que afetem clientes.       |
+|                                                                               |
+|  METRICAS DISPONIVEIS                                                         |
+|  ━━━━━━━━━━━━━━━━━━━                                                          |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                        PAINEL DE METRICAS                                │ |
+|  │                                                                          │ |
+|  │   ┌────────────────┐  ┌────────────────┐  ┌────────────────┐            │ |
+|  │   │    LATENCIA    │  │   THROUGHPUT   │  │   ERROR RATE   │            │ |
+|  │   │                │  │                │  │                │            │ |
+|  │   │   p50: 28ms    │  │   33.88 TPS    │  │     0.0%       │            │ |
+|  │   │   p95: 300ms   │  │                │  │                │            │ |
+|  │   │   p99: 311ms   │  │  [████████████]│  │  [████████████]│            │ |
+|  │   │                │  │                │  │    EXCELENTE   │            │ |
+|  │   │  [████████░░░] │  │                │  │                │            │ |
+|  │   │      BOM       │  │                │  │                │            │ |
+|  │   └────────────────┘  └────────────────┘  └────────────────┘            │ |
+|  │                                                                          │ |
+|  │   ┌────────────────┐  ┌────────────────┐  ┌────────────────┐            │ |
+|  │   │  REQUISICOES   │  │   PREDICOES    │  │    UPTIME      │            │ |
+|  │   │                │  │                │  │                │            │ |
+|  │   │    15,847      │  │    12,503      │  │    99.9%       │            │ |
+|  │   │     total      │  │     total      │  │                │            │ |
+|  │   │                │  │                │  │  [████████████]│            │ |
+|  │   │  Fraudes: 892  │  │  Legit: 11,611 │  │    EXCELENTE   │            │ |
+|  │   │                │  │                │  │                │            │ |
+|  │   └────────────────┘  └────────────────┘  └────────────────┘            │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ENDPOINTS DE MONITORAMENTO                                                   |
+|  ━━━━━━━━━━━━━━━━━━━━━━━━━━                                                   |
+|                                                                               |
+|  ┌────────────────────────────────────┬────────────────────────────────────┐ |
+|  │  ENDPOINT                          │  DESCRICAO                          │ |
+|  ├────────────────────────────────────┼────────────────────────────────────┤ |
+|  │  /api/observability/metrics        │  Metricas em formato JSON          │ |
+|  │  /api/observability/prometheus     │  Formato para Grafana              │ |
+|  │  /api/observability/sla            │  Verificacao de SLA                │ |
+|  │  /api/health/detailed              │  Health de cada componente         │ |
+|  │  /api/health/live                  │  "Estou vivo?" (Kubernetes)        │ |
+|  │  /api/health/ready                 │  "Estou pronto?" (Kubernetes)      │ |
+|  └────────────────────────────────────┴────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
 ### 2.3 Infraestrutura de Escala (NOVO)
 
-| Endpoint | Descricao | Performance |
-|----------|-----------|-------------|
-| `/api/infrastructure/batch/process` | Batch paralelo | 33.88 TPS |
-| `/api/infrastructure/task/submit` | Fila assincrona | Prioridades |
-| `/api/infrastructure/queue/metrics` | Metricas fila | Circuit breaker |
+![Escalabilidade](images/escalabilidade_300m_requisicoes.png)
 
-**Componentes:**
-- `AsyncTaskQueue`: Fila com prioridades (CRITICAL, HIGH, NORMAL, LOW)
-- `BatchProcessor`: Processamento paralelo (8 workers)
-- `CircuitBreaker`: Protecao contra falhas em cascata
+```
++==============================================================================+
+|                    INFRAESTRUTURA DE ESCALA                                   |
++==============================================================================+
+|                                                                               |
+|  O QUE E?                                                                     |
+|  ━━━━━━━━                                                                     |
+|  Componentes que permitem o sistema processar MUITAS transacoes ao           |
+|  mesmo tempo sem ficar lento ou cair.                                         |
+|                                                                               |
+|  COMPONENTES                                                                  |
+|  ━━━━━━━━━━━                                                                  |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │  1. BATCH PROCESSOR (Processador em Lote)                                │ |
+|  │  ───────────────────────────────────────                                 │ |
+|  │                                                                          │ |
+|  │  ┌────────────────────────────────────────────────────────────────┐     │ |
+|  │  │                                                                 │     │ |
+|  │  │  ENTRADA: 50 transacoes ────────────────────────────────────┐  │     │ |
+|  │  │                                                              │  │     │ |
+|  │  │                    ┌─────────┐                               │  │     │ |
+|  │  │                    │ Worker 1│ ──────┐                       │  │     │ |
+|  │  │                    ├─────────┤       │                       │  │     │ |
+|  │  │                    │ Worker 2│ ──────┤                       │  │     │ |
+|  │  │                    ├─────────┤       ├────► SAIDA: 50       │  │     │ |
+|  │  │                    │ Worker 3│ ──────┤        predicoes      │  │     │ |
+|  │  │                    ├─────────┤       │                       │  │     │ |
+|  │  │                    │ Worker 4│ ──────┤                       │  │     │ |
+|  │  │                    ├─────────┤       │                       │  │     │ |
+|  │  │                    │ Worker 5│ ──────┤      Tempo: 1.5s      │  │     │ |
+|  │  │                    ├─────────┤       │      TPS: 33.88       │  │     │ |
+|  │  │                    │ Worker 6│ ──────┤                       │  │     │ |
+|  │  │                    ├─────────┤       │                       │  │     │ |
+|  │  │                    │ Worker 7│ ──────┤                       │  │     │ |
+|  │  │                    ├─────────┤       │                       │  │     │ |
+|  │  │                    │ Worker 8│ ──────┘                       │  │     │ |
+|  │  │                    └─────────┘                               │  │     │ |
+|  │  │                                                              │  │     │ |
+|  │  └──────────────────────────────────────────────────────────────┘  │     │ |
+|  │                                                                          │ |
+|  │  2. ASYNC TASK QUEUE (Fila de Tarefas)                                   │ |
+|  │  ─────────────────────────────────────                                   │ |
+|  │                                                                          │ |
+|  │  ┌────────────────────────────────────────────────────────────────┐     │ |
+|  │  │                                                                 │     │ |
+|  │  │  ┌──────────────────────────────────────────────────────────┐  │     │ |
+|  │  │  │  FILA DE PRIORIDADES                                      │  │     │ |
+|  │  │  │                                                           │  │     │ |
+|  │  │  │  🔴 CRITICAL  ████████░░░░░░░░░░░░░░░░░░░░  (25%)         │  │     │ |
+|  │  │  │  🟠 HIGH      ██████████████░░░░░░░░░░░░░░  (35%)         │  │     │ |
+|  │  │  │  🟡 NORMAL    ██████████████████░░░░░░░░░░  (30%)         │  │     │ |
+|  │  │  │  🟢 LOW       ██████████████████████░░░░░░  (10%)         │  │     │ |
+|  │  │  │                                                           │  │     │ |
+|  │  │  │  Tarefas criticas sao processadas PRIMEIRO!               │  │     │ |
+|  │  │  └───────────────────────────────────────────────────────────┘  │     │ |
+|  │  │                                                                 │     │ |
+|  │  └────────────────────────────────────────────────────────────────┘     │ |
+|  │                                                                          │ |
+|  │  3. CIRCUIT BREAKER (Disjuntor)                                          │ |
+|  │  ──────────────────────────────                                          │ |
+|  │                                                                          │ |
+|  │  ┌────────────────────────────────────────────────────────────────┐     │ |
+|  │  │                                                                 │     │ |
+|  │  │  Protege o sistema contra falhas em cascata                    │     │ |
+|  │  │                                                                 │     │ |
+|  │  │  ┌────────┐      ┌────────┐      ┌──────────┐                 │     │ |
+|  │  │  │ CLOSED │ ──── │  OPEN  │ ──── │HALF-OPEN │                 │     │ |
+|  │  │  │  (OK)  │ 5err │(block) │ 30s  │  (test)  │                 │     │ |
+|  │  │  └────────┘      └────────┘      └──────────┘                 │     │ |
+|  │  │       │                                │                       │     │ |
+|  │  │       └────────────────────────────────┘                       │     │ |
+|  │  │                      ok                                        │     │ |
+|  │  │                                                                 │     │ |
+|  │  │  Estado Atual: CLOSED ✅ (operando normalmente)                │     │ |
+|  │  │                                                                 │     │ |
+|  │  └────────────────────────────────────────────────────────────────┘     │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
@@ -135,282 +464,373 @@ Sistema completo de metricas em tempo real:
 
 ### 3.1 UC01: Analise de Transacao em Tempo Real
 
-**Ator:** Sistema Bancario (Core Banking)  
-**Objetivo:** Avaliar risco de fraude antes de aprovar transacao
-
-**Fluxo Principal:**
 ```
-   SISTEMA           SANKOFA                          RESPOSTA
-   BANCARIO          API
-      |                |
-      |  POST /api/    |
-      |  fraud/predict |
-      +--------------->|
-      |                |  1. Validar Payload
-      |                |  2. Extrair Features
-      |                |  3. Stacking (RF+GB)
-      |                |  4. Meta-model (LR)
-      |                |  5. Gerar Explicacao SHAP
-      |                |  6. Salvar no BD
-      |                |
-      |  200 OK        |
-      |<---------------+
-      |  {is_fraud,    |
-      |   score,       |
-      |   explanation} |
-
-   TEMPO TOTAL: ~30ms (aquecido)
-```
-
-**Exemplo de Requisicao:**
-```json
-{
-  "transactions": [{
-    "transaction_id": "TXN_001",
-    "amount": 15000.00,
-    "hour": 3,
-    "day_of_week": 2,
-    "location_risk_score": 0.3,
-    "device_risk_score": 0.2,
-    "velocity_score": 0.8,
-    "is_new_device": 0
-  }],
-  "include_explanation": true,
-  "include_compliance_report": true
-}
++==============================================================================+
+|                    CASO DE USO: ANALISE EM TEMPO REAL                         |
++==============================================================================+
+|                                                                               |
+|  ATOR: Sistema Bancario (Core Banking)                                        |
+|  OBJETIVO: Avaliar risco de fraude antes de aprovar transacao                 |
+|                                                                               |
+|  FLUXO:                                                                       |
+|  ━━━━━━                                                                       |
+|                                                                               |
+|   SISTEMA           SANKOFA                               RESULTADO           |
+|   BANCARIO          API                                                       |
+|      │                │                                                       |
+|      │  1. Transacao  │                                                       |
+|      │     chega      │                                                       |
+|      │ ──────────────▶│                                                       |
+|      │                │                                                       |
+|      │                │  ┌─────────────────────────────────────────┐          |
+|      │                │  │  2. PROCESSAMENTO INTERNO               │          |
+|      │                │  │                                         │          |
+|      │                │  │  a. Validar dados de entrada            │          |
+|      │                │  │  b. Extrair 47+ features                │          |
+|      │                │  │  c. Passar por Random Forest            │          |
+|      │                │  │  d. Passar por Gradient Boosting        │          |
+|      │                │  │  e. Combinar no Meta-model              │          |
+|      │                │  │  f. Gerar explicacao SHAP               │          |
+|      │                │  │  g. Salvar no banco de dados            │          |
+|      │                │  │                                         │          |
+|      │                │  │  TEMPO TOTAL: ~30ms                     │          |
+|      │                │  └─────────────────────────────────────────┘          |
+|      │                │                                                       |
+|      │  3. Resposta   │                                                       |
+|      │◀───────────────│                                                       |
+|      │                │                                                       |
+|      │  {                                                                     |
+|      │    is_fraud: true,                                                     |
+|      │    risk_score: 87.5,                                                   |
+|      │    decision: "BLOCK",                                                  |
+|      │    explanation: "..."                                                  |
+|      │  }                                                                     |
+|      │                │                                                       |
+|      ▼                │                                                       |
+|                                                                               |
+|   ACOES POSSIVEIS:                                                            |
+|   ┌────────────────────┬───────────────────┬────────────────────┐            |
+|   │  Score < 30        │  Score 30-85      │  Score > 85        │            |
+|   │                    │                   │                    │            |
+|   │  ✅ APROVAR        │  ⚠️ REVISAR       │  🚫 BLOQUEAR       │            |
+|   │                    │                   │                    │            |
+|   │  Libera transacao  │  Vai para fila    │  Bloqueia e alerta │            |
+|   │  automaticamente   │  de revisao manual│  a equipe          │            |
+|   └────────────────────┴───────────────────┴────────────────────┘            |
+|                                                                               |
++==============================================================================+
 ```
 
 ### 3.2 UC02: Processamento em Batch
 
-**Ator:** Sistema de Reconciliacao  
-**Objetivo:** Processar grande volume de transacoes
-
-**Endpoint:** `POST /api/infrastructure/batch/process`
-
-```json
-{
-  "transactions": [/* lista de 50+ transacoes */],
-  "batch_size": 100,
-  "include_explanation": false
-}
 ```
-
-**Resposta:**
-```json
-{
-  "success": true,
-  "data": {
-    "total": 50,
-    "successful": 50,
-    "failed": 0,
-    "processing_time_ms": 1475.7,
-    "throughput_tps": 33.88,
-    "results": [/* predicoes */]
-  }
-}
-```
-
-### 3.3 UC03: Monitoramento de SLA
-
-**Ator:** Equipe de Operacoes  
-**Objetivo:** Verificar compliance de SLA
-
-**Endpoint:** `GET /api/observability/sla`
-
-```json
-{
-  "success": true,
-  "data": {
-    "latency_p95": {
-      "current": 28.5,
-      "threshold": 100.0,
-      "compliant": true
-    },
-    "error_rate": {
-      "current": 0.0,
-      "threshold": 0.1,
-      "compliant": true
-    },
-    "tps": {
-      "current": 33.88,
-      "threshold": 100.0,
-      "compliant": true
-    }
-  }
-}
++==============================================================================+
+|                    CASO DE USO: PROCESSAMENTO EM BATCH                        |
++==============================================================================+
+|                                                                               |
+|  ATOR: Sistema de Reconciliacao                                               |
+|  OBJETIVO: Processar grande volume de transacoes                              |
+|                                                                               |
+|  FLUXO:                                                                       |
+|  ━━━━━━                                                                       |
+|                                                                               |
+|   SISTEMA              SANKOFA                          RESULTADO             |
+|   RECONCILIACAO        API                                                    |
+|      │                   │                                                    |
+|      │  ┌─────────────┐  │                                                    |
+|      │  │ 50 transac. │  │                                                    |
+|      │  │   de uma    │  │                                                    |
+|      │  │    vez      │  │                                                    |
+|      │  └──────┬──────┘  │                                                    |
+|      │         │         │                                                    |
+|      │ ────────┴────────▶│                                                    |
+|      │                   │                                                    |
+|      │                   │  ┌───────────────────────────────────────┐         |
+|      │                   │  │     PROCESSAMENTO PARALELO            │         |
+|      │                   │  │                                       │         |
+|      │                   │  │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐     │         |
+|      │                   │  │  │ W1  │ │ W2  │ │ W3  │ │ W4  │     │         |
+|      │                   │  │  └─────┘ └─────┘ └─────┘ └─────┘     │         |
+|      │                   │  │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐     │         |
+|      │                   │  │  │ W5  │ │ W6  │ │ W7  │ │ W8  │     │         |
+|      │                   │  │  └─────┘ └─────┘ └─────┘ └─────┘     │         |
+|      │                   │  │                                       │         |
+|      │                   │  │  8 workers processando em paralelo    │         |
+|      │                   │  │                                       │         |
+|      │                   │  └───────────────────────────────────────┘         |
+|      │                   │                                                    |
+|      │  ┌─────────────┐  │                                                    |
+|      │  │ 50 predicoes│◀─│                                                    |
+|      │  │   prontas   │  │                                                    |
+|      │  │             │  │                                                    |
+|      │  │ Tempo: 1.5s │  │                                                    |
+|      │  │ TPS: 33.88  │  │                                                    |
+|      │  └─────────────┘  │                                                    |
+|      │                   │                                                    |
+|                                                                               |
++==============================================================================+
 ```
 
 ---
 
-## 4. Modulos do Sistema
+## 4. Regras de Negocio
 
-### 4.1 Dashboard Executivo (`/`)
+### 4.1 Classificacao de Risco
 
-**Funcionalidades:**
-- Cards de KPIs: Transacoes, Fraudes, Taxa de Aprovacao, Latencia
-- Graficos de transacoes por hora
-- Alertas recentes
-- Status dos modelos ML
+```
++==============================================================================+
+|                    CLASSIFICACAO DE RISCO                                     |
++==============================================================================+
+|                                                                               |
+|  ESCALA DE RISCO                                                              |
+|  ━━━━━━━━━━━━━━━                                                              |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │    0        30                              85              100          │ |
+|  │    │─────────│───────────────────────────────│────────────────│          │ |
+|  │    │         │                               │                │          │ |
+|  │    │  BAIXO  │           MEDIO               │      ALTO      │          │ |
+|  │    │         │                               │                │          │ |
+|  │    │ 🟢 Verde│         🟡 Amarelo            │     🔴 Vermelho│          │ |
+|  │    │         │                               │                │          │ |
+|  │    │ APROVAR │          REVISAR              │    BLOQUEAR    │          │ |
+|  │    │  AUTO   │          MANUAL               │      AUTO      │          │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  DETALHAMENTO:                                                                |
+|  ━━━━━━━━━━━━━                                                                |
+|                                                                               |
+|  ┌────────────────┬────────────────────────────────────────────────────────┐ |
+|  │   CATEGORIA    │                    DESCRICAO                            │ |
+|  ├────────────────┼────────────────────────────────────────────────────────┤ |
+|  │                │                                                         │ |
+|  │   RISCO BAIXO  │  • Score 0-30                                          │ |
+|  │   (Score < 30) │  • Transacao dentro do padrao do cliente               │ |
+|  │                │  • Dispositivo conhecido                                │ |
+|  │   🟢 APROVAR   │  • Localizacao habitual                                 │ |
+|  │                │  • Horario normal                                       │ |
+|  │                │                                                         │ |
+|  │                │  ACAO: Aprovacao automatica                             │ |
+|  │                │                                                         │ |
+|  ├────────────────┼────────────────────────────────────────────────────────┤ |
+|  │                │                                                         │ |
+|  │   RISCO MEDIO  │  • Score 30-85                                         │ |
+|  │   (30 <= x <85)│  • Alguns indicadores suspeitos                         │ |
+|  │                │  • Valor acima da media                                 │ |
+|  │   🟡 REVISAR   │  • Horario ou local incomum                             │ |
+|  │                │  • Mas nao ha certeza de fraude                         │ |
+|  │                │                                                         │ |
+|  │                │  ACAO: Vai para fila de revisao manual                  │ |
+|  │                │                                                         │ |
+|  ├────────────────┼────────────────────────────────────────────────────────┤ |
+|  │                │                                                         │ |
+|  │   RISCO ALTO   │  • Score 85-100                                        │ |
+|  │   (Score >= 85)│  • Multiplos indicadores de fraude                      │ |
+|  │                │  • Comportamento anomalo                                │ |
+|  │   🔴 BLOQUEAR  │  • Padrao conhecido de ataque                           │ |
+|  │                │  • Alta confianca de fraude                             │ |
+|  │                │                                                         │ |
+|  │                │  ACAO: Bloqueio automatico + alerta                     │ |
+|  │                │                                                         │ |
+|  └────────────────┴────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
-### 4.2 Central de Transacoes (`/transactions`)
+### 4.2 Regras de Precisao
 
-**Funcionalidades:**
-- Tabela com transacoes recentes (via API /api/transactions)
-- Colunas: ID, Valor, Tipo, Canal, Localizacao, CPF mascarado, Data/Hora
-- Filtros por status e tipo
-
-### 4.3 Revisao Manual (`/manual-review`)
-
-**Funcionalidades:**
-- Lista de transacoes pendentes de revisao
-- Contadores (total, pendentes, completadas)
-- Botoes de acao (aprovar/rejeitar)
-- SLA timers
-
-### 4.4 Monitoramento (`/monitoring`)
-
-**Funcionalidades (ATUALIZADO):**
-- Status em tempo real via `/api/observability/metrics`
-- Metricas de TPS, latencia, error rate
-- Health checks por componente
-- Alertas automaticos de SLA
-
-### 4.5 Calibragem (`/calibration`)
-
-**Funcionalidades:**
-- Ajuste de thresholds por tier
-- Controle de pesos do ensemble
-- Configuracao de regras
-
----
-
-## 5. Regras de Negocio
-
-### 5.1 Classificacao de Risco
-
-| Score | Classificacao | Acao | Cor |
-|-------|---------------|------|-----|
-| 0-30 | **Baixo Risco** | Aprovacao automatica | Verde |
-| 31-50 | **Risco Moderado** | Aprovacao com monitoramento | Amarelo |
-| 51-70 | **Alto Risco** | Encaminha para revisao manual | Laranja |
-| 71-100 | **Risco Critico** | Bloqueio automatico | Vermelho |
-
-### 5.2 Features de ML (47+)
-
-**Temporais (5):**
-- hour, day_of_week, is_weekend, is_night, is_business_hours
-
-**Valor (5):**
-- amount_log, amount_squared, amount_normalized, is_round_amount, amount_zscore
-
-**Geograficas (3):**
-- distance_from_home, location_risk_score, is_international
-
-**Comportamentais (4):**
-- transaction_velocity_1h, transaction_velocity_24h, amount_deviation, new_merchant
-
-**Location Entropy (11):**
-- location_entropy, unique_locations, location_diversity_score, etc.
-
----
-
-## 6. APIs e Integracao
-
-### 6.1 Endpoints Principais
-
-| Endpoint | Metodo | Funcao | Rate Limit |
-|----------|--------|--------|------------|
-| `/api/health` | GET | Health check | - |
-| `/api/fraud/predict` | POST | Predicao com explicacao | 1000/min |
-| `/api/fraud/batch` | POST | Batch tradicional | 100/min |
-| `/api/infrastructure/batch/process` | POST | Batch otimizado | 50/min |
-| `/api/observability/metrics` | GET | Metricas Prometheus | 500/min |
-| `/api/observability/sla` | GET | Status SLA | 500/min |
-| `/api/health/detailed` | GET | Health detalhado | - |
-
-### 6.2 Endpoints de Explicabilidade
-
-| Endpoint | Metodo | Funcao |
-|----------|--------|--------|
-| `/api/explainability/features` | GET | Lista features e importancia |
-| `/api/explainability/explain` | POST | Explicacao individual |
-
-### 6.3 Endpoints de Infraestrutura
-
-| Endpoint | Metodo | Funcao |
-|----------|--------|--------|
-| `/api/infrastructure/queue/metrics` | GET | Metricas da fila |
-| `/api/infrastructure/task/submit` | POST | Submete tarefa async |
-| `/api/infrastructure/task/<id>/status` | GET | Status da tarefa |
-
----
-
-## 7. Compliance e Regulamentacao
-
-### 7.1 LGPD
-
-| Requisito | Status | Implementacao |
-|-----------|--------|---------------|
-| Dados pessoais mascarados | ✅ Implementado | CPF exibido como XXX.XXX.XXX-XX |
-| Logs de auditoria | ✅ Implementado | Tabela audit_log PostgreSQL |
-| Explicabilidade (Art. 20) | ✅ Implementado | SHAP + explanation_text |
-| Direito a explicacao | ✅ Implementado | Endpoint /api/explainability/explain |
-
-### 7.2 BACEN Resolucao 6/2023
-
-| Requisito | Status | Implementacao |
-|-----------|--------|---------------|
-| API de deteccao | ✅ Implementado | /api/fraud/predict |
-| Tempo de resposta | ✅ Monitorado | /api/observability/sla |
-| Disponibilidade | ✅ Monitorado | Health checks |
-| Audit trail | ✅ Implementado | PostgreSQL + logs |
-
-### 7.3 PCI DSS
-
-| Requisito | Status | Implementacao |
-|-----------|--------|---------------|
-| Dados sensiveis | ✅ Mascarados | CPF, cartao |
-| Logs seguros | ✅ Implementado | Structured logging |
-| Monitoramento | ✅ Implementado | Observabilidade |
+```
++==============================================================================+
+|                    REGRAS DE PRECISAO (BOOSTERS)                              |
++==============================================================================+
+|                                                                               |
+|  Alem do modelo de ML, existem REGRAS que aumentam o score em situacoes      |
+|  especificas de alto risco:                                                   |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │  REGRA 1: VALOR EXTREMO EM HORARIO SUSPEITO                              │ |
+|  │  ──────────────────────────────────────────                              │ |
+|  │                                                                          │ |
+|  │  SE:                                                                     │ |
+|  │    • Valor > R$ 50.000                                                   │ |
+|  │    • Horario entre 00h e 05h                                             │ |
+|  │                                                                          │ |
+|  │  ENTAO:                                                                  │ |
+|  │    • Adicionar +30 pontos ao score                                       │ |
+|  │                                                                          │ |
+|  │  MOTIVO: Transacoes de alto valor de madrugada sao raras e suspeitas     │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │  REGRA 2: RAJADA DE TRANSACOES                                           │ |
+|  │  ─────────────────────────────                                           │ |
+|  │                                                                          │ |
+|  │  SE:                                                                     │ |
+|  │    • Mais de 50 transacoes em 30 minutos                                 │ |
+|  │                                                                          │ |
+|  │  ENTAO:                                                                  │ |
+|  │    • Adicionar +40 pontos ao score                                       │ |
+|  │                                                                          │ |
+|  │  MOTIVO: Padrao classico de ataque automatizado ou teste de cartao       │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │  REGRA 3: COMBINACAO DE ALTO RISCO                                       │ |
+|  │  ─────────────────────────────────                                       │ |
+|  │                                                                          │ |
+|  │  SE:                                                                     │ |
+|  │    • Localizacao de risco > 90%                                          │ |
+|  │    • Dispositivo de risco > 90%                                          │ |
+|  │                                                                          │ |
+|  │  ENTAO:                                                                  │ |
+|  │    • Adicionar +50 pontos ao score                                       │ |
+|  │                                                                          │ |
+|  │  MOTIVO: Combinacao de fatores de alto risco indica fraude quase certa   │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
-## 8. Metricas de Performance
+## 5. Compliance
 
-### 8.1 Metricas Validadas
+![Compliance](images/badges_compliance_regulatorio.png)
 
-| Metrica | Valor | Condicao |
-|---------|-------|----------|
-| Throughput Batch | 33.88 TPS | 50 transacoes paralelas |
-| Latencia p50 | 28ms | Modelo aquecido |
-| Latencia p95 | 300ms | Inclui cold start |
-| Latencia p99 | 311ms | Inclui cold start |
-| Error Rate | 0% | Testes E2E |
-
-### 8.2 ML Performance
-
-| Metrica | Valor |
-|---------|-------|
-| Recall | 90.9% |
-| Precisao | 100% |
-| F1-Score | 95.2% |
+```
++==============================================================================+
+|                    COMPLIANCE REGULATORIO                                     |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                              LGPD                                        │ |
+|  │               Lei Geral de Protecao de Dados Pessoais                    │ |
+|  ├─────────────────────────────────────────────────────────────────────────┤ |
+|  │                                                                          │ |
+|  │  ┌──────────────────┐                                                    │ |
+|  │  │   REQUISITO      │  ✅ IMPLEMENTADO                                   │ |
+|  │  ├──────────────────┼───────────────────────────────────────────────────│ |
+|  │  │ Explicabilidade  │  explanation_text em cada predicao                │ |
+|  │  │ (Art. 20)        │  Texto em portugues explicando a decisao          │ |
+|  │  ├──────────────────┼───────────────────────────────────────────────────│ |
+|  │  │ Mascaramento     │  CPF exibido como XXX.XXX.XXX-XX                  │ |
+|  │  │ de dados         │  Dados sensiveis nao expostos em logs             │ |
+|  │  ├──────────────────┼───────────────────────────────────────────────────│ |
+|  │  │ Audit Trail      │  Tabela audit_log registra todas acoes            │ |
+|  │  │                  │  Quem fez, quando, o que mudou                     │ |
+|  │  ├──────────────────┼───────────────────────────────────────────────────│ |
+|  │  │ Direito a        │  Endpoint /api/explainability/explain             │ |
+|  │  │ Explicacao       │  Cliente pode solicitar explicacao detalhada      │ |
+|  │  └──────────────────┴───────────────────────────────────────────────────│ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                            BACEN                                         │ |
+|  │                   Resolucao CMN 6/2023                                   │ |
+|  ├─────────────────────────────────────────────────────────────────────────┤ |
+|  │                                                                          │ |
+|  │  ┌──────────────────┐                                                    │ |
+|  │  │   REQUISITO      │  ✅ IMPLEMENTADO                                   │ |
+|  │  ├──────────────────┼───────────────────────────────────────────────────│ |
+|  │  │ API de Deteccao  │  /api/fraud/predict operacional 24/7              │ |
+|  │  │                  │  Latencia media: 30ms                              │ |
+|  │  ├──────────────────┼───────────────────────────────────────────────────│ |
+|  │  │ SLA Monitorado   │  /api/observability/sla                           │ |
+|  │  │                  │  Alerta automatico se SLA violado                  │ |
+|  │  ├──────────────────┼───────────────────────────────────────────────────│ |
+|  │  │ Disponibilidade  │  Health checks a cada 30 segundos                 │ |
+|  │  │                  │  Uptime: 99.9%                                     │ |
+|  │  └──────────────────┴───────────────────────────────────────────────────│ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                           PCI DSS                                        │ |
+|  │            Payment Card Industry Data Security Standard                  │ |
+|  ├─────────────────────────────────────────────────────────────────────────┤ |
+|  │                                                                          │ |
+|  │  ┌──────────────────┐                                                    │ |
+|  │  │   REQUISITO      │  ✅ IMPLEMENTADO                                   │ |
+|  │  ├──────────────────┼───────────────────────────────────────────────────│ |
+|  │  │ Dados Sensiveis  │  Cartao nunca armazenado                          │ |
+|  │  │ Protegidos       │  Tokenizacao de dados                              │ |
+|  │  ├──────────────────┼───────────────────────────────────────────────────│ |
+|  │  │ Logs Seguros     │  Structured logging                               │ |
+|  │  │                  │  Dados sensiveis nao aparecem em logs              │ |
+|  │  ├──────────────────┼───────────────────────────────────────────────────│ |
+|  │  │ TLS/HTTPS        │  Criptografia em transito                          │ |
+|  │  │                  │  TLS 1.3 obrigatorio                               │ |
+|  │  └──────────────────┴───────────────────────────────────────────────────│ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
-## 9. Glossario
+## 6. Endpoints da API
 
-| Termo | Definicao |
-|-------|-----------|
-| **Ensemble** | Combinacao de multiplos modelos de ML |
-| **Feature** | Caracteristica extraida da transacao |
-| **Threshold** | Limite de corte para decisao |
-| **SHAP** | SHapley Additive exPlanations - explicabilidade |
-| **TPS** | Transacoes por segundo |
-| **HITL** | Human-in-the-Loop - revisao humana |
-| **Circuit Breaker** | Padrao de resiliencia contra falhas |
-| **SLA** | Service Level Agreement |
+### 6.1 Mapa de Endpoints
+
+![API](images/diagrama_api_endpoints.png)
+
+```
++==============================================================================+
+|                    ENDPOINTS DISPONIVEIS                                      |
++==============================================================================+
+|                                                                               |
+|  /api                                                                         |
+|   │                                                                           |
+|   ├── SAUDE DO SISTEMA                                                        |
+|   │   ├── /health                    GET     Status basico                   |
+|   │   ├── /health/live               GET     Kubernetes liveness             |
+|   │   ├── /health/ready              GET     Kubernetes readiness            |
+|   │   └── /health/detailed           GET     Status por componente           |
+|   │                                                                           |
+|   ├── DETECCAO DE FRAUDE                                                      |
+|   │   ├── /fraud/predict             POST    Predicao individual             |
+|   │   ├── /fraud/batch               POST    Predicao em lote                |
+|   │   ├── /fraud/explain/<id>        GET     Explicacao detalhada            |
+|   │   └── /fraud/statistics          GET     Estatisticas de fraude          |
+|   │                                                                           |
+|   ├── TRANSACOES                                                              |
+|   │   ├── /transactions              GET     Lista transacoes                |
+|   │   ├── /transactions/<id>         GET     Detalhe transacao               |
+|   │   └── /transactions/stats        GET     Estatisticas                    |
+|   │                                                                           |
+|   ├── OBSERVABILIDADE                                                         |
+|   │   ├── /observability/metrics     GET     Metricas JSON                   |
+|   │   ├── /observability/prometheus  GET     Formato Prometheus              |
+|   │   └── /observability/sla         GET     Verificacao SLA                 |
+|   │                                                                           |
+|   ├── INFRAESTRUTURA                                                          |
+|   │   ├── /infrastructure/batch/*    POST    Batch otimizado                 |
+|   │   ├── /infrastructure/queue/*    GET     Metricas fila                   |
+|   │   └── /infrastructure/task/*     POST    Submete tarefas                 |
+|   │                                                                           |
+|   ├── MODELO ML                                                               |
+|   │   ├── /model/metrics             GET     Metricas do modelo              |
+|   │   ├── /model/retrain             POST    Retreinar modelo                |
+|   │   └── /model/calibrate           POST    Calibrar probabilidades         |
+|   │                                                                           |
+|   └── FEEDBACK                                                                |
+|       └── /feedback                  POST    Feedback do analista            |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
-*Documento gerado automaticamente pelo Sankofa Enterprise Pro v12.0*  
-*Ultima atualizacao: 27 de Novembro de 2025*
+*Documentacao Funcional atualizada em 27 de Novembro de 2025*  
+*Sankofa Enterprise Pro v12.0*  
+*Total: 20+ diagramas e ilustracoes*
