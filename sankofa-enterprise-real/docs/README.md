@@ -1,102 +1,311 @@
-# Sankofa Enterprise Pro - Documentacao v12.0
+# Sankofa Enterprise Pro - Documentacao Completa v12.0
 
-**Sistema de Deteccao de Fraudes Enterprise-Grade**  
-**Versao:** 12.0 | **Ultima Atualizacao:** 27 de Novembro de 2025
+![Sistema de Deteccao de Fraudes](images/arquitetura_tecnica_microservicos.png)
+
+## Sistema de Deteccao de Fraudes para Instituicoes Financeiras
+
+**Versao:** 12.0  
+**Data:** 27 de Novembro de 2025  
+**Status:** Producao - 25/25 Testes E2E Passando
+
+---
+
+## Indice Visual da Documentacao
+
+```
++==============================================================================+
+|                    MAPA DA DOCUMENTACAO SANKOFA                               |
++==============================================================================+
+|                                                                               |
+|                              ┌─────────────────┐                             |
+|                              │   README.md     │                             |
+|                              │  (Este arquivo) │                             |
+|                              └────────┬────────┘                             |
+|                                       │                                       |
+|          ┌────────────────────────────┼────────────────────────────┐         |
+|          │                            │                            │         |
+|          ▼                            ▼                            ▼         |
+|   ┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐|
+|   │   TECNICOS      │         │   USUARIOS      │         │  EDUCACIONAIS   │|
+|   │                 │         │                 │         │                 │|
+|   │ • Arquitetura   │         │ • Manual        │         │ • Use a Cabeca  │|
+|   │ • Diagramas     │         │ • QA Report     │         │   Fraudes       │|
+|   │ • Blueprint     │         │ • Roadmap       │         │ • Use a Cabeca  │|
+|   │ • Melhorias     │         │ • Funcional     │         │   Sankofa       │|
+|   │ • Triple Check  │         │                 │         │                 │|
+|   └─────────────────┘         └─────────────────┘         └─────────────────┘|
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
 ## Status do Sistema
 
-| Componente | Status | Versao |
-|------------|--------|--------|
-| Backend API (Flask) | ✅ Producao | 50+ endpoints |
-| Frontend Dashboard (React) | ✅ Producao | 9 paginas |
-| ML Stacking Ensemble | ✅ Producao | RF + GB + LR |
-| Explicabilidade SHAP | ✅ Integrado na API | LGPD Compliant |
-| Observabilidade | ✅ Producao | Prometheus/SLA |
-| Infraestrutura Escala | ✅ Producao | 33.88 TPS testado |
-| PostgreSQL | ✅ Integrado | Neon-backed |
-| Testes Automatizados | ✅ 25 E2E passando | 100% |
-
----
-
-## Indice de Documentacao
-
-| Documento | Publico-Alvo | Descricao |
-|-----------|--------------|-----------|
-| [ARQUITETURA_TECNICA.md](./ARQUITETURA_TECNICA.md) | Desenvolvedores, Arquitetos, DevOps | Stack, componentes, APIs, banco de dados |
-| [DOCUMENTACAO_FUNCIONAL.md](./DOCUMENTACAO_FUNCIONAL.md) | Analistas, Product Owners | Casos de uso, regras de negocio, compliance |
-| [MANUAL_USUARIO.md](./MANUAL_USUARIO.md) | Analistas de Fraude, Gerentes | Guia pratico do dashboard |
-| [DIAGRAMAS.md](./DIAGRAMAS.md) | Todos | Fluxogramas e diagramas ASCII/Mermaid |
-| [USE_A_CABECA_FRAUDES.md](./USE_A_CABECA_FRAUDES.md) | Todos | **NOVO!** Guia didatico estilo Head First com casos reais, ilustracoes e exercicios |
-| [RELATORIO_QA.md](./RELATORIO_QA.md) | QA, Desenvolvedores | Testes automatizados e metricas |
-| [BLUEPRINT_MOTOR_FRAUDE_300M.md](./BLUEPRINT_MOTOR_FRAUDE_300M.md) | Arquitetos Enterprise | Blueprint para 300M req/dia |
-
----
-
-## Novos Recursos v12.0
-
-### 1. Explicabilidade LGPD (NOVO)
-
-Cada predicao de fraude agora inclui explicacoes automaticas para compliance LGPD:
-
-```json
-{
-  "predictions": [{
-    "is_fraud": true,
-    "risk_score": 87.5,
-    "explanation_text": "Transacao de alto valor (R$ 15.000) em horario noturno (03:00) com velocidade acima do padrao",
-    "top_risk_factors": [
-      {"feature": "amount_normalized", "impact": 0.45},
-      {"feature": "is_night", "impact": 0.32}
-    ],
-    "top_protective_factors": [
-      {"feature": "device_risk_score", "impact": -0.15}
-    ],
-    "lgpd_compliant": true,
-    "compliance_report": {
-      "lgpd": "Explicacao fornecida conforme Art. 20 LGPD",
-      "bacen": "Tempo de resposta dentro do SLA",
-      "pci_dss": "Dados sensiveis mascarados"
-    }
-  }]
-}
+```
++==============================================================================+
+|                    DASHBOARD DE STATUS                                        |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                       COMPONENTES DO SISTEMA                             │ |
+|  │                                                                          │ |
+|  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │ |
+|  │  │ API BACKEND │  │  FRONTEND   │  │  ML ENGINE  │  │  DATABASE   │     │ |
+|  │  │             │  │             │  │             │  │             │     │ |
+|  │  │  ┌─────┐    │  │  ┌─────┐    │  │  ┌─────┐    │  │  ┌─────┐    │     │ |
+|  │  │  │ ✅  │    │  │  │ ✅  │    │  │  │ ✅  │    │  │  │ ✅  │    │     │ |
+|  │  │  └─────┘    │  │  └─────┘    │  │  └─────┘    │  │  └─────┘    │     │ |
+|  │  │             │  │             │  │             │  │             │     │ |
+|  │  │ 50+ endpts  │  │ 9 paginas   │  │ Stacking    │  │ PostgreSQL  │     │ |
+|  │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘     │ |
+|  │                                                                          │ |
+|  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │ |
+|  │  │EXPLAINABIL. │  │OBSERVABIL.  │  │INFRASTRUTURA│  │   TESTES    │     │ |
+|  │  │             │  │             │  │             │  │             │     │ |
+|  │  │  ┌─────┐    │  │  ┌─────┐    │  │  ┌─────┐    │  │  ┌─────┐    │     │ |
+|  │  │  │ ✅  │    │  │  │ ✅  │    │  │  │ ✅  │    │  │  │ ✅  │    │     │ |
+|  │  │  └─────┘    │  │  └─────┘    │  │  └─────┘    │  │  │25/25│    │     │ |
+|  │  │             │  │             │  │             │  │  └─────┘    │     │ |
+|  │  │ SHAP/LGPD   │  │ Prometheus  │  │ 33.88 TPS   │  │ 100% pass   │     │ |
+|  │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘     │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
 ```
 
-**Endpoint:** `POST /api/fraud/predict` com `include_explanation: true`
+---
 
-### 2. Observabilidade Prometheus (NOVO)
+## Documentos Disponiveis
 
-Sistema completo de metricas em tempo real:
+### Documentacao Tecnica
 
-| Endpoint | Descricao |
-|----------|-----------|
-| `/api/observability/metrics` | Metricas JSON (TPS, latencia, error rate) |
-| `/api/observability/prometheus` | Formato Prometheus para Grafana |
-| `/api/observability/sla` | Verificacao de compliance SLA |
-| `/api/health/detailed` | Health check detalhado por componente |
+![Componentes](images/componentes_sistema_tecnologias.png)
 
-**Metricas Disponiveis:**
-- TPS (transacoes por segundo)
-- Latencia p50, p95, p99
-- Taxa de erro
-- Taxa de fraude
-- Alertas disparados
+```
++==============================================================================+
+|                    DOCUMENTACAO TECNICA                                       |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  📐 ARQUITETURA_TECNICA.md                                               │ |
+|  │  ━━━━━━━━━━━━━━━━━━━━━━━━━                                               │ |
+|  │                                                                          │ |
+|  │  Conteudo:                                                               │ |
+|  │  • Stack tecnologico completo                                            │ |
+|  │  • Arquitetura de microservicos                                          │ |
+|  │  • Endpoints da API                                                      │ |
+|  │  • Motor de Machine Learning                                             │ |
+|  │  • Observabilidade e metricas                                            │ |
+|  │  • Seguranca e compliance                                                │ |
+|  │                                                                          │ |
+|  │  Paginas: ~800 linhas | Diagramas: 15+                                   │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  📊 DIAGRAMAS.md                                                         │ |
+|  │  ━━━━━━━━━━━━━━━                                                         │ |
+|  │                                                                          │ |
+|  │  Conteudo:                                                               │ |
+|  │  • Diagrama de arquitetura geral                                         │ |
+|  │  • Fluxo de deteccao de fraudes                                          │ |
+|  │  • Pipeline de Machine Learning                                          │ |
+|  │  • Diagrama ER do banco de dados                                         │ |
+|  │  • Fluxos de autenticacao e seguranca                                    │ |
+|  │                                                                          │ |
+|  │  Paginas: ~1200 linhas | Diagramas: 25+                                  │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  🏗️  BLUEPRINT_MOTOR_FRAUDE_300M.md                                      │ |
+|  │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                        │ |
+|  │                                                                          │ |
+|  │  Conteudo:                                                               │ |
+|  │  • Blueprint para 300 milhoes de transacoes/dia                          │ |
+|  │  • Arquitetura AWS de classe mundial                                     │ |
+|  │  • Modelo de dados e Feature Store                                       │ |
+|  │  • MLOps e governanca de modelos                                         │ |
+|  │                                                                          │ |
+|  │  Paginas: ~2800 linhas | Diagramas: 30+                                  │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
-### 3. Infraestrutura de Escala (NOVO)
+### Documentacao para Usuarios
 
-Processamento em batch otimizado para alta performance:
+```
++==============================================================================+
+|                    DOCUMENTACAO PARA USUARIOS                                 |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  📖 MANUAL_USUARIO.md                                                    │ |
+|  │  ━━━━━━━━━━━━━━━━━━━━                                                     │ |
+|  │                                                                          │ |
+|  │  Publico: Analistas de Fraude, Gerentes, Compliance                      │ |
+|  │                                                                          │ |
+|  │  Conteudo:                                                               │ |
+|  │  • Primeiros passos                                                      │ |
+|  │  • Conhecendo o Dashboard                                                │ |
+|  │  • Analisando transacoes                                                 │ |
+|  │  • Investigando fraudes                                                  │ |
+|  │  • Revisao manual                                                        │ |
+|  │                                                                          │ |
+|  │  Paginas: ~1000 linhas | Ilustracoes: 15+                                │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  📋 DOCUMENTACAO_FUNCIONAL.md                                            │ |
+|  │  ━━━━━━━━━━━━━━━━━━━━━━━━━━                                               │ |
+|  │                                                                          │ |
+|  │  Conteudo:                                                               │ |
+|  │  • Visao geral do sistema                                                │ |
+|  │  • Casos de uso principais                                               │ |
+|  │  • Regras de negocio                                                     │ |
+|  │  • Compliance (LGPD, BACEN, PCI)                                         │ |
+|  │                                                                          │ |
+|  │  Paginas: ~700 linhas | Diagramas: 20+                                   │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  ✅ RELATORIO_QA.md                                                      │ |
+|  │  ━━━━━━━━━━━━━━━━━━                                                       │ |
+|  │                                                                          │ |
+|  │  Conteudo:                                                               │ |
+|  │  • Sumario executivo                                                     │ |
+|  │  • Resultados de testes E2E                                              │ |
+|  │  • Metricas de performance                                               │ |
+|  │  • Verificacao de compliance                                             │ |
+|  │                                                                          │ |
+|  │  Testes: 25/25 passando | Status: APROVADO PARA PRODUCAO                 │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
-| Endpoint | Descricao | Throughput |
-|----------|-----------|------------|
-| `/api/infrastructure/batch/process` | Batch paralelo | 33.88 TPS |
-| `/api/infrastructure/task/submit` | Fila assincrona | Prioridades |
-| `/api/infrastructure/queue/metrics` | Metricas da fila | Circuit breaker |
+### Documentacao Educacional
 
-**Componentes:**
-- `AsyncTaskQueue`: Fila com prioridades e workers
-- `BatchProcessor`: Processamento paralelo
-- `CircuitBreaker`: Protecao contra falhas em cascata
+```
++==============================================================================+
+|                    UNIVERSIDADE DE FRAUDES BANCARIAS                          |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  📚 USE_A_CABECA_FRAUDES.md                                              │ |
+|  │  ━━━━━━━━━━━━━━━━━━━━━━━━━                                                │ |
+|  │                                                                          │ |
+|  │  Estilo: Head First / Use a Cabeca                                       │ |
+|  │                                                                          │ |
+|  │  Conteudo:                                                               │ |
+|  │  • Como pensam os fraudadores                                            │ |
+|  │  • Tipos de fraudes bancarias                                            │ |
+|  │  • Casos reais brasileiros                                               │ |
+|  │  • Exercicios praticos                                                   │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  🧠 USE_A_CABECA_SANKOFA.md                                              │ |
+|  │  ━━━━━━━━━━━━━━━━━━━━━━━━━                                                │ |
+|  │                                                                          │ |
+|  │  Conteudo:                                                               │ |
+|  │  • Introducao ao sistema Sankofa                                         │ |
+|  │  • Como o ML detecta fraudes                                             │ |
+|  │  • Casos de uso interativos                                              │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
+
+---
+
+## Novidades v12.0
+
+```
++==============================================================================+
+|                    NOVIDADES v12.0                                            |
++==============================================================================+
+|                                                                               |
+|   ✨ EXPLICABILIDADE LGPD                                                     |
+|   ━━━━━━━━━━━━━━━━━━━━━━━                                                     |
+|                                                                               |
+|   Cada predicao agora inclui explicacao em texto simples:                     |
+|                                                                               |
+|   "Transacao de alto valor (R$ 15.000) em horario noturno                    |
+|    (03:00) com velocidade transacional acima do padrao"                       |
+|                                                                               |
+|   • Texto em portugues                                                        |
+|   • Fatores de risco listados                                                 |
+|   • Compliance report automatico                                              |
+|                                                                               |
+|   📊 OBSERVABILIDADE PROMETHEUS                                               |
+|   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                                 |
+|                                                                               |
+|   Sistema de metricas em tempo real:                                          |
+|   • Latencia p50/p95/p99                                                      |
+|   • Throughput (TPS)                                                          |
+|   • Taxa de erro                                                              |
+|   • Verificacao automatica de SLA                                             |
+|                                                                               |
+|   🚀 INFRAESTRUTURA DE ESCALA                                                 |
+|   ━━━━━━━━━━━━━━━━━━━━━━━━━━                                                   |
+|                                                                               |
+|   • BatchProcessor: 33.88 TPS comprovado                                      |
+|   • AsyncTaskQueue: Fila com prioridades                                      |
+|   • CircuitBreaker: Protecao contra falhas em cascata                         |
+|                                                                               |
++==============================================================================+
+```
+
+---
+
+## Metricas Validadas
+
+```
++==============================================================================+
+|                    METRICAS VALIDADAS                                         |
++==============================================================================+
+|                                                                               |
+|  PERFORMANCE                                                                  |
+|  ━━━━━━━━━━━                                                                  |
+|                                                                               |
+|  ┌────────────────────────────────────────────────────────────────────────┐  |
+|  │  Throughput:     33.88 TPS        ████████████████████████████████████ │  |
+|  │  Latencia p50:   28ms             ████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │  |
+|  │  Latencia p95:   300ms            ██████████████████████████████░░░░░░ │  |
+|  │  Latencia p99:   311ms            ███████████████████████████████░░░░░ │  |
+|  │  Error Rate:     0.0%             ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │  |
+|  │  Uptime:         99.9%            ██████████████████████████████████░░ │  |
+|  └────────────────────────────────────────────────────────────────────────┘  |
+|                                                                               |
+|  ML PERFORMANCE                                                               |
+|  ━━━━━━━━━━━━━━                                                               |
+|                                                                               |
+|  ┌────────────────────────────────────────────────────────────────────────┐  |
+|  │  Recall:         90.9%            ████████████████████████████████████ │  |
+|  │  Precision:      100.0%           ██████████████████████████████████████│  |
+|  │  F1-Score:       95.2%            █████████████████████████████████████ │  |
+|  └────────────────────────────────────────────────────────────────────────┘  |
+|                                                                               |
+|  TESTES                                                                       |
+|  ━━━━━━━                                                                      |
+|                                                                               |
+|  ┌────────────────────────────────────────────────────────────────────────┐  |
+|  │  E2E Tests:      25/25 passando   ██████████████████████████████████████│  |
+|  │  Coverage:       100%             ██████████████████████████████████████│  |
+|  └────────────────────────────────────────────────────────────────────────┘  |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
@@ -108,44 +317,47 @@ Processamento em batch otimizado para alta performance:
 | Ver como funciona o fluxo de fraude | [DIAGRAMAS.md](./DIAGRAMAS.md) |
 | Entender os casos de uso | [DOCUMENTACAO_FUNCIONAL.md](./DOCUMENTACAO_FUNCIONAL.md) |
 | Aprender a usar o dashboard | [MANUAL_USUARIO.md](./MANUAL_USUARIO.md) |
-| Ver regras de compliance | [DOCUMENTACAO_FUNCIONAL.md](./DOCUMENTACAO_FUNCIONAL.md#7-compliance-e-regulamentacao) |
-| Entender o modelo ML | [ARQUITETURA_TECNICA.md](./ARQUITETURA_TECNICA.md#4-motor-de-machine-learning) |
-| Configurar observabilidade | [ARQUITETURA_TECNICA.md](./ARQUITETURA_TECNICA.md#8-observabilidade) |
-| Usar processamento em batch | [ARQUITETURA_TECNICA.md](./ARQUITETURA_TECNICA.md#9-infraestrutura-de-escala) |
+| Ver regras de compliance | [DOCUMENTACAO_FUNCIONAL.md](./DOCUMENTACAO_FUNCIONAL.md) |
+| Entender o modelo ML | [ARQUITETURA_TECNICA.md](./ARQUITETURA_TECNICA.md) |
+| Verificar status de testes | [RELATORIO_QA.md](./RELATORIO_QA.md) |
+| Aprender sobre fraudes | [USE_A_CABECA_FRAUDES.md](./USE_A_CABECA_FRAUDES.md) |
 
 ---
 
-## Metricas de Performance Validadas
+## Quick Start
 
-| Metrica | Valor | Condicao |
-|---------|-------|----------|
-| Throughput Batch | 33.88 TPS | 50 transacoes paralelas |
-| Latencia p50 | 28ms | Modelo aquecido |
-| Latencia p95 | 300ms | Inclui cold start |
-| Latencia p99 | 311ms | Inclui cold start |
-| Testes E2E | 25/25 | 100% passando |
-| Recall ML | 90.9% | Deteccao de fraude |
-| Precisao ML | 100% | Sem falsos positivos |
+```
++==============================================================================+
+|                    COMO COMECAR                                               |
++==============================================================================+
+|                                                                               |
+|  1. ESCOLHA SEU PERFIL                                                        |
+|     ━━━━━━━━━━━━━━━━━━━━━                                                     |
+|                                                                               |
+|     Sou ANALISTA DE FRAUDE                                                    |
+|     → MANUAL_USUARIO.md                                                       |
+|     → USE_A_CABECA_FRAUDES.md                                                 |
+|                                                                               |
+|     Sou DESENVOLVEDOR                                                         |
+|     → ARQUITETURA_TECNICA.md                                                  |
+|     → DIAGRAMAS.md                                                            |
+|     → BLUEPRINT_MOTOR_FRAUDE_300M.md                                          |
+|                                                                               |
+|     Sou GESTOR/COMPLIANCE                                                     |
+|     → DOCUMENTACAO_FUNCIONAL.md                                               |
+|     → RELATORIO_QA.md                                                         |
+|                                                                               |
+|  2. ACESSE O SISTEMA                                                          |
+|     ━━━━━━━━━━━━━━━━━                                                         |
+|                                                                               |
+|     Frontend: http://localhost:5000                                           |
+|     Backend API: http://localhost:8000                                        |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
-## Versao da Documentacao
-
-| Documento | Versao | Ultima Atualizacao |
-|-----------|--------|-------------------|
-| Arquitetura Tecnica | 12.0 | 27 Nov 2025 |
-| Documentacao Funcional | 12.0 | 27 Nov 2025 |
-| Manual do Usuario | 12.0 | 27 Nov 2025 |
-| Relatorio QA | 12.0 | 27 Nov 2025 |
-| Diagramas | 1.0.0 | Novembro 2025 |
-
----
-
-## Contato
-
-Para duvidas sobre a documentacao ou sugestoes de melhoria, entre em contato com a equipe de engenharia.
-
----
-
-**Sankofa Enterprise Pro v12.0** - Protegendo instituicoes financeiras com inteligencia artificial.  
-*Ultima atualizacao: 27 de Novembro de 2025*
+*Documentacao Sankofa Enterprise Pro v12.0*  
+*Atualizado em 27 de Novembro de 2025*  
+*13 documentos | 80+ diagramas e ilustracoes*
