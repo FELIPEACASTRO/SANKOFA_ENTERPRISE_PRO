@@ -19,11 +19,15 @@ import json
 import os
 import threading
 from collections import defaultdict
+import re
 
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from functools import wraps
 import jwt as pyjwt
+import psycopg2
+from psycopg2 import pool
+from psycopg2.extras import RealDictCursor
 
 from config.settings import get_config
 from utils.structured_logging import get_structured_logger
@@ -41,6 +45,156 @@ from cache.redis_cache_system import redis_cache_system, fraud_cache_manager
 
 config = get_config()
 logger = get_structured_logger("production_api", config.monitoring.log_level)
+
+
+class PostgreSQLPersistence:
+    """
+    Camada de persistência síncrona para PostgreSQL
+    
+    NOTA: Esta implementação é adequada para desenvolvimento e testes.
+    Para produção com 300M req/day, deve ser substituída por streaming
+    assíncrono (Kafka/Flink → Aurora) conforme Blueprint.
+    """
+    
+    def __init__(self, fail_closed: bool = False):
+        self._pool = None
+        self._initialized = False
+        self._fail_closed = fail_closed or config.environment == "production"
+        self._write_buffer = []
+        self._buffer_lock = threading.Lock()
+        self._init_pool()
+    
+    def _init_pool(self):
+        """Inicializa pool de conexões PostgreSQL com configuração robusta"""
+        try:
+            database_url = os.getenv("DATABASE_URL")
+            if not database_url:
+                if self._fail_closed:
+                    raise DatabaseError(
+                        "DATABASE_URL required in production mode",
+                        context={"fail_closed": True}
+                    )
+                logger.warning("DATABASE_URL not set, persistence disabled (dev mode)")
+                return
+                
+            pool_min = int(os.getenv("DB_POOL_MIN", "2"))
+            pool_max = int(os.getenv("DB_POOL_MAX", "20"))
+            
+            self._pool = pool.ThreadedConnectionPool(
+                minconn=pool_min,
+                maxconn=pool_max,
+                dsn=database_url
+            )
+            self._initialized = True
+            logger.info("PostgreSQL connection pool initialized", 
+                       pool_min=pool_min, pool_max=pool_max)
+        except psycopg2.Error as e:
+            if self._fail_closed:
+                raise DatabaseError(f"Failed to initialize database: {e}")
+            logger.error(f"Failed to initialize PostgreSQL pool: {e}")
+            self._initialized = False
+    
+    @property
+    def is_available(self) -> bool:
+        """Verifica se persistência está disponível"""
+        return self._initialized and self._pool is not None
+    
+    def save_transaction(self, transaction_data: Dict, prediction: Dict) -> bool:
+        """Salva transação no PostgreSQL"""
+        if not self._initialized or not self._pool:
+            return False
+        
+        conn = None
+        try:
+            conn = self._pool.getconn()
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO transactions (
+                        transaction_id, amount, channel, type, status,
+                        risk_score, is_fraud, cpf, location, timestamp,
+                        processing_time_ms, model_version
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (transaction_id) DO UPDATE SET
+                        status = EXCLUDED.status,
+                        risk_score = EXCLUDED.risk_score,
+                        is_fraud = EXCLUDED.is_fraud
+                """, (
+                    transaction_data.get("id", f"TXN_{int(time.time()*1000)}"),
+                    float(transaction_data.get("amount", 0)),
+                    transaction_data.get("channel", "PIX"),
+                    transaction_data.get("type", "PAYMENT"),
+                    "FRAUD" if prediction.get("is_fraud") else "APPROVED",
+                    float(prediction.get("risk_score", 0)),
+                    bool(prediction.get("is_fraud", False)),
+                    mask_cpf(transaction_data.get("cpf", "")),
+                    transaction_data.get("location", ""),
+                    datetime.utcnow(),
+                    transaction_data.get("processing_time_ms", 0),
+                    prediction.get("model_version", "1.0.0")
+                ))
+                conn.commit()
+                return True
+        except Exception as e:
+            logger.error(f"Failed to save transaction: {e}")
+            if conn:
+                conn.rollback()
+            return False
+        finally:
+            if conn and self._pool:
+                self._pool.putconn(conn)
+    
+    def get_transaction_count(self) -> int:
+        """Retorna contagem de transações no banco"""
+        if not self._initialized or not self._pool:
+            return 0
+        
+        conn = None
+        try:
+            conn = self._pool.getconn()
+            with conn.cursor() as cur:
+                cur.execute("SELECT COUNT(*) FROM transactions")
+                result = cur.fetchone()
+                return result[0] if result else 0
+        except Exception as e:
+            logger.error(f"Failed to count transactions: {e}")
+            return 0
+        finally:
+            if conn and self._pool:
+                self._pool.putconn(conn)
+
+
+def mask_cpf(cpf: str) -> str:
+    """Mascara CPF para compliance LGPD - mostra apenas últimos 5 dígitos"""
+    if not cpf:
+        return ""
+    cpf_clean = re.sub(r'\D', '', str(cpf))
+    if len(cpf_clean) >= 5:
+        return f"***.***.{cpf_clean[-5:-2]}-{cpf_clean[-2:]}"
+    return "***.***.***-**"
+
+
+def mask_pii_in_response(data: Any) -> Any:
+    """Remove/mascara dados sensíveis das respostas"""
+    if isinstance(data, dict):
+        masked = {}
+        for key, value in data.items():
+            if key.lower() in ['cpf', 'customer_cpf', 'cpf_hash', 'cliente_cpf']:
+                masked[key] = mask_cpf(value) if value else ""
+            elif key.lower() in ['email', 'customer_email']:
+                if value and '@' in str(value):
+                    parts = str(value).split('@')
+                    masked[key] = f"***@{parts[1]}"
+                else:
+                    masked[key] = value
+            else:
+                masked[key] = mask_pii_in_response(value)
+        return masked
+    elif isinstance(data, list):
+        return [mask_pii_in_response(item) for item in data]
+    return data
+
+
+db_persistence = PostgreSQLPersistence()
 
 app = Flask(__name__)
 CORS(app)
@@ -478,13 +632,23 @@ def before_request():
 
 @app.after_request
 def after_request(response):
-    """Middleware executado após cada request"""
+    """Middleware executado após cada request com headers de segurança"""
     duration_ms = (time.time() - g.start_time) * 1000
 
     response.headers["X-Request-ID"] = g.request_id
     response.headers["X-Response-Time-Ms"] = f"{duration_ms:.2f}"
     response.headers["X-API-Version"] = fraud_engine.VERSION
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    
+    if config.environment == "production":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
 
     logger.info(
         "Request completed",
@@ -498,10 +662,35 @@ def after_request(response):
     return response
 
 
+@app.errorhandler(404)
+def handle_not_found(error):
+    """Handler para rotas não encontradas"""
+    return jsonify({
+        "success": False,
+        "error": {
+            "code": "NOT_FOUND",
+            "message": "Endpoint not found",
+            "available_endpoints": [
+                "/api/health",
+                "/api/status", 
+                "/api/fraud/predict",
+                "/api/dashboard/kpis"
+            ]
+        }
+    }), 404
+
+
 @app.errorhandler(Exception)
 def handle_exception(error):
     """Handler global de exceções"""
     error_context = handle_error(error, raise_exception=False)
+    
+    if config.environment == "production":
+        message = "An internal error occurred"
+        stack_trace = None
+    else:
+        message = error_context.message
+        stack_trace = None
 
     return (
         jsonify(
@@ -511,13 +700,32 @@ def handle_exception(error):
                     "id": error_context.error_id,
                     "category": error_context.category.value,
                     "severity": error_context.severity.value,
-                    "message": error_context.message,
+                    "message": message,
                     "recovery_action": error_context.recovery_action,
                 },
             }
         ),
         500,
     )
+
+
+@app.route("/", methods=["GET"])
+def root():
+    """Rota raiz com informações da API"""
+    return jsonify({
+        "name": "Sankofa Enterprise Pro - Fraud Detection API",
+        "version": fraud_engine.VERSION,
+        "status": "operational",
+        "environment": config.environment,
+        "endpoints": {
+            "health": "/api/health",
+            "status": "/api/status",
+            "predict": "/api/fraud/predict",
+            "dashboard": "/api/dashboard/kpis"
+        },
+        "documentation": "/api/docs",
+        "timestamp": datetime.utcnow().isoformat() + "Z"
+    })
 
 
 @app.route("/api/health", methods=["GET"])
@@ -591,14 +799,30 @@ def predict_fraud():
     latency_ms = (time.time() - start_time) * 1000
 
     for i, pred in enumerate(predictions):
-        transaction_store.add({
-            "id": f"TXN{int(time.time()*1000)}{i:03d}",
+        txn_id = f"TXN{int(time.time()*1000)}{i:03d}"
+        txn_data = {
+            "id": txn_id,
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "amount": transactions_data[i].get("amount", 0),
             "channel": transactions_data[i].get("channel", "PIX"),
             "status": "fraud" if pred.is_fraud else "approved",
             "risk_score": round(pred.risk_score * 100, 1),
-        })
+            "merchant_id": transactions_data[i].get("merchant_id", "unknown"),
+            "customer_id": transactions_data[i].get("customer_id", "unknown"),
+        }
+        
+        transaction_store.add(txn_data)
+        
+        risk_level_str = str(pred.risk_level.value) if hasattr(pred.risk_level, 'value') else str(pred.risk_level)
+        pred_reasons = getattr(pred, 'reasons', []) or getattr(pred, 'explanation', []) or []
+        pred_data = {
+            "is_fraud": pred.is_fraud,
+            "risk_score": pred.risk_score,
+            "risk_level": risk_level_str,
+            "reasons": pred_reasons if isinstance(pred_reasons, list) else [pred_reasons],
+            "model_version": fraud_engine.VERSION
+        }
+        db_persistence.save_transaction(txn_data, pred_data)
         
         metrics_collector.record_transaction(
             transactions_data[i],
@@ -607,7 +831,7 @@ def predict_fraud():
             transactions_data[i].get("channel", "PIX")
         )
 
-    results = [pred.to_dict() for pred in predictions]
+    results = [mask_pii_in_response(pred.to_dict()) for pred in predictions]
 
     logger.info(
         "Fraud predictions completed",
