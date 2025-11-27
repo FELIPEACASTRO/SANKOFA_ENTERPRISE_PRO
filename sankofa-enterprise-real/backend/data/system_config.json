@@ -1,0 +1,61 @@
+{
+  "hard_rules": [
+    {
+      "id": 1,
+      "name": "Valor acima do limite",
+      "condition": "amount > 50000",
+      "action": "block",
+      "enabled": true
+    },
+    {
+      "id": 2,
+      "name": "Pa\u00eds de alto risco",
+      "condition": "country in ['XX', 'YY']",
+      "action": "review",
+      "enabled": true
+    },
+    {
+      "id": 3,
+      "name": "Primeira transa\u00e7\u00e3o grande",
+      "condition": "is_first_transaction and amount > 5000",
+      "action": "step_up",
+      "enabled": true
+    }
+  ],
+  "vip_list": [
+    {
+      "id": 1,
+      "identifier": "12345678901",
+      "type": "cpf",
+      "reason": "VIP Customer",
+      "added_at": "2025-11-27T11:49:38.499098"
+    }
+  ],
+  "hot_list": [
+    {
+      "id": 1,
+      "identifier": "98765432100",
+      "type": "cpf",
+      "reason": "Fraud confirmed",
+      "added_at": "2025-11-27T11:49:38.499105"
+    }
+  ],
+  "manual_review_queue": [
+    {
+      "transaction_id": "TX_REVIEW_001",
+      "reason": "High value transaction",
+      "risk_score": 0.5,
+      "added_at": "2025-11-27T11:52:28.343598Z",
+      "status": "pending",
+      "id": 1
+    }
+  ],
+  "settings": {
+    "fraud_threshold": 0.7,
+    "step_up_threshold": 0.5,
+    "review_threshold": 0.6,
+    "max_transaction_value": 100000,
+    "enable_step_up": true,
+    "enable_manual_review": true
+  }
+}

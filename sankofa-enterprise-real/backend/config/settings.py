@@ -196,8 +196,32 @@ class AppConfig:
             except ValueError:
                 import uuid
                 import hashlib
-                auto_jwt = hashlib.sha256(f"sankofa-dev-{uuid.uuid4()}".encode()).hexdigest()
-                auto_enc = hashlib.sha256(f"sankofa-enc-{uuid.uuid4()}".encode()).hexdigest()[:32]
+                from pathlib import Path
+                
+                secrets_file = Path(__file__).parent.parent / "data" / ".dev_secrets.json"
+                secrets_file.parent.mkdir(parents=True, exist_ok=True)
+                
+                if secrets_file.exists():
+                    import json
+                    try:
+                        with open(secrets_file, "r") as f:
+                            saved = json.load(f)
+                            auto_jwt = saved.get("jwt_secret")
+                            auto_enc = saved.get("encryption_key")
+                    except:
+                        auto_jwt = None
+                        auto_enc = None
+                else:
+                    auto_jwt = None
+                    auto_enc = None
+                
+                if not auto_jwt or not auto_enc:
+                    auto_jwt = hashlib.sha256(f"sankofa-dev-{uuid.uuid4()}".encode()).hexdigest()
+                    auto_enc = hashlib.sha256(f"sankofa-enc-{uuid.uuid4()}".encode()).hexdigest()[:32]
+                    import json
+                    with open(secrets_file, "w") as f:
+                        json.dump({"jwt_secret": auto_jwt, "encryption_key": auto_enc}, f)
+                
                 logger.warning("⚠️  Auto-generated development secrets - NOT FOR PRODUCTION")
                 security = SecurityConfig(
                     jwt_secret=auto_jwt,

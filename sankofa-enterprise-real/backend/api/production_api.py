@@ -770,6 +770,20 @@ def train_model():
         raise MLModelError(f"Training failed: {str(e)}")
 
 
+@app.route("/api/dashboard/summary", methods=["GET"])
+def get_dashboard_summary():
+    """Resumo do dashboard - combina KPIs e estatísticas"""
+    kpis = metrics_collector.get_kpis()
+    return jsonify({"success": True, "data": kpis})
+
+
+@app.route("/api/dashboard/hourly", methods=["GET"])
+def get_dashboard_hourly():
+    """Estatísticas por hora do dashboard"""
+    timeseries = metrics_collector.get_timeseries()
+    return jsonify({"success": True, "data": timeseries})
+
+
 @app.route("/api/dashboard/kpis", methods=["GET"])
 def get_dashboard_kpis():
     """KPIs do dashboard - dados reais coletados pelo sistema"""
@@ -936,10 +950,11 @@ def delete_manual_review(item_id: int):
 
 
 @app.route("/api/hard-rules", methods=["GET"])
+@require_auth
 def get_hard_rules():
-    """Lista regras de negócio (hard rules)"""
+    """Lista regras de negócio (hard rules) - requer autenticação"""
     rules = config_store.get("hard_rules", [])
-    return jsonify({"success": True, "data": rules})
+    return jsonify({"success": True, "data": {"rules": rules}})
 
 
 @app.route("/api/hard-rules", methods=["POST"])
@@ -981,8 +996,9 @@ def delete_hard_rule(rule_id: int):
 
 
 @app.route("/api/vip-list", methods=["GET"])
+@require_auth
 def get_vip_list():
-    """Lista de clientes VIP (whitelist)"""
+    """Lista de clientes VIP (whitelist) - requer autenticação"""
     vips = config_store.get("vip_list", [])
     return jsonify({"success": True, "data": vips})
 
@@ -1017,8 +1033,9 @@ def remove_from_vip_list(item_id: int):
 
 
 @app.route("/api/hot-list", methods=["GET"])
+@require_auth
 def get_hot_list():
-    """Lista de entidades bloqueadas (blacklist/hotlist)"""
+    """Lista de entidades bloqueadas (blacklist/hotlist) - requer autenticação"""
     items = config_store.get("hot_list", [])
     return jsonify({"success": True, "data": items})
 
@@ -1053,8 +1070,9 @@ def remove_from_hot_list(item_id: int):
 
 
 @app.route("/api/settings", methods=["GET"])
+@require_auth
 def get_settings():
-    """Retorna configurações do sistema"""
+    """Retorna configurações do sistema - requer autenticação"""
     settings = config_store.get("settings", {})
     return jsonify({"success": True, "data": settings})
 
