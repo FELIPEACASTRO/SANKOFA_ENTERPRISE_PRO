@@ -1,474 +1,684 @@
-# DataSets de Fraude Financeira - Guia Pratico
+# DataSets de Fraude Financeira - Guia Completo
 
 ## Guia Didatico para Analistas e Desenvolvedores
 
-**Fonte:** Repositorio [FELIPEACASTRO/AIForge](https://github.com/FELIPEACASTRO/AIForge)  
+**Fontes:** Kaggle, Hugging Face, GitHub (AIForge, Amazon Science, AI4Risk)  
 **Ultima Atualizacao:** 27 de Novembro de 2025
 
 ---
 
-## O Que Voce Vai Aprender
+## Resumo Executivo
 
 ```
 +==============================================================================+
-|                         MAPA DOS DATASETS                                     |
+|                    MAPA COMPLETO DOS DATASETS                                 |
 +==============================================================================+
 |                                                                               |
-|   1. CREDIT CARD FRAUD       Fraude em cartao de credito                     |
-|      (Kaggle Dataset)        284.807 transacoes reais                        |
+|   KAGGLE (7 Datasets)                                                         |
+|   ━━━━━━━━━━━━━━━━━━                                                          |
+|   1. Credit Card Fraud (MLG-ULB)     284.807 transacoes reais                |
+|   2. Credit Card Fraud 2023          550.000+ transacoes (NOVO!)             |
+|   3. IEEE-CIS Fraud Detection        590.540 transacoes                      |
+|   4. PaySim                          6.362.620 transacoes sinteticas         |
+|   5. Sparkov Simulated               1.316.675 transacoes                    |
+|   6. Fraud E-commerce                151.112 transacoes                      |
+|   7. Financial Transactions 2024     Atualizado outubro 2024                 |
 |                                                                               |
-|   2. PAYSIM                  Simulacao de transacoes moveis                  |
-|      (Mobile Money)          PIX, transferencias, pagamentos                 |
+|   HUGGING FACE (4 Datasets)                                                   |
+|   ━━━━━━━━━━━━━━━━━━━━━━                                                      |
+|   1. CiferAI Fraud Detection         6 milhoes de transacoes                 |
+|   2. Nigerian Financial Transactions 5 milhoes de transacoes                 |
+|   3. Synthetic Financial Cleaned     6.36 milhoes de transacoes              |
+|   4. kmasiak FraudDetection          532.909 transacoes                      |
 |                                                                               |
-|   3. S-FFSD                  Fraude bancaria semi-supervisionada             |
-|      (Anti-Fraud)            Grafos de transacoes                            |
-|                                                                               |
-|   4. YELP/AMAZON             Fraude em avaliacoes                            |
-|      (Review Fraud)          Deteccao de padroes                             |
+|   GITHUB ESPECIALIZADOS (3 Repositorios)                                      |
+|   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                           |
+|   1. Amazon FDB (9 datasets)         Benchmark padrao da industria           |
+|   2. AI4Risk AntiFraud               Modelos de grafos (GTAN, RGTAN)         |
+|   3. AIForge Collection              172 recursos de fraude                  |
 |                                                                               |
 +==============================================================================+
 ```
 
 ---
 
-## 1. Credit Card Fraud Dataset (Kaggle)
+## Parte 1: Datasets do Kaggle
 
-### Descricao Simples
+### 1.1 Credit Card Fraud Detection (MLG-ULB) - O Classico
 
-Este dataset contem transacoes REAIS de cartao de credito feitas por europeus em setembro de 2013. E o dataset mais usado para estudar fraudes de cartao.
-
-### Numeros Importantes
+**URL:** https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud
 
 | Informacao | Valor |
 |------------|-------|
 | Total de Transacoes | 284.807 |
 | Transacoes Fraudulentas | 492 (0,17%) |
 | Transacoes Normais | 284.315 (99,83%) |
-| Periodo | 2 dias |
+| Periodo | 2 dias (Setembro 2013) |
+| Origem | Cartoes europeus |
+| Tamanho | ~150 MB |
 
-### Por Que E Desbalanceado?
-
+**Campos do Dataset:**
 ```
 +==============================================================================+
-|                    VISUALIZANDO O DESBALANCEAMENTO                            |
+|                    ESTRUTURA DO DATASET MLG-ULB                               |
 +==============================================================================+
 |                                                                               |
-|  Imagine uma caixa com 1000 bolinhas:                                         |
+|  CAMPO    │ TIPO    │ DESCRICAO                                              |
+|  ━━━━━━━━━│━━━━━━━━━│━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  |
+|  Time     │ int     │ Segundos desde primeira transacao                      |
+|  V1-V28   │ float   │ Features anonimizadas (PCA)                            |
+|  Amount   │ float   │ Valor da transacao                                     |
+|  Class    │ int     │ 0 = Normal, 1 = Fraude                                 |
 |                                                                               |
-|  🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢   |
-|  🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢   |
-|  🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢   |
-|  🟢🟢🟢🟢🟢🟢🟢🟢🟢🔴🔴                                                   |
-|                                                                               |
-|  🟢 = Transacao normal (998 de 1000)                                         |
-|  🔴 = Fraude (apenas 2 de 1000!)                                             |
-|                                                                               |
-|  Esse desbalanceamento e REAL no mundo bancario!                             |
-|  Por isso usamos tecnicas especiais para treinar modelos.                    |
+|  NOTA: V1-V28 foram transformadas por PCA para proteger                      |
+|  a privacidade dos clientes. Nao sabemos o que cada V representa!            |
 |                                                                               |
 +==============================================================================+
 ```
 
-### Exemplo Real do Dia a Dia - CREDITO
+**Exemplo Pratico - Clonagem de Cartao de Credito:**
 
 ```
 +==============================================================================+
-|                    CASO PRATICO: CLONAGEM DE CARTAO                           |
+|                    CASO: COMPRA FRAUDULENTA INTERNACIONAL                     |
 +==============================================================================+
 |                                                                               |
-|  SITUACAO REAL:                                                               |
-|  ━━━━━━━━━━━━━━                                                               |
-|  Maria, cliente do banco, sempre faz compras no supermercado perto           |
-|  de casa em Sao Paulo, geralmente aos sabados de manha.                       |
+|  CLIENTE: Maria Silva, Sao Paulo                                              |
+|  PADRAO NORMAL: Compras em supermercado, farmacia, postos de gasolina        |
+|  VALOR MEDIO: R$ 80 - R$ 300                                                  |
 |                                                                               |
-|  COMO APARECE NO DATASET:                                                     |
+|  TRANSACAO NORMAL (9h da manha, sabado):                                      |
 |  ┌────────────────────────────────────────────────────────────────────────┐  |
-|  │ Time: 45321 (segundos desde inicio do dataset)                         │  |
-|  │ V1-V28: Valores transformados por PCA (anonimizados)                   │  |
-|  │ Amount: R$ 150.00                                                       │  |
-|  │ Class: 0 (normal)                                                       │  |
+|  │ Time: 45321                                                             │  |
+|  │ Amount: R$ 156,00                                                       │  |
+|  │ Local: Supermercado Zona Sul - SP                                       │  |
+|  │ Class: 0 (APROVADA)                                                     │  |
 |  └────────────────────────────────────────────────────────────────────────┘  |
 |                                                                               |
-|  TRANSACAO NORMAL DA MARIA:                                                   |
-|  • Sabado, 10h da manha                                                       |
-|  • Supermercado Zona Sul - SP                                                 |
-|  • R$ 150,00                                                                  |
-|  • Padrao habitual = APROVADA                                                 |
-|                                                                               |
-|  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  |
-|                                                                               |
-|  E ENTAO... O CARTAO FOI CLONADO!                                             |
-|                                                                               |
-|  TRANSACAO FRAUDULENTA:                                                       |
+|  TRANSACAO FRAUDULENTA (9h03, mesmo dia - 3 minutos depois!):                 |
 |  ┌────────────────────────────────────────────────────────────────────────┐  |
-|  │ Time: 45500 (3 minutos depois)                                         │  |
-|  │ V1-V28: Valores muito diferentes do padrao                             │  |
-|  │ Amount: R$ 2.500.00                                                     │  |
+|  │ Time: 45500                                                             │  |
+|  │ Amount: R$ 4.899,00                                                     │  |
+|  │ Local: Best Buy - Miami, Florida                                        │  |
 |  │ Class: 1 (FRAUDE!)                                                      │  |
 |  └────────────────────────────────────────────────────────────────────────┘  |
 |                                                                               |
-|  SINAIS DE ALERTA:                                                            |
-|  [!] Localizacao: Miami, EUA (Maria nunca viajou!)                           |
-|  [!] Valor: 16x maior que o normal                                           |
-|  [!] Horario: 3 minutos apos compra em SP                                    |
-|  [!] Tipo: Loja de eletronicos de luxo                                       |
+|  [!] ALERTAS DO SISTEMA:                                                      |
+|  • Impossivel estar em SP e Miami em 3 minutos                               |
+|  • Valor 31x maior que a media da cliente                                    |
+|  • Primeira compra internacional (Maria nunca viajou)                        |
+|  • Categoria de alto risco (eletronicos)                                     |
 |                                                                               |
-|  RESULTADO: BLOQUEADA pelo sistema de ML!                                     |
+|  RESULTADO: Transacao BLOQUEADA pelo modelo ML                                |
 |                                                                               |
 +==============================================================================+
 ```
 
-### Link do Dataset
+---
 
-- **URL:** https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud
-- **Formato:** CSV
-- **Tamanho:** ~150 MB
+### 1.2 Credit Card Fraud Detection 2023 - O Mais Recente
+
+**URL:** https://www.kaggle.com/datasets/nelgiriyewithana/credit-card-fraud-detection-dataset-2023
+
+| Informacao | Valor |
+|------------|-------|
+| Total de Transacoes | 568.630 |
+| Periodo | Ano de 2023 |
+| Origem | Cartoes europeus |
+| Tamanho | ~325 MB |
+| Atualizacao | Anual |
+
+**Por Que Usar Este Dataset?**
+- Dados MAIS RECENTES (2023 vs 2013 do classico)
+- Padroes de fraude atualizados
+- Mesma estrutura do classico (V1-V28)
+- Ideal para treinar modelos modernos
 
 ---
 
-## 2. PaySim Dataset (Transacoes Moveis / PIX)
+### 1.3 IEEE-CIS Fraud Detection - O Mais Completo
 
-### Descricao Simples
+**URL:** https://www.kaggle.com/competitions/ieee-fraud-detection
 
-Dataset SINTETICO que simula transacoes de dinheiro movel (como PIX no Brasil). Foi criado baseado em dados reais de uma empresa financeira africana.
+| Informacao | Valor |
+|------------|-------|
+| Total de Transacoes | 590.540 |
+| Taxa de Fraude | 3,5% |
+| Features | 393 originais (67 apos limpeza) |
+| Fornecedor | Vesta Corporation |
+| Tipo | Card-Not-Present (compras online) |
 
-### Numeros Importantes
+**Campos Principais:**
+```
++==============================================================================+
+|                    ESTRUTURA DO DATASET IEEE-CIS                              |
++==============================================================================+
+|                                                                               |
+|  GRUPO              │ CAMPOS                                                  |
+|  ━━━━━━━━━━━━━━━━━━│━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  |
+|  Transacao          │ TransactionID, TransactionDT, TransactionAmt           |
+|  Produto            │ ProductCD (W, H, C, S, R)                               |
+|  Cartao             │ card1-card6 (tipo, categoria, banco)                    |
+|  Endereco           │ addr1, addr2 (billing region)                           |
+|  Email              │ P_emaildomain, R_emaildomain                            |
+|  Contagem           │ C1-C14 (contadores de eventos)                          |
+|  Valores            │ D1-D15 (diferenças temporais)                           |
+|  Match              │ M1-M9 (correspondencias de dados)                       |
+|  Vesta Features     │ V1-V339 (features proprietarias)                        |
+|  Identidade         │ id_01-id_38 (device fingerprint)                        |
+|  Device             │ DeviceType, DeviceInfo                                  |
+|                                                                               |
++==============================================================================+
+```
+
+**Exemplo Pratico - Fraude em E-commerce:**
+
+```
++==============================================================================+
+|                    CASO: COMPRA ONLINE COM CARTAO ROUBADO                     |
++==============================================================================+
+|                                                                               |
+|  SITUACAO:                                                                    |
+|  Fraudador obteve dados de cartao em vazamento de dados.                     |
+|  Tenta comprar celular de R$ 5.000 em loja online.                           |
+|                                                                               |
+|  DADOS DA TRANSACAO:                                                          |
+|  ┌────────────────────────────────────────────────────────────────────────┐  |
+|  │ TransactionAmt: R$ 5.000,00                                             │  |
+|  │ ProductCD: W (Wireless - celular)                                       │  |
+|  │ card4: mastercard                                                       │  |
+|  │ card6: credit                                                           │  |
+|  │ P_emaildomain: gmail.com                                                │  |
+|  │ R_emaildomain: gmail.com                                                │  |
+|  │ DeviceType: mobile                                                      │  |
+|  │ DeviceInfo: Samsung Galaxy A14                                          │  |
+|  └────────────────────────────────────────────────────────────────────────┘  |
+|                                                                               |
+|  SINAIS DE FRAUDE DETECTADOS:                                                 |
+|  [!] D1 (dias desde ultima transacao): 0 - primeira compra!                  |
+|  [!] C1 (contagem de enderecos): 5 - muitos enderecos diferentes            |
+|  [!] M4 (match nome/cartao): 0 - nome nao confere                           |
+|  [!] V12 (velocidade): muito alto - varias tentativas                       |
+|  [!] id_31 (browser): navegador em modo privado                             |
+|                                                                               |
+|  SCORE DE RISCO: 94/100 → BLOQUEADA                                           |
+|                                                                               |
++==============================================================================+
+```
+
+---
+
+### 1.4 PaySim - O Melhor Para PIX
+
+**URL:** https://www.kaggle.com/datasets/ealaxi/paysim1v
 
 | Informacao | Valor |
 |------------|-------|
 | Total de Transacoes | 6.362.620 |
 | Transacoes Fraudulentas | 8.213 (0,13%) |
-| Tipos de Transacao | 5 (CASH_IN, CASH_OUT, DEBIT, PAYMENT, TRANSFER) |
+| Tipos | CASH_IN, CASH_OUT, DEBIT, PAYMENT, TRANSFER |
 | Periodo Simulado | 30 dias |
+| Tamanho | ~470 MB |
 
-### Tipos de Transacao
+**Mapeamento Para o Sistema Brasileiro:**
 
 ```
 +==============================================================================+
-|                    TIPOS DE TRANSACAO NO PAYSIM                               |
+|                    PAYSIM → SISTEMA BRASILEIRO                                |
 +==============================================================================+
 |                                                                               |
-|  CASH_IN (Deposito)                                                           |
-|  ━━━━━━━━━━━━━━━━━                                                           |
-|  Cliente deposita dinheiro na conta                                           |
-|  Equivalente no Brasil: Deposito em conta, recarga                           |
+|  PAYSIM          │ BRASIL           │ RISCO    │ % FRAUDES                   |
+|  ━━━━━━━━━━━━━━━│━━━━━━━━━━━━━━━━━│━━━━━━━━━│━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
+|  TRANSFER        │ PIX, TED         │ ALTO     │ 0,76% de todas as fraudes   |
+|  CASH_OUT        │ Saque, Pix Saque │ ALTO     │ 0,18% de todas as fraudes   |
+|  PAYMENT         │ Pix Pagamento    │ BAIXO    │ 0%                          |
+|  CASH_IN         │ Deposito, TED In │ BAIXO    │ 0%                          |
+|  DEBIT           │ Debito Auto      │ BAIXO    │ 0%                          |
 |                                                                               |
-|  CASH_OUT (Saque)                                                             |
-|  ━━━━━━━━━━━━━━━                                                             |
-|  Cliente saca dinheiro da conta                                               |
-|  Equivalente no Brasil: Saque em ATM, "Pix Saque"                            |
-|                                                                               |
-|  TRANSFER (Transferencia)                 ← MAIOR RISCO DE FRAUDE!           |
-|  ━━━━━━━━━━━━━━━━━━━━━━━━                                                     |
-|  Envia dinheiro para outra conta                                              |
-|  Equivalente no Brasil: PIX, TED, DOC                                        |
-|                                                                               |
-|  PAYMENT (Pagamento)                                                          |
-|  ━━━━━━━━━━━━━━━━━━                                                          |
-|  Paga conta de comerciante                                                    |
-|  Equivalente no Brasil: Pagamento com PIX, boleto                            |
-|                                                                               |
-|  DEBIT (Debito)                                                               |
-|  ━━━━━━━━━━━━━━                                                               |
-|  Debito automatico ou compra                                                  |
-|  Equivalente no Brasil: Cartao de debito                                     |
+|  CONCLUSAO: TRANSFER e CASH_OUT concentram 100% das fraudes!                 |
 |                                                                               |
 +==============================================================================+
 ```
 
-### Exemplo Real do Dia a Dia - PIX
+**Exemplo Pratico - Golpe do PIX:**
 
 ```
 +==============================================================================+
-|                    CASO PRATICO: GOLPE DO FALSO FUNCIONARIO                   |
+|                    CASO: GOLPE DO FALSO SEQUESTRO                             |
 +==============================================================================+
 |                                                                               |
-|  SITUACAO REAL:                                                               |
-|  ━━━━━━━━━━━━━━                                                               |
-|  Joao recebe uma ligacao de alguem se passando por funcionario do banco.     |
-|  O golpista convence Joao a fazer um "PIX de teste" para "verificar          |
-|  a seguranca da conta".                                                       |
+|  CENARIO:                                                                     |
+|  Criminosos ligam para Dona Fatima dizendo que sequestraram                  |
+|  sua filha e pedem R$ 10.000 via PIX "ou ela morre".                         |
 |                                                                               |
-|  COMO APARECE NO DATASET:                                                     |
+|  COMO O GOLPE APARECE NO DATASET:                                             |
 |  ┌────────────────────────────────────────────────────────────────────────┐  |
-|  │ step: 1 (primeira hora do mes)                                         │  |
+|  │ step: 1 (primeira hora)                                                 │  |
 |  │ type: TRANSFER                                                          │  |
-|  │ amount: 5000.00                                                         │  |
-|  │ nameOrig: C1234567890 (Joao)                                           │  |
-|  │ oldbalanceOrg: 8000.00                                                  │  |
-|  │ newbalanceOrig: 3000.00                                                 │  |
-|  │ nameDest: C0987654321 (conta do golpista)                              │  |
-|  │ oldbalanceDest: 0.00                                                    │  |
-|  │ newbalanceDest: 0.00  ← ZEROU IMEDIATAMENTE!                           │  |
+|  │ amount: 10000.00                                                        │  |
+|  │ nameOrig: C1234567890 (Dona Fatima)                                     │  |
+|  │ oldbalanceOrg: 15000.00                                                 │  |
+|  │ newbalanceOrig: 5000.00                                                 │  |
+|  │ nameDest: C9876543210 (conta laranja)                                   │  |
+|  │ oldbalanceDest: 0.00  ← conta recem criada!                             │  |
+|  │ newbalanceDest: 0.00  ← dinheiro saiu IMEDIATAMENTE!                    │  |
 |  │ isFraud: 1                                                              │  |
-|  │ isFlaggedFraud: 0 (sistema nao pegou)                                  │  |
 |  └────────────────────────────────────────────────────────────────────────┘  |
 |                                                                               |
-|  SINAIS DE ALERTA QUE O SISTEMA DEVERIA CAPTURAR:                             |
-|  [!] Conta destino criada recentemente (oldbalanceDest = 0)                  |
-|  [!] Valor alto para primeira transacao do dia                               |
-|  [!] Dinheiro saiu imediatamente da conta destino (newbalanceDest = 0)       |
-|  [!] Joao nunca transferiu para essa conta antes                             |
+|  ALERTAS QUE O SISTEMA DEVERIA GERAR:                                         |
+|  [!] Conta destino criada ha menos de 24h                                    |
+|  [!] Valor muito acima da media da cliente                                   |
+|  [!] Horario incomum (fora do padrao)                                        |
+|  [!] Dinheiro sacado imediatamente da conta destino                          |
+|  [!] Primeira transferencia para este destinatario                           |
 |                                                                               |
-|  LICAO: O sistema deve aprender esses padroes!                                |
+|  ACAO IDEAL: Travar por 30 min + ligar para confirmar                        |
 |                                                                               |
-+==============================================================================+
-```
-
-### Link do Dataset
-
-- **URL:** https://www.kaggle.com/datasets/ealaxi/paysim1v
-- **Formato:** CSV
-- **Tamanho:** ~470 MB
-
----
-
-## 3. S-FFSD Dataset (Fraude Bancaria Semi-Supervisionada)
-
-### Descricao Simples
-
-Dataset criado pelo projeto AntiFraud para treinar modelos de deteccao de fraude usando **grafos** (redes de conexoes entre contas).
-
-### Estrutura dos Dados
-
-```
-+==============================================================================+
-|                    CAMPOS DO DATASET S-FFSD                                   |
-+==============================================================================+
-|                                                                               |
-|  CAMPO      │ TIPO      │ DESCRICAO                                          |
-|  ━━━━━━━━━━━│━━━━━━━━━━━│━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
-|  Time       │ int       │ Ordem da transacao (0 a N)                         |
-|  Source     │ string    │ Conta que enviou (S0, S1, S2...)                   |
-|  Target     │ string    │ Conta que recebeu (T0, T1, T2...)                  |
-|  Amount     │ float     │ Valor da transacao                                 |
-|  Location   │ string    │ Local da transacao (L0, L1, L2...)                 |
-|  Type       │ string    │ Tipo de transacao (TP0, TP1...)                    |
-|  Labels     │ int       │ 0=Normal, 1=Fraude, 2=Nao rotulado                 |
-|                                                                               |
-+==============================================================================+
-```
-
-### O Que Sao Grafos de Transacoes?
-
-```
-+==============================================================================+
-|                    ENTENDENDO GRAFOS DE FRAUDE                                |
-+==============================================================================+
-|                                                                               |
-|  Imagine as contas como pontos e as transacoes como linhas:                  |
-|                                                                               |
-|          CONTA A                                                              |
-|            |                                                                  |
-|            | R$ 5.000                                                         |
-|            v                                                                  |
-|          CONTA B ──R$ 4.900──> CONTA C ──R$ 4.800──> CONTA D                 |
-|                                   |                                           |
-|                                   | R$ 4.700                                 |
-|                                   v                                           |
-|                                SAQUE ATM                                      |
-|                                                                               |
-|  PADRAO SUSPEITO DETECTADO:                                                   |
-|  • Dinheiro passou por 4 contas em minutos                                   |
-|  • Valores decrescentes (taxa de "lavagem")                                  |
-|  • Terminou em saque (dinheiro vivo = difícil rastrear)                     |
-|                                                                               |
-|  Isso e um GRAFO! O modelo de ML analisa a REDE de conexoes.                 |
-|                                                                               |
-+==============================================================================+
-```
-
-### Exemplo Real do Dia a Dia - TRANSFERENCIA/TED
-
-```
-+==============================================================================+
-|                    CASO PRATICO: LAVAGEM DE DINHEIRO                          |
-+==============================================================================+
-|                                                                               |
-|  SITUACAO REAL:                                                               |
-|  ━━━━━━━━━━━━━━                                                               |
-|  Um criminoso recebe R$ 50.000 de origem ilicita e precisa                   |
-|  "limpar" esse dinheiro passando por varias contas.                          |
-|                                                                               |
-|  COMO APARECE NO DATASET:                                                     |
-|  ┌────────────────────────────────────────────────────────────────────────┐  |
-|  │ Time: 1    Source: S45   Target: T12   Amount: 50000   Type: TP1       │  |
-|  │ Time: 2    Source: S12   Target: T33   Amount: 49500   Type: TP1       │  |
-|  │ Time: 3    Source: S33   Target: T77   Amount: 49000   Type: TP1       │  |
-|  │ Time: 4    Source: S77   Target: T99   Amount: 48500   Type: TP2       │  |
-|  │ Time: 5    Source: S99   (SAQUE)       Amount: 48000   Type: TP3       │  |
-|  └────────────────────────────────────────────────────────────────────────┘  |
-|                                                                               |
-|  O QUE O MODELO DE GRAFO VE:                                                  |
-|                                                                               |
-|       S45 ──$50k──> S12 ──$49.5k──> S33 ──$49k──> S77 ──$48.5k──> S99       |
-|                                                                    │         |
-|                                                               SAQUE $48k     |
-|                                                                               |
-|  ALERTAS AUTOMATICOS:                                                         |
-|  [!] Cadeia de 5 transacoes em sequencia rapida                              |
-|  [!] Valores muito proximos (perda de ~R$500 por transacao)                  |
-|  [!] Contas intermediarias sao "laranjas"                                    |
-|  [!] Termina em saque de alto valor                                          |
-|                                                                               |
-+==============================================================================+
-```
-
-### Link do Dataset
-
-- **URL:** https://github.com/AI4Risk/antifraud
-- **Formato:** CSV (dentro do repositorio)
-- **Uso:** Treinar modelos de deteccao de fraude baseados em grafos
-
----
-
-## 4. Comparativo: Qual Dataset Usar?
-
-```
-+==============================================================================+
-|                    ESCOLHENDO O DATASET CERTO                                 |
-+==============================================================================+
-|                                                                               |
-|  VOCE QUER DETECTAR...        │ USE ESTE DATASET                             |
-|  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
-|                               │                                               |
-|  Fraude de CARTAO DE CREDITO  │ Credit Card Fraud (Kaggle)                   |
-|  Compras online, clonagem     │ 284.807 transacoes reais                     |
-|                               │                                               |
-|  Fraude em PIX/TRANSFERENCIA  │ PaySim                                       |
-|  Golpes instantaneos          │ 6.3 milhoes de transacoes                    |
-|                               │                                               |
-|  LAVAGEM DE DINHEIRO          │ S-FFSD + YelpChi/Amazon                      |
-|  Cadeias de transacoes        │ Analise de grafos                            |
-|                               │                                               |
-|  FRAUDE DE DEBITO             │ PaySim (CASH_OUT) +                          |
-|  Saques, clonagem ATM         │ Credit Card Fraud (adaptado)                 |
-|                               │                                               |
 +==============================================================================+
 ```
 
 ---
 
-## 5. Como Usar Esses Datasets no Sankofa
+### 1.5 Amazon Fraud Dataset Benchmark (FDB)
 
-### Passo a Passo Simples
+**URL:** https://github.com/amazon-science/fraud-dataset-benchmark
+
+O FDB e o **benchmark padrao da industria** desenvolvido pela Amazon. Contem 9 datasets diferentes!
 
 ```
 +==============================================================================+
-|                    INTEGRANDO DATASETS NO SISTEMA                             |
+|                    AMAZON FDB - 9 DATASETS                                    |
 +==============================================================================+
 |                                                                               |
-|  PASSO 1: BAIXAR O DATASET                                                    |
-|  ━━━━━━━━━━━━━━━━━━━━━━━━━━                                                   |
-|  • Acesse o link do Kaggle ou GitHub                                         |
-|  • Faca download do arquivo CSV                                              |
-|                                                                               |
-|  PASSO 2: MAPEAR OS CAMPOS                                                    |
-|  ━━━━━━━━━━━━━━━━━━━━━━━━━                                                    |
-|  O Sankofa espera estes campos:                                               |
-|  • transaction_id   → Criar um ID unico                                      |
-|  • amount          → Amount do dataset                                       |
-|  • channel         → Mapear Type para PIX/CREDITO/DEBITO/TED                 |
-|  • timestamp       → Converter Time para datetime                            |
-|  • is_fraud        → Class ou isFraud do dataset                             |
-|                                                                               |
-|  PASSO 3: TREINAR O MODELO                                                    |
-|  ━━━━━━━━━━━━━━━━━━━━━━━━━                                                    |
-|  Use o endpoint /api/calibration/train com os dados mapeados                 |
+|  #  │ DATASET          │ CATEGORIA           │ TREINO    │ TAXA FRAUDE      |
+|  ━━━│━━━━━━━━━━━━━━━━━│━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━━│━━━━━━━━━━━━━━━━ |
+|  1  │ IEEE-CIS         │ Cartao Online       │ 561.013   │ 3,50%            |
+|  2  │ CCFraud          │ Cartao Online       │ 227.845   │ 0,18%            |
+|  3  │ Fraud Ecommerce  │ Cartao Online       │ 120.889   │ 10,60%           |
+|  4  │ Sparkov          │ Cartao Simulado     │ 1.296.675 │ 5,70%            |
+|  5  │ Twitter Bots     │ Ataques de Bots     │ 29.950    │ 33,10%           |
+|  6  │ Malicious URLs   │ Trafego Malicioso   │ 586.072   │ 34,20%           |
+|  7  │ Fake Job         │ Moderacao Conteudo  │ 14.304    │ 4,70%            |
+|  8  │ Vehicle Loan     │ Risco de Credito    │ 186.523   │ 21,60%           |
+|  9  │ IP Blocklist     │ Trafego Malicioso   │ 172.000   │ 7%               |
 |                                                                               |
 +==============================================================================+
 ```
 
-### Exemplo de Mapeamento - PaySim para Sankofa
+**Como Usar o FDB:**
 
 ```python
-# Mapeamento PaySim → Sankofa
+# Instalacao
+pip install git+https://github.com/amazon-science/fraud-dataset-benchmark.git
 
-MAPEAMENTO_TIPO = {
-    'TRANSFER': 'PIX',       # Transferencia instantanea
-    'CASH_OUT': 'DEBITO',    # Saque
-    'PAYMENT': 'CREDITO',    # Pagamento
-    'DEBIT': 'DEBITO',       # Debito automatico
-    'CASH_IN': 'TED'         # Deposito/entrada
+# Uso
+from fdb import FraudDatasetBenchmark
+
+# Carregar dataset
+fdb = FraudDatasetBenchmark(dataset_key="ieeecis")
+X_train, X_test, y_train, y_test = fdb.get_splits()
+
+# Avaliar modelo
+metrics = fdb.evaluate(y_test, predictions)
+print(metrics)  # AUC, F1, Precision, Recall
+```
+
+---
+
+## Parte 2: Datasets do Hugging Face
+
+### 2.1 CiferAI Fraud Detection - O Maior
+
+**URL:** https://huggingface.co/datasets/CiferAI/Cifer-Fraud-Detection-Dataset-AF
+
+| Informacao | Valor |
+|------------|-------|
+| Total de Transacoes | 6.000.000 |
+| Formato | CSV (Parquet disponivel) |
+| Particoes | 4 x 1.5M cada |
+| Uso | Federated Learning, ML |
+| Modelo Pre-treinado | 99,93% de acuracia! |
+
+**Por Que Usar?**
+- Dataset ENORME (6 milhoes de transacoes)
+- Modelo pre-treinado disponivel
+- Otimizado para Federated Learning (privacidade)
+- Baseado no PaySim
+
+```python
+# Como carregar
+from datasets import load_dataset
+
+dataset = load_dataset("CiferAI/Cifer-Fraud-Detection-Dataset-AF")
+print(dataset['train'][0])
+```
+
+---
+
+### 2.2 Nigerian Financial Transactions
+
+**URL:** https://huggingface.co/datasets/electricsheepafrica/Nigerian-Financial-Transactions-and-Fraud-Detection-Dataset
+
+| Informacao | Valor |
+|------------|-------|
+| Total de Transacoes | 5.000.000 |
+| Contexto | Africa (Nigeria) |
+| Formato | CSV, Parquet |
+
+**Por Que e Importante?**
+- Padroes de fraude DIFERENTES dos europeus
+- Mobile money predominante (similar ao PIX)
+- Util para sistemas que atendem mercados emergentes
+
+---
+
+### 2.3 Synthetic Financial Cleaned
+
+**URL:** https://huggingface.co/datasets/purulalwani/Synthetic-Financial-Datasets-For-Fraud-Detection-Cleaned
+
+| Informacao | Valor |
+|------------|-------|
+| Total de Transacoes | 6.360.000 |
+| Formato | Parquet |
+| Status | Limpo e pre-processado |
+
+**Vantagem:**
+- Dados ja limpos (sem valores nulos)
+- Pronto para uso imediato
+- Mesmo formato do PaySim
+
+---
+
+## Parte 3: Repositorios Especializados (GitHub)
+
+### 3.1 AI4Risk AntiFraud - Modelos de Grafos
+
+**URL:** https://github.com/AI4Risk/antifraud
+
+O AntiFraud e um framework completo para deteccao de fraude usando **grafos de transacoes**.
+
+**Datasets Incluidos:**
+
+```
++==============================================================================+
+|                    DATASETS DO ANTIFRAUD                                      |
++==============================================================================+
+|                                                                               |
+|  DATASET    │ DESCRICAO                          │ MELHOR MODELO  │ AUC      |
+|  ━━━━━━━━━━│━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━━━━━━│━━━━━━━━ |
+|  YelpChi    │ Fraude em avaliacoes do Yelp       │ Grad           │ 0.9908   |
+|  Amazon     │ Fraude em avaliacoes da Amazon     │ HOGRL          │ 0.9800   |
+|  S-FFSD     │ Fraude bancaria semi-supervisionada│ RGTAN          │ 0.8461   |
+|                                                                               |
++==============================================================================+
+```
+
+**Modelos Implementados:**
+
+| Modelo | Publicacao | Ano | Descricao |
+|--------|------------|-----|-----------|
+| MCNN | ICONIP | 2016 | CNN para fraude de cartao |
+| STAN | AAAI | 2020 | Atencao espaco-temporal |
+| STAGN | TKDE | 2020 | GNN com atencao |
+| GTAN | AAAI | 2023 | Semi-supervisionado |
+| RGTAN | TKDE | 2025 | Risk-aware GNN |
+| HOGRL | IJCAI | 2024 | High-order graphs |
+| Grad | WWW | 2025 | Diffusion graphs |
+
+**Estrutura do S-FFSD:**
+
+```
++==============================================================================+
+|                    CAMPOS DO S-FFSD                                           |
++==============================================================================+
+|                                                                               |
+|  CAMPO    │ TIPO    │ RANGE              │ DESCRICAO                         |
+|  ━━━━━━━━│━━━━━━━━━│━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  |
+|  Time     │ int32   │ 0 a N              │ Ordem da transacao                |
+|  Source   │ string  │ S0 a Sns           │ Remetente                         |
+|  Target   │ string  │ T0 a Tnt           │ Destinatario                      |
+|  Amount   │ float32 │ 0.00 a infinito    │ Valor                             |
+|  Location │ string  │ L0 a Lnl           │ Local da transacao                |
+|  Type     │ string  │ TP0 a TPnp         │ Tipo de transacao                 |
+|  Labels   │ int32   │ 0, 1, 2            │ 0=normal, 1=fraude, 2=desconhecido|
+|                                                                               |
++==============================================================================+
+```
+
+---
+
+## Parte 4: Estatisticas Comparativas
+
+```
++==============================================================================+
+|                    COMPARACAO DE TODOS OS DATASETS                            |
++==============================================================================+
+|                                                                               |
+|  DATASET              │ TAMANHO    │ TAXA FRAUDE │ TIPO             │ GRATIS |
+|  ━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━━│━━━━━━━━━━━━│━━━━━━━━━━━━━━━━━│━━━━━━ |
+|  CiferAI              │ 6.000.000  │ ~0.1%       │ Sintetico        │ Sim    |
+|  PaySim               │ 6.362.620  │ 0.13%       │ Sintetico        │ Sim    |
+|  Synthetic Cleaned    │ 6.360.000  │ ~0.1%       │ Sintetico        │ Sim    |
+|  Nigerian Financial   │ 5.000.000  │ Variavel    │ Sintetico        │ Sim    |
+|  Sparkov              │ 1.316.675  │ 5.70%       │ Simulado         │ Sim    |
+|  IEEE-CIS             │ 590.540    │ 3.50%       │ Real             │ Sim*   |
+|  CC Fraud 2023        │ 568.630    │ ~0.2%       │ Real             │ Sim    |
+|  CC Fraud (classico)  │ 284.807    │ 0.17%       │ Real             │ Sim    |
+|  Vehicle Loan         │ 233.154    │ 21.60%      │ Real             │ Sim    |
+|  IP Blocklist         │ 215.000    │ 7%          │ Real             │ Sim    |
+|  Fraud Ecommerce      │ 151.112    │ 10.60%      │ Real             │ Sim    |
+|                                                                               |
+|  * IEEE-CIS requer aceitar termos da competicao no Kaggle                    |
+|                                                                               |
++==============================================================================+
+```
+
+---
+
+## Parte 5: Guia de Escolha do Dataset
+
+```
++==============================================================================+
+|                    QUAL DATASET USAR?                                         |
++==============================================================================+
+|                                                                               |
+|  VOCE QUER DETECTAR...          │ USE ESTES DATASETS                         |
+|  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
+|                                  │                                            |
+|  Fraude de PIX                   │ PaySim, CiferAI, Nigerian Financial        |
+|  (transferencias instantaneas)   │ Foco em type=TRANSFER                      |
+|                                  │                                            |
+|  Fraude de Cartao CREDITO        │ CC Fraud 2023, IEEE-CIS, CC Fraud classico |
+|  (compras online/fisicas)        │ Dados reais europeus                       |
+|                                  │                                            |
+|  Fraude de Cartao DEBITO         │ PaySim (CASH_OUT), Sparkov                 |
+|  (saques, compras debito)        │ Simula saques em ATM                       |
+|                                  │                                            |
+|  Fraude de TED/DOC               │ PaySim, CiferAI                            |
+|  (transferencias tradicionais)   │ type=TRANSFER                              |
+|                                  │                                            |
+|  Lavagem de Dinheiro             │ S-FFSD, YelpChi, Amazon (grafos)           |
+|  (cadeias de transacoes)         │ Modelos GTAN, RGTAN, HOGRL                 |
+|                                  │                                            |
+|  Risco de Credito                │ Vehicle Loan, Sparkov                      |
+|  (emprestimos, financiamentos)   │ Taxa de default alta (21%)                 |
+|                                  │                                            |
+|  Bots e Ataques                  │ Twitter Bots, Malicious URLs               |
+|  (automacao maliciosa)           │ Taxa de fraude ~33%                        |
+|                                  │                                            |
++==============================================================================+
+```
+
+---
+
+## Parte 6: Exemplo Pratico - Debito
+
+```
++==============================================================================+
+|                    CASO: CLONAGEM DE CARTAO DE DEBITO                         |
++==============================================================================+
+|                                                                               |
+|  CENARIO:                                                                     |
+|  Criminoso instala "chupa-cabra" em caixa eletronico.                        |
+|  Clona cartao de debito de Jose Carlos.                                       |
+|                                                                               |
+|  TRANSACAO NORMAL DO JOSE (sexta-feira, 18h):                                 |
+|  ┌────────────────────────────────────────────────────────────────────────┐  |
+|  │ type: CASH_OUT                                                          │  |
+|  │ amount: R$ 500,00                                                       │  |
+|  │ oldbalanceOrg: R$ 3.500,00                                              │  |
+|  │ newbalanceOrig: R$ 3.000,00                                             │  |
+|  │ Local: Bradesco Av. Paulista - SP                                       │  |
+|  │ isFraud: 0 (normal)                                                     │  |
+|  └────────────────────────────────────────────────────────────────────────┘  |
+|                                                                               |
+|  TRANSACAO FRAUDULENTA (sabado, 3h da manha):                                 |
+|  ┌────────────────────────────────────────────────────────────────────────┐  |
+|  │ type: CASH_OUT                                                          │  |
+|  │ amount: R$ 1.000,00                                                     │  |
+|  │ oldbalanceOrg: R$ 3.000,00                                              │  |
+|  │ newbalanceOrig: R$ 2.000,00                                             │  |
+|  │ Local: Bradesco Shopping Aricanduva - SP (15km de distancia)            │  |
+|  │ isFraud: 1 (FRAUDE!)                                                    │  |
+|  └────────────────────────────────────────────────────────────────────────┘  |
+|                                                                               |
+|  ALERTAS GERADOS:                                                             |
+|  [!] Saque as 3h da manha (Jose nunca sacou nesse horario)                   |
+|  [!] Caixa eletronico diferente do habitual                                  |
+|  [!] Segundo saque em menos de 12 horas                                      |
+|  [!] Valor dobrado em relacao ao padrao                                      |
+|                                                                               |
+|  ACAO: Bloquear cartao + SMS para Jose confirmar                              |
+|                                                                               |
++==============================================================================+
+```
+
+---
+
+## Parte 7: Como Integrar no Sankofa
+
+### Codigo de Mapeamento Universal
+
+```python
+# Mapeamento universal para o Sankofa Enterprise Pro
+
+MAPEAMENTO_CANAL = {
+    # PaySim / CiferAI
+    'TRANSFER': 'PIX',
+    'CASH_OUT': 'DEBITO',
+    'PAYMENT': 'CREDITO',
+    'DEBIT': 'DEBITO',
+    'CASH_IN': 'TED',
+    
+    # IEEE-CIS ProductCD
+    'W': 'CREDITO',  # Wireless (celular)
+    'H': 'CREDITO',  # Home
+    'C': 'CREDITO',  # Clothing
+    'S': 'CREDITO',  # Sports
+    'R': 'CREDITO',  # Restaurant
 }
 
-def converter_transacao(linha_paysim):
-    return {
-        'transaction_id': f'TXN-{linha_paysim["step"]}-{linha_paysim["nameOrig"]}',
-        'amount': linha_paysim['amount'],
-        'channel': MAPEAMENTO_TIPO[linha_paysim['type']],
-        'customer_id': linha_paysim['nameOrig'],
-        'is_fraud': linha_paysim['isFraud'] == 1
-    }
+def converter_para_sankofa(dataset_tipo, linha):
+    """
+    Converte qualquer dataset para o formato Sankofa.
+    
+    Args:
+        dataset_tipo: 'paysim', 'ieeecis', 'ccfraud'
+        linha: dicionario com dados da transacao
+    
+    Returns:
+        dict no formato Sankofa
+    """
+    if dataset_tipo == 'paysim':
+        return {
+            'transaction_id': f'TXN-{linha["step"]}-{linha["nameOrig"]}',
+            'amount': linha['amount'],
+            'channel': MAPEAMENTO_CANAL.get(linha['type'], 'PIX'),
+            'customer_id': linha['nameOrig'],
+            'merchant_id': linha['nameDest'],
+            'is_fraud': linha['isFraud'] == 1,
+            'balance_before': linha['oldbalanceOrg'],
+            'balance_after': linha['newbalanceOrig']
+        }
+    
+    elif dataset_tipo == 'ieeecis':
+        return {
+            'transaction_id': str(linha['TransactionID']),
+            'amount': linha['TransactionAmt'],
+            'channel': MAPEAMENTO_CANAL.get(linha.get('ProductCD', 'W'), 'CREDITO'),
+            'customer_id': str(linha.get('card1', 'unknown')),
+            'is_fraud': linha['isFraud'] == 1,
+            'device_type': linha.get('DeviceType', 'unknown'),
+            'email_domain': linha.get('P_emaildomain', 'unknown')
+        }
+    
+    elif dataset_tipo == 'ccfraud':
+        return {
+            'transaction_id': f'CC-{linha.name}',
+            'amount': linha['Amount'],
+            'channel': 'CREDITO',
+            'time_seconds': linha['Time'],
+            'is_fraud': linha['Class'] == 1
+        }
+    
+    return None
 ```
 
 ---
 
-## 6. Estatisticas de Fraude por Tipo
+## Parte 8: Proximos Passos
 
 ```
 +==============================================================================+
-|                    ESTATISTICAS DOS DATASETS                                  |
+|                    CHECKLIST DE IMPLEMENTACAO                                 |
 +==============================================================================+
 |                                                                               |
-|  CREDIT CARD FRAUD (Kaggle)                                                   |
-|  ┌───────────────────────────────────────────────────────────────────────┐   |
-|  │ Tipo          │ Qtd Transacoes  │ Taxa Fraude │ Valor Medio          │   |
-|  ├───────────────┼─────────────────┼─────────────┼──────────────────────┤   |
-|  │ CREDITO       │ 284.807         │ 0,17%       │ $88.35               │   |
-|  │ (unico tipo)  │                 │             │                      │   |
-|  └───────────────┴─────────────────┴─────────────┴──────────────────────┘   |
+|  [ ] 1. Baixar PaySim do Kaggle (mais similar ao PIX brasileiro)             |
+|  [ ] 2. Baixar CC Fraud 2023 (mais recente para cartao)                      |
+|  [ ] 3. Configurar conta Kaggle CLI                                          |
+|  [ ] 4. Usar script de mapeamento para converter dados                       |
+|  [ ] 5. Treinar modelos separados para cada canal:                           |
+|         - Modelo PIX (PaySim TRANSFER)                                       |
+|         - Modelo Credito (IEEE-CIS + CC Fraud)                               |
+|         - Modelo Debito (PaySim CASH_OUT)                                    |
+|  [ ] 6. Validar performance com metricas do Sankofa                          |
+|  [ ] 7. Ajustar thresholds por canal                                         |
 |                                                                               |
-|  PAYSIM (Mobile Money)                                                        |
-|  ┌───────────────────────────────────────────────────────────────────────┐   |
-|  │ Tipo          │ Qtd Transacoes  │ Taxa Fraude │ Onde Acontece        │   |
-|  ├───────────────┼─────────────────┼─────────────┼──────────────────────┤   |
-|  │ TRANSFER      │ 532.909         │ 0,76%       │ Engenharia social    │   |
-|  │ CASH_OUT      │ 2.237.500       │ 0,18%       │ Clonagem ATM         │   |
-|  │ PAYMENT       │ 2.151.495       │ 0%          │ Risco baixo          │   |
-|  │ CASH_IN       │ 1.399.284       │ 0%          │ Deposito seguro      │   |
-|  │ DEBIT         │ 41.432          │ 0%          │ Debito automatico    │   |
-|  └───────────────┴─────────────────┴─────────────┴──────────────────────┘   |
-|                                                                               |
-|  CONCLUSAO IMPORTANTE:                                                        |
-|  • TRANSFER (PIX) e CASH_OUT (Debito) concentram 100% das fraudes!          |
-|  • Pagamentos e depositos sao operacoes de baixo risco                       |
+|  DICA: Comece com 100.000 transacoes para testes rapidos!                    |
 |                                                                               |
 +==============================================================================+
 ```
 
 ---
 
-## 7. Proximos Passos
+## Referencias Completas
 
-```
-+==============================================================================+
-|                    O QUE FAZER AGORA?                                         |
-+==============================================================================+
-|                                                                               |
-|  [ ] 1. Baixe o dataset PaySim do Kaggle                                     |
-|  [ ] 2. Use o script de mapeamento para converter para formato Sankofa       |
-|  [ ] 3. Treine o modelo com os novos dados                                   |
-|  [ ] 4. Compare a performance com o modelo atual                             |
-|  [ ] 5. Ajuste os thresholds conforme necessario                             |
-|                                                                               |
-|  DICA: Comece com um subset de 100.000 transacoes para testes rapidos!       |
-|                                                                               |
-+==============================================================================+
-```
+| Fonte | Dataset | URL | Estrelas |
+|-------|---------|-----|----------|
+| Kaggle | Credit Card Fraud 2023 | [Link](https://www.kaggle.com/datasets/nelgiriyewithana/credit-card-fraud-detection-dataset-2023) | 621 |
+| Kaggle | IEEE-CIS | [Link](https://www.kaggle.com/competitions/ieee-fraud-detection) | - |
+| Kaggle | PaySim | [Link](https://www.kaggle.com/datasets/ealaxi/paysim1v) | - |
+| Kaggle | CC Fraud (classico) | [Link](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud) | - |
+| Hugging Face | CiferAI | [Link](https://huggingface.co/datasets/CiferAI/Cifer-Fraud-Detection-Dataset-AF) | - |
+| Hugging Face | Nigerian Financial | [Link](https://huggingface.co/datasets/electricsheepafrica/Nigerian-Financial-Transactions-and-Fraud-Detection-Dataset) | - |
+| GitHub | Amazon FDB | [Link](https://github.com/amazon-science/fraud-dataset-benchmark) | 226 |
+| GitHub | AI4Risk AntiFraud | [Link](https://github.com/AI4Risk/antifraud) | 298 |
+| GitHub | AIForge | [Link](https://github.com/FELIPEACASTRO/AIForge) | 3 |
 
 ---
 
-## Referencias
+## Glossario
 
-| Dataset | Fonte | Estrelas GitHub |
-|---------|-------|-----------------|
-| Credit Card Fraud | [Kaggle](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud) | N/A |
-| PaySim | [Kaggle](https://www.kaggle.com/datasets/ealaxi/paysim1v) | N/A |
-| AntiFraud (S-FFSD) | [GitHub](https://github.com/AI4Risk/antifraud) | 298 |
-| Credit Card Detection App | [GitHub](https://github.com/Nneji123/Credit-Card-Fraud-Detection) | 56 |
-| AIForge Collection | [GitHub](https://github.com/FELIPEACASTRO/AIForge) | 3 |
+| Termo | Significado |
+|-------|-------------|
+| AUC | Area Under Curve - metrica de performance (quanto maior, melhor) |
+| PCA | Principal Component Analysis - tecnica de anonimizacao |
+| GNN | Graph Neural Network - rede neural para grafos |
+| Federated Learning | Treinamento distribuido preservando privacidade |
+| Card-Not-Present | Transacao online sem cartao fisico |
+| Conta Laranja | Conta usada para receber dinheiro de fraudes |
 
 ---
 
-*Documento criado para o Sankofa Enterprise Pro v12.0*
+*Documento criado para o Sankofa Enterprise Pro v12.0*  
+*Fontes: Kaggle, Hugging Face, GitHub (Amazon Science, AI4Risk, AIForge)*
