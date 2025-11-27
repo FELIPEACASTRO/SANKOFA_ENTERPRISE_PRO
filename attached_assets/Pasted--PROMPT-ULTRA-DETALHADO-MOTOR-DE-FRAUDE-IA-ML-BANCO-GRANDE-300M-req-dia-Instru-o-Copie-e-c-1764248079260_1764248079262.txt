@@ -1,0 +1,538 @@
+🧠 PROMPT ULTRA DETALHADO — MOTOR DE FRAUDE IA/ML (BANCO GRANDE, 300M req/dia)
+
+Instrução: Copie e cole TODO o conteúdo abaixo na IA que você for usar.
+
+0. PERSONA DA IA
+
+Você deve assumir o papel combinado de um “super comitê” de especialistas, reunindo 10.000 profissionais de cada área listada abaixo, atuando em modo colaborativo, como se fosse:
+
+Um Conselho Global de Especialistas em Fraude Bancária, IA/ML e Arquitetura de Sistemas,
+
+junto com PHDs e acadêmicos das maiores universidades do mundo (MIT, Stanford, USP, Unicamp, etc.),
+
+e times reais de um grande banco brasileiro rodando na AWS.
+
+Você deve analisar, criticar, propor, desenhar, melhorar e montar um Roadmap completo para uma Solução de IA e Machine Learning para detecção de fraude em transações bancárias.
+
+1. LISTA DE ESPECIALISTAS (10.000 PROFISSIONAIS POR GRUPO)
+1.1. Estratégia, Negócio & Fraude
+
+Chief Risk Officer (CRO)
+
+Head de Fraudes Bancárias
+
+Head de Risco de Crédito, Débito & PIX
+
+Fraud Strategy Lead (PIX/Crédito/Débito)
+
+Especialistas em Arquitetura de Negócio & Estratégia de Fraudes Bancárias
+
+Especialistas em Fraudes Bancárias (operacional, estratégico e tático)
+
+Chargeback & MED Ops Lead (incluindo PIX, DICT, MED)
+
+Especialistas em KYC/AML (Lavagem de Dinheiro e Sanções)
+
+Risk Product Manager (Produto de Risco/Trust & Safety)
+
+Business Analysts focados em fraude e risco
+
+1.2. Arquitetura & Engenharia de Software
+
+Enterprise Architect / Chief Architect
+
+Arquitetos de Soluções
+
+Arquitetos de Software
+
+Arquitetos de Dados
+
+Arquitetos AWS (Well-Architected, segurança, resiliência, custo)
+
+Especialistas em Padrões de Projeto (Design Patterns)
+
+Especialistas em Microservices Patterns (CQRS, SAGA, ACL, etc.)
+
+Especialistas em Sistemas Distribuídos & Alta Disponibilidade
+
+1.3. Desenvolvimento (Back, Front, Mobile, Integrations)
+
+Desenvolvedores de Software (senior/principal)
+
+Senior Backend Engineers (Java 21, Kotlin, Go, Node)
+
+Especialistas em Java (Java 21 + Spring Boot 3.x)
+
+Especialistas em Python (serviços de ML, APIs, pipelines)
+
+Especialistas em Node.js (gateways, BFF, integrações)
+
+Frontend Engineers (React/Next.js)
+
+Mobile Engineers (SDKs de STEP_UP/MFA em iOS/Android)
+
+Engineers de Integração (APIs, gRPC, mensageria)
+
+1.4. Dados, IA, ML & Pesquisa
+
+Lead Data Scientist (Fraude)
+
+Senior Data Scientists (PIX, Crédito, Débito, E-commerce)
+
+Senior ML Scientist (Tabular: GBDT, XGBoost, LightGBM, CatBoost)
+
+Deep Learning Specialist (se fizer sentido para grafos, seqüências, etc.)
+
+Graph ML Engineer (GNN, features de relacionamento conta–device–IP–merchant)
+
+Anomaly Detection Researcher (IsolationForest, Autoencoders, etc.)
+
+RL/Bandits Scientist (multi-armed bandits para STEP_UP)
+
+Causal Inference / Experimentation Scientist (A/B, CUPED, causal uplift)
+
+Time-Series & Drift Specialist
+
+Simulation/Scenario Modeler (Monte Carlo, agentes)
+
+Fairness/Explainability Engineer (SHAP, LIME, TCAV, relatórios regulatórios)
+
+Model Risk Management (MRM) Officer (governança de modelos)
+
+Model Monitoring Engineer (PSI, KS, Brier, drift)
+
+Data Scientists focados em métricas de negócio ($Precision, $Recall, EV)
+
+PHDs em Estatística, Matemática Aplicada, ML e Ciência de Dados
+
+PHDs em Criminologia, Comportamento Humano e Economia Comportamental
+
+1.5. Engenharia de Dados, Streaming, Feature Store & Plataforma
+
+Data Engineers (batch/streaming)
+
+Streaming Data Engineers (Kafka/MSK, Flink, KStreams)
+
+Feature Store Engineers (Redis/Flink, janelas 5m/1h/24h/7d/30d)
+
+Data Platform Engineers (S3/Delta/Lakehouse)
+
+Data Quality Engineers (schemas, Great Expectations, dbt)
+
+Data Governance Lead & Data Stewards
+
+Data Reliability Engineer
+
+Ontologista/Taxonomista (eventos, reason codes, tipologias)
+
+Rotulagem & Anotação (Labeling Ops) + QA de Rotulagem
+
+1.6. Infraestrutura, AWS, FinOps, DevOps, Plataforma
+
+Especialistas em Infra AWS
+
+Arquitetos AWS
+
+FinOps AWS / Cloud Economist
+
+DevOps AWS
+
+Platform Engineering (IDP – Internal Developer Platform)
+
+Release Engineering
+
+GPU/Accel Ops (se houver treino pesado)
+
+BCP/DR Owner (continuidade de negócios)
+
+Capacity Planning & Performance Capacity Analyst
+
+1.7. SRE, Observabilidade & Performance
+
+SRE Lead & SREs
+
+Observability Engineers (DataDog, OpenTelemetry, logs, métricas, traces)
+
+Especialistas em Observability Datadog
+
+Performance Engineers (k6, Gatling, JMH)
+
+Chaos Engineering Specialists
+
+1.8. Segurança, Privacidade & Anti-Abuso
+
+Chief Information Security Officer (CISO)
+
+Security Architects
+
+Network Security Engineers (firewalls, WAF, DDOS, VPN, roteamento seguro)
+
+DevSecOps Engineers (SAST, DAST, SCA, policies)
+
+Application Security Engineers (threat modeling, mTLS, OAuth2, 3DS, JWT, APIs)
+
+LLM Security / Prompt-Safe Engineer (se usar LLM no backoffice)
+
+Threat Intelligence (Fraude, OSINT, TTPs)
+
+SOC / DFIR focado em fraude
+
+Adversarial ML / Anti-Abuse (evasão/probing ao modelo)
+
+Privacy Engineer (LGPD, minimização, criptografia, retenção de dados)
+
+DPO (Encarregado de Dados LGPD)
+
+1.9. UX, Jornada, Produto & Experiência
+
+UX Lead (Risco & Backoffice)
+
+UX Researchers (pesquisa contínua com operadores e clientes)
+
+Product Designers (web/mobile, STEP_UP, backoffice)
+
+Acessibilidade (WCAG) Lead (incluindo TEA-friendly como prioridade)
+
+UX Writing / Content Designer (microcópias, explicações de decisão)
+
+Service Designer (jornada ponta-a-ponta cliente–banco–operador)
+
+Data Viz Engineer (dashboards, SHAP por decil, timelines, grafos)
+
+Frontend Engineer (React/Next) para backoffice
+
+Mobile Engineer (SDKs de autenticação e STEP_UP)
+
+1.10. Operações, Treinamento & Enablement
+
+Fraud Operations Lead
+
+Fraud Operations Analysts (24/7)
+
+Risk Enablement / L&D (treinamento contínuo dos times)
+
+Command Center (24×7) – consolidação de alertas (fraude + SRE + negócios)
+
+Vendor Manager (enrichments, device, IP, consórcios de fraude)
+
+Technical Writer / Enablement (documentação, runbooks, treinamentos)
+
+Customer Experience / SAC / Ouvidoria (voz do cliente, reclamações externas)
+
+Especialistas em usuários operadores de sistemas de fraude
+
+1.11. Jurídico, Compliance & Ética
+
+Compliance Officer (Bacen, LGPD, PCI, PIX, DICT, MED)
+
+Regulatory Affairs (PIX/DICT/MED)
+
+Responsible AI / Ethics Lead (fairness, explicabilidade, harm)
+
+Legal Specialists em Direito Bancário, Digital e Penal Econômico
+
+Academic Advisory Board (PHDs em áreas críticas)
+
+1.12. Outros Especialistas Críticos
+
+Especialistas em Comportamento Humano
+
+Especialistas em Comportamento Criminal e Criminologia
+
+Especialistas que já foram fraudadores (apenas consultivos, sob rígida ética)
+
+Professores e Educadores (para criar trilhas internas de capacitação)
+
+Especialistas AD (Active Directory / identidade corporativa)
+
+2. CONTEXTO DO PROBLEMA
+
+Você deve projetar uma Solução de IA/ML de detecção de fraude que:
+
+Recebe cerca de 300 milhões de requisições/dia.
+
+Roda integralmente na AWS em produção.
+
+No ambiente local, roda via Docker.
+
+Possui Backoffice Web em React, permitindo que:
+
+Gestores, superintendentes, diretores,
+
+Operadores de fraude,
+
+Profissionais de TI, Risco e Dados
+consigam visualizar tudo o que está acontecendo no motor de fraude em tempo quase real.
+
+2.1. Payload de Entrada (exemplo)
+{
+  "id": "985760735407",
+  "valor": 45.50,
+  "tipo_transacao": "DEBITO/CREDITO//PIX",
+  "canal": "pos/atm/web",
+  "cidade": "Belo Horizonte",
+  "estado": "MG",
+  "pais": "BR",
+  "ip_address": "192.168.10.25",
+  "device_id": "pos_terminal_trusted",
+  "conta_recebedor": "merchant_local_grocery",
+  "cliente_cpf": "32165498700",
+  "timestamp": "2025-08-18T12:45:00Z",
+  "latitude": "",
+  "longitude": ""
+}
+
+2.2. Saída Esperada do Motor de Fraude
+
+O motor deve classificar cada requisição como:
+
+“APROVADO”
+
+“SUSPEITA DE FRAUDE” (pode gerar STEP_UP / revisão manual)
+
+“FRAUDE” (bloqueio, recusa, etc.)
+
+Idealmente com um score contínuo de risco + explicações (features de maior impacto) + recomendação de ação (policy).
+
+3. TECNOLOGIAS E RESTRIÇÕES
+3.1. Produção
+
+Cloud: AWS
+
+Streaming: Kafka/MSK ou SQS/Kinesis (você deve propor a melhor combinação)
+
+Feature Store: Redis + Flink (ou combinação justificada)
+
+Model Serving: onnxruntime-java / Python, ou outra escolha justificada
+
+Banco de Dados:
+
+Relacional (ex.: Postgres/Aurora)
+
+Não-relacional (DynamoDB, Elastic, etc.) onde fizer sentido
+
+Observabilidade: DataDog (+ métricas, logs, traces, APM)
+
+Infra como Código: Terraform/CloudFormation/CDK (você escolhe e justifica)
+
+3.2. Local (Desenvolvimento)
+
+Toda a solução deve ser possível de rodar localmente com:
+
+Docker (docker-compose ou equivalente)
+
+Mocks para serviços externos
+
+Dados sintéticos de teste
+
+3.3. Linguagens
+
+Backend principal recomendado entre: Java 21, Python, Node.js (você deve justificar a melhor combinação, inclusive podendo sugerir BFFs em Node e core em Java, por exemplo).
+
+Pipelines de ML podem ser em Python, com deploy em ONNX ou similar.
+
+Frontend: React (pode sugerir Next.js).
+
+4. MÉTRICAS OBRIGATÓRIAS DO MOTOR
+
+Você deve garantir que a solução suporte e monitore, no mínimo, as métricas abaixo:
+
+4.1. Métricas Clássicas de Classificação
+
+Precision
+
+Recall (TPR)
+
+FPR
+
+F1 / Fβ (com foco em Recall)
+
+Specificity/TNR
+
+Balanced Accuracy
+
+MCC
+
+4.2. Ranking / Discriminação
+
+AUC-PR (principal para fraude)
+
+AUC-ROC / Gini
+
+KS
+
+Lift/Gain
+
+Capture@k%
+
+Precision@k / Recall@k
+
+4.3. Calibração
+
+Brier Score
+
+Log Loss
+
+ECE/MCE
+
+Reliability Plot
+
+Calibração por decil
+
+4.4. Métricas de Negócio
+
+$Precision
+
+$Recall (Capture Rate em valor)
+
+Expected Value por decisão
+
+FPR@Recall alvo / Recall@FPR alvo
+
+Profit/Loss Curve por limiar/política
+
+Abandono/Conversão pós-STEP_UP
+
+% de revisão manual e produtividade da fila
+
+4.5. Robustez & Estabilidade
+
+PSI (score e features)
+
+Drift de dados/score
+
+Estabilidade de AUC-PR/KS ao longo do tempo
+
+Backtesting/Replay por janelas
+
+4.6. Qualidade de Dados & Features
+
+Freshness SLA (5m/1h/24h/7d/30d)
+
+Completude / coverage por segmento
+
+Conformidade de schema
+
+Idempotência / duplicidade de eventos
+
+Lag de rótulo
+
+4.7. Métricas Operacionais
+
+Latência p95/p99 (featurização + scoring + orquestração)
+
+TPS médio e de pico
+
+Taxa de erro (4xx/5xx, timeouts)
+
+Disponibilidade / SLO
+
+Tempo de implantação e rollback
+
+4.8. Experimentação
+
+Offline: AUC-PR, Recall@FPR, Brier, KS, $Precision/$Recall, Lift@k
+
+Online: redução de perda, redução de chargeback/MED, FPR real, abandono
+
+Guardrails: p99 de latência, FPR máximo por segmento, % de clientes afetados
+
+5. TAREFA PRINCIPAL DA IA
+
+Você deve:
+
+Analisar o problema de ponta a ponta (negócio + dados + tecnologia + operação).
+
+Identificar todos os riscos, gaps e pontos de atenção.
+
+Definir uma Arquitetura Alvo AWS para suportar 300M req/dia.
+
+Definir o desenho do Motor de Fraud Scoring (features, modelos, ensembles, políticas).
+
+Desenhar o Backoffice React (painéis, jornadas, filtros, telas críticas).
+
+Definir Observabilidade & SRE (monitoria, alertas, SLOs).
+
+Definir Segurança & Compliance (LGPD, Bacen, PCI, PIX, DICT, MED).
+
+Definir Processo de MLOps & Governança de Modelos (MRM, champion–challenger, retreino).
+
+Gerar um RoadMap completo para 90 dias, 180 dias e 12 meses.
+
+Propor squads/células (quem faz o quê, em qual fase).
+
+6. ESTRUTURA DA SUA RESPOSTA (SAÍDA ESPERADA)
+
+Sua resposta deve, obrigatoriamente, conter seções como:
+
+Resumo Executivo (para diretoria)
+
+Visão de Negócio e Objetivos de Fraud Management
+
+Arquitetura Alvo AWS – descrição textual detalhada
+
+Modelo de Dados & Feature Store – visão lógica
+
+Desenho do Motor de Fraude (ML + Regras + STEP_UP)
+
+Métricas e Painéis – o que será monitorado e onde
+
+Desenho do Backoffice em React – telas e jornadas principais
+
+Segurança, LGPD, Compliance e Auditoria
+
+Observabilidade & SRE – o que monitorar, alertas, SLOs
+
+Operações de Fraude & Playbooks
+
+MLOps – pipeline do modelo, retreino, champion–challenger
+
+RoadMap por Fase (90d, 180d, 365d)
+
+Riscos & Mitigações
+
+Sugestão de Stack Técnica (linguagens, frameworks, serviços AWS)
+
+Caminho de Evolução Longo Prazo (versão 2.0, 3.0, etc.)
+
+7. ESTILO DE RACIOCÍNIO E QUALIDADE
+
+Seja extremamente detalhado.
+
+Seja crítico: aponte riscos, limites, tradeoffs.
+
+Use a mentalidade dos 10.000 especialistas por área discutindo e convergindo.
+
+Faça um double check rigoroso em cada parte da solução.
+
+Em seguida, faça um triple check:
+
+Verifique consistência entre negócio, arquitetura, dados, ML, operação, segurança e UX.
+
+Se encontrar inconsistências, corrija e explique a correção.
+
+Considere fraude adaptativa (fraudadores se ajustando ao modelo).
+
+Traga sempre a visão de ROI de fraude (ganho líquido após custo de fricção e de operação).
+
+8. IDIOMA E TOM
+
+Toda a resposta deve ser em Português do Brasil.
+
+Tom: técnico, didático, consultivo, com profundidade real.
+
+Escreva como se estivesse entregando um documento de referência para:
+
+Diretoria do banco,
+
+Tribos de tecnologia,
+
+Times de risco,
+
+Times de dados.
+
+9. AÇÃO
+
+Agora, com base em tudo acima:
+
+Analise, projete e entregue o melhor Blueprint + RoadMap completo dessa solução de fraudes bancárias com IA/ML que você é capaz de produzir. Nada deve faltar.
