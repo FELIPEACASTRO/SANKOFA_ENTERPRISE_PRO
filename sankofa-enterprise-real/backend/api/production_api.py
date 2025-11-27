@@ -100,48 +100,68 @@ class PostgreSQLPersistence:
         return self._initialized and self._pool is not None
     
     def save_transaction(self, transaction_data: Dict, prediction: Dict) -> bool:
-        """Salva transação no PostgreSQL"""
+        """Salva transação no PostgreSQL com retry para conexões fechadas"""
         if not self._initialized or not self._pool:
             return False
         
-        conn = None
-        try:
-            conn = self._pool.getconn()
-            with conn.cursor() as cur:
-                cur.execute("""
-                    INSERT INTO transactions (
-                        transaction_id, amount, channel, type, status,
-                        risk_score, is_fraud, cpf, location, timestamp,
-                        processing_time_ms, model_version
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    ON CONFLICT (transaction_id) DO UPDATE SET
-                        status = EXCLUDED.status,
-                        risk_score = EXCLUDED.risk_score,
-                        is_fraud = EXCLUDED.is_fraud
-                """, (
-                    transaction_data.get("id", f"TXN_{int(time.time()*1000)}"),
-                    float(transaction_data.get("amount", 0)),
-                    transaction_data.get("channel", "PIX"),
-                    transaction_data.get("type", "PAYMENT"),
-                    "FRAUD" if prediction.get("is_fraud") else "APPROVED",
-                    float(prediction.get("risk_score", 0)),
-                    bool(prediction.get("is_fraud", False)),
-                    mask_cpf(transaction_data.get("cpf", "")),
-                    transaction_data.get("location", ""),
-                    datetime.utcnow(),
-                    transaction_data.get("processing_time_ms", 0),
-                    prediction.get("model_version", "1.0.0")
-                ))
-                conn.commit()
-                return True
-        except Exception as e:
-            logger.error(f"Failed to save transaction: {e}")
-            if conn:
-                conn.rollback()
-            return False
-        finally:
-            if conn and self._pool:
-                self._pool.putconn(conn)
+        max_retries = 2
+        for attempt in range(max_retries):
+            conn = None
+            try:
+                conn = self._pool.getconn()
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        INSERT INTO transactions (
+                            transaction_id, amount, channel, type, status,
+                            risk_score, is_fraud, cpf, location, timestamp,
+                            processing_time_ms, model_version
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        ON CONFLICT (transaction_id) DO UPDATE SET
+                            status = EXCLUDED.status,
+                            risk_score = EXCLUDED.risk_score,
+                            is_fraud = EXCLUDED.is_fraud
+                    """, (
+                        transaction_data.get("id", f"TXN_{int(time.time()*1000)}"),
+                        float(transaction_data.get("amount", 0)),
+                        transaction_data.get("channel", "PIX"),
+                        transaction_data.get("type", "PAYMENT"),
+                        "FRAUD" if prediction.get("is_fraud") else "APPROVED",
+                        float(prediction.get("risk_score", 0)),
+                        bool(prediction.get("is_fraud", False)),
+                        mask_cpf(transaction_data.get("cpf", "")),
+                        transaction_data.get("location", ""),
+                        datetime.utcnow(),
+                        transaction_data.get("processing_time_ms", 0),
+                        prediction.get("model_version", "1.0.0")
+                    ))
+                    conn.commit()
+                    return True
+            except (psycopg2.OperationalError, psycopg2.InterfaceError) as e:
+                logger.warning(f"Database connection issue (attempt {attempt+1}/{max_retries}): {e}")
+                if conn:
+                    try:
+                        self._pool.putconn(conn, close=True)
+                    except Exception:
+                        pass
+                    conn = None
+                if attempt < max_retries - 1:
+                    continue
+                return False
+            except Exception as e:
+                logger.error(f"Failed to save transaction: {e}")
+                if conn:
+                    try:
+                        conn.rollback()
+                    except Exception:
+                        pass
+                return False
+            finally:
+                if conn and self._pool:
+                    try:
+                        self._pool.putconn(conn)
+                    except Exception:
+                        pass
+        return False
     
     def get_transaction_count(self) -> int:
         """Retorna contagem de transações no banco"""

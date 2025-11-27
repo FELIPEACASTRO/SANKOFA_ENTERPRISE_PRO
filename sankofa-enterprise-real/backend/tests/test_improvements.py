@@ -287,6 +287,38 @@ class TestLocationEntropyFeatures:
         assert "hour_entropy" in feature_names
 
 
+class TestTemporalFeatures:
+    """Testes para features temporais"""
+    
+    def test_night_detection(self):
+        """Testa detecção correta de transações noturnas"""
+        df = pd.DataFrame({
+            "client_cpf": ["A", "A", "A", "A", "A", "A", "A"],
+            "value": [100] * 7,
+            "hour": [0, 3, 6, 12, 18, 22, 23]
+        })
+        
+        fe = AdvancedFeatureEngineering()
+        result = fe.create_features(df)
+        
+        expected_is_night = [1, 1, 1, 0, 0, 1, 1]
+        assert list(result["is_night"]) == expected_is_night, f"Expected {expected_is_night}, got {list(result['is_night'])}"
+    
+    def test_business_hours_detection(self):
+        """Testa detecção de horário comercial"""
+        df = pd.DataFrame({
+            "client_cpf": ["A"] * 5,
+            "value": [100] * 5,
+            "hour": [8, 9, 14, 18, 19]
+        })
+        
+        fe = AdvancedFeatureEngineering()
+        result = fe.create_features(df)
+        
+        expected = [0, 1, 1, 1, 0]
+        assert list(result["is_business_hours"]) == expected
+
+
 class TestTransactionPatternFeatures:
     """Testes para features de padrão de transação"""
     

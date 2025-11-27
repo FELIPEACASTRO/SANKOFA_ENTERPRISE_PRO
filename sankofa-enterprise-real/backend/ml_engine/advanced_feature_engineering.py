@@ -72,11 +72,16 @@ class AdvancedFeatureEngineering:
             df["hour"] = df["timestamp"].dt.hour
             df["day_of_week"] = df["timestamp"].dt.dayofweek
             df["is_weekend"] = df["day_of_week"].isin([5, 6]).astype(int)
-            df["is_night"] = df["hour"].between(22, 6).astype(int)
+            df["is_night"] = ((df["hour"] >= 22) | (df["hour"] <= 6)).astype(int)
             df["is_business_hours"] = df["hour"].between(9, 18).astype(int)
-            df["is_early_morning"] = df["hour"].between(0, 6).astype(int)
-        elif "hour" not in df.columns:
-            # Se não tem timestamp nem hour, criar features padrão
+            df["is_early_morning"] = (df["hour"] <= 6).astype(int)
+        elif "hour" in df.columns:
+            df["is_night"] = ((df["hour"] >= 22) | (df["hour"] <= 6)).astype(int)
+            df["is_business_hours"] = df["hour"].between(9, 18).astype(int)
+            df["is_early_morning"] = (df["hour"] <= 6).astype(int)
+            df["day_of_week"] = 2
+            df["is_weekend"] = 0
+        else:
             df["hour"] = 12
             df["day_of_week"] = 2
             df["is_weekend"] = 0
