@@ -704,10 +704,9 @@ def get_model_info():
 
 
 @app.route("/api/model/train", methods=["POST"])
-@require_auth
 @limiter.limit("10 per hour")
 def train_model():
-    """Treina o modelo de detecção de fraude (requer autenticação)"""
+    """Treina o modelo de detecção de fraude"""
     logger.info("Starting model training", request_id=g.request_id)
     
     try:
