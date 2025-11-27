@@ -162,6 +162,9 @@ class ProductionFraudEngine:
         # Modelos do ensemble carregado
         self.loaded_models = None
         self.model_weights = {'rf': 0.4, 'gb': 0.4, 'lr': 0.2}
+        
+        # Features da última predição (para explicabilidade)
+        self.last_features = None
 
         # Tentar carregar modelo pré-treinado
         self._try_load_pretrained_model()
@@ -595,6 +598,9 @@ class ProductionFraudEngine:
                 )
 
             X_processed = self._preprocess_data(X, fit_transform=False)
+            
+            # Armazenar features para explicabilidade
+            self.last_features = X_processed
 
             # Usar modelos carregados se disponíveis
             if self.loaded_models:

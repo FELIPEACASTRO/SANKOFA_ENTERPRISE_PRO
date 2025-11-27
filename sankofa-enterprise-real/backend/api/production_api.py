@@ -41,7 +41,21 @@ from utils.error_handling import (
     ErrorSeverity,
 )
 from ml_engine.production_fraud_engine import get_fraud_engine, FraudPrediction
+from ml_engine.explainability_engine import ExplainabilityEngine
 from cache.redis_cache_system import redis_cache_system, fraud_cache_manager
+from monitoring.observability import (
+    observability_metrics,
+    alert_manager,
+    health_checker,
+    start_observability,
+    SLAConfig
+)
+from infrastructure.async_processor import (
+    async_task_queue,
+    batch_processor,
+    start_async_infrastructure,
+    TaskPriority
+)
 
 config = get_config()
 logger = get_structured_logger("production_api", config.monitoring.log_level)
@@ -256,6 +270,21 @@ def require_auth(f):
     return decorated
 
 fraud_engine = get_fraud_engine()
+
+explainability_engine = ExplainabilityEngine(
+    model=fraud_engine.ensemble if fraud_engine.is_trained else None,
+    feature_names=fraud_engine.feature_names if hasattr(fraud_engine, 'feature_names') else []
+)
+
+def update_explainability_engine():
+    """Atualiza o engine de explicabilidade após treinamento do modelo"""
+    global explainability_engine
+    if fraud_engine.is_trained and fraud_engine.ensemble is not None:
+        explainability_engine.model = fraud_engine.ensemble
+        if hasattr(fraud_engine, 'feature_names'):
+            explainability_engine.feature_names = fraud_engine.feature_names
+        explainability_engine._calculate_fallback_importance()
+        logger.info("ExplainabilityEngine updated with trained model")
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -652,8 +681,16 @@ def before_request():
 
 @app.after_request
 def after_request(response):
-    """Middleware executado após cada request com headers de segurança"""
+    """Middleware executado após cada request com headers de segurança e observabilidade"""
     duration_ms = (time.time() - g.start_time) * 1000
+
+    observability_metrics.increment("requests_total")
+    observability_metrics.observe("request_latency_ms", duration_ms)
+    
+    if response.status_code >= 400:
+        observability_metrics.increment("requests_error")
+    else:
+        observability_metrics.increment("requests_success")
 
     response.headers["X-Request-ID"] = g.request_id
     response.headers["X-Response-Time-Ms"] = f"{duration_ms:.2f}"
@@ -952,13 +989,22 @@ def refresh_token():
 @app.route("/api/fraud/predict", methods=["POST"])
 @limiter.limit("500 per minute")
 def predict_fraud():
-    """Prediz fraude para uma ou mais transações (rate limited: 500/min)"""
+    """
+    Prediz fraude para uma ou mais transações (rate limited: 500/min)
+    
+    Parâmetros opcionais no body:
+    - include_explanation: bool (default: True) - Inclui explicação LGPD-compliant
+    - include_compliance_report: bool (default: False) - Inclui relatório de compliance completo
+    """
     if not request.json:
         raise ValidationError(
             "Request body is required", context={"endpoint": "/api/fraud/predict"}
         )
 
     transactions_data = request.json.get("transactions")
+    include_explanation = request.json.get("include_explanation", True)
+    include_compliance = request.json.get("include_compliance_report", False)
+    
     if not transactions_data:
         raise ValidationError("transactions field is required", context={"body": request.json})
 
@@ -984,6 +1030,22 @@ def predict_fraud():
     start_time = time.time()
     predictions = fraud_engine.predict_detailed(df)
     latency_ms = (time.time() - start_time) * 1000
+    
+    explanations = []
+    if include_explanation and explainability_engine.model is not None:
+        try:
+            X_features = fraud_engine.last_features if hasattr(fraud_engine, 'last_features') else None
+            if X_features is not None and len(X_features) > 0:
+                for i, pred in enumerate(predictions):
+                    txn_id = f"TXN{int(time.time()*1000)}{i:03d}"
+                    explanation = explainability_engine.explain_prediction(
+                        X_features[i:i+1] if i < len(X_features) else X_features[-1:],
+                        transaction_id=txn_id,
+                        fraud_probability=pred.risk_score
+                    )
+                    explanations.append(explanation)
+        except Exception as e:
+            logger.warning(f"Could not generate explanations: {e}")
 
     for i, pred in enumerate(predictions):
         txn_id = f"TXN{int(time.time()*1000)}{i:03d}"
@@ -1017,14 +1079,45 @@ def predict_fraud():
             latency_ms / len(predictions),
             transactions_data[i].get("channel", "PIX")
         )
+        
+        observability_metrics.increment("predictions_total")
+        observability_metrics.observe("prediction_latency_ms", latency_ms / len(predictions))
+        observability_metrics.observe("risk_score", pred.risk_score)
+        observability_metrics.observe("transaction_amount", float(transactions_data[i].get("amount", 0)))
+        
+        if pred.is_fraud:
+            observability_metrics.increment("predictions_fraud")
+        else:
+            observability_metrics.increment("predictions_legitimate")
 
-    results = [mask_pii_in_response(pred.to_dict()) for pred in predictions]
+    if len(explanations) > 0:
+        observability_metrics.increment("explanations_generated", len(explanations))
+
+    results = []
+    for i, pred in enumerate(predictions):
+        result = mask_pii_in_response(pred.to_dict())
+        
+        if include_explanation and i < len(explanations):
+            exp = explanations[i]
+            result["explanation"] = {
+                "risk_level": exp.risk_level,
+                "explanation_text": exp.explanation_text,
+                "top_risk_factors": exp.top_risk_factors[:3],
+                "top_protective_factors": exp.top_protective_factors[:3],
+                "lgpd_compliant": exp.compliance_ready
+            }
+            
+            if include_compliance:
+                result["compliance_report"] = explainability_engine.to_compliance_report(exp)
+        
+        results.append(result)
 
     logger.info(
         "Fraud predictions completed",
         request_id=g.request_id,
         num_predictions=len(results),
         num_frauds=sum(1 for p in predictions if p.is_fraud),
+        explanations_generated=len(explanations)
     )
 
     return jsonify(
@@ -1037,6 +1130,7 @@ def predict_fraud():
                     "frauds_detected": sum(1 for p in predictions if p.is_fraud),
                     "avg_risk_score": sum(p.risk_score for p in predictions) / len(predictions),
                     "model_version": fraud_engine.VERSION,
+                    "explanations_included": len(explanations) > 0
                 },
             },
         }
@@ -1114,6 +1208,105 @@ def get_model_info():
     )
 
 
+@app.route("/api/explainability/features", methods=["GET"])
+def get_feature_importance():
+    """
+    Retorna importância global das features (compliance LGPD)
+    
+    Response:
+    - feature_importance: Dict com feature -> importância
+    - top_features: Lista das features mais importantes
+    """
+    try:
+        importance = explainability_engine.get_global_importance()
+        top_features = explainability_engine.get_top_features(10)
+        
+        return jsonify({
+            "success": True,
+            "data": {
+                "feature_importance": importance,
+                "top_features": [{"feature": f, "importance": round(i, 4)} for f, i in top_features],
+                "model_version": fraud_engine.VERSION,
+                "explainability_version": explainability_engine.VERSION
+            }
+        })
+    except Exception as e:
+        logger.error(f"Feature importance retrieval failed: {e}")
+        return jsonify({
+            "success": False,
+            "error": {"message": str(e)}
+        }), 500
+
+
+@app.route("/api/explainability/explain", methods=["POST"])
+@limiter.limit("100 per minute")
+def explain_transaction():
+    """
+    Explica uma decisão de fraude para compliance LGPD
+    
+    Body:
+    - transaction: Dict com dados da transação
+    - include_compliance: bool (default: True) - Inclui relatório de compliance
+    
+    Response:
+    - explanation: Explicação detalhada da decisão
+    - compliance_report: Relatório para auditoria (opcional)
+    """
+    if not request.json or "transaction" not in request.json:
+        raise ValidationError("transaction field is required")
+    
+    try:
+        transaction_data = request.json["transaction"]
+        include_compliance = request.json.get("include_compliance", True)
+        
+        df = pd.DataFrame([transaction_data])
+        
+        if not fraud_engine.is_trained:
+            raise MLModelError("Model not trained")
+        
+        predictions = fraud_engine.predict_detailed(df)
+        pred = predictions[0]
+        
+        X_features = fraud_engine.last_features
+        if X_features is None:
+            raise MLModelError("Features not available for explanation")
+        
+        txn_id = transaction_data.get("id", f"TXN_{int(time.time()*1000)}")
+        explanation = explainability_engine.explain_prediction(
+            X_features,
+            transaction_id=txn_id,
+            fraud_probability=pred.risk_score
+        )
+        
+        response_data = {
+            "transaction_id": txn_id,
+            "prediction": {
+                "is_fraud": pred.is_fraud,
+                "risk_score": round(pred.risk_score * 100, 1),
+                "risk_level": pred.risk_level
+            },
+            "explanation": {
+                "risk_level": explanation.risk_level,
+                "explanation_text": explanation.explanation_text,
+                "top_risk_factors": explanation.top_risk_factors,
+                "top_protective_factors": explanation.top_protective_factors,
+                "lgpd_compliant": explanation.compliance_ready
+            }
+        }
+        
+        if include_compliance:
+            response_data["compliance_report"] = explainability_engine.to_compliance_report(explanation)
+        
+        return jsonify({
+            "success": True,
+            "data": response_data
+        })
+        
+    except Exception as e:
+        logger.error(f"Explanation generation failed: {e}")
+        raise MLModelError(f"Explanation failed: {str(e)}")
+
+
 @app.route("/api/model/train", methods=["POST"])
 @limiter.limit("10 per hour")
 def train_model():
@@ -1160,6 +1353,8 @@ def train_model():
         y = np.asarray(df["is_fraud"].astype(int).values)
         
         fraud_engine.train(X, y)
+        
+        update_explainability_engine()
         
         metrics = fraud_engine.get_performance_metrics()
         
@@ -1813,6 +2008,277 @@ def submit_feedback():
     }
     
     return jsonify({"success": True, "data": feedback_data})
+
+
+@app.route("/api/observability/metrics", methods=["GET"])
+def get_observability_metrics():
+    """
+    Retorna todas as métricas do sistema (compliance BACEN)
+    
+    Response:
+    - counters: Contadores (requests, erros, fraudes)
+    - gauges: Valores atuais (conexões, fila)
+    - latency: Estatísticas de latência (p50, p95, p99)
+    - tps: Transações por segundo
+    - error_rate_percent: Taxa de erro
+    """
+    return jsonify({
+        "success": True,
+        "data": observability_metrics.get_all_metrics()
+    })
+
+
+@app.route("/api/observability/prometheus", methods=["GET"])
+def get_prometheus_metrics():
+    """
+    Exporta métricas em formato Prometheus
+    
+    Para integração com Prometheus/Grafana
+    """
+    return observability_metrics.export_prometheus(), 200, {"Content-Type": "text/plain"}
+
+
+@app.route("/api/observability/sla", methods=["GET"])
+def get_sla_compliance():
+    """
+    Retorna status de compliance dos SLAs (BACEN)
+    
+    SLAs monitorados:
+    - Latência P95 < 100ms
+    - Latência P99 < 200ms
+    - Taxa de erro < 0.1%
+    - TPS mínimo
+    """
+    return jsonify({
+        "success": True,
+        "data": alert_manager.get_sla_compliance()
+    })
+
+
+@app.route("/api/observability/alerts", methods=["GET"])
+def get_observability_alerts():
+    """Retorna alertas ativos e histórico"""
+    active_only = request.args.get("active_only", "false").lower() == "true"
+    limit = int(request.args.get("limit", 100))
+    
+    if active_only:
+        alerts = alert_manager.get_active_alerts()
+    else:
+        alerts = alert_manager.get_all_alerts(limit)
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "alerts": alerts,
+            "total": len(alerts),
+            "active_count": len(alert_manager.get_active_alerts())
+        }
+    })
+
+
+@app.route("/api/observability/alerts/<alert_id>/acknowledge", methods=["POST"])
+def acknowledge_observability_alert(alert_id):
+    """Reconhece um alerta de observabilidade"""
+    success = alert_manager.acknowledge_alert(alert_id)
+    
+    if success:
+        return jsonify({"success": True, "message": f"Alert {alert_id} acknowledged"})
+    else:
+        return jsonify({"success": False, "error": "Alert not found"}), 404
+
+
+@app.route("/api/observability/alerts/<alert_id>/resolve", methods=["POST"])
+def resolve_observability_alert(alert_id):
+    """Resolve um alerta de observabilidade"""
+    success = alert_manager.resolve_alert(alert_id)
+    
+    if success:
+        return jsonify({"success": True, "message": f"Alert {alert_id} resolved"})
+    else:
+        return jsonify({"success": False, "error": "Alert not found"}), 404
+
+
+@app.route("/api/health/live", methods=["GET"])
+def liveness_check():
+    """
+    Kubernetes liveness probe
+    Retorna se o serviço está vivo
+    """
+    return jsonify(health_checker.get_liveness())
+
+
+@app.route("/api/health/ready", methods=["GET"])
+def readiness_check():
+    """
+    Kubernetes readiness probe
+    Retorna se o serviço está pronto para receber requisições
+    """
+    readiness = health_checker.get_readiness()
+    status_code = 200 if readiness["ready"] else 503
+    return jsonify(readiness), status_code
+
+
+@app.route("/api/health/detailed", methods=["GET"])
+def detailed_health():
+    """
+    Health check detalhado com status de todos os componentes
+    """
+    health = health_checker.check_all()
+    return jsonify({
+        "success": True,
+        "data": health.to_dict()
+    })
+
+
+def register_health_checks():
+    """Registra verificações de saúde dos componentes"""
+    health_checker.register_component("api", lambda: True)
+    
+    health_checker.register_component("ml_model", lambda: fraud_engine.is_trained)
+    
+    def check_db():
+        return db_persistence.is_available
+    health_checker.register_component("database", check_db)
+    
+    def check_cache():
+        try:
+            return redis_cache_system.is_healthy()
+        except:
+            return False
+    health_checker.register_component("cache", check_cache)
+
+
+register_health_checks()
+start_observability()
+start_async_infrastructure()
+
+
+@app.route("/api/infrastructure/queue/metrics", methods=["GET"])
+def get_queue_metrics():
+    """Retorna métricas da fila de tarefas assíncronas"""
+    return jsonify({
+        "success": True,
+        "data": async_task_queue.get_metrics()
+    })
+
+
+@app.route("/api/infrastructure/batch/process", methods=["POST"])
+@limiter.limit("50 per minute")
+def batch_process_transactions():
+    """
+    Processa transações em batch otimizado para alta performance
+    
+    Body:
+    - transactions: Lista de transações
+    - batch_size: Tamanho do batch (default: 100)
+    - include_explanation: Incluir explicações (default: false)
+    """
+    if not request.json or "transactions" not in request.json:
+        raise ValidationError("transactions field is required")
+    
+    transactions_data = request.json["transactions"]
+    batch_size = request.json.get("batch_size", 100)
+    include_explanation = request.json.get("include_explanation", False)
+    
+    if not fraud_engine.is_trained:
+        raise MLModelError("Model not trained")
+    
+    def process_single(txn):
+        df = pd.DataFrame([txn])
+        predictions = fraud_engine.predict_detailed(df)
+        pred = predictions[0]
+        
+        result = {
+            "is_fraud": pred.is_fraud,
+            "risk_score": round(pred.risk_score * 100, 1),
+            "risk_level": pred.risk_level
+        }
+        
+        if include_explanation and fraud_engine.last_features is not None:
+            exp = explainability_engine.explain_prediction(
+                fraud_engine.last_features,
+                transaction_id=str(txn.get("id", "unknown")),
+                fraud_probability=pred.risk_score
+            )
+            result["explanation_text"] = exp.explanation_text
+        
+        observability_metrics.increment("predictions_total")
+        if pred.is_fraud:
+            observability_metrics.increment("predictions_fraud")
+        else:
+            observability_metrics.increment("predictions_legitimate")
+        
+        return result
+    
+    batch_result = batch_processor.process_batch(
+        transactions_data,
+        process_single,
+        batch_size=batch_size
+    )
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "total": batch_result.total,
+            "successful": batch_result.successful,
+            "failed": batch_result.failed,
+            "processing_time_ms": round(batch_result.processing_time_ms, 2),
+            "throughput_tps": round(batch_result.total / (batch_result.processing_time_ms / 1000), 2) if batch_result.processing_time_ms > 0 else 0,
+            "results": batch_result.results,
+            "errors": batch_result.errors[:10]
+        }
+    })
+
+
+@app.route("/api/infrastructure/task/submit", methods=["POST"])
+def submit_async_task():
+    """
+    Submete tarefa de predição para processamento assíncrono
+    
+    Útil para transações que podem aguardar processamento (não tempo real)
+    """
+    if not request.json or "transaction" not in request.json:
+        raise ValidationError("transaction field is required")
+    
+    transaction = request.json["transaction"]
+    priority_name = request.json.get("priority", "NORMAL").upper()
+    
+    try:
+        priority = TaskPriority[priority_name]
+    except KeyError:
+        priority = TaskPriority.NORMAL
+    
+    def predict_task(txn):
+        if not fraud_engine.is_trained:
+            raise Exception("Model not trained")
+        df = pd.DataFrame([txn])
+        predictions = fraud_engine.predict_detailed(df)
+        return predictions[0].to_dict()
+    
+    task_id = async_task_queue.submit(predict_task, transaction, priority=priority)
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "task_id": task_id,
+            "priority": priority.name,
+            "message": "Task submitted for processing"
+        }
+    })
+
+
+@app.route("/api/infrastructure/task/<task_id>/status", methods=["GET"])
+def get_task_status(task_id):
+    """Retorna status de uma tarefa assíncrona"""
+    status = async_task_queue.get_task_status(task_id)
+    
+    if status is None:
+        return jsonify({"success": False, "error": "Task not found"}), 404
+    
+    return jsonify({
+        "success": True,
+        "data": status
+    })
 
 
 if __name__ == "__main__":
