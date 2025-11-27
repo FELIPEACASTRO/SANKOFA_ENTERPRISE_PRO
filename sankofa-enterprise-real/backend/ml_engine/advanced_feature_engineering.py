@@ -1,16 +1,18 @@
-import logging
-
-logger = logging.getLogger(__name__)
 """
 Advanced Feature Engineering - Cria features avançadas para detecção de fraude
+Inclui: Entropia de localização, padrões comportamentais, análise de velocidade
 """
 
+import logging
 import pandas as pd
 import numpy as np
 from typing import Dict, List
+from scipy.stats import entropy as scipy_entropy
 import warnings
 
 warnings.filterwarnings("ignore")
+
+logger = logging.getLogger(__name__)
 
 
 class AdvancedFeatureEngineering:
@@ -54,6 +56,12 @@ class AdvancedFeatureEngineering:
 
         # 7. Features de Velocidade
         df = self._create_velocity_features(df)
+
+        # 8. Features de Entropia de Localização (NOVA)
+        df = self._create_location_entropy_features(df)
+
+        # 9. Features de Padrão de Transação (NOVA)
+        df = self._create_transaction_pattern_features(df)
 
         return df
 
@@ -195,6 +203,99 @@ class AdvancedFeatureEngineering:
 
         return df
 
+    def _create_location_entropy_features(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Cria features de entropia de localização.
+        
+        Entropia alta = cliente transaciona em muitos locais diferentes (suspeito)
+        Entropia baixa = cliente transaciona em poucos locais (normal)
+        
+        Baseado em: AIForge - Feature Engineering Best Practices
+        """
+        location_col = None
+        for col in ["state", "city", "merchant_id", "location_id"]:
+            if col in df.columns:
+                location_col = col
+                break
+        
+        client_col = None
+        for col in ["client_cpf", "customer_id", "user_id"]:
+            if col in df.columns:
+                client_col = col
+                break
+        
+        if location_col and client_col:
+            def calculate_entropy(locations):
+                """Calcula entropia de Shannon para distribuição de locais"""
+                if len(locations) <= 1:
+                    return 0.0
+                value_counts = locations.value_counts(normalize=True)
+                return float(scipy_entropy(value_counts))
+            
+            location_entropy = df.groupby(client_col)[location_col].transform(calculate_entropy)
+            df["location_entropy"] = location_entropy.fillna(0)
+            
+            unique_locations = df.groupby(client_col)[location_col].transform("nunique")
+            df["unique_locations_count"] = unique_locations.fillna(1)
+            
+            df["is_diverse_locations"] = (df["location_entropy"] > 1.5).astype(int)
+            
+            df["location_entropy_normalized"] = df["location_entropy"] / (np.log(df["unique_locations_count"] + 1) + 1e-6)
+        else:
+            df["location_entropy"] = 0.0
+            df["unique_locations_count"] = 1
+            df["is_diverse_locations"] = 0
+            df["location_entropy_normalized"] = 0.0
+        
+        return df
+
+    def _create_transaction_pattern_features(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Cria features de padrões de transação.
+        
+        Detecta anomalias em padrões de hora, valor e frequência.
+        
+        Baseado em: AIForge - Behavioral Analytics
+        """
+        client_col = None
+        for col in ["client_cpf", "customer_id", "user_id"]:
+            if col in df.columns:
+                client_col = col
+                break
+        
+        value_col = "value" if "value" in df.columns else "amount" if "amount" in df.columns else None
+        
+        if client_col and value_col:
+            client_value_stats = df.groupby(client_col)[value_col].agg(["mean", "std", "median"])
+            client_value_stats.columns = ["client_mean_value", "client_std_value", "client_median_value"]
+            client_value_stats = client_value_stats.reset_index()
+            
+            df = df.merge(client_value_stats, on=client_col, how="left", suffixes=("", "_pattern"))
+            
+            df["client_std_value"] = df["client_std_value"].fillna(0)
+            df["value_zscore"] = (df[value_col] - df["client_mean_value"]) / (df["client_std_value"] + 1e-6)
+            
+            df["is_value_outlier"] = (np.abs(df["value_zscore"]) > 2).astype(int)
+            
+            df["value_to_median_ratio"] = df[value_col] / (df["client_median_value"] + 1e-6)
+            df["is_above_median"] = (df["value_to_median_ratio"] > 2).astype(int)
+        
+        if client_col and "hour" in df.columns:
+            def hour_entropy(hours):
+                if len(hours) <= 1:
+                    return 0.0
+                value_counts = hours.value_counts(normalize=True)
+                return float(scipy_entropy(value_counts))
+            
+            hour_pattern = df.groupby(client_col)["hour"].transform(hour_entropy)
+            df["hour_entropy"] = hour_pattern.fillna(0)
+            
+            client_hour_mode = df.groupby(client_col)["hour"].transform(lambda x: x.mode().iloc[0] if len(x.mode()) > 0 else 12)
+            df["hour_deviation"] = np.abs(df["hour"] - client_hour_mode)
+            df["is_unusual_hour"] = (df["hour_deviation"] > 6).astype(int)
+        
+        return df
+
     def get_feature_names(self) -> List[str]:
         """Retorna lista de nomes de features criadas."""
         return [
@@ -235,4 +336,17 @@ class AdvancedFeatureEngineering:
             "time_since_last_transaction",
             "is_rapid_transaction",
             "is_very_rapid_transaction",
+            # Entropia de Localização (NOVAS)
+            "location_entropy",
+            "unique_locations_count",
+            "is_diverse_locations",
+            "location_entropy_normalized",
+            # Padrões de Transação (NOVAS)
+            "value_zscore",
+            "is_value_outlier",
+            "value_to_median_ratio",
+            "is_above_median",
+            "hour_entropy",
+            "hour_deviation",
+            "is_unusual_hour",
         ]
