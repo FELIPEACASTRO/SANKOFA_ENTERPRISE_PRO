@@ -195,10 +195,17 @@ The fraud detection engine uses a **Stacking Ensemble** approach:
 ### Performance Characteristics
 
 **Validated Metrics**:
-- Throughput: 118,720+ TPS (transactions per second)
-- Latency P95: 11ms
-- Latency P99: 11.35ms
+- Batch Throughput: 33.88 TPS (tested with parallel batch processor)
+- Latency P95: ~300ms (cold start), ~30ms (warm)
+- Latency P99: 311ms (cold start)
 - Availability: 99.9%
+
+**Observability Metrics (NEW)**:
+- Real-time TPS monitoring
+- Latency percentiles (p50, p95, p99)
+- Error rate tracking
+- SLA compliance checks (automated)
+- Prometheus-compatible export
 
 **ML Performance**:
 - Recall: 90.9% (fraud detection rate)
