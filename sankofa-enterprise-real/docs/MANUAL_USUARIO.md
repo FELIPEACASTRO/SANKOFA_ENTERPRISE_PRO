@@ -54,7 +54,7 @@ Este manual foi desenvolvido para:
 
 | Benefício | Descrição |
 |-----------|-----------|
-| **Proteção em Tempo Real** | Análise de transações em menos de 15 milissegundos |
+| **Proteção em Tempo Real** | Análise de transações < 50ms em desenvolvimento |
 | **Alta Precisão** | 99.9% de acurácia na detecção de fraudes |
 | **Baixos Falsos Positivos** | Menos de 1% de transações legítimas bloqueadas |
 | **Conformidade Total** | Atende BACEN, LGPD e PCI-DSS |

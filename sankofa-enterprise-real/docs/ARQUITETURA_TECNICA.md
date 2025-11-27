@@ -228,7 +228,7 @@ sankofa-enterprise-real/
 
 A API principal do sistema, responsável por:
 
-- **30+ endpoints REST** para todas as operações
+- **~22 endpoints REST** para todas as operações
 - **Autenticação JWT** com rotação automática de chaves
 - **Rate Limiting** configurável por endpoint
 - **CORS** para integração com frontend
