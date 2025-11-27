@@ -257,19 +257,25 @@
 |  └─────────────────────────────────────────────────────────────────────────┘ |
 |                                                                               |
 |  ┌─────────────────────────────────────────────────────────────────────────┐ |
-|  │  🤖 tl.md  ★ NOVO ★                                                      │ |
-|  │  ━━━━━━━━━━━━━━━━━                                                        │ |
+|  │  🤖 tl.md  ★ EXPANDIDO v12.1 ★                                           │ |
+|  │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                             │ |
 |  │                                                                          │ |
-|  │  Transfer Learning para Deteccao de Fraude                              │ |
+|  │  Transfer Learning para Deteccao de Fraude - 60 Historias               │ |
 |  │                                                                          │ |
-|  │  Conteudo:                                                               │ |
-|  │  • BERT4ETH: 6 padroes de fraude em criptomoedas                        │ |
-|  │  • FraudGT: 6 padroes de lavagem em grafos                              │ |
-|  │  • FinBERT/GPT-2: 6 padroes de fraude contabil                          │ |
-|  │  • FraudTransformer: 6 padroes em tempo real                            │ |
-|  │  • Autoencoders: 6 padroes de anomalias                                 │ |
+|  │  TECNOLOGIAS COBERTAS (10):                                             │ |
+|  │  • BERT4ETH: Fraudes em criptomoedas/Ethereum                           │ |
+|  │  • FraudGT: Lavagem de dinheiro em grafos                               │ |
+|  │  • FinBERT/GPT-2: Fraude contabil e SEC                                 │ |
+|  │  • FraudTransformer: Tempo real (HSBC)                                  │ |
+|  │  • Autoencoders: Deteccao de anomalias                                  │ |
+|  │  • LSTM/GRU: Sequencias temporais (IBM z/OS)                            │ |
+|  │  • TabTransformer: Caso Stripe ($6B recuperados)                        │ |
+|  │  • Federated Learning: Multi-bancos (Google/Swift)                      │ |
+|  │  • VAE: Autoencoders variacionais                                       │ |
+|  │  • GNN: Graph Neural Networks (NVIDIA)                                  │ |
 |  │                                                                          │ |
-|  │  Paginas: ~1200 linhas | Fontes: 12 repositorios GitHub                 │ |
+|  │  CASOS REAIS: Stripe, Swift, IBM, NVIDIA, PayPal                        │ |
+|  │  Paginas: ~2900 linhas | Fontes: 25+ repositorios GitHub                │ |
 |  │                                                                          │ |
 |  └─────────────────────────────────────────────────────────────────────────┘ |
 |                                                                               |

@@ -30,7 +30,7 @@ Complete documentation is available in the `sankofa-enterprise-real/docs/` folde
 | [DIAGRAMAS.md](sankofa-enterprise-real/docs/DIAGRAMAS.md) | Flowcharts, architecture diagrams |
 | [BLUEPRINT_MOTOR_FRAUDE_300M.md](sankofa-enterprise-real/docs/BLUEPRINT_MOTOR_FRAUDE_300M.md) | Enterprise blueprint for 300M req/day |
 | [DataSets.md](sankofa-enterprise-real/docs/DataSets.md) | **NEW!** 50 fraud stories (PIX, Credit, Debit, Money Laundering, Combined) |
-| [tl.md](sankofa-enterprise-real/docs/tl.md) | **NEW!** Transfer Learning guide - 30 fraud patterns from AI models |
+| [tl.md](sankofa-enterprise-real/docs/tl.md) | **EXPANDED!** Transfer Learning guide - 60 fraud patterns from 10 AI technologies |
 
 ## New Features v12.0
 

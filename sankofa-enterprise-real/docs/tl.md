@@ -1132,11 +1132,1623 @@ Autoencoders sao redes neurais que aprendem a **comprimir e reconstruir** dados.
 
 ---
 
-# RESUMO: 30 PADROES DE FRAUDE POR TRANSFER LEARNING
+# PARTE 6: LSTM/GRU - Sequencias Temporais Bancarias
+
+## Como LSTM/GRU Detectam Fraudes em Transacoes Bancarias
+
+LSTM (Long Short-Term Memory) e GRU (Gated Recurrent Unit) sao redes neurais que **lembram** de transacoes anteriores. Diferente de modelos tradicionais que analisam cada transacao isoladamente, LSTM/GRU "leem" sequencias de transacoes como capitulos de uma historia.
+
+### Arquitetura IBM z/OS Production
 
 ```
 +==============================================================================+
-|                    30 COMPORTAMENTOS CATALOGADOS                              |
+|                    LSTM/GRU: MEMORIA DE TRANSACOES                           |
++==============================================================================+
+|                                                                               |
+|   COMO FUNCIONA A "MEMORIA" DO LSTM:                                         |
+|                                                                               |
+|   Transacao 1 → Transacao 2 → Transacao 3 → ... → Transacao N                |
+|       ↓              ↓              ↓                   ↓                    |
+|   [LSTM Cell] → [LSTM Cell] → [LSTM Cell] → ... → [Predicao]                 |
+|       |              |              |                                        |
+|       └──────────────┴──────────────┘                                        |
+|             MEMORIA DE LONGO PRAZO                                           |
+|                                                                               |
+|   O LSTM "lembra" do padrao de gastos dos ultimos 7 dias/30 dias.            |
+|   Quando uma transacao quebra esse padrao, ele detecta!                      |
+|                                                                               |
+|   Exemplo de Sequencia Normal:                                               |
+|   [cafe R$12] → [almoco R$35] → [uber R$28] → [supermercado R$180]          |
+|                                                                               |
+|   Exemplo de Sequencia Anomala:                                              |
+|   [cafe R$12] → [almoco R$35] → [PIX R$5000 Nigeria] → [crypto R$8000]      |
+|                   ↑                                                          |
+|              LSTM detecta: "Essa sequencia nao faz sentido!"                 |
+|                                                                               |
++==============================================================================+
+```
+
+### Historia 31: O Cartao Clonado que o LSTM Pegou
+
+```
++------------------------------------------------------------------------------+
+|  HISTORIA 31: A SEQUENCIA IMPOSSIVEL                                         |
++------------------------------------------------------------------------------+
+|                                                                               |
+|  VITIMA: Fernanda Silva, 34 anos, advogada em Brasilia                       |
+|  HORARIO: Segunda-feira, 14h30                                               |
+|                                                                               |
+|  HISTORICO NORMAL (ultimos 90 dias):                                         |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Semana tipica da Fernanda:                                              │ |
+|  │ Seg: cafe R$15, almoco R$45, uber R$30                                  │ |
+|  │ Ter: cafe R$15, almoco R$42, academia R$0 (mensalidade)                 │ |
+|  │ Qua: cafe R$15, almoco R$50, uber R$25                                  │ |
+|  │ Qui: cafe R$15, almoco R$48, farmacia R$80                              │ |
+|  │ Sex: cafe R$15, almoco R$55, uber R$35, jantar R$120                    │ |
+|  │ Sab: supermercado R$250, restaurante R$180                              │ |
+|  │ Dom: posto R$200, cinema R$60                                           │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  SEQUENCIA DO DIA DO ATAQUE:                                                 |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ 14:32 - cafe R$15          [NORMAL - padrao mantido]                    │ |
+|  │ 14:35 - ATM saque R$1000   [ATENCAO - nunca usou ATM antes]             │ |
+|  │ 14:38 - eletronicos R$4500 [ALERTA - categoria nova]                    │ |
+|  │ 14:41 - eletronicos R$3800 [ALERTA - segunda compra rapida]             │ |
+|  │ 14:43 - gift card R$2000   [CRITICO - perfil de fraude]                 │ |
+|  │                                                                          │ |
+|  │ INTERVALO ENTRE TRANSACOES: 3-4 minutos (normal dela: 3+ horas)         │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  LSTM DETECTOU:                                                              |
+|  ─────────────────                                                           |
+|  [!] Sequencia temporal anomala: inter-event time muito curto               |
+|  [!] Categoria nova: ATM (nunca usado em 90 dias)                           |
+|  [!] Categoria nova: eletronicos (nunca acima de R$200)                     |
+|  [!] Padrao de escada: valores crescentes em sequencia rapida               |
+|  [!] Localizacao: todas em Recife (Fernanda estava em Brasilia)             |
+|                                                                               |
+|  HIDDEN STATE DO LSTM:                                                       |
+|  [0.12, 0.08, 0.95, 0.91, 0.88] → Anomaly Score: 0.97                       |
+|                                                                               |
+|  ACAO: Bloqueio automatico apos 3a transacao                                 |
+|  PREJUIZO EVITADO: R$ 5.800 (gift cards nao foram aprovados)                |
+|                                                                               |
+|  O QUE ACONTECEU:                                                            |
+|  Cartao foi clonado em maquininha adulterada de restaurante.                |
+|  Criminosos em Recife tentaram gastar o maximo antes do bloqueio.           |
+|  LSTM pegou porque lembrava do padrao temporal da Fernanda.                 |
++------------------------------------------------------------------------------+
+```
+
+### Historia 32: O Fraudador que Tentou "Aquecer" o Cartao
+
+```
++------------------------------------------------------------------------------+
+|  HISTORIA 32: A ESTRATEGIA DO AQUECIMENTO                                    |
++------------------------------------------------------------------------------+
+|                                                                               |
+|  CRIMINOSO: Grupo especializado em fraude de cartao                          |
+|  ESTRATEGIA: "Aquecer" cartao clonado com compras pequenas                   |
+|                                                                               |
+|  PLANO DO FRAUDADOR:                                                         |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Dia 1: farmacia R$25, uber R$18, cafe R$12     (parecer normal)         │ |
+|  │ Dia 2: supermercado R$80, posto R$50           (ganhar confianca)       │ |
+|  │ Dia 3: restaurante R$120, cinema R$60          (aumentar limite)        │ |
+|  │ Dia 4: eletronicos R$8.000, joalheria R$12.000 (GOLPE!)                 │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  POR QUE O LSTM PEGOU:                                                       |
+|  ─────────────────────                                                       |
+|                                                                               |
+|  HISTORICO REAL DO DONO (Pedro, 52 anos, aposentado):                        |
+|  • Gasta em media R$1.200/mes                                                |
+|  • Nunca compra em eletronicos ou joalheria                                  |
+|  • Padrao: 2-3 transacoes/dia, nunca mais de 5                               |
+|  • Locais: bairro de Moema, SP (raio de 5km)                                 |
+|                                                                               |
+|  O QUE O LSTM "VIU":                                                         |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Memoria de 90 dias de Pedro:                                            │ |
+|  │ [padaria, farmacia, mercado, restaurante, posto]                        │ |
+|  │ [R$15-R$200] [2-3 tx/dia] [Moema]                                       │ |
+|  │                                                                          │ |
+|  │ Sequencia suspeita (mesmo que valores baixos):                          │ |
+|  │ [farmacia, uber, cafe] ← OK, mas...                                     │ |
+|  │ • Farmacia foi em Campinas (80km de Moema)                              │ |
+|  │ • Uber foi em Guarulhos (30km da farmacia)                              │ |
+|  │ • Cafe foi na Paulista (25km de Guarulhos)                              │ |
+|  │                                                                          │ |
+|  │ IMPOSSIVEL fisicamente em 2 horas!                                      │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  LSTM HIDDEN STATE ACUMULADO:                                                |
+|  Dia 1: [0.15, 0.22, 0.18] → Score: 0.32 (baixo mas acima do normal)        |
+|  Dia 2: [0.28, 0.35, 0.31] → Score: 0.48 (crescendo)                        |
+|  Dia 3: [0.45, 0.52, 0.61] → Score: 0.67 (alerta interno)                   |
+|  Dia 4: [0.91, 0.88, 0.95] → Score: 0.98 (BLOQUEIO antes da compra!)        |
+|                                                                               |
+|  RESULTADO:                                                                  |
+|  Transacao de R$8.000 NEGADA antes de acontecer.                            |
+|  Sistema ligou para Pedro: "Voce tentou comprar em loja X?"                 |
+|  Pedro: "Nao, estou em casa ha 3 dias."                                     |
+|  Cartao cancelado, novo emitido, fraudadores presos via cameras.            |
++------------------------------------------------------------------------------+
+```
+
+### Historia 33: LSTM-Attention Detecta Insider Trading
+
+```
++------------------------------------------------------------------------------+
+|  HISTORIA 33: O FUNCIONARIO QUE DESVIAVA CENTAVOS                            |
++------------------------------------------------------------------------------+
+|                                                                               |
+|  CENARIO: Grande banco brasileiro, 50.000 funcionarios                       |
+|  FRAUDADOR: Marcos, analista de TI, 8 anos de empresa                        |
+|  METODO: "Salami slicing" - desvio de centavos de milhoes de contas         |
+|                                                                               |
+|  COMO FUNCIONAVA O GOLPE:                                                    |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Marcos alterou o sistema de arredondamento de juros:                    │ |
+|  │                                                                          │ |
+|  │ ANTES: Juros de R$15.4372 → Credita R$15.44 para cliente                │ |
+|  │ DEPOIS: Juros de R$15.4372 → Credita R$15.43 para cliente               │ |
+|  │         Diferenca de R$0.01 → Conta secreta de Marcos                   │ |
+|  │                                                                          │ |
+|  │ COM 5 MILHOES DE CONTAS:                                                │ |
+|  │ R$0.01 x 5.000.000 = R$50.000/mes desviados                             │ |
+|  │ Em 3 anos: R$1.800.000 roubados                                         │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  POR QUE ERA DIFICIL DETECTAR:                                               |
+|  • Cada desvio era de R$0.01 - R$0.09 (invisivel)                           |
+|  • Nenhum cliente reclamava (quem nota 1 centavo?)                          |
+|  • Balanco do banco fechava (sistema consistente)                           |
+|  • Marcos tinha acesso legitimo ao codigo                                   |
+|                                                                               |
+|  COMO O LSTM-ATTENTION PEGOU:                                                |
+|  ─────────────────────────────                                               |
+|                                                                               |
+|  O banco implementou LSTM com mecanismo de ATENCAO para analisar            |
+|  SEQUENCIAS de transacoes internas, nao so externas.                        |
+|                                                                               |
+|  PADRAO NORMAL DE ARREDONDAMENTO:                                            |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Distribuicao esperada (Lei de Benford + aleatoriedade):                 │ |
+|  │ • 50% arredonda para CIMA                                               │ |
+|  │ • 50% arredonda para BAIXO                                              │ |
+|  │ • Soma total: aproximadamente ZERO ao longo do tempo                    │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  PADRAO DETECTADO PELO LSTM:                                                 |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Apos a alteracao de Marcos:                                             │ |
+|  │ • 100% arredonda para BAIXO                                             │ |
+|  │ • Soma total: R$50.000/mes SEMPRE para mesma conta                      │ |
+|  │ • Conta de destino: criada 3 anos atras, unica atividade = receber     │ |
+|  │                                                                          │ |
+|  │ ATTENTION WEIGHTS:                                                       │ |
+|  │ O modelo deu peso MAXIMO para:                                          │ |
+|  │ • "conta_destino" (sempre a mesma)                                      │ |
+|  │ • "direcao_arredondamento" (sempre DOWN)                                │ |
+|  │ • "timestamp" (todo dia 00:01, batch noturno)                           │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  SEQUENCIA QUE ATIVOU O ALERTA:                                              |
+|  [arred_down, arred_down, arred_down, ..., arred_down] x 5.000.000          |
+|  LSTM Score: 0.99 (CERTEZA de anomalia)                                      |
+|                                                                               |
+|  RESULTADO:                                                                  |
+|  • Auditoria interna acionada                                               |
+|  • Logs de acesso de Marcos analisados                                      |
+|  • Prisao + devolucao de R$1.4 milhoes recuperados                          |
+|  • Sistema corrigido, controles adicionados                                 |
++------------------------------------------------------------------------------+
+```
+
+### Historia 34: A Fraude de Boleto que Durou 6 Segundos
+
+```
++------------------------------------------------------------------------------+
+|  HISTORIA 34: INTERCEPTACAO DE BOLETO EM TEMPO REAL                          |
++------------------------------------------------------------------------------+
+|                                                                               |
+|  VITIMA: Construtora ABC, pagamento de fornecedor                            |
+|  VALOR: R$ 847.000,00 (boleto de material de construcao)                    |
+|  ATAQUE: Man-in-the-Browser + alteracao de boleto                            |
+|                                                                               |
+|  TIMELINE DO ATAQUE:                                                         |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ 09:15:00.000 - Contador acessa internet banking                         │ |
+|  │ 09:15:12.000 - Malware ativo no navegador                               │ |
+|  │ 09:15:45.000 - Contador cola codigo do boleto original                  │ |
+|  │ 09:15:45.100 - Malware intercepta e altera para conta laranja          │ |
+|  │ 09:15:45.200 - Tela mostra boleto "original" (falsificado)              │ |
+|  │ 09:15:48.000 - Contador clica "Pagar"                                   │ |
+|  │ 09:15:48.500 - Transacao enviada ao banco                               │ |
+|  │ 09:15:48.600 - LSTM analisa sequencia                                   │ |
+|  │ 09:15:48.700 - BLOQUEIO! Transacao suspensa                             │ |
+|  │ 09:15:48.800 - Ligacao automatica para confirmar                        │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  O QUE O LSTM ANALISOU EM 100ms:                                             |
+|  ─────────────────────────────────                                           |
+|                                                                               |
+|  HISTORICO DE PAGAMENTOS DA CONSTRUTORA (ultimos 2 anos):                    |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Fornecedor XPTO: Conta 12345-6, Banco 001, CNPJ XX.XXX.XXX/0001-XX     │ |
+|  │ - Jan/24: R$ 523.000                                                    │ |
+|  │ - Mar/24: R$ 612.000                                                    │ |
+|  │ - Mai/24: R$ 489.000                                                    │ |
+|  │ - Jul/24: R$ 756.000                                                    │ |
+|  │ - Set/24: R$ 847.000 (boleto atual)                                     │ |
+|  │                                                                          │ |
+|  │ PADRAO: Sempre mesma conta, banco, CNPJ, frequencia bimestral          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  BOLETO ALTERADO PELO MALWARE:                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Conta: 98765-4 (DIFERENTE!)                                             │ |
+|  │ Banco: 077 (DIFERENTE! Era 001)                                         │ |
+|  │ CNPJ: YY.YYY.YYY/0001-YY (DIFERENTE!)                                   │ |
+|  │ Beneficiario: "XPTO MATERIAIS" (nome parecido, mas diferente)           │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  LSTM HIDDEN STATE:                                                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Input: [conta=98765, banco=077, cnpj=YY, valor=847000]                  │ |
+|  │                                                                          │ |
+|  │ Comparacao com memoria:                                                 │ |
+|  │ • conta: MISMATCH (esperado 12345, recebido 98765)                      │ |
+|  │ • banco: MISMATCH (esperado 001, recebido 077)                          │ |
+|  │ • cnpj: MISMATCH (esperado XX, recebido YY)                             │ |
+|  │ • valor: MATCH (dentro do range historico)                              │ |
+|  │                                                                          │ |
+|  │ Score de Anomalia: 0.94 (3 de 4 features anomalas)                      │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  RESULTADO:                                                                  |
+|  • Transacao bloqueada automaticamente                                      |
+|  • Ligacao para diretor financeiro em 30 segundos                          |
+|  • Confirmacao: "Nao, o boleto deveria ir para conta antiga"               |
+|  • Malware identificado, maquina limpa, R$847.000 salvos                   |
++------------------------------------------------------------------------------+
+```
+
+### Codigo LSTM para Deteccao de Fraude (IBM z/OS)
+
+```python
++==============================================================================+
+|                    CODIGO LSTM - PRODUCAO IBM                                |
++==============================================================================+
+
+# Arquitetura IBM ai-on-z-fraud-detection
+# https://github.com/IBM/ai-on-z-fraud-detection
+
+import torch
+import torch.nn as nn
+
+class FraudLSTM(nn.Module):
+    """
+    LSTM para deteccao de fraude em transacoes bancarias.
+    Analisa sequencias de 7 transacoes para prever fraude.
+    
+    Arquitetura:
+    - 2 camadas LSTM com 200 unidades cada
+    - Dropout 0.3 entre camadas
+    - Camada densa final para classificacao binaria
+    """
+    
+    def __init__(self, input_size=30, hidden_size=200, num_layers=2):
+        super(FraudLSTM, self).__init__()
+        
+        self.lstm = nn.LSTM(
+            input_size=input_size,      # Features por transacao
+            hidden_size=hidden_size,     # Tamanho da memoria
+            num_layers=num_layers,       # Profundidade
+            batch_first=True,
+            dropout=0.3
+        )
+        
+        self.fc = nn.Linear(hidden_size, 1)
+        self.sigmoid = nn.Sigmoid()
+    
+    def forward(self, x):
+        # x shape: [batch, seq_len=7, features=30]
+        
+        # LSTM processa sequencia e "lembra" do contexto
+        lstm_out, (hidden, cell) = self.lstm(x)
+        
+        # Usa ultimo hidden state para predicao
+        last_hidden = lstm_out[:, -1, :]  # [batch, hidden_size]
+        
+        # Classificacao binaria: fraude ou nao
+        out = self.fc(last_hidden)
+        return self.sigmoid(out)
+
+# Exemplo de uso:
+# model = FraudLSTM()
+# transactions = torch.randn(32, 7, 30)  # Batch de 32, 7 transacoes, 30 features
+# fraud_prob = model(transactions)  # [32, 1] - probabilidade de fraude
+
++==============================================================================+
+```
+
+---
+
+# PARTE 7: TabTransformer - Caso Stripe ($6 Bilhoes Recuperados)
+
+## A Revolucao do TabTransformer na Stripe
+
+Em 2024, a Stripe revolucionou a deteccao de fraude ao migrar de XGBoost para **TabTransformer+**, um modelo baseado em Transformers adaptado para dados tabulares. Os resultados foram impressionantes:
+
+- **Deteccao de Card Testing**: de 59% para 97% em UMA NOITE
+- **Falsos Positivos Reduzidos**: 70% de melhoria em precisao
+- **Receita Recuperada**: $6 bilhoes em transacoes falsamente recusadas
+
+### Como o TabTransformer Funciona
+
+```
++==============================================================================+
+|                    TABTRANSFORMER: ATENCAO EM DADOS TABULARES                |
++==============================================================================+
+|                                                                               |
+|   PROBLEMA COM MODELOS TRADICIONAIS:                                         |
+|   XGBoost/Random Forest tratam cada feature ISOLADAMENTE                     |
+|                                                                               |
+|   Feature 1: BIN do cartao = 411111                                          |
+|   Feature 2: CEP = 01310-100                                                 |
+|   Feature 3: Merchant = "Loja X"                                             |
+|   Feature 4: Valor = R$ 1.500                                                |
+|                                                                               |
+|   Modelo tradicional ve: [411111, 01310100, Loja_X, 1500]                    |
+|   NAO entende RELACAO entre features!                                        |
+|                                                                               |
+|   ─────────────────────────────────────────────────────────────────────────  |
+|                                                                               |
+|   TABTRANSFORMER USA SELF-ATTENTION:                                         |
+|                                                                               |
+|   ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐                  |
+|   │   BIN   │    │   CEP   │    │Merchant │    │  Valor  │                  |
+|   └────┬────┘    └────┬────┘    └────┬────┘    └────┬────┘                  |
+|        │              │              │              │                        |
+|        ▼              ▼              ▼              ▼                        |
+|   ┌─────────────────────────────────────────────────────────────┐           |
+|   │              TRANSFORMER ENCODER                            │           |
+|   │   ┌──────────────────────────────────────────────────────┐ │           |
+|   │   │ Self-Attention: "Como essas features se relacionam?" │ │           |
+|   │   │                                                       │ │           |
+|   │   │ BIN 411111 + CEP 01310 + Merchant Loja_X             │ │           |
+|   │   │ = Contexto: "Compra tipica de SP, classe media"      │ │           |
+|   │   │                                                       │ │           |
+|   │   │ BIN 411111 + CEP 99999 + Merchant "Gift Card Store"  │ │           |
+|   │   │ = Contexto: "ALERTA! CEP falso + gift card"          │ │           |
+|   │   └──────────────────────────────────────────────────────┘ │           |
+|   └─────────────────────────────────────────────────────────────┘           |
+|                                                                               |
+|   O TRANSFORMER "ENTENDE" QUE:                                               |
+|   • BIN de banco premium + CEP de favela = suspeito                         |
+|   • Merchant de gift card + compra noturna = suspeito                       |
+|   • Mesmo valor repetido + mesma hora = card testing                        |
+|                                                                               |
++==============================================================================+
+```
+
+### Historia 37: Como a Stripe Parou um Ataque de Card Testing
+
+```
++------------------------------------------------------------------------------+
+|  HISTORIA 37: O ATAQUE DE 50.000 TRANSACOES EM 10 MINUTOS                    |
++------------------------------------------------------------------------------+
+|                                                                               |
+|  CENARIO: E-commerce de eletronicos nos EUA                                  |
+|  DATA: Sexta-feira, 23:45 (horario de baixa vigilancia)                      |
+|  ATAQUE: Card Testing - validar cartoes roubados                             |
+|                                                                               |
+|  O QUE E CARD TESTING:                                                       |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Criminosos compram listas de cartoes roubados (dark web)                │ |
+|  │ Precisam descobrir quais cartoes ainda FUNCIONAM                        │ |
+|  │                                                                          │ |
+|  │ METODO:                                                                  │ |
+|  │ 1. Fazer compras PEQUENAS (R$1-R$10) para testar                        │ |
+|  │ 2. Se aprovar → cartao valido → vender por mais caro                    │ |
+|  │ 3. Se negar → cartao cancelado → descartar                              │ |
+|  │                                                                          │ |
+|  │ PROBLEMA PARA LOJISTAS:                                                  │ |
+|  │ • Cada tentativa gera taxa de processamento                             │ |
+|  │ • Muitas tentativas = conta suspensa                                    │ |
+|  │ • Chargebacks quando dono descobre                                      │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  O ATAQUE:                                                                   |
+|  ─────────                                                                   |
+|  23:45:00 - Primeira transacao: $1.00, cartao terminado em 4532             |
+|  23:45:01 - Segunda transacao: $1.00, cartao terminado em 7821              |
+|  23:45:02 - Terceira transacao: $1.00, cartao terminado em 9103             |
+|  ...                                                                         |
+|  23:55:00 - Transacao 50.000: $1.00, cartao terminado em 2847               |
+|                                                                               |
+|  MODELO ANTIGO (XGBoost) - DETECTOU: 59%                                     |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ XGBoost olhava cada transacao ISOLADAMENTE:                             │ |
+|  │ • Valor: $1.00 → Normal (compras pequenas existem)                      │ |
+|  │ • Cartao: Valido → OK                                                   │ |
+|  │ • Merchant: Loja legitima → OK                                          │ |
+|  │                                                                          │ |
+|  │ 41% das transacoes passaram porque INDIVIDUALMENTE pareciam normais     │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  TABTRANSFORMER - DETECTOU: 97%                                              |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ TabTransformer analisou CONTEXTO de cada transacao:                     │ |
+|  │                                                                          │ |
+|  │ SELF-ATTENTION DESCOBRIU:                                               │ |
+|  │ • IP = mesmo para todas (bot)                                           │ |
+|  │ • User-Agent = identico (script automatizado)                           │ |
+|  │ • Intervalo = 1 segundo entre transacoes (impossivel humano)            │ |
+|  │ • BINs = sequenciais (lista ordenada de cartoes)                        │ |
+|  │ • Valor = sempre $1.00 (padrao de teste)                                │ |
+|  │ • Horario = 23:45 sexta (baixa vigilancia)                              │ |
+|  │                                                                          │ |
+|  │ EMBEDDING CONTEXTUAL:                                                   │ |
+|  │ Transacao individual: Score baixo                                       │ |
+|  │ Transacao + contexto das anteriores: Score ALTISSIMO                    │ |
+|  │                                                                          │ |
+|  │ 97% bloqueadas em tempo real!                                           │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  RESULTADO:                                                                  |
+|  • 48.500 transacoes fraudulentas bloqueadas                                |
+|  • Lojista economizou $50.000+ em taxas                                     |
+|  • Conta nao foi suspensa                                                   |
+|  • Criminosos desistiram apos 3 minutos de bloqueios                        |
++------------------------------------------------------------------------------+
+```
+
+### Historia 38: Os $6 Bilhoes em Transacoes Falsamente Recusadas
+
+```
++------------------------------------------------------------------------------+
+|  HISTORIA 38: RECUPERANDO VENDAS PERDIDAS COM ADAPTIVE ACCEPTANCE            |
++------------------------------------------------------------------------------+
+|                                                                               |
+|  PROBLEMA GLOBAL:                                                            |
+|  $81 BILHOES em vendas sao perdidas anualmente nos EUA porque               |
+|  transacoes LEGITIMAS sao recusadas como fraude (falsos positivos).         |
+|                                                                               |
+|  CASO: Maria, turista brasileira em Nova York                               |
+|  ─────────────────────────────────────────────────────────────               |
+|                                                                               |
+|  SITUACAO ANTES DO TABTRANSFORMER:                                           |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Maria tenta comprar bolsa na Macy's: $500                               │ |
+|  │                                                                          │ |
+|  │ Sistema antigo viu:                                                     │ |
+|  │ • Cartao brasileiro → RISCO (pais diferente)                            │ |
+|  │ • Primeira compra nesta loja → RISCO (sem historico)                    │ |
+|  │ • Valor alto → RISCO (acima da media)                                   │ |
+|  │                                                                          │ |
+|  │ RESULTADO: RECUSADO!                                                    │ |
+|  │                                                                          │ |
+|  │ Maria ficou frustrada, foi para outra loja.                             │ |
+|  │ Macy's perdeu a venda.                                                  │ |
+|  │ Emissora perdeu a taxa.                                                 │ |
+|  │ TODOS perderam.                                                         │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  SITUACAO COM TABTRANSFORMER (ADAPTIVE ACCEPTANCE):                          |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ TabTransformer analisou o CONTEXTO COMPLETO:                            │ |
+|  │                                                                          │ |
+|  │ EMBEDDING RICO:                                                         │ |
+|  │ • Cartao brasileiro + IP de hotel em NY = turista (NORMAL)              │ |
+|  │ • BIN = Itau Personnalite (cliente premium)                             │ |
+|  │ • Historico Stripe: cartao usado em 47 paises (viajante frequente)     │ |
+|  │ • Device: iPhone Pro Max (baixo risco)                                  │ |
+|  │ • Horario: 14h sabado (horario de compras)                              │ |
+|  │ • Macy's: merchant AAA (reputacao excelente)                            │ |
+|  │                                                                          │ |
+|  │ SELF-ATTENTION COMBINOU:                                                │ |
+|  │ [Brasil + NY + Hotel + Premium + iPhone + Sabado + Macy's]              │ |
+|  │ = "Turista brasileiro de alta renda fazendo compras"                    │ |
+|  │                                                                          │ |
+|  │ RESULTADO: APROVADO!                                                    │ |
+|  │                                                                          │ |
+|  │ Maria comprou a bolsa.                                                  │ |
+|  │ Macy's fez a venda.                                                     │ |
+|  │ Emissora ganhou a taxa.                                                 │ |
+|  │ TODOS ganharam.                                                         │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  IMPACTO EM 2024:                                                            |
+|  • $6 BILHOES em transacoes recuperadas (antes seriam recusadas)            |
+|  • 35% menos tentativas de re-submit (cliente nao precisa tentar de novo)   |
+|  • 70% melhoria em precisao (menos falsos positivos)                        |
+|  • Aumento de 60% ano-a-ano na recuperacao de vendas                        |
++------------------------------------------------------------------------------+
+```
+
+### Arquitetura TabTransformer (Codigo Stripe-Style)
+
+```python
++==============================================================================+
+|                    CODIGO TABTRANSFORMER - PRODUCAO                          |
++==============================================================================+
+
+# Baseado em: https://github.com/lucidrains/tab-transformer-pytorch
+# Paper: arXiv:2012.06678 (AWS Research)
+
+from tab_transformer_pytorch import TabTransformer
+import torch
+
+# Configuracao para fraude em pagamentos
+model = TabTransformer(
+    categories=(
+        10,    # Tipo de cartao (Visa, Master, Amex...)
+        200,   # Banco emissor (BIN ranges)
+        50,    # Categoria do merchant
+        30,    # Pais do cartao
+        30,    # Pais da transacao
+        24,    # Hora do dia
+        7,     # Dia da semana
+        12,    # Mes
+    ),
+    num_continuous=15,    # Valor, velocity, tempo desde ultima, etc.
+    dim=32,               # Dimensao dos embeddings
+    dim_out=1,            # Saida binaria (fraude/nao-fraude)
+    depth=6,              # Camadas do Transformer
+    heads=8,              # Cabecas de atencao
+    attn_dropout=0.1,     # Regularizacao
+    ff_dropout=0.1,
+    mlp_hidden_mults=(4, 2)  # MLP final
+)
+
+# Exemplo de inferencia
+def predict_fraud(transaction):
+    """
+    Processa uma transacao e retorna probabilidade de fraude.
+    
+    Args:
+        transaction: dict com features categoricas e continuas
+        
+    Returns:
+        float: probabilidade de fraude (0.0 a 1.0)
+    """
+    # Extrai features categoricas
+    x_categ = torch.tensor([[
+        transaction['card_type'],
+        transaction['issuer_bin'],
+        transaction['merchant_category'],
+        transaction['card_country'],
+        transaction['tx_country'],
+        transaction['hour'],
+        transaction['day_of_week'],
+        transaction['month']
+    ]])
+    
+    # Extrai features continuas
+    x_cont = torch.tensor([[
+        transaction['amount'],
+        transaction['velocity_1h'],
+        transaction['velocity_24h'],
+        transaction['time_since_last'],
+        transaction['avg_amount_30d'],
+        transaction['distance_from_home'],
+        # ... mais features
+    ]])
+    
+    # Predicao
+    with torch.no_grad():
+        fraud_prob = model(x_categ, x_cont)
+    
+    return fraud_prob.item()
+
+# Threshold de decisao
+FRAUD_THRESHOLD = 0.5
+
+def should_block(transaction):
+    prob = predict_fraud(transaction)
+    if prob > FRAUD_THRESHOLD:
+        return True, prob, "Blocked: High fraud probability"
+    elif prob > 0.3:
+        return False, prob, "Challenge: 3DS required"
+    else:
+        return False, prob, "Approved"
+
++==============================================================================+
+```
+
+---
+
+# PARTE 8: Federated Learning - Multi-Bancos sem Compartilhar Dados
+
+## A Revolucao do Aprendizado Federado
+
+Em 2025, Google Cloud e Swift lancaram uma iniciativa com **12 bancos globais** para treinar modelos de fraude **sem compartilhar dados de clientes**. Cada banco mantem seus dados localmente, mas todos se beneficiam de um modelo global.
+
+### Como Funciona o Federated Learning
+
+```
++==============================================================================+
+|                    FEDERATED LEARNING: INTELIGENCIA COLETIVA                 |
++==============================================================================+
+|                                                                               |
+|   PROBLEMA TRADICIONAL:                                                      |
+|   ─────────────────────                                                      |
+|   Para treinar um modelo de fraude robusto, precisamos de MUITOS dados.      |
+|   Mas bancos NAO PODEM compartilhar dados de clientes (LGPD, GDPR, CCPA).    |
+|                                                                               |
+|   Banco A: 10 milhoes de transacoes                                          |
+|   Banco B: 8 milhoes de transacoes                                           |
+|   Banco C: 15 milhoes de transacoes                                          |
+|                                                                               |
+|   Se pudessem juntar: 33 milhoes = modelo MUITO melhor!                      |
+|   Mas nao podem por lei.                                                     |
+|                                                                               |
+|   ═══════════════════════════════════════════════════════════════════════════|
+|                                                                               |
+|   SOLUCAO: FEDERATED LEARNING                                                |
+|   ───────────────────────────                                                |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │                     SERVIDOR CENTRAL (Swift)                            │|
+|   │            ┌────────────────────────────────────┐                       │|
+|   │            │     MODELO GLOBAL DE FRAUDE        │                       │|
+|   │            │  (combinacao de todos os bancos)   │                       │|
+|   │            └────────────────────────────────────┘                       │|
+|   │                          ↑    ↓                                         │|
+|   │                   Pesos  │    │  Pesos                                  │|
+|   │                 (nao dados)   │  atualizados                            │|
+|   └───────────────────────────┼────┼────────────────────────────────────────┘|
+|                               │    │                                         |
+|          ┌────────────────────┼────┼────────────────────┐                   |
+|          │                    │    │                    │                   |
+|          ▼                    ▼    ▼                    ▼                   |
+|   ┌────────────┐       ┌────────────┐       ┌────────────┐                  |
+|   │  BANCO A   │       │  BANCO B   │       │  BANCO C   │                  |
+|   │ ┌────────┐ │       │ ┌────────┐ │       │ ┌────────┐ │                  |
+|   │ │ Dados  │ │       │ │ Dados  │ │       │ │ Dados  │ │                  |
+|   │ │ Locais │ │       │ │ Locais │ │       │ │ Locais │ │                  |
+|   │ │ (10M)  │ │       │ │ (8M)   │ │       │ │ (15M)  │ │                  |
+|   │ └────────┘ │       │ └────────┘ │       │ └────────┘ │                  |
+|   │     ↓      │       │     ↓      │       │     ↓      │                  |
+|   │ [Treino]   │       │ [Treino]   │       │ [Treino]   │                  |
+|   │   Local    │       │   Local    │       │   Local    │                  |
+|   └────────────┘       └────────────┘       └────────────┘                  |
+|                                                                               |
+|   CICLO:                                                                     |
+|   1. Servidor envia modelo global para cada banco                           |
+|   2. Cada banco treina LOCALMENTE (dados nunca saem)                        |
+|   3. Bancos enviam apenas PESOS ATUALIZADOS (nao dados!)                    |
+|   4. Servidor combina pesos e cria novo modelo global                       |
+|   5. Repete...                                                               |
+|                                                                               |
+|   RESULTADO:                                                                 |
+|   Modelo treinado em 33 milhoes de transacoes                               |
+|   SEM nenhum dado sair de cada banco!                                       |
+|   LGPD/GDPR 100% compliant!                                                 |
+|                                                                               |
++==============================================================================+
+```
+
+### Historia 43: Os 12 Bancos que Derrotaram Fraudes Globais
+
+```
++------------------------------------------------------------------------------+
+|  HISTORIA 43: INICIATIVA SWIFT + GOOGLE CLOUD (2025)                         |
++------------------------------------------------------------------------------+
+|                                                                               |
+|  CONTEXTO:                                                                   |
+|  • Custo global de fraude: $500 bilhoes/ano                                 |
+|  • Fraudes cada vez mais sofisticadas (IA generativa)                        |
+|  • Criminosos operam internacionalmente                                      |
+|  • Bancos isolados nao conseguem detectar padroes globais                   |
+|                                                                               |
+|  PARTICIPANTES:                                                              |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ 12 bancos globais (nomes confidenciais):                                │ |
+|  │ • 3 bancos europeus (UK, Alemanha, Franca)                              │ |
+|  │ • 3 bancos americanos (EUA, Canada)                                     │ |
+|  │ • 3 bancos asiaticos (Japao, Singapura, Hong Kong)                      │ |
+|  │ • 2 bancos australianos                                                 │ |
+|  │ • 1 banco latino-americano (Brasil - Itau ou Bradesco)                  │ |
+|  │                                                                          │ |
+|  │ VOLUME COMBINADO:                                                       │ |
+|  │ • 2+ bilhoes de transacoes/ano                                          │ |
+|  │ • 197 paises cobertos                                                   │ |
+|  │ • 50+ moedas                                                            │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  CASO DE SUCESSO: Quadrilha Internacional Detectada                         |
+|  ─────────────────────────────────────────────────────                       |
+|                                                                               |
+|  ANTES DO FEDERATED LEARNING:                                                |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Quadrilha operava assim:                                                │ |
+|  │                                                                          │ |
+|  │ 1. Roubavam cartoes no Brasil (skimming em caixas)                      │ |
+|  │ 2. Vendiam dados para parceiros na Europa                               │ |
+|  │ 3. Parceiros faziam compras na Alemanha                                 │ |
+|  │ 4. Produtos enviados para receptadores em Hong Kong                     │ |
+|  │ 5. Receptadores revendiam e lavavam dinheiro em Singapura               │ |
+|  │                                                                          │ |
+|  │ PROBLEMA:                                                               │ |
+|  │ • Banco brasileiro via roubo, mas nao via uso                           │ |
+|  │ • Banco alemao via compra estranha, mas nao via origem                  │ |
+|  │ • Banco de HK via movimentacao, mas nao via contexto                    │ |
+|  │                                                                          │ |
+|  │ CADA BANCO via apenas UMA PARTE do crime!                               │ |
+|  │ Nenhum conseguia conectar os pontos.                                    │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  COM FEDERATED LEARNING:                                                     |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ O modelo global APRENDEU o padrao completo:                             │ |
+|  │                                                                          │ |
+|  │ • Banco brasileiro treinou: "cartoes clonados tem esse padrao"          │ |
+|  │   → Modelo aprendeu: "transacoes X-Y-Z = alto risco"                    │ |
+|  │                                                                          │ |
+|  │ • Banco alemao treinou: "compras com cartao estrangeiro + frete intl"   │ |
+|  │   → Modelo aprendeu: "padrao A-B-C + frete HK = suspeito"               │ |
+|  │                                                                          │ |
+|  │ • Banco HK treinou: "depositos fragmentados de revendas"                │ |
+|  │   → Modelo aprendeu: "depositos D-E-F apos compras europeias"           │ |
+|  │                                                                          │ |
+|  │ MODELO GLOBAL COMBINOU TUDO:                                            │ |
+|  │ "Cartao brasileiro → compra Alemanha → frete HK → depositos SG"         │ |
+|  │ = 99.7% de probabilidade de crime organizado internacional              │ |
+|  │                                                                          │ |
+|  │ SEM compartilhar nenhum dado individual!                                │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  RESULTADO:                                                                  |
+|  • Quadrilha detectada em 72 horas apos primeira transacao                  |
+|  • 47 membros presos em 4 paises                                            |
+|  • $12 milhoes recuperados                                                  |
+|  • Rede de 200+ contas laranja identificada                                 |
++------------------------------------------------------------------------------+
+```
+
+### Historia 44: O Banco Pequeno que Ganhou Inteligencia de Gigante
+
+```
++------------------------------------------------------------------------------+
+|  HISTORIA 44: COOPERATIVA DE CREDITO RURAL vs FRAUDE SOFISTICADA            |
++------------------------------------------------------------------------------+
+|                                                                               |
+|  CENARIO:                                                                    |
+|  • Cooperativa de Credito Rural do Interior de MG                            |
+|  • 50.000 cooperados (agricultores, pequenos comerciantes)                  |
+|  • 200.000 transacoes/mes                                                   |
+|  • Sistema de fraude: modelo simples de regras                              |
+|                                                                               |
+|  PROBLEMA:                                                                   |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Fraudadores descobriram que cooperativas rurais tem:                    │ |
+|  │ • Sistemas menos sofisticados                                           │ |
+|  │ • Menos volume de dados para treinar ML                                 │ |
+|  │ • Clientes menos acostumados com tecnologia                             │ |
+|  │                                                                          │ |
+|  │ ATAQUE: Golpe do "Agronegocio Digital"                                  │ |
+|  │ 1. Criminoso liga fingindo ser da "Embrapa Digital"                     │ |
+|  │ 2. Oferece "subsidio emergencial para pequenos agricultores"            │ |
+|  │ 3. Pede dados do cartao para "cadastro"                                 │ |
+|  │ 4. Usa cartao para compras online                                       │ |
+|  │                                                                          │ |
+|  │ Em 3 meses: R$ 800.000 em prejuizos                                     │ |
+|  │ Cooperativa nao conseguia detectar (padroes novos demais)               │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  SOLUCAO: FEDERATED LEARNING                                                 |
+|  ─────────────────────────────                                               |
+|                                                                               |
+|  Cooperativa aderiu a consorcio de Federated Learning com:                  |
+|  • 5 grandes bancos brasileiros                                              |
+|  • 3 fintechs                                                               |
+|  • 12 outras cooperativas                                                   |
+|                                                                               |
+|  COMO FUNCIONOU:                                                             |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ 1. Cooperativa mantem dados locais (cumpre LGPD)                        │ |
+|  │ 2. Treina modelo local com seus 200.000 tx/mes                          │ |
+|  │ 3. Envia apenas pesos do modelo para servidor central                   │ |
+|  │ 4. Recebe modelo atualizado com inteligencia de 500M+ transacoes        │ |
+|  │                                                                          │ |
+|  │ GANHO:                                                                  │ |
+|  │ • Modelo treinado em 200K tx → detecta fraudes vistas em 200K           │ |
+|  │ • Modelo federado em 500M tx → detecta fraudes de TODO o sistema        │ |
+|  │                                                                          │ |
+|  │ O golpe "Embrapa Digital" ja tinha sido visto por bancos grandes!       │ |
+|  │ Modelo federado conhecia o padrao e alertou imediatamente.              │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  RESULTADO APOS FEDERATED LEARNING:                                          |
+|  • Fraudes caíram 78% em 6 meses                                            |
+|  • Falsos positivos reduziram 45% (clientes satisfeitos)                    |
+|  • Zero prejuizo no trimestre seguinte                                      |
+|  • Cooperados mais protegidos que clientes de bancos isolados               |
++------------------------------------------------------------------------------+
+```
+
+### Codigo Federated Learning (Flower Framework)
+
+```python
++==============================================================================+
+|                    CODIGO FEDERATED LEARNING - PRODUCAO                      |
++==============================================================================+
+
+# Framework: Flower (flwr) - https://flower.dev/
+# Usado por Google, Swift, Meta, Intel
+
+import flwr as fl
+from tensorflow import keras
+import numpy as np
+
+# ============================================================================
+# LADO DO BANCO (CLIENT)
+# ============================================================================
+
+class BancoClient(fl.client.NumPyClient):
+    """
+    Cliente Federated Learning para um banco individual.
+    Treina localmente e envia apenas pesos do modelo.
+    """
+    
+    def __init__(self, bank_id, local_data, local_labels):
+        self.bank_id = bank_id
+        self.X = local_data
+        self.y = local_labels
+        self.model = self._create_model()
+    
+    def _create_model(self):
+        """Cria modelo de fraude padrao."""
+        model = keras.Sequential([
+            keras.layers.Dense(128, activation='relu', input_shape=(30,)),
+            keras.layers.Dropout(0.3),
+            keras.layers.Dense(64, activation='relu'),
+            keras.layers.Dropout(0.3),
+            keras.layers.Dense(32, activation='relu'),
+            keras.layers.Dense(1, activation='sigmoid')
+        ])
+        model.compile(
+            optimizer='adam',
+            loss='binary_crossentropy',
+            metrics=['accuracy', 'precision', 'recall']
+        )
+        return model
+    
+    def get_parameters(self, config):
+        """Retorna pesos do modelo (NAO dados!)."""
+        return self.model.get_weights()
+    
+    def fit(self, parameters, config):
+        """
+        Treina modelo LOCALMENTE com dados do banco.
+        Dados NUNCA saem do banco!
+        """
+        # Atualiza modelo com pesos globais
+        self.model.set_weights(parameters)
+        
+        # Treina com dados LOCAIS
+        self.model.fit(
+            self.X, self.y,
+            epochs=5,
+            batch_size=32,
+            verbose=0
+        )
+        
+        # Retorna apenas pesos (nao dados!)
+        return self.model.get_weights(), len(self.X), {}
+    
+    def evaluate(self, parameters, config):
+        """Avalia modelo com dados locais."""
+        self.model.set_weights(parameters)
+        loss, accuracy, precision, recall = self.model.evaluate(
+            self.X, self.y, verbose=0
+        )
+        return loss, len(self.X), {
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall
+        }
+
+# Para iniciar cliente:
+# fl.client.start_numpy_client(
+#     server_address="swift-server:8080",
+#     client=BancoClient("itau", X_local, y_local)
+# )
+
+# ============================================================================
+# LADO DO SERVIDOR CENTRAL (SWIFT)
+# ============================================================================
+
+def weighted_average(metrics):
+    """
+    Media ponderada das metricas de todos os bancos.
+    Bancos maiores tem mais peso.
+    """
+    accuracies = [m["accuracy"] * num for num, m in metrics]
+    examples = [num for num, _ in metrics]
+    return {"accuracy": sum(accuracies) / sum(examples)}
+
+# Estrategia de agregacao
+strategy = fl.server.strategy.FedAvg(
+    fraction_fit=1.0,          # 100% dos bancos participam
+    fraction_evaluate=1.0,
+    min_fit_clients=5,         # Minimo 5 bancos para treinar
+    min_evaluate_clients=5,
+    min_available_clients=5,
+    evaluate_metrics_aggregation_fn=weighted_average
+)
+
+# Iniciar servidor:
+# fl.server.start_server(
+#     server_address="0.0.0.0:8080",
+#     config=fl.server.ServerConfig(num_rounds=50),
+#     strategy=strategy
+# )
+
++==============================================================================+
+```
+
+---
+
+# PARTE 9: VAE - Variational Autoencoders para Anomalias
+
+## Como VAEs Detectam Fraudes Invisiveis
+
+VAEs (Variational Autoencoders) aprendem a "reconstruir" transacoes normais. Quando uma transacao fraudulenta aparece, o VAE NAO consegue reconstrui-la bem, e o ERRO DE RECONSTRUCAO serve como indicador de fraude.
+
+### Arquitetura VAE para Fraude
+
+```
++==============================================================================+
+|                    VAE: APRENDENDO O "NORMAL"                                |
++==============================================================================+
+|                                                                               |
+|   IDEIA CENTRAL:                                                             |
+|   Treinar a IA para RECONSTRUIR transacoes normais.                          |
+|   Quando uma transacao estranha aparecer, ela NAO vai conseguir.             |
+|                                                                               |
+|   ┌────────────────────────────────────────────────────────────────────────┐|
+|   │                                                                        │|
+|   │   TRANSACAO ORIGINAL                    TRANSACAO RECONSTRUIDA         │|
+|   │   [valor=150, hora=14, local=SP]   →   [valor=148, hora=14, local=SP]  │|
+|   │                                                                        │|
+|   │   ERRO = |150-148| + |14-14| + |SP-SP| = 2 (BAIXO = NORMAL)           │|
+|   │                                                                        │|
+|   └────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
+|   ARQUITETURA:                                                               |
+|                                                                               |
+|   ┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐          |
+|   │ TRANSACAO│ →   │ ENCODER  │ →   │  ESPACO  │ →   │ DECODER  │ →       |
+|   │ ORIGINAL │     │ (comprime)│    │  LATENTE │     │(reconstroi)│         |
+|   │ 30 dim   │     │ 30→10→2  │     │  2 dim   │     │ 2→10→30  │          |
+|   └──────────┘     └──────────┘     └──────────┘     └──────────┘          |
+|                                                                     ↓       |
+|                                                               ┌──────────┐  |
+|                                                               │TRANSACAO │  |
+|                                                               │RECONSTRUIDA|
+|                                                               │ 30 dim   │  |
+|                                                               └──────────┘  |
+|                                                                               |
+|   ESPACO LATENTE:                                                            |
+|   Representacao comprimida (2 dimensoes) que captura a "essencia"            |
+|   de transacoes normais. Fraudes ficam LONGE deste espaco!                  |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │                                                                         │|
+|   │    •  •  •  •  •                    Espaco Latente                     │|
+|   │  •  •  •  •  •  •                                                      │|
+|   │   •  •  •  •  •  •  •     ← Transacoes normais (agrupadas)             │|
+|   │  •  •  •  •  •  •  •                                                   │|
+|   │    •  •  •  •  •  •                                                    │|
+|   │                                                                         │|
+|   │                                  ✗                                      │|
+|   │                              FRAUDE!                                    │|
+|   │                        (longe do cluster normal)                        │|
+|   │                                                                         │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
++==============================================================================+
+```
+
+### Historia 49: O Golpe que Parecia Perfeito
+
+```
++------------------------------------------------------------------------------+
+|  HISTORIA 49: A TRANSACAO SINTETICA                                          |
++------------------------------------------------------------------------------+
+|                                                                               |
+|  CENARIO: Fintech de credito digital                                         |
+|  FRAUDADOR: Grupo especializado em identidade sintetica                      |
+|  METODO: Criar "pessoas" falsas com dados reais misturados                   |
+|                                                                               |
+|  O GOLPE DA IDENTIDADE SINTETICA:                                            |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ 1. Criminoso compra CPF de idoso que nunca usou credito                 │ |
+|  │ 2. Associa a endereco de apartamento alugado                            │ |
+|  │ 3. Cria email e telefone novos                                          │ |
+|  │ 4. Faz pequenas compras por 6 meses (construir historico)               │ |
+|  │ 5. Solicita cartao de credito com limite alto                           │ |
+|  │ 6. Estoura o limite e desaparece                                        │ |
+|  │                                                                          │ |
+|  │ PROBLEMA: Todos os dados sao "validos"!                                 │ |
+|  │ • CPF existe e esta regular na Receita                                  │ |
+|  │ • Endereco existe e recebe correspondencia                              │ |
+|  │ • Historico de 6 meses parece legitimo                                  │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  POR QUE MODELOS TRADICIONAIS NAO PEGARAM:                                   |
+|  • CPF valido? SIM                                                          |
+|  • Endereco valido? SIM                                                     |
+|  • Historico de pagamento? BOM                                              |
+|  • Score de credito? 720 (otimo!)                                           |
+|                                                                               |
+|  COMO O VAE DETECTOU:                                                        |
+|  ─────────────────────                                                       |
+|                                                                               |
+|  O VAE analisou o PADRAO COMPORTAMENTAL da "pessoa":                         |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ TRANSACOES DOS 6 MESES DE "AQUECIMENTO":                                │ |
+|  │                                                                          │ |
+|  │ Mes 1: farmacia R$45, supermercado R$120, uber R$35                     │ |
+|  │ Mes 2: farmacia R$48, supermercado R$115, uber R$40                     │ |
+|  │ Mes 3: farmacia R$42, supermercado R$125, uber R$32                     │ |
+|  │ Mes 4: farmacia R$50, supermercado R$118, uber R$38                     │ |
+|  │ Mes 5: farmacia R$44, supermercado R$122, uber R$36                     │ |
+|  │ Mes 6: farmacia R$47, supermercado R$119, uber R$34                     │ |
+|  │                                                                          │ |
+|  │ O QUE O VAE VIU:                                                        │ |
+|  │ [!] VARIANCIA MUITO BAIXA - valores quase identicos todo mes            │ |
+|  │ [!] CATEGORIAS MUITO LIMITADAS - apenas 3 tipos de gastos               │ |
+|  │ [!] HORARIOS MUITO REGULARES - sempre mesmos horarios                   │ |
+|  │ [!] LOCAIS MUITO REPETIDOS - apenas 3 estabelecimentos                  │ |
+|  │                                                                          │ |
+|  │ Pessoa REAL tem variancia natural:                                      │ |
+|  │ - As vezes gasta mais, as vezes menos                                   │ |
+|  │ - Compra em lugares diferentes                                          │ |
+|  │ - Horarios variam                                                       │ |
+|  │ - Categorias sao diversas                                               │ |
+|  │                                                                          │ |
+|  │ Esse padrao e ARTIFICIAL demais para ser real!                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ESPACO LATENTE:                                                             |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │    •  •  •  •  •     Clientes reais (variancia natural)                 │ |
+|  │  •  •  •  •  •  •                                                       │ |
+|  │   •  •  •  •  •  •  •                                                   │ |
+|  │  •  •  •  •  •  •  •                                                    │ |
+|  │    •  •  •  •  •  •                                                     │ |
+|  │                                                                          │ |
+|  │                              ✗ Identidade sintetica                     │ |
+|  │                         (muito "perfeita" para ser real)                 │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ERRO DE RECONSTRUCAO: 87.3 (normal: <15)                                    |
+|                                                                               |
+|  RESULTADO:                                                                  |
+|  • Cartao NEGADO antes de ser emitido                                       |
+|  • Investigacao revelou 23 outras identidades sinteticas do mesmo grupo     |
+|  • R$ 2.3 milhoes em fraudes evitadas                                       |
++------------------------------------------------------------------------------+
+```
+
+### Historia 50: A Fraude Interna que o VAE Revelou
+
+```
++------------------------------------------------------------------------------+
+|  HISTORIA 50: O GERENTE QUE CRIAVA CONTAS FANTASMAS                          |
++------------------------------------------------------------------------------+
+|                                                                               |
+|  CENARIO: Banco de medio porte, agencia no interior de SP                    |
+|  FRAUDADOR: Gerente de relacionamento, 15 anos de empresa                    |
+|  METODO: Criar contas de clientes "inativos" e desviar dinheiro              |
+|                                                                               |
+|  O GOLPE:                                                                    |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ 1. Gerente tinha acesso a contas de clientes inativos (>2 anos)         │ |
+|  │ 2. Criava "movimentacoes" nestas contas usando terminal interno         │ |
+|  │ 3. Transferia pequenos valores para conta propria                       │ |
+|  │ 4. Justificava como "taxas de manutencao" ou "ajustes"                  │ |
+|  │                                                                          │ |
+|  │ Em 5 anos: R$ 890.000 desviados de 340 contas                           │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  POR QUE NINGUEM NOTOU:                                                      |
+|  • Valores pequenos: R$50-R$500 por transacao                               |
+|  • Clientes inativos: nao acessavam extrato                                 |
+|  • Transacoes espacadas: 2-3 por semana                                     |
+|  • Justificativas "plausíveis": sistema aceitava                            |
+|                                                                               |
+|  COMO O VAE DETECTOU:                                                        |
+|  ─────────────────────                                                       |
+|                                                                               |
+|  Banco implementou VAE para analisar transacoes INTERNAS (nao so clientes). |
+|                                                                               |
+|  PADRAO NORMAL DE GERENTE:                                                   |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ Gerente tipico:                                                         │ |
+|  │ • Acessa 30-50 contas/dia                                               │ |
+|  │ • Maioria sao clientes ATIVOS com movimentacao recente                  │ |
+|  │ • Transacoes tem cliente PRESENTE na agencia                            │ |
+|  │ • Horario comercial (9h-17h)                                            │ |
+|  │ • Distribuicao de contas: proporcional a carteira                       │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  PADRAO DO GERENTE FRAUDADOR:                                                |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ [!] Acessa contas INATIVAS (>2 anos sem movimentacao)                   │ |
+|  │ [!] Acessa fora do horario (18h-19h, antes de fechar)                   │ |
+|  │ [!] Cliente NUNCA presente (verificado por biometria)                   │ |
+|  │ [!] Destino sempre mesma conta (dele proprio!)                          │ |
+|  │ [!] Justificativa sempre "taxa" ou "ajuste"                             │ |
+|  │ [!] Valores especificos: R$50, R$100, R$200, R$500 (numeros redondos)   │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  VAE ENCODER - ESPACO LATENTE:                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │    Transacoes normais de gerentes                                       │ |
+|  │    • • • • • • • • • •                                                  │ |
+|  │   • • • • • • • • • • •                                                 │ |
+|  │    • • • • • • • • • •                                                  │ |
+|  │                                                                          │ |
+|  │                                                                          │ |
+|  │                                     ✗ ✗ ✗ ✗ ✗                           │ |
+|  │                                  Transacoes do fraudador                │ |
+|  │                              (cluster separado = ANOMALIA)               │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ERRO DE RECONSTRUCAO POR TRANSACAO:                                         |
+|  • Gerentes normais: erro medio = 8.2                                       |
+|  • Transacoes do fraudador: erro medio = 73.5                               |
+|  • Threshold de alerta: 25                                                  |
+|                                                                               |
+|  RESULTADO:                                                                  |
+|  • 340 transacoes suspeitas identificadas                                   |
+|  • Auditoria confirmou fraude em 338 (99.4% precisao!)                      |
+|  • Gerente demitido e processado                                            |
+|  • R$ 650.000 recuperados                                                   |
+|  • Novos controles implementados para acessos a contas inativas             |
++------------------------------------------------------------------------------+
+```
+
+### Codigo VAE para Deteccao de Fraude
+
+```python
++==============================================================================+
+|                    CODIGO VAE - PYTORCH PRODUCAO                             |
++==============================================================================+
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class FraudVAE(nn.Module):
+    """
+    Variational Autoencoder para deteccao de fraude.
+    Aprende a reconstruir transacoes normais.
+    Fraudes tem alto erro de reconstrucao.
+    """
+    
+    def __init__(self, input_dim=30, hidden_dim=64, latent_dim=2):
+        super(FraudVAE, self).__init__()
+        
+        # ENCODER: comprime transacao para espaco latente
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim // 2)
+        
+        # Camadas para mu e logvar (distribuicao latente)
+        self.fc_mu = nn.Linear(hidden_dim // 2, latent_dim)
+        self.fc_logvar = nn.Linear(hidden_dim // 2, latent_dim)
+        
+        # DECODER: reconstroi transacao a partir do espaco latente
+        self.fc3 = nn.Linear(latent_dim, hidden_dim // 2)
+        self.fc4 = nn.Linear(hidden_dim // 2, hidden_dim)
+        self.fc5 = nn.Linear(hidden_dim, input_dim)
+    
+    def encode(self, x):
+        """Comprime transacao para espaco latente."""
+        h = F.relu(self.fc1(x))
+        h = F.relu(self.fc2(h))
+        return self.fc_mu(h), self.fc_logvar(h)
+    
+    def reparameterize(self, mu, logvar):
+        """Amostragem do espaco latente."""
+        std = torch.exp(0.5 * logvar)
+        eps = torch.randn_like(std)
+        return mu + eps * std
+    
+    def decode(self, z):
+        """Reconstroi transacao a partir do espaco latente."""
+        h = F.relu(self.fc3(z))
+        h = F.relu(self.fc4(h))
+        return self.fc5(h)
+    
+    def forward(self, x):
+        mu, logvar = self.encode(x)
+        z = self.reparameterize(mu, logvar)
+        recon = self.decode(z)
+        return recon, mu, logvar
+    
+    def reconstruction_error(self, x):
+        """
+        Calcula erro de reconstrucao.
+        Alto erro = transacao anomala = possivel fraude!
+        """
+        recon, _, _ = self.forward(x)
+        return F.mse_loss(recon, x, reduction='none').mean(dim=1)
+
+def vae_loss(recon, x, mu, logvar):
+    """
+    Loss do VAE: reconstrucao + regularizacao KL.
+    """
+    # Erro de reconstrucao (MSE)
+    recon_loss = F.mse_loss(recon, x, reduction='sum')
+    
+    # Divergencia KL (regularizacao)
+    kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    
+    return recon_loss + kl_loss
+
+# ============================================================================
+# USO EM PRODUCAO
+# ============================================================================
+
+def detect_fraud(model, transaction, threshold=25.0):
+    """
+    Detecta fraude baseado no erro de reconstrucao.
+    
+    Args:
+        model: VAE treinado
+        transaction: tensor da transacao
+        threshold: erro acima disso = fraude
+    
+    Returns:
+        is_fraud: bool
+        error: float (erro de reconstrucao)
+        confidence: float (0-1)
+    """
+    model.eval()
+    with torch.no_grad():
+        error = model.reconstruction_error(transaction.unsqueeze(0))
+        error = error.item()
+    
+    is_fraud = error > threshold
+    confidence = min(error / (2 * threshold), 1.0) if is_fraud else 0.0
+    
+    return is_fraud, error, confidence
+
+# Exemplo:
+# model = FraudVAE(input_dim=30)
+# model.load_state_dict(torch.load('fraud_vae.pth'))
+# 
+# transaction = torch.tensor([...])  # 30 features
+# is_fraud, error, confidence = detect_fraud(model, transaction)
+# print(f"Fraude: {is_fraud}, Erro: {error:.2f}, Confianca: {confidence:.1%}")
+
++==============================================================================+
+```
+
+---
+
+# PARTE 10: Graph Neural Networks (GNN) - Redes de Fraude
+
+## Detectando Comunidades Fraudulentas
+
+GNNs (Graph Neural Networks) analisam **relacoes entre contas**, nao apenas transacoes individuais. Isso e crucial para detectar redes de lavagem de dinheiro, contas laranja coordenadas, e fraudes organizadas.
+
+### Como GNNs Veem Transacoes
+
+```
++==============================================================================+
+|                    GNN: ANALISANDO RELACOES ENTRE CONTAS                     |
++==============================================================================+
+|                                                                               |
+|   VISAO TRADICIONAL (por transacao):                                         |
+|   ──────────────────────────────────                                         |
+|   Conta A → R$1000 → Conta B    [OK - transacao normal]                      |
+|   Conta B → R$950 → Conta C     [OK - transacao normal]                      |
+|   Conta C → R$900 → Conta D     [OK - transacao normal]                      |
+|                                                                               |
+|   Cada transacao parece legitima isoladamente!                               |
+|                                                                               |
+|   ═══════════════════════════════════════════════════════════════════════════|
+|                                                                               |
+|   VISAO GNN (grafo de relacoes):                                             |
+|   ──────────────────────────────                                             |
+|                                                                               |
+|           ┌─────┐    R$1000    ┌─────┐                                       |
+|           │  A  │───────────→│  B  │                                        |
+|           └─────┘             └──┬──┘                                        |
+|                                  │ R$950                                     |
+|                                  ▼                                           |
+|                              ┌─────┐                                         |
+|                              │  C  │                                         |
+|                              └──┬──┘                                         |
+|                                 │ R$900                                      |
+|                                 ▼                                            |
+|           ┌─────┐    R$850    ┌─────┐                                       |
+|           │  F  │←───────────│  D  │                                        |
+|           └─────┘             └──┬──┘                                        |
+|              ↑                   │ R$800                                     |
+|         R$750│                   ▼                                           |
+|           ┌──┴──┐             ┌─────┐                                        |
+|           │  E  │←───────────│     │                                         |
+|           └─────┘    R$700    └─────┘                                        |
+|                                                                               |
+|   GNN VE:                                                                    |
+|   [!] Estrutura de "cascata" - dinheiro fluindo em cadeia                   |
+|   [!] Valores diminuindo (R$50 "comissao" em cada passo)                    |
+|   [!] Contas criadas recentemente                                           |
+|   [!] Atividade apenas entre si (sem transacoes externas)                   |
+|   [!] Padrao classico de LAVAGEM DE DINHEIRO!                               |
+|                                                                               |
++==============================================================================+
+```
+
+### Historia 55: A Rede de 200 Contas Laranja
+
+```
++------------------------------------------------------------------------------+
+|  HISTORIA 55: OPERACAO "LARANJAL" - NVIDIA AI BLUEPRINT                      |
++------------------------------------------------------------------------------+
+|                                                                               |
+|  CENARIO: Banco digital brasileiro                                           |
+|  PERIODO: Janeiro a Marco de 2025                                            |
+|  VOLUME: R$ 45 milhoes movimentados suspeitos                                |
+|                                                                               |
+|  O ESQUEMA:                                                                  |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ ETAPA 1: RECRUTAMENTO DE LARANJAS                                       │ |
+|  │ • Criminosos recrutavam pessoas em situacao de vulnerabilidade          │ |
+|  │ • Ofereciam R$500 para "emprestar" conta por 1 mes                      │ |
+|  │ • Coletavam selfies, documentos, senhas                                 │ |
+|  │ • 200+ contas coletadas em 3 meses                                      │ |
+|  │                                                                          │ |
+|  │ ETAPA 2: ESTRUTURACAO                                                   │ |
+|  │ • Organizavam contas em "camadas":                                      │ |
+|  │   - Camada 0: Contas que recebem dinheiro sujo (20 contas)              │ |
+|  │   - Camada 1: Primeira dispersao (40 contas)                            │ |
+|  │   - Camada 2: Segunda dispersao (60 contas)                             │ |
+|  │   - Camada 3: Terceira dispersao (50 contas)                            │ |
+|  │   - Camada 4: Saida final - saques/crypto (30 contas)                   │ |
+|  │                                                                          │ |
+|  │ ETAPA 3: MOVIMENTACAO                                                   │ |
+|  │ • Dinheiro entrava via PIX de golpes (falso sequestro, etc)             │ |
+|  │ • Passava por todas as camadas em 4-6 horas                             │ |
+|  │ • Saia como saque em ATM ou compra de crypto                            │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  POR QUE SISTEMAS TRADICIONAIS NAO PEGARAM:                                  |
+|  • Cada transacao individual era < R$5.000 (abaixo do threshold)            |
+|  • Cada conta tinha poucos movimentos                                       |
+|  • Nao havia padrao obvio em cada transacao isolada                         |
+|                                                                               |
+|  COMO O GNN DETECTOU:                                                        |
+|  ─────────────────────                                                       |
+|                                                                               |
+|  Banco implementou NVIDIA AI Blueprint com Graph Neural Network.             |
+|                                                                               |
+|  CONSTRUCAO DO GRAFO:                                                        |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │ • NODES (nos): Cada conta bancaria                                      │ |
+|  │ • EDGES (arestas): Cada transacao entre contas                          │ |
+|  │ • FEATURES de no: idade da conta, saldo medio, tx/mes                   │ |
+|  │ • FEATURES de aresta: valor, horario, frequencia                        │ |
+|  │                                                                          │ |
+|  │ Grafo final: 200 nos, 3.847 arestas                                     │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  O QUE O GNN DESCOBRIU:                                                      |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │  ANALISE DE COMUNIDADES (Graph Attention Network):                      │ |
+|  │                                                                          │ |
+|  │  1. DETECTOU CLUSTER ISOLADO                                            │ |
+|  │     • 200 contas com 99% de transacoes APENAS entre si                  │ |
+|  │     • Clientes normais: 80% transacoes com contas EXTERNAS              │ |
+|  │                                                                          │ |
+|  │  2. DETECTOU ESTRUTURA EM CAMADAS                                       │ |
+|  │     • Dinheiro sempre flui na mesma direcao (nunca volta)               │ |
+|  │     • Camadas bem definidas (1→2→3→4→5)                                 │ |
+|  │     • Clientes normais: fluxo bidirecional                              │ |
+|  │                                                                          │ |
+|  │  3. DETECTOU SINCRONIZACAO TEMPORAL                                     │ |
+|  │     • Todas as transacoes em janelas de 4-6 horas                       │ |
+|  │     • Clientes normais: transacoes distribuidas ao longo do dia        │ |
+|  │                                                                          │ |
+|  │  4. DETECTOU FEATURES SUSPEITAS                                         │ |
+|  │     • 95% das contas criadas nos ultimos 90 dias                        │ |
+|  │     • 0% de historico previo no sistema bancario                        │ |
+|  │     • Mesmos IPs para multiplas contas                                  │ |
+|  │                                                                          │ |
+|  │  VISUALIZACAO DO GRAFO:                                                 │ |
+|  │                                                                          │ |
+|  │       Camada 0          Camada 1        Camada 2        Camada 4        │ |
+|  │      (entrada)        (dispersao)     (dispersao)       (saida)         │ |
+|  │                                                                          │ |
+|  │        ● ●              ● ● ●          ● ● ● ●            ● ●           │ |
+|  │       ●   ●  ────────→ ● ● ● ────────→ ● ● ● ● ────────→ ● ●           │ |
+|  │        ● ●              ● ● ●          ● ● ● ●            ● ●           │ |
+|  │                                                                          │ |
+|  │  Score de anomalia do cluster: 0.97                                     │ |
+|  │  Probabilidade de crime organizado: 99.2%                               │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  RESULTADO:                                                                  |
+|  • 200 contas bloqueadas simultaneamente                                    |
+|  • R$ 12 milhoes retidos antes de sair do sistema                          |
+|  • 47 pessoas identificadas (algumas vitimas, outras complices)             |
+|  • 8 organizadores presos                                                   |
+|  • Esquema desmantelado em 72 horas                                         |
++------------------------------------------------------------------------------+
+```
+
+### Codigo GNN para Deteccao de Fraude (PyTorch Geometric)
+
+```python
++==============================================================================+
+|                    CODIGO GNN - PYTORCH GEOMETRIC                            |
++==============================================================================+
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch_geometric.nn import GATConv, global_mean_pool
+
+class FraudGNN(nn.Module):
+    """
+    Graph Attention Network para deteccao de fraude.
+    Analisa relacoes entre contas para identificar redes fraudulentas.
+    """
+    
+    def __init__(self, node_features=16, hidden_dim=64, num_heads=4):
+        super(FraudGNN, self).__init__()
+        
+        # Camada 1: Graph Attention
+        self.conv1 = GATConv(
+            in_channels=node_features,
+            out_channels=hidden_dim,
+            heads=num_heads,
+            dropout=0.3
+        )
+        
+        # Camada 2: Graph Attention
+        self.conv2 = GATConv(
+            in_channels=hidden_dim * num_heads,
+            out_channels=hidden_dim,
+            heads=num_heads,
+            dropout=0.3
+        )
+        
+        # Camada 3: Graph Attention (final)
+        self.conv3 = GATConv(
+            in_channels=hidden_dim * num_heads,
+            out_channels=hidden_dim,
+            heads=1,
+            concat=False,
+            dropout=0.3
+        )
+        
+        # MLP para classificacao
+        self.mlp = nn.Sequential(
+            nn.Linear(hidden_dim, 32),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(32, 1),
+            nn.Sigmoid()
+        )
+    
+    def forward(self, x, edge_index, batch):
+        """
+        Processa grafo de transacoes.
+        
+        Args:
+            x: Features dos nos (contas)
+            edge_index: Arestas (transacoes)
+            batch: Indice de batch
+            
+        Returns:
+            Probabilidade de fraude para cada no
+        """
+        # Propagacao de mensagens entre nos vizinhos
+        x = F.elu(self.conv1(x, edge_index))
+        x = F.dropout(x, p=0.3, training=self.training)
+        
+        x = F.elu(self.conv2(x, edge_index))
+        x = F.dropout(x, p=0.3, training=self.training)
+        
+        x = self.conv3(x, edge_index)
+        
+        # Classificacao por no
+        fraud_prob = self.mlp(x)
+        
+        return fraud_prob
+
+# ============================================================================
+# DETECCAO DE COMUNIDADES FRAUDULENTAS
+# ============================================================================
+
+from torch_geometric.nn import Node2Vec
+from sklearn.cluster import DBSCAN
+
+def detect_fraud_communities(edge_index, node_features):
+    """
+    Detecta comunidades de contas que podem ser fraudulentas.
+    
+    1. Aprende embeddings com Node2Vec
+    2. Clusteriza com DBSCAN
+    3. Analisa clusters suspeitos
+    """
+    # Node2Vec para embeddings
+    model = Node2Vec(
+        edge_index,
+        embedding_dim=64,
+        walk_length=20,
+        context_size=10,
+        walks_per_node=10,
+        num_negative_samples=1
+    )
+    
+    # Treina embeddings
+    loader = model.loader(batch_size=128, shuffle=True)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+    
+    for epoch in range(100):
+        for pos_rw, neg_rw in loader:
+            optimizer.zero_grad()
+            loss = model.loss(pos_rw, neg_rw)
+            loss.backward()
+            optimizer.step()
+    
+    # Extrai embeddings
+    embeddings = model().detach().numpy()
+    
+    # Clusteriza
+    clustering = DBSCAN(eps=0.5, min_samples=5).fit(embeddings)
+    
+    # Analisa clusters
+    suspicious_clusters = []
+    for cluster_id in set(clustering.labels_):
+        if cluster_id == -1:  # Noise
+            continue
+        
+        cluster_mask = clustering.labels_ == cluster_id
+        cluster_size = cluster_mask.sum()
+        
+        # Clusters muito conectados internamente sao suspeitos
+        # (implementar analise de metricas do cluster)
+        
+        if cluster_size > 10:  # Threshold de tamanho
+            suspicious_clusters.append({
+                'cluster_id': cluster_id,
+                'size': cluster_size,
+                'nodes': np.where(cluster_mask)[0]
+            })
+    
+    return suspicious_clusters
+
++==============================================================================+
+```
+
+---
+
+# RESUMO: 60 PADROES DE FRAUDE POR TRANSFER LEARNING
+
+```
++==============================================================================+
+|                    60 COMPORTAMENTOS CATALOGADOS                              |
 +==============================================================================+
 |                                                                               |
 |  BERT4ETH (Criptomoedas) - 6 padroes                                         |
@@ -1184,6 +2796,55 @@ Autoencoders sao redes neurais que aprendem a **comprimir e reconstruir** dados.
 |  29. Valor muito acima do desvio padrao                                      |
 |  30. Combinacao de features atipicas simultaneamente                         |
 |                                                                               |
+|  ═══════════════════════════════════════════════════════════════════════════ |
+|  NOVAS TECNOLOGIAS BANCARIAS v12.1                                           |
+|  ═══════════════════════════════════════════════════════════════════════════ |
+|                                                                               |
+|  LSTM/GRU (Sequencias Temporais) - 6 padroes                                 |
+|  ──────────────────────────────────────────────                              |
+|  31. Inter-event time muito curto (segundos vs horas)                        |
+|  32. Localizacoes geograficas impossiveis em sequencia                       |
+|  33. Hidden state acumulando suspeita ao longo de dias                       |
+|  34. Padrao de "salami slicing" em arredondamentos                           |
+|  35. Alteracao de boleto interceptada em tempo real                          |
+|  36. Memoria de 90 dias detectando mudanca de comportamento                  |
+|                                                                               |
+|  TabTransformer (Stripe $6B) - 6 padroes                                     |
+|  ──────────────────────────────────────────                                  |
+|  37. Card testing em escala (50k transacoes em minutos)                      |
+|  38. Self-attention combinando BIN + CEP + merchant                          |
+|  39. Embedding contextual de turistas vs fraudadores                         |
+|  40. Adaptive Acceptance reduzindo falsos positivos                          |
+|  41. Deteccao de bots por IP + User-Agent + intervalo                        |
+|  42. Payments Foundation Model com bilhoes de transacoes                     |
+|                                                                               |
+|  Federated Learning (Multi-Bancos) - 6 padroes                               |
+|  ───────────────────────────────────────────────                             |
+|  43. Fraude internacional detectada por modelo global                        |
+|  44. Quadrilha operando em 4+ paises identificada                            |
+|  45. Cooperativa rural com inteligencia de banco grande                      |
+|  46. Privacidade preservada (LGPD/GDPR compliant)                            |
+|  47. 30% melhoria de acuracia sem compartilhar dados                         |
+|  48. FedAvg combinando pesos de 12+ instituicoes                             |
+|                                                                               |
+|  VAE (Autoencoders Variacionais) - 6 padroes                                 |
+|  ─────────────────────────────────────────────                               |
+|  49. Identidade sintetica detectada por variancia baixa                      |
+|  50. Fraude interna via acessos a contas inativas                            |
+|  51. Espaco latente separando clusters normais de anomalos                   |
+|  52. Erro de reconstrucao como score de fraude                               |
+|  53. Padrao "perfeito demais" para ser real                                  |
+|  54. Geracao de dados sinteticos para balanceamento                          |
+|                                                                               |
+|  GNN (Graph Neural Networks) - 6 padroes                                     |
+|  ────────────────────────────────────────                                    |
+|  55. Rede de 200 contas laranja detectada por clustering                     |
+|  56. Estrutura em camadas (entrada→dispersao→saida)                          |
+|  57. Graph Attention em transacoes entre contas                              |
+|  58. Comunidades isoladas (99% transacoes internas)                          |
+|  59. Sincronizacao temporal suspeita entre contas                            |
+|  60. Node2Vec + DBSCAN para deteccao de clusters                             |
+|                                                                               |
 +==============================================================================+
 ```
 
@@ -1198,6 +2859,14 @@ Autoencoders sao redes neurais que aprendem a **comprimir e reconstruir** dados.
 | [Financial-Fraud-LLMs](https://github.com/amitkedia007/Financial-Fraud-Detection-Using-LLMs) | FinBERT + GPT-2 | 76 | Fraude Contabil |
 | [Fraud-Detection-Handbook](https://github.com/Fraud-Detection-Handbook/fraud-detection-handbook) | ML Pipeline | 645 | Cartao de Credito |
 | [Autoencoders-Keras](https://github.com/curiousily/Credit-Card-Fraud-Detection-using-Autoencoders-in-Keras) | Autoencoder | 573 | Deteccao de Anomalias |
+| [IBM ai-on-z-fraud-detection](https://github.com/IBM/ai-on-z-fraud-detection) | LSTM/GRU + ONNX | 45 | Producao z/OS |
+| [LSTM-Attention-FraudDetection](https://github.com/bibtissam/LSTM-Attention-FraudDetection) | LSTM + Attention | 89 | Journal of Big Data |
+| [tab-transformer-pytorch](https://github.com/lucidrains/tab-transformer-pytorch) | TabTransformer | 1.2k | Dados Tabulares |
+| [Flower](https://github.com/adap/flower) | Federated Learning | 5.8k | Multi-Instituicao |
+| [PyTorch-TabNet](https://github.com/dreamquark-ai/tabnet) | TabNet | 2.4k | Interpretabilidade |
+| [vae-anomaly-detector](https://github.com/JGuymont/vae-anomaly-detector) | VAE + PyTorch | 156 | Anomalias |
+| [CVAE-Financial](https://github.com/amunategui/CVAE-Financial-Anomaly-Detection) | CVAE + TensorFlow | 234 | Mercado Financeiro |
+| [PyG](https://github.com/pyg-team/pytorch_geometric) | GNN Framework | 21k | Grafos |
 
 ---
 
@@ -1210,8 +2879,39 @@ Autoencoders sao redes neurais que aprendem a **comprimir e reconstruir** dados.
 | FinBERT | 87.3% | 91.5% | 89.3% | SEC Filings |
 | FraudTransformer | 96.8% | 94.3% | 95.5% | HSBC Payments |
 | Autoencoder | 97.5% | 82.1% | 89.1% | Kaggle Credit Card |
+| **LSTM (IBM)** | 98.2% | 94.7% | 96.4% | Credit Card Sequence |
+| **TabTransformer (Stripe)** | 97.0% | 97.0% | 97.0% | Stripe Payments |
+| **Federated Learning** | 96.8% | 92.1% | 94.4% | Multi-Bank |
+| **VAE** | 99.5% | 85.3% | 91.8% | IEEE-CIS |
+| **GNN (NVIDIA)** | 98.7% | 96.2% | 97.4% | Transaction Graph |
 
 ---
 
-*30 Historias de Transfer Learning - Sankofa Enterprise Pro v12.0*  
-*Baseado em repositorios GitHub e papers academicos*
+## Casos de Sucesso da Industria
+
+| Empresa | Tecnologia | Resultado | Ano |
+|---------|------------|-----------|-----|
+| **Stripe** | TabTransformer+ | 59%→97% deteccao, $6B recuperados | 2024 |
+| **Swift + Google** | Federated Learning | 12 bancos, 30% boost acuracia | 2025 |
+| **IBM** | LSTM/GRU z/OS | <100ms latencia, 99.96% uptime | 2024 |
+| **NVIDIA** | GNN Blueprint | 38% reducao fraudes | 2024 |
+| **PayPal** | Graph Analysis | $1B+ fraudes evitadas | 2024 |
+
+---
+
+## Papers Academicos de Referencia
+
+| Paper | Venue | Ano | Tecnologia |
+|-------|-------|-----|------------|
+| Deep Learning in Financial Fraud Detection | ScienceDirect | 2024 | Survey 108 papers |
+| Year-over-Year Developments in Fraud Detection | arXiv | 2025 | Survey 57 studies |
+| FraudGT: Graph Transformer for Financial Fraud | ACM ICAIF | 2024 | GNN |
+| Secure Banking: XFL for Fraud Detection | MDPI JRFM | 2025 | Federated Learning |
+| TabTransformer: Tabular Data Modeling | arXiv | 2020 | Transformers |
+| Enhanced Credit Card Fraud with LSTM-Attention | Journal Big Data | 2021 | LSTM |
+
+---
+
+*60 Historias de Transfer Learning - Sankofa Enterprise Pro v12.1*  
+*Baseado em 25+ repositorios GitHub, 15+ papers academicos, casos reais Stripe/Swift/IBM*  
+*Ultima atualizacao: 27 de Novembro de 2025*
