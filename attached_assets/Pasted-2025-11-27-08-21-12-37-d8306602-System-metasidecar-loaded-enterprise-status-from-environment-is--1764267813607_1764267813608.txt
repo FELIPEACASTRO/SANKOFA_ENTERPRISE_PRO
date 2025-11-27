@@ -1,0 +1,121 @@
+2025-11-27 08:21:12.37
+d8306602
+System
+metasidecar: loaded enterprise status from environment is_enterprise=false
+2025-11-27 08:21:12.37
+d8306602
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-11-27 08:21:12.55
+d8306602
+User
+bash: line 1: cd: ../frontend: No such file or directory
+2025-11-27 08:21:14.56
+d8306602
+User
+INFO:__main__:🚀 Iniciando Sankofa Enterprise Pro API Simplificada...
+2025-11-27 08:21:14.56
+d8306602
+User
+INFO:__main__:✅ API pronta para receber requisições
+2025-11-27 08:21:14.58
+d8306602
+User
+* Serving Flask app 'simple_api'
+
+2025-11-27 08:21:14.58
+d8306602
+User
+* Debug mode: off
+2025-11-27 08:21:14.60
+d8306602
+User
+* Running on http://localhost:8445
+2025-11-27 08:21:14.60
+d8306602
+User
+INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+2025-11-27 08:21:14.60
+d8306602
+User
+INFO:werkzeug:Press CTRL+C to quit
+2025-11-27 08:22:12.37
+d8306602
+System
+a port configuration was specified but the required port was never opened
+2025-11-27 15:11:20.76
+a6df86cc
+System
+starting up user application
+2025-11-27 15:11:20.76
+a6df86cc
+System
+metasidecar: loaded enterprise status from environment is_enterprise=false
+2025-11-27 15:11:20.76
+a6df86cc
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-11-27 15:11:37.74
+a6df86cc
+User
+Redis não disponível, usando fallback em memória: Error 111 connecting to localhost:6379. Connection refused.
+2025-11-27 15:11:37.74
+a6df86cc
+User
+Redis ficou não saudável, usando fallback: Error 111 connecting to localhost:6379. Connection refused.
+2025-11-27 15:11:37.81
+a6df86cc
+User
+⚠️ Auto-generated development secrets - NOT FOR PRODUCTION
+2025-11-27 15:11:40.74
+a6df86cc
+User
+{"timestamp": "2025-11-27T18:11:40.747853Z", "level": "INFO", "message": "PostgreSQL connection pool initialized", "logger": "production_api", "pool_min": 2, "pool_max": 20}
+2025-11-27 15:11:40.78
+a6df86cc
+User
+{"timestamp": "2025-11-27T18:11:40.785370Z", "level": "INFO", "message": "Pre-trained model loaded successfully", "logger": "fraud_engine", "model_file": "models/fraud_engine_v1.0.0.joblib", "features": 30, "threshold": 0.35}
+2025-11-27 15:11:40.78
+a6df86cc
+User
+{"timestamp": "2025-11-27T18:11:40.785632Z", "level": "INFO", "message": "Production Fraud Engine initialized", "logger": "fraud_engine", "version": "1.0.0", "threshold": 0.35, "model_path": "models"}
+2025-11-27 15:11:40.79
+a6df86cc
+User
+{"timestamp": "2025-11-27T18:11:40.794524Z", "level": "INFO", "message": "Production API initialized", "logger": "production_api", "environment": "development", "debug": false}
+2025-11-27 15:11:40.86
+a6df86cc
+User
+* Debug mode: off
+2025-11-27 15:11:40.86
+a6df86cc
+User
+Frontend exists: True
+2025-11-27 15:11:40.86
+a6df86cc
+User
+* Serving Flask app 'production_api'
+2025-11-27 15:11:40.86
+a6df86cc
+User
+=== Sankofa Enterprise Pro - Unified Server ===
+2025-11-27 15:11:40.86
+a6df86cc
+User
+Frontend dist: /home/runner/workspace/sankofa-enterprise-real/frontend/dist
+2025-11-27 15:11:40.86
+a6df86cc
+User
+API + Frontend running on port 5000
+2025-11-27 15:11:40.87
+a6df86cc
+User
+* Running on http://127.0.0.1:5000
+2025-11-27 15:11:40.87
+a6df86cc
+User
+* Running on http://169.254.8.1:5000
+2025-11-27 15:11:40.87
+a6df86cc
+User
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.

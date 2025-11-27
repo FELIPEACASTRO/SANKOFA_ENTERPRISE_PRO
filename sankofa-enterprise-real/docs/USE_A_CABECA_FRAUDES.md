@@ -85,6 +85,143 @@
 
 ---
 
+## Fraudes por Tipo de Transacao
+
+![Tipos de Transacao](images/tipos_transacao_pix_credito_debito.png)
+
+### Comparativo: PIX vs CREDITO vs DEBITO
+
+```
++======================================================================+
+|           FRAUDES POR TIPO DE TRANSACAO - BRASIL 2024                |
++======================================================================+
+|                                                                       |
+|  TIPO          VOLUME        FRAUDES       RISCO      REVERSAO       |
+|  ------        ------        -------       -----      --------       |
+|  PIX           71%           52%           ALTO       MUITO DIFICIL  |
+|  CREDITO       18%           28%           MEDIO      FACIL          |
+|  DEBITO        11%           20%           BAIXO      DIFICIL        |
+|                                                                       |
++======================================================================+
+```
+
+### PIX - O Mais Rapido (e Mais Arriscado)
+
+```
++------------------------------------------------------------------+
+|                    CARACTERISTICAS DO PIX                          |
++------------------------------------------------------------------+
+|                                                                   |
+| VELOCIDADE: Instantaneo (2-3 segundos)                            |
+| REVERSIBILIDADE: Muito baixa (MED obrigatoria)                    |
+| HORARIO: 24/7, 365 dias                                           |
+| LIMITE: Definido pelo banco (R$ 1.000 noturno padrao)             |
+|                                                                   |
+| FRAUDES MAIS COMUNS:                                              |
+| 1. Golpe do falso funcionario do banco                            |
+| 2. Sequestro relampago com PIX                                    |
+| 3. Golpe do WhatsApp "oi mae"                                     |
+| 4. QR Code fraudulento                                            |
+| 5. Falso leilao/venda online                                      |
+|                                                                   |
+| SINAIS DE FRAUDE:                                                 |
+| [!] Valor muito acima do padrao do cliente                        |
+| [!] Horario de madrugada (02:00-05:00)                            |
+| [!] Destinatario nunca visto antes                                |
+| [!] Multiplos PIX em sequencia rapida                             |
+| [!] Localizacao geografica impossivel                             |
+|                                                                   |
++------------------------------------------------------------------+
+```
+
+### CREDITO - Protecao ao Consumidor
+
+```
++------------------------------------------------------------------+
+|                CARACTERISTICAS DO CARTAO DE CREDITO                |
++------------------------------------------------------------------+
+|                                                                   |
+| VELOCIDADE: Pre-autorizacao em segundos, liquidacao D+30          |
+| REVERSIBILIDADE: Alta (chargeback ate 120 dias)                   |
+| HORARIO: 24/7 para compras online                                 |
+| LIMITE: Credito rotativo aprovado pelo banco                      |
+|                                                                   |
+| FRAUDES MAIS COMUNS:                                              |
+| 1. Clonagem de cartao (dados roubados)                            |
+| 2. Compra online com dados vazados                                |
+| 3. Cartao nao presente (CNP) - e-commerce                         |
+| 4. Testagem de cartoes (pequenas compras)                         |
+| 5. Fraude amiga (comprador contesta legitima)                     |
+|                                                                   |
+| SINAIS DE FRAUDE:                                                 |
+| [!] Compra internacional sem aviso previo                         |
+| [!] Multiplas compras em sites diferentes rapidamente             |
+| [!] Primeiro uso online apos anos dormentes                       |
+| [!] Valor muito acima do ticket medio                             |
+| [!] Loja online sem reputacao                                     |
+|                                                                   |
+| VANTAGEM: Consumidor pode contestar e recuperar dinheiro          |
+|                                                                   |
++------------------------------------------------------------------+
+```
+
+### DEBITO - Desconto Instantaneo
+
+```
++------------------------------------------------------------------+
+|                CARACTERISTICAS DO CARTAO DE DEBITO                 |
++------------------------------------------------------------------+
+|                                                                   |
+| VELOCIDADE: Debito instantaneo do saldo                           |
+| REVERSIBILIDADE: Limitada (depende do banco)                      |
+| HORARIO: Horario comercial para TEF, 24/7 para ATM                |
+| LIMITE: Saldo disponivel na conta                                 |
+|                                                                   |
+| FRAUDES MAIS COMUNS:                                              |
+| 1. Clonagem em maquininhas adulteradas                            |
+| 2. Troca de cartao por fraudador                                  |
+| 3. Filmagem de senha + furto de cartao                            |
+| 4. Saque em ATM com cartao clonado                                |
+| 5. Golpe do envelope vazio em deposito                            |
+|                                                                   |
+| SINAIS DE FRAUDE:                                                 |
+| [!] Saque em cidade diferente da residencia                       |
+| [!] Multiplos saques ATM em sequencia                             |
+| [!] Compra presencial + saque logo depois                         |
+| [!] Uso em estabelecimento de alto risco                          |
+| [!] Horario atipico para o cliente                                |
+|                                                                   |
+| VANTAGEM: Requer senha, mais dificil fraude remota                |
+|                                                                   |
++------------------------------------------------------------------+
+```
+
+### Tabela de Risco por Canal e Tipo
+
+```
++======================================================================+
+|                    MATRIZ DE RISCO POR CANAL                          |
++======================================================================+
+|                                                                       |
+|              MOBILE    WEB     ATM     POS     TELEFONE              |
+|              ------   ----    ----    ----    --------               |
+|  PIX          30%     50%      -       -        70%                  |
+|  CREDITO      35%     60%      -      25%       40%                  |
+|  DEBITO       20%      -      45%     20%        -                   |
+|                                                                       |
+| Legenda: Porcentagem = probabilidade de fraude neste canal           |
+|                                                                       |
+| OBSERVACOES:                                                         |
+| - PIX por telefone = maior risco (engenharia social)                 |
+| - Credito web = alto risco (dados podem estar vazados)               |
+| - Debito ATM = risco medio (requer cartao + senha)                   |
+| - Mobile geralmente mais seguro (biometria + dispositivo conhecido)  |
+|                                                                       |
++======================================================================+
+```
+
+---
+
 ## Evolucao das Fraudes
 
 ![Evolucao das Fraudes](images/evolucao_fraudes_bancarias_brasil.png)
@@ -454,7 +591,138 @@ caracteristico de cartao clonado sendo usado rapidamente."
 
 ---
 
-### CASO FACIL 3: Conta Laranja Obvia
+### CASO FACIL 3: Cartao de CREDITO Clonado (Compra Internacional)
+
+```
++==================================================================+
+|               CASO: CREDITO CLONADO - COMPRA INTERNACIONAL        |
++==================================================================+
+| DIFICULDADE: FACIL | SCORE: 96 | DECISAO: FRAUDE                 |
++==================================================================+
+
+DADOS:
+- Cliente: Marcos Oliveira, 38 anos, contador (mora em Curitiba)
+- Transacao: CREDITO de US$ 2,500.00 na Apple Store Dubai
+- Horario: 04:15 BRT (horario local Dubai: 11:15)
+- Ultima transacao legitima: Padaria em Curitiba as 07:30 ontem
+- Canal: E-commerce internacional
+
+ANALISE DO SISTEMA:
+
+  Fator: LOCALIZACAO
+  +----------------------------------------------------------+
+  | Ultima transacao: Curitiba, Brasil                       |
+  | Esta transacao: Dubai, EAU                               |
+  | Tempo decorrido: 20 horas                                |
+  | Tempo minimo de voo: 16+ horas                           |
+  | Cliente tem aviso de viagem? NAO                         |
+  |                                                          |
+  | VEREDICTO: VIAGEM NAO AVISADA                           |
+  | Contribuicao ao score: +30 pontos                        |
+  +----------------------------------------------------------+
+  
+  Fator: PADRAO DE COMPRA
+  +----------------------------------------------------------+
+  | Historico internacional: NUNCA comprou fora do Brasil    |
+  | Valor medio: R$ 450                                      |
+  | Esta compra: R$ 12.500 (US$ 2,500)                       |
+  | Desvio: 27x acima do padrao                              |
+  |                                                          |
+  | VEREDICTO: VALOR MUITO ACIMA DO PADRAO                  |
+  | Contribuicao ao score: +35 pontos                        |
+  +----------------------------------------------------------+
+  
+  Fator: COMERCIANTE
+  +----------------------------------------------------------+
+  | Apple Store: Loja de alto risco (eletronicos caros)      |
+  | Frequencia de fraude nesta categoria: ALTA               |
+  | Cliente nunca comprou eletronicos caros antes            |
+  |                                                          |
+  | Contribuicao ao score: +15 pontos                        |
+  +----------------------------------------------------------+
+
+CALCULO FINAL: 96 pontos
+DECISAO: FRAUDE - BLOQUEIO AUTOMATICO
+ACOES:
+- Transacao recusada
+- SMS enviado: "Tentativa de compra de US$ 2,500 em Dubai recusada"
+- Cartao bloqueado preventivamente
+- Cliente orientado a ligar para o banco
+
+EXPLICACAO LGPD: "Bloqueamos uma compra de R$ 12.500 em Dubai porque 
+voce nunca fez compras internacionais e estava em Curitiba ontem. 
+Se foi voce, entre em contato para liberar."
+```
+
+---
+
+### CASO FACIL 4: Cartao de DEBITO Clonado (Saques em ATM)
+
+```
++==================================================================+
+|               CASO: DEBITO CLONADO - SAQUES MULTIPLOS            |
++==================================================================+
+| DIFICULDADE: FACIL | SCORE: 94 | DECISAO: FRAUDE                 |
++==================================================================+
+
+DADOS:
+- Cliente: Lucia Ferreira, 62 anos, aposentada
+- Transacoes DEBITO:
+  - 23:15 - Saque ATM Bradesco Centro: R$ 1.000
+  - 23:18 - Saque ATM Itau Centro: R$ 1.000
+  - 23:22 - Saque ATM Santander Centro: R$ 1.000
+  - 23:25 - Saque ATM BB Centro: R$ 1.000 [BLOQUEADO]
+- Localizacao: Todos em rua do centro de Fortaleza
+- Horario: Madrugada
+
+ANALISE DO SISTEMA:
+
+  Fator: VELOCIDADE DE SAQUES
+  +----------------------------------------------------------+
+  | Saques normais da cliente: 1-2 por mes                   |
+  | Saques esta noite: 4 em 10 minutos                       |
+  | Intervalo entre saques: 3 minutos                        |
+  |                                                          |
+  | VEREDICTO: VELOCIDADE ANORMAL                           |
+  | Contribuicao ao score: +35 pontos                        |
+  +----------------------------------------------------------+
+  
+  Fator: HORARIO
+  +----------------------------------------------------------+
+  | Hora: 23:15-23:25 (noite)                                |
+  | Historico da cliente: NUNCA saca a noite                 |
+  | Cliente tem 62 anos: Perfil conservador                  |
+  |                                                          |
+  | VEREDICTO: HORARIO INCOMPATIVEL COM PERFIL              |
+  | Contribuicao ao score: +25 pontos                        |
+  +----------------------------------------------------------+
+  
+  Fator: PADRAO DE ATM
+  +----------------------------------------------------------+
+  | ATMs diferentes em sequencia: 4 bancos diferentes        |
+  | Rota: Todos na mesma rua (percurso a pe)                 |
+  | Padrao tipico: Fraudador maximizando saques              |
+  |                                                          |
+  | VEREDICTO: PADRAO DE FRAUDE EM ATM                      |
+  | Contribuicao ao score: +20 pontos                        |
+  +----------------------------------------------------------+
+
+CALCULO FINAL: 94 pontos
+DECISAO: FRAUDE - BLOQUEIO NO 4o SAQUE
+ACOES:
+- Cartao bloqueado
+- Policia notificada (saque em andamento)
+- Cameras dos ATMs preservadas
+- Familia da cliente notificada
+
+EXPLICACAO LGPD: "Bloqueamos seu cartao porque detectamos 4 saques 
+em caixas eletronicos diferentes em 10 minutos as 23h. Isso nao 
+condiz com seu perfil de uso. Ligue para o banco urgente."
+```
+
+---
+
+### CASO FACIL 5: Conta Laranja Obvia
 
 ```
 +==================================================================+
@@ -601,7 +869,113 @@ TEMPO: 12ms
 
 ---
 
-### APROVACAO SEGURA 2: Transferencia Familiar
+### APROVACAO SEGURA 2: Compra no CREDITO em Loja Conhecida
+
+```
++==================================================================+
+|               CASO: CREDITO NO SHOPPING                           |
++==================================================================+
+| DIFICULDADE: FACIL | SCORE: 8 | DECISAO: APROVADO                |
++==================================================================+
+
+DADOS:
+- Cliente: Fernanda Lima, 42 anos, advogada
+- Transacao: CREDITO de R$ 1.299,90 na Renner Shopping Morumbi
+- Horario: 16:30 (sabado)
+- Dispositivo: Terminal POS da loja (maquininha conhecida)
+- Autenticacao: Chip + senha digitada
+
+ANALISE DO SISTEMA:
+
+  Fator: COMERCIANTE
+  +----------------------------------------------------------+
+  | Loja Renner: Rede confiavel com 600+ lojas no Brasil     |
+  | Terminal registrado: Sim (codigo MCC 5651 - roupas)      |
+  | Historico cliente nesta loja: 8 compras em 2 anos        |
+  |                                                          |
+  | Contribuicao ao score: 0 pontos                          |
+  +----------------------------------------------------------+
+  
+  Fator: VALOR
+  +----------------------------------------------------------+
+  | Valor medio cartao credito cliente: R$ 850               |
+  | Esta compra: R$ 1.299,90                                 |
+  | Desvio: +53% (moderado, mas Black Friday)                |
+  | Limite disponivel: R$ 8.500 (compra dentro do limite)    |
+  |                                                          |
+  | Contribuicao ao score: +5 pontos                         |
+  +----------------------------------------------------------+
+  
+  Fator: AUTENTICACAO
+  +----------------------------------------------------------+
+  | Metodo: Chip + Senha                                     |
+  | Chip presente: SIM (nao e fraude CNP)                    |
+  | Senha correta: SIM (primeira tentativa)                  |
+  |                                                          |
+  | Contribuicao ao score: 0 pontos                          |
+  +----------------------------------------------------------+
+
+CALCULO FINAL: 8 pontos
+DECISAO: APROVADO AUTOMATICAMENTE
+TEMPO: 8ms
+```
+
+---
+
+### APROVACAO SEGURA 3: Compra no DEBITO no Supermercado
+
+```
++==================================================================+
+|               CASO: DEBITO NO MERCADO                             |
++==================================================================+
+| DIFICULDADE: FACIL | SCORE: 4 | DECISAO: APROVADO                |
++==================================================================+
+
+DADOS:
+- Cliente: Roberto Santos, 55 anos, motorista
+- Transacao: DEBITO de R$ 342,18 no Extra Guarulhos
+- Horario: 19:45 (quinta-feira)
+- Dispositivo: Terminal POS do supermercado
+- Autenticacao: Chip + senha
+
+ANALISE DO SISTEMA:
+
+  Fator: PADRAO DE COMPRAS
+  +----------------------------------------------------------+
+  | Compras no Extra: 12 nos ultimos 3 meses                 |
+  | Valor medio: R$ 280                                      |
+  | Esta compra: R$ 342 (dentro do esperado)                 |
+  | Dia da semana: Quinta (dia de rancho dele)               |
+  |                                                          |
+  | Contribuicao ao score: +2 pontos                         |
+  +----------------------------------------------------------+
+  
+  Fator: SALDO
+  +----------------------------------------------------------+
+  | Saldo disponivel: R$ 2.450,00                            |
+  | Valor da compra: R$ 342,18                               |
+  | Percentual do saldo: 14% (normal)                        |
+  |                                                          |
+  | Contribuicao ao score: 0 pontos                          |
+  +----------------------------------------------------------+
+  
+  Fator: LOCALIZACAO
+  +----------------------------------------------------------+
+  | Guarulhos: Cliente mora em Guarulhos                     |
+  | Distancia de casa: 3.2 km                                |
+  | Loja mais frequentada pelo cliente: SIM                  |
+  |                                                          |
+  | Contribuicao ao score: 0 pontos                          |
+  +----------------------------------------------------------+
+
+CALCULO FINAL: 4 pontos
+DECISAO: APROVADO AUTOMATICAMENTE
+TEMPO: 6ms
+```
+
+---
+
+### APROVACAO SEGURA 4: Transferencia Familiar via PIX
 
 ```
 +==================================================================+
