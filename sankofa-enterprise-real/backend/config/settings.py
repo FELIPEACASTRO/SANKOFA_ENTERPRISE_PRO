@@ -22,23 +22,29 @@ class DatabaseConfig:
     password: str
     pool_size: int
     pool_timeout: int
+    database_url: Optional[str] = None
 
     @classmethod
     def from_env(cls) -> "DatabaseConfig":
-        """Carrega configuração de variáveis de ambiente"""
+        """Carrega configuração de variáveis de ambiente (compatível com Replit PostgreSQL)"""
+        database_url = os.getenv("DATABASE_URL")
+        
         return cls(
-            host=os.getenv("DB_HOST", "localhost"),
-            port=int(os.getenv("DB_PORT", "5432")),
-            name=os.getenv("DB_NAME", "sankofa_fraud_db"),
-            user=os.getenv("DB_USER", "sankofa"),
-            password=os.getenv("DB_PASSWORD", ""),
+            host=os.getenv("PGHOST", os.getenv("DB_HOST", "localhost")),
+            port=int(os.getenv("PGPORT", os.getenv("DB_PORT", "5432"))),
+            name=os.getenv("PGDATABASE", os.getenv("DB_NAME", "sankofa_fraud_db")),
+            user=os.getenv("PGUSER", os.getenv("DB_USER", "sankofa")),
+            password=os.getenv("PGPASSWORD", os.getenv("DB_PASSWORD", "")),
             pool_size=int(os.getenv("DB_POOL_SIZE", "20")),
             pool_timeout=int(os.getenv("DB_POOL_TIMEOUT", "30")),
+            database_url=database_url,
         )
 
     @property
     def connection_string(self) -> str:
         """String de conexão PostgreSQL"""
+        if self.database_url:
+            return self.database_url
         return f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}"
 
 

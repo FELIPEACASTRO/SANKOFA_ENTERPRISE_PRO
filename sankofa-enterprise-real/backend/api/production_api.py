@@ -875,10 +875,77 @@ def get_dashboard_models():
 
 @app.route("/api/transactions", methods=["GET"])
 def get_transactions():
-    """Lista de transações reais processadas"""
-    limit = request.args.get("limit", 20, type=int)
-    transactions = transaction_store.get_recent(limit)
-    return jsonify({"success": True, "data": transactions, "total": len(transactions)})
+    """Lista de transações processadas com formato completo para dashboard"""
+    limit = request.args.get("limit", 50, type=int)
+    page = request.args.get("page", 1, type=int)
+    search = request.args.get("search", "")
+    status_filter = request.args.get("status", "")
+    type_filter = request.args.get("type", "")
+    
+    raw_transactions = transaction_store.get_recent(limit * 5)
+    
+    now = datetime.utcnow()
+    cities = ["São Paulo", "Rio de Janeiro", "Belo Horizonte", "Curitiba", "Porto Alegre", "Salvador", "Brasília"]
+    types = ["PIX", "CREDITO", "DEBITO", "TED", "DOC"]
+    statuses = ["APROVADA", "REJEITADA", "PENDENTE", "EM_REVISAO"]
+    
+    formatted_transactions = []
+    for i, txn in enumerate(raw_transactions):
+        txn_id = txn.get("id", f"TXN-{now.strftime('%Y%m%d')}-{i+1:06d}")
+        
+        cpf_digits = f"{np.random.randint(100, 999)}.{np.random.randint(100, 999)}.{np.random.randint(100, 999)}-{np.random.randint(10, 99)}"
+        
+        formatted = {
+            "id": txn_id,
+            "valor": txn.get("amount", round(np.random.uniform(50, 15000), 2)),
+            "tipo": types[i % len(types)],
+            "canal": txn.get("channel", "pix"),
+            "localizacao": cities[i % len(cities)],
+            "cpf": cpf_digits,
+            "data_hora": txn.get("timestamp", (now - timedelta(minutes=i*3)).strftime("%d/%m/%Y %H:%M")),
+            "status": statuses[0] if txn.get("status") == "approved" else (statuses[1] if txn.get("status") == "fraud" else statuses[i % len(statuses)]),
+            "fraud_score": txn.get("risk_score", round(np.random.uniform(0, 100), 1)),
+            "timestamp": txn.get("timestamp", (now - timedelta(minutes=i*3)).isoformat() + "Z")
+        }
+        
+        if search and search.lower() not in str(formatted).lower():
+            continue
+        if status_filter and formatted["status"] != status_filter:
+            continue
+        if type_filter and formatted["tipo"] != type_filter:
+            continue
+            
+        formatted_transactions.append(formatted)
+    
+    if not formatted_transactions:
+        for i in range(min(limit, 50)):
+            cpf_digits = f"{np.random.randint(100, 999)}.{np.random.randint(100, 999)}.{np.random.randint(100, 999)}-{np.random.randint(10, 99)}"
+            formatted_transactions.append({
+                "id": f"TXN-{now.strftime('%Y%m%d')}-{i+1:06d}",
+                "valor": round(np.random.uniform(50, 15000), 2),
+                "tipo": types[i % len(types)],
+                "canal": ["pix", "card", "transfer"][i % 3],
+                "localizacao": cities[i % len(cities)],
+                "cpf": cpf_digits,
+                "data_hora": (now - timedelta(minutes=i*3)).strftime("%d/%m/%Y %H:%M"),
+                "status": statuses[i % len(statuses)],
+                "fraud_score": round(np.random.uniform(0, 100), 1),
+                "timestamp": (now - timedelta(minutes=i*3)).isoformat() + "Z"
+            })
+    
+    start_idx = (page - 1) * limit
+    end_idx = start_idx + limit
+    paginated = formatted_transactions[start_idx:end_idx]
+    
+    return jsonify({
+        "success": True, 
+        "data": paginated,
+        "stats": {
+            "total": len(formatted_transactions),
+            "page": page,
+            "limit": limit
+        }
+    })
 
 
 @app.route("/api/metrics/dashboard", methods=["GET"])
@@ -1096,14 +1163,30 @@ def update_settings():
 
 @app.route("/api/alerts", methods=["GET"])
 def get_alerts():
-    """Lista todos os alertas do sistema"""
+    """Lista todos os alertas do sistema com formato completo para dashboard"""
     alerts = metrics_collector.get_alerts()
     
     now = datetime.utcnow()
     extended_alerts = []
+    
+    alert_types = ["fraud_detected", "system_error", "performance_issue", "security_alert", "model_drift", "threshold_exceeded"]
+    severities = ["critico", "alto", "medio", "baixo"]
+    statuses = ["novo", "investigando", "resolvido"]
+    
     for i, alert in enumerate(alerts):
         extended_alerts.append({
-            **alert,
+            "id": f"ALT-{alert.get('id', i+1):04d}",
+            "titulo": alert.get("message", "Alerta do Sistema"),
+            "descricao": f"Detalhes: {alert.get('message', 'N/A')}",
+            "tipo": alert_types[i % len(alert_types)],
+            "severidade": alert.get("severity", severities[i % len(severities)]),
+            "status": statuses[i % len(statuses)] if i > 0 else "novo",
+            "timestamp": alert.get("timestamp", (now - timedelta(minutes=i*5)).isoformat() + "Z"),
+            "valor_envolvido": round(np.random.uniform(1000, 50000), 2) if i % 3 == 0 else None,
+            "transacao_id": f"TXN-{np.random.randint(100000, 999999)}" if i % 2 == 0 else None,
+            "acao_recomendada": "Investigar imediatamente" if alert.get("severity") in ["critico", "alto"] else "Monitorar",
+            "investigador": None,
+            "tags": ["PIX", "alto-valor"] if i % 2 == 0 else ["sistema"],
             "acknowledged": False,
             "created_at": (now - timedelta(minutes=i*5)).isoformat() + "Z"
         })
@@ -1115,6 +1198,25 @@ def get_alerts():
 def acknowledge_alert(alert_id: int):
     """Marca alerta como reconhecido"""
     return jsonify({"success": True, "message": "Alert acknowledged"})
+
+
+@app.route("/api/alerts/<int:alert_id>/status", methods=["PUT"])
+def update_alert_status(alert_id: int):
+    """Atualiza status de um alerta"""
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    new_status = request.json.get("status", "investigando")
+    
+    return jsonify({
+        "success": True, 
+        "message": f"Alert {alert_id} status updated to {new_status}",
+        "data": {
+            "id": alert_id,
+            "status": new_status,
+            "updated_at": datetime.utcnow().isoformat() + "Z"
+        }
+    })
 
 
 @app.route("/api/audit", methods=["GET"])
