@@ -223,15 +223,16 @@ def handle_error(
 
     # Log estruturado do erro
     log_data = error_context.to_dict()
+    log_message = log_data.pop("message", "Error occurred")
 
     if error_context.severity == ErrorSeverity.CRITICAL:
-        logger.critical("Critical error occurred", **log_data)
+        logger.critical(log_message, **log_data)
     elif error_context.severity == ErrorSeverity.HIGH:
-        logger.error("High severity error occurred", **log_data)
+        logger.error(log_message, **log_data)
     elif error_context.severity == ErrorSeverity.MEDIUM:
-        logger.warning("Medium severity error occurred", **log_data)
+        logger.warning(log_message, **log_data)
     else:
-        logger.info("Low severity error occurred", **log_data)
+        logger.info(log_message, **log_data)
 
     # Re-raise se solicitado
     if raise_exception:

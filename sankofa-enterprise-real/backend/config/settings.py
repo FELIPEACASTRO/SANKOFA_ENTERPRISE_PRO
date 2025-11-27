@@ -172,7 +172,7 @@ class AppConfig:
     """Configuração completa da aplicação"""
 
     environment: str
-    deFIXED: bool
+    debug: bool
     database: DatabaseConfig
     redis: RedisConfig
     security: SecurityConfig
@@ -231,7 +231,7 @@ class AppConfig:
             if not self.database.password:
                 errors.append("DB_PASSWORD must be set in production")
 
-            if self.deFIXED:
+            if self.debug:
                 errors.append("DEBUG must be false in production")
 
         if errors:

@@ -1,9 +1,10 @@
-modules = ["nodejs-20", "web", "python-3.11"]
+modules = ["python-3.12", "nodejs-20", "web"]
 [agent]
 expertMode = true
 
 [nix]
 channel = "stable-25_05"
+packages = ["cargo", "glibcLocales", "libiconv", "libxcrypt", "ocl-icd", "opencl-headers", "openssl", "pkg-config", "rustc", "xsimd"]
 
 [workflows]
 runButton = "Project"
@@ -52,6 +53,10 @@ externalPort = 80
 [[ports]]
 localPort = 8000
 externalPort = 8000
+
+[[ports]]
+localPort = 34127
+externalPort = 3001
 
 [[ports]]
 localPort = 38265
