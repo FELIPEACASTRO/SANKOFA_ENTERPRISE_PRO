@@ -1,0 +1,203 @@
+"""
+Sankofa Enterprise Pro - Ensemble Integration Layer
+Integra CatBoost, GNN e outros modelos com o engine de fraude existente
+"""
+
+import numpy as np
+import pandas as pd
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass
+import logging
+from datetime import datetime
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class EnsemblePrediction:
+    """Predição do ensemble integrado"""
+    fraud_probability: float
+    is_fraud: bool
+    model_contributions: Dict[str, float]
+    gnn_risk_score: float
+    gnn_suspicious_patterns: List[str]
+    catboost_probability: float
+    base_probability: float
+    processing_time_ms: float
+
+
+class IntegratedEnsemble:
+    """
+    Integra múltiplos modelos de ML em um ensemble unificado
+    
+    Modelos integrados:
+    - Base: RF + GB + LR (existente)
+    - CatBoost: Para features categóricas
+    - GNN: Para análise de relacionamentos
+    """
+    
+    VERSION = "2.0.0"
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = config or {}
+        
+        self.weights = {
+            'base_ensemble': 0.50,
+            'catboost': 0.25,
+            'gnn': 0.25,
+        }
+        
+        self.catboost_model = None
+        self.gnn_detector = None
+        self._catboost_available = False
+        self._gnn_available = False
+        
+        self._initialize_models()
+    
+    def _initialize_models(self):
+        """Inicializa modelos opcionais (CatBoost, GNN)"""
+        try:
+            from ml_engine.catboost_model import CatBoostFraudModel, CATBOOST_AVAILABLE
+            if CATBOOST_AVAILABLE:
+                self.catboost_model = CatBoostFraudModel(self.config)
+                self._catboost_available = True
+                logger.info("CatBoost model initialized for ensemble")
+        except Exception as e:
+            logger.warning(f"CatBoost not available: {e}")
+        
+        try:
+            from ml_engine.gnn_fraud_detector import GNNFraudDetector, NETWORKX_AVAILABLE
+            if NETWORKX_AVAILABLE:
+                self.gnn_detector = GNNFraudDetector(self.config)
+                self._gnn_available = True
+                logger.info("GNN detector initialized for ensemble")
+        except Exception as e:
+            logger.warning(f"GNN not available: {e}")
+        
+        self._adjust_weights()
+    
+    def _adjust_weights(self):
+        """Ajusta pesos baseado em modelos disponíveis"""
+        if not self._catboost_available and not self._gnn_available:
+            self.weights = {'base_ensemble': 1.0, 'catboost': 0.0, 'gnn': 0.0}
+        elif not self._catboost_available:
+            self.weights = {'base_ensemble': 0.7, 'catboost': 0.0, 'gnn': 0.3}
+        elif not self._gnn_available:
+            self.weights = {'base_ensemble': 0.65, 'catboost': 0.35, 'gnn': 0.0}
+        
+        logger.info(f"Ensemble weights adjusted: {self.weights}")
+    
+    def train_catboost(self, X: pd.DataFrame, y: np.ndarray) -> Dict[str, float]:
+        """Treina o modelo CatBoost"""
+        if not self._catboost_available or self.catboost_model is None:
+            return {}
+        
+        from sklearn.model_selection import train_test_split
+        X_train, X_val, y_train, y_val = train_test_split(
+            X, y, test_size=0.2, random_state=42, stratify=y
+        )
+        
+        metrics = self.catboost_model.train(X_train, y_train, X_val, y_val)
+        logger.info(f"CatBoost trained: {metrics}")
+        return metrics
+    
+    def add_transactions_to_gnn(self, transactions: pd.DataFrame):
+        """Adiciona transações ao grafo GNN"""
+        if not self._gnn_available or self.gnn_detector is None:
+            return
+        
+        self.gnn_detector.add_historical_transactions(transactions)
+        logger.info(f"Added {len(transactions)} transactions to GNN graph")
+    
+    def predict_combined(
+        self,
+        transaction: Dict[str, Any],
+        base_probability: float
+    ) -> EnsemblePrediction:
+        """
+        Faz predição combinando todos os modelos
+        
+        Args:
+            transaction: Dados da transação
+            base_probability: Probabilidade do ensemble base (RF+GB+LR)
+            
+        Returns:
+            Predição do ensemble integrado
+        """
+        import time
+        start_time = time.time()
+        
+        contributions = {'base_ensemble': base_probability}
+        catboost_prob = 0.0
+        gnn_risk = 0.0
+        gnn_patterns = []
+        
+        if self._catboost_available and self.catboost_model and self.catboost_model.is_trained:
+            try:
+                df = pd.DataFrame([transaction])
+                predictions = self.catboost_model.predict(df)
+                if predictions:
+                    catboost_prob = predictions[0].fraud_probability
+                    contributions['catboost'] = catboost_prob
+            except Exception as e:
+                logger.warning(f"CatBoost prediction failed: {e}")
+                catboost_prob = base_probability
+        
+        if self._gnn_available and self.gnn_detector:
+            try:
+                gnn_prediction = self.gnn_detector.analyze_transaction(
+                    transaction_id=str(transaction.get('transaction_id', '')),
+                    customer_id=str(transaction.get('customer_id', transaction.get('cliente_cpf', ''))),
+                    amount=float(transaction.get('amount', 0)),
+                    receiver_id=transaction.get('receiver_id'),
+                    device_id=transaction.get('device_id'),
+                    ip_address=transaction.get('ip_address'),
+                )
+                gnn_risk = gnn_prediction.graph_risk_score
+                gnn_patterns = gnn_prediction.suspicious_patterns
+                contributions['gnn'] = gnn_risk
+            except Exception as e:
+                logger.warning(f"GNN analysis failed: {e}")
+        
+        combined_prob = (
+            base_probability * self.weights['base_ensemble'] +
+            catboost_prob * self.weights['catboost'] +
+            gnn_risk * self.weights['gnn']
+        )
+        
+        combined_prob = max(0.0, min(1.0, combined_prob))
+        
+        processing_time = (time.time() - start_time) * 1000
+        
+        return EnsemblePrediction(
+            fraud_probability=combined_prob,
+            is_fraud=combined_prob >= 0.5,
+            model_contributions=contributions,
+            gnn_risk_score=gnn_risk,
+            gnn_suspicious_patterns=gnn_patterns,
+            catboost_probability=catboost_prob,
+            base_probability=base_probability,
+            processing_time_ms=processing_time
+        )
+    
+    def get_ensemble_info(self) -> Dict[str, Any]:
+        """Retorna informações do ensemble"""
+        return {
+            "version": self.VERSION,
+            "weights": self.weights,
+            "catboost_available": self._catboost_available,
+            "catboost_trained": self._catboost_available and self.catboost_model and self.catboost_model.is_trained,
+            "gnn_available": self._gnn_available,
+            "gnn_stats": self.gnn_detector.get_graph_stats() if self._gnn_available and self.gnn_detector else {},
+        }
+
+
+_integrated_ensemble: Optional[IntegratedEnsemble] = None
+
+
+def get_integrated_ensemble() -> IntegratedEnsemble:
+    """Retorna instância singleton do ensemble integrado"""
+    global _integrated_ensemble
+    if _integrated_ensemble is None:
+        _integrated_ensemble = IntegratedEnsemble()
+    return _integrated_ensemble

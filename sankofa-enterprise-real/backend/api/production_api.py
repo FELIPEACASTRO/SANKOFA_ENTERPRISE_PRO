@@ -42,7 +42,17 @@ from utils.error_handling import (
 )
 from ml_engine.production_fraud_engine import get_fraud_engine, FraudPrediction
 from ml_engine.explainability_engine import ExplainabilityEngine
+from ml_engine.ensemble_integration import get_integrated_ensemble
 from cache.redis_cache_system import redis_cache_system, fraud_cache_manager
+
+try:
+    from security.rbac_system import get_rbac_system, Permission, initialize_rbac_with_users
+    from security.cpf_tokenization import get_tokenization_service
+    from compliance.bacen_reports import create_bacen_generator
+    ADVANCED_SECURITY_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Advanced security modules not available: {e}")
+    ADVANCED_SECURITY_AVAILABLE = False
 from monitoring.observability import (
     observability_metrics,
     alert_manager,
