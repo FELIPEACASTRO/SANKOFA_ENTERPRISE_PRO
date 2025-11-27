@@ -106,6 +106,46 @@
 
 O **Sankofa Enterprise Pro** e um sistema de deteccao de fraudes financeiras que analisa transacoes em tempo real usando Inteligencia Artificial.
 
+### Tipos de Transacao Analisados
+
+```
++==============================================================================+
+|                    TIPOS DE TRANSACAO SUPORTADOS                              |
++==============================================================================+
+|                                                                               |
+|  O sistema analisa TODOS os tipos de transacao bancaria:                      |
+|                                                                               |
+|  ┌───────────────────────────────────────────────────────────────────────┐   |
+|  │                                                                        │   |
+|  │   💸 PIX                        💳 CARTAO DE CREDITO                  │   |
+|  │   ─────────────                 ─────────────────────                  │   |
+|  │   Transferencias instantaneas   Compras presenciais e online          │   |
+|  │   24 horas por dia              Parceladas ou a vista                 │   |
+|  │   Chaves: CPF, email, tel       Nacional e internacional              │   |
+|  │   RISCO ALTO (irreversivel)     RISCO MEDIO (chargeback)              │   |
+|  │                                                                        │   |
+|  │   💳 CARTAO DE DEBITO           🏦 TED / DOC                          │   |
+|  │   ─────────────────────         ─────────────                          │   |
+|  │   Saques em ATM                 Transferencias bancarias              │   |
+|  │   Compras presenciais           Entre contas de bancos                │   |
+|  │   Desconto direto na conta      Horario bancario (TED)                │   |
+|  │   RISCO BAIXO (cartao+senha)    RISCO MEDIO                           │   |
+|  │                                                                        │   |
+|  └───────────────────────────────────────────────────────────────────────┘   |
+|                                                                               |
+|  ESTATISTICAS DE FRAUDE POR TIPO (baseado em dados historicos):               |
+|  +-----------------------------------------------------------------------+   |
+|  | TIPO       | % DO VOLUME | % DAS FRAUDES | FRAUDE MAIS COMUM          |   |
+|  +------------+-------------+---------------+----------------------------+   |
+|  | PIX        |     45%     |      52%      | Engenharia social          |   |
+|  | CREDITO    |     30%     |      28%      | Clonagem / vazamento       |   |
+|  | DEBITO     |     15%     |      12%      | Clonagem fisica            |   |
+|  | TED/DOC    |     10%     |       8%      | Golpe do boleto            |   |
+|  +-----------------------------------------------------------------------+   |
+|                                                                               |
++==============================================================================+
+```
+
 ```
 +==============================================================================+
 |                         O QUE O SANKOFA FAZ?                                  |

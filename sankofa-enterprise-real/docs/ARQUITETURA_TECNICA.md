@@ -73,6 +73,79 @@
 
 ---
 
+## Tipos de Transacao Suportados
+
+O sistema processa diferentes tipos de transacoes, cada um com caracteristicas unicas de risco:
+
+```
++==============================================================================+
+|                    TIPOS DE TRANSACAO SUPORTADOS                              |
++==============================================================================+
+|                                                                               |
+|  +------------------+------------------+------------------+------------------+|
+|  |      PIX         |     CREDITO      |     DEBITO       |    TED/DOC      ||
+|  +------------------+------------------+------------------+------------------+|
+|  |                  |                  |                  |                  ||
+|  | Transferencia    | Compra com       | Desconto em      | Transferencia   ||
+|  | instantanea      | cartao credito   | conta corrente   | tradicional     ||
+|  | (24/7/365)       |                  |                  |                  ||
+|  |                  |                  |                  |                  ||
+|  +------------------+------------------+------------------+------------------+|
+|  | RISCO: ALTO      | RISCO: MEDIO     | RISCO: BAIXO     | RISCO: MEDIO    ||
+|  | Irreversivel     | Chargeback ok    | Requer cartao    | Pode reverter   ||
+|  +------------------+------------------+------------------+------------------+|
+|                                                                               |
+|  FEATURES ESPECIFICAS POR TIPO:                                               |
+|  +--------------------------------------------------------------------------+|
+|  |                                                                           ||
+|  |  PIX:                                                                     ||
+|  |  • velocity_pix_1h      - Qtd PIX na ultima hora                         ||
+|  |  • pix_destination_new  - Destinatario nunca usado                       ||
+|  |  • pix_night_amount     - Valor de PIX noturno                           ||
+|  |  • pix_recipient_risk   - Score de risco do recebedor                    ||
+|  |                                                                           ||
+|  |  CREDITO:                                                                 ||
+|  |  • card_present         - Cartao presente na transacao                   ||
+|  |  • merchant_category    - Categoria do comerciante (MCC)                 ||
+|  |  • is_international     - Compra fora do Brasil                          ||
+|  |  • card_velocity_1h     - Qtd compras na ultima hora                     ||
+|  |  • online_purchase      - Compra e-commerce                              ||
+|  |                                                                           ||
+|  |  DEBITO:                                                                  ||
+|  |  • atm_location_risk    - Risco do ATM usado                             ||
+|  |  • pin_attempts         - Tentativas de senha                            ||
+|  |  • withdrawal_pattern   - Padrao de saque                                ||
+|  |  • pos_terminal_risk    - Risco da maquininha                            ||
+|  |                                                                           ||
+|  |  TED/DOC:                                                                 ||
+|  |  • ted_recipient_new    - Destinatario novo                              ||
+|  |  • ted_value_deviation  - Desvio do valor normal                         ||
+|  |  • scheduling_pattern   - Agendamento vs imediato                        ||
+|  |                                                                           ||
+|  +--------------------------------------------------------------------------+|
+|                                                                               |
+|  EXEMPLOS DE PAYLOAD POR TIPO:                                                |
+|  +--------------------------------------------------------------------------+|
+|  |                                                                           ||
+|  |  PIX:                                                                     ||
+|  |  {"channel": "PIX", "amount": 5000, "pix_key_type": "CPF"}               ||
+|  |                                                                           ||
+|  |  CREDITO:                                                                 ||
+|  |  {"channel": "CREDIT_CARD", "amount": 1200, "mcc": "5411"}               ||
+|  |                                                                           ||
+|  |  DEBITO:                                                                  ||
+|  |  {"channel": "DEBIT_CARD", "amount": 500, "card_present": true}          ||
+|  |                                                                           ||
+|  |  TED:                                                                     ||
+|  |  {"channel": "TED", "amount": 10000, "recipient_bank": "001"}            ||
+|  |                                                                           ||
+|  +--------------------------------------------------------------------------+|
+|                                                                               |
++==============================================================================+
+```
+
+---
+
 ## 1. Visao Geral da Arquitetura
 
 ### 1.1 Diagrama de Alto Nivel
