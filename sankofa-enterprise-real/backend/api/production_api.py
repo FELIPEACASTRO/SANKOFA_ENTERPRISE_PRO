@@ -762,6 +762,173 @@ def get_status():
     )
 
 
+USERS_DB = {
+    "admin": {"password_hash": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", "role": "admin", "name": "Administrador"},
+    "analyst": {"password_hash": "20249749412d73a3f5799f6f1dcf910e7b4aa3ce4de133b1f8a63c044792a4e9", "role": "analyst", "name": "Analista"},
+}
+
+
+def hash_password(password: str) -> str:
+    """Hash password using SHA-256"""
+    import hashlib
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+@app.route("/api/auth/login", methods=["POST"])
+@limiter.limit("10 per minute")
+def login():
+    """Autenticação de usuário e geração de token JWT"""
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    username = request.json.get("username", "").strip().lower()
+    password = request.json.get("password", "")
+    
+    if not username or not password:
+        return jsonify({
+            "success": False,
+            "error": {"message": "Username and password are required"}
+        }), 400
+    
+    user = USERS_DB.get(username)
+    if not user:
+        logger.warning("Login attempt for unknown user", username=username)
+        return jsonify({
+            "success": False,
+            "error": {"message": "Invalid credentials"}
+        }), 401
+    
+    if hash_password(password) != user["password_hash"]:
+        logger.warning("Invalid password for user", username=username)
+        return jsonify({
+            "success": False,
+            "error": {"message": "Invalid credentials"}
+        }), 401
+    
+    token_payload = {
+        "sub": username,
+        "name": user["name"],
+        "role": user["role"],
+        "iat": datetime.utcnow(),
+        "exp": datetime.utcnow() + timedelta(hours=24)
+    }
+    
+    token = pyjwt.encode(
+        token_payload,
+        config.security.jwt_secret,
+        algorithm=config.security.jwt_algorithm
+    )
+    
+    logger.info("User logged in successfully", username=username, role=user["role"])
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "token": token,
+            "user": {
+                "username": username,
+                "name": user["name"],
+                "role": user["role"]
+            },
+            "expires_in": 86400
+        }
+    })
+
+
+@app.route("/api/auth/verify", methods=["GET"])
+def verify_token():
+    """Verifica se o token JWT é válido"""
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        return jsonify({
+            "success": False,
+            "valid": False,
+            "error": {"message": "Missing or invalid Authorization header"}
+        }), 401
+    
+    token = auth_header[7:]
+    try:
+        payload = pyjwt.decode(
+            token,
+            config.security.jwt_secret,
+            algorithms=[config.security.jwt_algorithm]
+        )
+        return jsonify({
+            "success": True,
+            "valid": True,
+            "data": {
+                "user": {
+                    "username": payload.get("sub"),
+                    "name": payload.get("name"),
+                    "role": payload.get("role")
+                }
+            }
+        })
+    except pyjwt.ExpiredSignatureError:
+        return jsonify({
+            "success": False,
+            "valid": False,
+            "error": {"message": "Token expired"}
+        }), 401
+    except pyjwt.InvalidTokenError as e:
+        return jsonify({
+            "success": False,
+            "valid": False,
+            "error": {"message": f"Invalid token: {str(e)}"}
+        }), 401
+
+
+@app.route("/api/auth/refresh", methods=["POST"])
+def refresh_token():
+    """Renova um token JWT válido"""
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        return jsonify({
+            "success": False,
+            "error": {"message": "Missing or invalid Authorization header"}
+        }), 401
+    
+    token = auth_header[7:]
+    try:
+        payload = pyjwt.decode(
+            token,
+            config.security.jwt_secret,
+            algorithms=[config.security.jwt_algorithm]
+        )
+        
+        new_payload = {
+            "sub": payload.get("sub"),
+            "name": payload.get("name"),
+            "role": payload.get("role"),
+            "iat": datetime.utcnow(),
+            "exp": datetime.utcnow() + timedelta(hours=24)
+        }
+        
+        new_token = pyjwt.encode(
+            new_payload,
+            config.security.jwt_secret,
+            algorithm=config.security.jwt_algorithm
+        )
+        
+        return jsonify({
+            "success": True,
+            "data": {
+                "token": new_token,
+                "expires_in": 86400
+            }
+        })
+    except pyjwt.ExpiredSignatureError:
+        return jsonify({
+            "success": False,
+            "error": {"message": "Token expired, please login again"}
+        }), 401
+    except pyjwt.InvalidTokenError as e:
+        return jsonify({
+            "success": False,
+            "error": {"message": f"Invalid token: {str(e)}"}
+        }), 401
+
+
 @app.route("/api/fraud/predict", methods=["POST"])
 @limiter.limit("500 per minute")
 def predict_fraud():
