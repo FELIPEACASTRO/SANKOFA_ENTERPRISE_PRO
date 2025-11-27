@@ -8,13 +8,23 @@ Sankofa Enterprise Pro is a production-ready fraud detection system designed for
 
 Complete documentation is available in the `sankofa-enterprise-real/docs/` folder:
 
+### Documentação Principal (Atualizada v11.0)
+
+| Document | Description |
+|----------|-------------|
+| [USE_A_CABECA_SANKOFA.md](sankofa-enterprise-real/docs/USE_A_CABECA_SANKOFA.md) | **NOVO!** Guia didático usando metodologia Head First - aprenda de forma divertida |
+| [DOCUMENTACAO_FUNCIONAL.md](sankofa-enterprise-real/docs/DOCUMENTACAO_FUNCIONAL.md) | Casos de uso, regras de negócio, módulos, compliance (atualizado v11.0) |
+| [ARQUITETURA_TECNICA.md](sankofa-enterprise-real/docs/ARQUITETURA_TECNICA.md) | Arquitetura técnica completa, ML, APIs, banco de dados (atualizado v11.0) |
+| [MANUAL_USUARIO.md](sankofa-enterprise-real/docs/MANUAL_USUARIO.md) | Manual prático para analistas de fraude (atualizado v11.0) |
+
+### Documentação Adicional
+
 | Document | Description |
 |----------|-------------|
 | [BLUEPRINT_MOTOR_FRAUDE_300M.md](sankofa-enterprise-real/docs/BLUEPRINT_MOTOR_FRAUDE_300M.md) | **MASTER BLUEPRINT** - Complete enterprise architecture for 300M req/day fraud detection |
-| [ARQUITETURA_TECNICA.md](sankofa-enterprise-real/docs/ARQUITETURA_TECNICA.md) | Technical architecture, stack, components, APIs |
-| [DOCUMENTACAO_FUNCIONAL.md](sankofa-enterprise-real/docs/DOCUMENTACAO_FUNCIONAL.md) | Use cases, business rules, compliance |
 | [DIAGRAMAS.md](sankofa-enterprise-real/docs/DIAGRAMAS.md) | Flowcharts, architecture diagrams (Mermaid + ASCII) |
-| [MANUAL_USUARIO.md](sankofa-enterprise-real/docs/MANUAL_USUARIO.md) | User guide for dashboard operation |
+| [MELHORIAS_AIFORGE.md](sankofa-enterprise-real/docs/MELHORIAS_AIFORGE.md) | Melhorias implementadas baseadas no AIForge |
+| [RELATORIO_QA.md](sankofa-enterprise-real/docs/RELATORIO_QA.md) | Relatório de QA com 45 testes E2E passando |
 
 ### Blueprint Highlights (BLUEPRINT_MOTOR_FRAUDE_300M.md)
 

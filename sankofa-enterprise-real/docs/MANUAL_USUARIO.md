@@ -1,776 +1,535 @@
-# Sankofa Enterprise Pro - Manual do Usuário
+# Manual do Usuário - Sankofa Enterprise Pro v11.0
+## Guia Completo para Analistas de Fraude
 
-**Versão:** 1.0.0  
-**Data:** Novembro 2025  
+**Versão:** 11.0  
+**Última Atualização:** 27 de Novembro de 2025  
 **Público:** Analistas de Fraude, Gerentes de Operações, Compliance Officers
 
 ---
 
-> **Nota sobre o Status do Sistema:**
-> Este manual descreve as funcionalidades do dashboard Sankofa Enterprise Pro.
-> Algumas páginas podem apresentar limitações no ambiente de desenvolvimento:
-> - **Transações e Alertas:** Podem apresentar erros menores de renderização
-> - **Dados em tempo real:** Dependem do backend estar em execução
-> - **Endpoints de calibração:** Em desenvolvimento
+## Bem-vindo ao Sankofa! 👋
+
+Este manual vai te guiar passo a passo no uso do sistema de detecção de fraudes mais avançado do mercado. Não se preocupe se você não é técnico - este guia foi feito pensando em você!
 
 ---
 
-## Sumário
+## Índice
 
-1. [Introdução](#1-introdução)
-2. [Acessando o Sistema](#2-acessando-o-sistema)
-3. [Visão Geral do Dashboard](#3-visão-geral-do-dashboard)
-4. [Navegação Principal](#4-navegação-principal)
-5. [Dashboard Executivo](#5-dashboard-executivo)
-6. [Transações](#6-transações)
-7. [Investigação](#7-investigação)
-8. [Revisão Manual](#8-revisão-manual)
-9. [Calibração](#9-calibração)
-10. [Monitoramento](#10-monitoramento)
-11. [Métricas](#11-métricas)
-12. [Alertas](#12-alertas)
-13. [Interpretação de Indicadores](#13-interpretação-de-indicadores)
-14. [Perguntas Frequentes (FAQ)](#14-perguntas-frequentes-faq)
-15. [Solução de Problemas](#15-solução-de-problemas)
-16. [Glossário](#16-glossário)
+1. [Primeiros Passos](#1-primeiros-passos)
+2. [Conhecendo o Dashboard](#2-conhecendo-o-dashboard)
+3. [Analisando Transações](#3-analisando-transações)
+4. [Investigando Fraudes](#4-investigando-fraudes)
+5. [Revisão Manual](#5-revisão-manual)
+6. [Calibrando o Sistema](#6-calibrando-o-sistema)
+7. [Monitorando a Saúde](#7-monitorando-a-saúde)
+8. [Gerando Relatórios](#8-gerando-relatórios)
+9. [Entendendo os Alertas](#9-entendendo-os-alertas)
+10. [Dicas e Truques](#10-dicas-e-truques)
+11. [Perguntas Frequentes](#11-perguntas-frequentes)
+12. [Glossário](#12-glossário)
 
 ---
 
-## 1. Introdução
+## 1. Primeiros Passos
 
-### 1.1 O que é o Sankofa Enterprise Pro?
+### 1.1 Como Acessar
 
-O Sankofa Enterprise Pro é uma plataforma de detecção de fraudes em tempo real que protege sua instituição financeira contra atividades fraudulentas. Utilizando inteligência artificial avançada, o sistema analisa cada transação em milissegundos e identifica comportamentos suspeitos antes que causem prejuízos.
+1. Abra seu navegador (Chrome, Firefox, Edge ou Safari)
+2. Digite o endereço do sistema na barra de endereços
+3. Você verá a tela inicial do Sankofa
 
-### 1.2 Para quem é este manual?
+### 1.2 Navegadores Suportados
 
-Este manual foi desenvolvido para:
+| Navegador | Versão Mínima | Recomendado |
+|-----------|---------------|-------------|
+| Chrome | 90+ | ✅ Sim |
+| Firefox | 88+ | ✅ Sim |
+| Edge | 90+ | ✅ Sim |
+| Safari | 14+ | ⚠️ OK |
 
-- **Analistas de Fraude**: Profissionais que revisam casos suspeitos diariamente
-- **Gerentes de Operações**: Responsáveis por monitorar KPIs e ajustar configurações
-- **Compliance Officers**: Profissionais que garantem conformidade regulatória
+### 1.3 Primeira Coisa que Você Verá
 
-### 1.3 Benefícios do Sistema
-
-| Benefício | Descrição |
-|-----------|-----------|
-| **Proteção em Tempo Real** | Análise de transações < 50ms em desenvolvimento |
-| **Alta Precisão** | 99.9% de acurácia na detecção de fraudes |
-| **Baixos Falsos Positivos** | Menos de 1% de transações legítimas bloqueadas |
-| **Conformidade Total** | Atende BACEN, LGPD e PCI-DSS |
-
----
-
-## 2. Acessando o Sistema
-
-### 2.1 Requisitos do Navegador
-
-| Navegador | Versão Mínima |
-|-----------|---------------|
-| Google Chrome | 90+ |
-| Mozilla Firefox | 88+ |
-| Microsoft Edge | 90+ |
-| Safari | 14+ |
-
-### 2.2 Como Fazer Login
-
-1. Abra o navegador e acesse o endereço do sistema
-2. Na tela de login, insira suas credenciais:
-   - **Usuário**: Seu e-mail corporativo
-   - **Senha**: Sua senha de acesso
-3. Clique em **"Entrar"**
+Ao acessar, você cairá direto no **Dashboard Executivo** - a central de comando do sistema:
 
 ```
-┌─────────────────────────────────────────────────┐
-│                                                 │
-│              🦅 SANKOFA                         │
-│              Análise de Risco                   │
-│                                                 │
-│         ┌─────────────────────────────┐         │
-│         │ E-mail                      │         │
-│         └─────────────────────────────┘         │
-│                                                 │
-│         ┌─────────────────────────────┐         │
-│         │ Senha                       │         │
-│         └─────────────────────────────┘         │
-│                                                 │
-│         ┌─────────────────────────────┐         │
-│         │         ENTRAR              │         │
-│         └─────────────────────────────┘         │
-│                                                 │
-│         Esqueci minha senha                     │
-│                                                 │
-└─────────────────────────────────────────────────┘
-```
-
-### 2.3 Primeiro Acesso
-
-No primeiro acesso, você será solicitado a:
-1. Alterar sua senha temporária
-2. Configurar autenticação de dois fatores (2FA)
-3. Aceitar os termos de uso
-
----
-
-## 3. Visão Geral do Dashboard
-
-### 3.1 Layout Principal
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  🦅 Sankofa   [🔍 Buscar transações, CPF, ID...]       🌙  🔔  👤 Analista   │
-├───────────────┬─────────────────────────────────────────────────────────────┤
-│               │                                                              │
-│  📊 Dashboard │                     ÁREA DE CONTEÚDO                        │
-│               │                                                              │
-│  📋 Transações│                                                              │
-│               │                                                              │
-│  🔧 Calibragem│                                                              │
-│               │                                                              │
-│  🔍 Investigação                                                             │
-│               │                                                              │
-│  👁️ Revisão   │                                                              │
-│    Manual     │                                                              │
-│               │                                                              │
-│  📈 Monitor   │                                                              │
-│               │                                                              │
-│  📊 Relatórios│                                                              │
-│               │                                                              │
-│  📉 Métricas  │                                                              │
-│               │                                                              │
-│  🔔 Alertas   │                                                              │
-│               │                                                              │
-│  ─────────────│                                                              │
-│  Sankofa v11.0│                                                              │
-└───────────────┴─────────────────────────────────────────────────────────────┘
-```
-
-### 3.2 Elementos da Interface
-
-| Elemento | Descrição |
-|----------|-----------|
-| **Barra Superior** | Logo, busca global, modo escuro, notificações, perfil |
-| **Menu Lateral** | Navegação entre as páginas do sistema |
-| **Área de Conteúdo** | Conteúdo principal da página selecionada |
-| **Badges (NEW, LIVE)** | Indicadores de funcionalidades novas ou em tempo real |
-
----
-
-## 4. Navegação Principal
-
-### 4.1 Menu do Sistema
-
-| Página | Ícone | Descrição |
-|--------|-------|-----------|
-| **Dashboard** | 📊 | Visão geral e KPIs principais |
-| **Transações** | 📋 | Lista e busca de transações |
-| **Calibragem** | 🔧 | Ajuste de thresholds e regras |
-| **Investigação** | 🔍 | Análise detalhada de fraudes |
-| **Revisão Manual** | 👁️ | Fila de casos para revisão humana |
-| **Monitoramento** | 📈 | Saúde dos modelos de IA |
-| **Relatórios** | 📊 | Análises e métricas históricas |
-| **Métricas** | 📉 | Contadores em tempo real |
-| **Alertas** | 🔔 | Notificações e avisos do sistema |
-
-### 4.2 Busca Global
-
-A barra de busca no topo permite encontrar rapidamente:
-- Transações por ID
-- Clientes por CPF/CNPJ
-- Casos por número de protocolo
-
-**Dica**: Use Ctrl+K para acessar a busca rapidamente.
-
----
-
-## 5. Dashboard Executivo
-
-### 5.1 Visão Geral
-
-O Dashboard é a página inicial do sistema e apresenta uma visão consolidada de todos os indicadores importantes.
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        Dashboard Executivo                                   │
-│            Sistema Online   1 Algoritmo Ativo   Atualizado: 12:02:49        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐ │
-│  │ Transações    │  │ Fraudes       │  │ Taxa de       │  │ Latência      │ │
-│  │ Hoje          │  │ Detectadas    │  │ Aprovação     │  │ Média         │ │
-│  │               │  │               │  │               │  │               │ │
-│  │    15.432     │  │      23       │  │    98.5%      │  │    8.5ms      │ │
-│  │    ↑ 12.5%    │  │    ↓ 5.2%     │  │    → 0.0%     │  │    ↓ 2.1%     │ │
-│  └───────────────┘  └───────────────┘  └───────────────┘  └───────────────┘ │
-│                                                                              │
-│  ┌─────────────────────────────────┐  ┌─────────────────────────────────┐   │
-│  │     Transações por Hora         │  │     Latência do Sistema         │   │
-│  │                                 │  │                                 │   │
-│  │  📈 [Gráfico de barras]         │  │  📉 [Gráfico de linha]          │   │
-│  │                                 │  │                                 │   │
-│  └─────────────────────────────────┘  └─────────────────────────────────┘   │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### 5.2 Cartões de KPI
-
-#### Transações Hoje
-- **O que mostra**: Número total de transações processadas no dia
-- **Comparativo**: Variação percentual em relação ao dia anterior
-- **Cor verde**: Indica aumento (mais transações processadas)
-
-#### Fraudes Detectadas
-- **O que mostra**: Número de fraudes identificadas pelo sistema
-- **Comparativo**: Variação em relação ao dia anterior
-- **Cor vermelha/amarela**: Indica aumento de fraudes
-
-#### Taxa de Aprovação
-- **O que mostra**: Percentual de transações aprovadas automaticamente
-- **Valor ideal**: > 95%
-- **Alerta**: Se cair abaixo de 90%, verifique as regras
-
-#### Latência Média
-- **O que mostra**: Tempo médio de processamento por transação
-- **Valor ideal**: < 15ms
-- **Alerta**: Se ultrapassar 50ms, pode haver problema técnico
-
-### 5.3 Gráficos
-
-#### Transações por Hora
-Mostra a distribuição de transações ao longo do dia, permitindo identificar:
-- Horários de pico
-- Padrões anormais
-- Comparativo com média histórica
-
-#### Latência do Sistema
-Exibe a performance do sistema em tempo real:
-- Linha azul: Latência atual
-- Linha pontilhada: Limite aceitável (15ms)
-- Área vermelha: Zona de alerta
-
----
-
-## 6. Transações
-
-### 6.1 Lista de Transações
-
-A página de Transações permite visualizar e filtrar todas as transações processadas.
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           Transações                                         │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  Filtros:  [Canal ▼]  [Status ▼]  [Risco ▼]  [Data ▼]  [🔍 Buscar]          │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────────┐│
-│  │ ID         │ Valor      │ Canal │ Status    │ Risco │ Data/Hora        ││
-│  ├────────────┼────────────┼───────┼───────────┼───────┼──────────────────┤│
-│  │ TXN-001    │ R$ 5.000   │ PIX   │ ✅ Aprovado│ BAIXO │ 27/11 14:30:00  ││
-│  │ TXN-002    │ R$ 15.000  │ TED   │ ⏳ Revisão │ ALTO  │ 27/11 14:28:15  ││
-│  │ TXN-003    │ R$ 50.000  │ PIX   │ ❌ Bloqueado│CRÍTICO│ 27/11 14:25:00  ││
-│  │ TXN-004    │ R$ 2.500   │ PIX   │ ✅ Aprovado│ BAIXO │ 27/11 14:22:30  ││
-│  └─────────────────────────────────────────────────────────────────────────┘│
-│                                                                              │
-│  Exibindo 1-10 de 15.432 transações    [← Anterior] [1] [2] [3] [Próximo →] │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### 6.2 Filtros Disponíveis
-
-| Filtro | Opções |
-|--------|--------|
-| **Canal** | PIX, TED, DOC, Cartão Crédito, Cartão Débito, Todos |
-| **Status** | Aprovado, Bloqueado, Em Revisão, Todos |
-| **Risco** | Baixo, Médio, Alto, Crítico, Todos |
-| **Data** | Hoje, Últimos 7 dias, Últimos 30 dias, Personalizado |
-
-### 6.3 Detalhes da Transação
-
-Clique em uma transação para ver detalhes completos:
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                      Detalhes da Transação TXN-002                           │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  INFORMAÇÕES BÁSICAS                                                         │
-│  ─────────────────────                                                       │
-│  ID: TXN-002                    Canal: TED                                   │
-│  Valor: R$ 15.000,00            Data: 27/11/2025 14:28:15                   │
-│  Status: Em Revisão             Risco: ALTO (Score: 78)                      │
-│                                                                              │
-│  CLIENTE                                                                     │
-│  ───────                                                                     │
-│  Nome: Maria Silva              CPF: ***.***.789-00                          │
-│  Cliente desde: 2020            Transações anteriores: 342                   │
-│                                                                              │
-│  DESTINATÁRIO                                                                │
-│  ───────────                                                                 │
-│  Nome: Empresa XYZ Ltda         CNPJ: **.***.567/0001-**                     │
-│  Primeira transação: Sim        Categoria: Serviços                          │
-│                                                                              │
-│  RAZÕES DO ALERTA                                                            │
-│  ────────────────                                                            │
-│  ⚠ Horário incomum para este cliente (14:28 - fora do padrão habitual)      │
-│  ⚠ Valor 3x maior que a média do cliente                                     │
-│  ⚠ Novo destinatário                                                         │
-│                                                                              │
-│  [Ver Histórico Completo]  [Investigar]  [Aprovar]  [Bloquear]              │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│  🦅 Sankofa   [🔍 Buscar...]                    🌙  🔔(3)  👤 Analista  │
+├────────────────┬────────────────────────────────────────────────────────┤
+│                │                                                         │
+│  📊 Dashboard  │              Dashboard Executivo                       │
+│  ◀ selecionado │                                                         │
+│                │         Sistema Online   1 Algoritmo Ativo             │
+│  📋 Transações │                                                         │
+│                │   ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  │
+│  ⚙️ Calibragem │   │   518   │  │   23    │  │  95.6%  │  │ 33.50ms │  │
+│                │   │Transações│  │ Fraudes │  │Aprovação│  │Latência │  │
+│  🔍 Investigação│   └─────────┘  └─────────┘  └─────────┘  └─────────┘  │
+│                │                                                         │
+│  👁️ Revisão    │                                                         │
+│                │                                                         │
+│  📈 Monitoramento                                                        │
+│                │                                                         │
+│  📊 Relatórios │                                                         │
+│                │                                                         │
+│  📉 Métricas   │                                                         │
+│                │                                                         │
+│  🔔 Alertas    │                                                         │
+│                │                                                         │
+│  ──────────────│                                                         │
+│  Sankofa v11.0 │                                                         │
+└────────────────┴────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 7. Investigação
+## 2. Conhecendo o Dashboard
 
-### 7.1 Análise Profunda
+### 2.1 O Que Significam os Números?
 
-A página de Investigação permite realizar análises detalhadas de casos suspeitos.
+#### 📊 Transações Hoje
+**O que é:** Quantas transações passaram pelo sistema hoje.
+**Por que importa:** Mostra o volume de trabalho do dia.
+**Normal:** Varia conforme o dia, mas geralmente entre 10.000-50.000.
 
-### 7.2 Ferramentas de Investigação
+#### 🛡️ Fraudes Detectadas
+**O que é:** Quantas transações o sistema identificou como suspeitas.
+**Por que importa:** Se aumentar muito, pode indicar ataque.
+**Normal:** Geralmente 2-5% do total de transações.
 
-| Ferramenta | Descrição |
-|------------|-----------|
-| **Timeline** | Linha do tempo com todas as transações do cliente |
-| **Mapa de Localização** | Visualização geográfica das transações |
-| **Rede de Relacionamentos** | Conexões entre contas e destinatários |
-| **Análise de Padrões** | Comparativo com comportamento histórico |
+#### ✅ Taxa de Aprovação
+**O que é:** Percentual de transações aprovadas automaticamente.
+**Por que importa:** Se cair muito, pode estar bloqueando clientes legítimos.
+**Normal:** Deve ficar acima de 95%.
 
-### 7.3 Como Investigar um Caso
+#### ⏱️ Latência Média
+**O que é:** Quanto tempo o sistema leva para analisar uma transação.
+**Por que importa:** Se aumentar muito, pode atrasar pagamentos.
+**Normal:** Menos de 50ms (0.05 segundos).
 
-1. Acesse a página **Investigação**
-2. Selecione o caso a ser investigado
-3. Revise a **Timeline** para entender a sequência de eventos
-4. Verifique o **Mapa** para identificar anomalias geográficas
-5. Analise a **Rede** para encontrar conexões suspeitas
-6. Documente suas conclusões
-7. Tome a decisão (Aprovar/Bloquear/Escalar)
+### 2.2 As Cores dos Indicadores
 
----
+| Cor | Significado | Ação |
+|-----|-------------|------|
+| 🟢 Verde | Tudo normal | Nenhuma |
+| 🟡 Amarelo | Atenção | Monitorar |
+| 🔴 Vermelho | Problema | Investigar imediatamente |
 
-## 8. Revisão Manual
+### 2.3 Os Gráficos
 
-### 8.1 Fila de Casos
+**Transações por Hora:** Mostra quando o sistema está mais ocupado.
+- Picos de manhã e tarde são normais
+- Picos de madrugada podem indicar fraude
 
-A página de Revisão Manual exibe todos os casos que precisam de análise humana.
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         Revisão Manual                                       │
-│                    Human-in-the-Loop Review                                  │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  Casos Pendentes: 12    Tempo Médio de Resolução: 3.5 min                   │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────────┐│
-│  │ Prioridade │ ID      │ Valor      │ Score │ Na Fila  │ SLA            ││
-│  ├────────────┼─────────┼────────────┼───────┼──────────┼────────────────┤│
-│  │ 🔴 CRÍTICO │ TXN-005 │ R$ 85.000  │  95   │ 00:30    │ ⚠ 0:30 restam ││
-│  │ 🟠 ALTO    │ TXN-002 │ R$ 15.000  │  82   │ 02:15    │ ✓ 2:45 restam ││
-│  │ 🟠 ALTO    │ TXN-003 │ R$ 22.000  │  78   │ 03:45    │ ✓ 1:15 restam ││
-│  │ 🟡 MÉDIO   │ TXN-008 │ R$ 8.500   │  65   │ 08:20    │ ✓ 6:40 restam ││
-│  └─────────────────────────────────────────────────────────────────────────┘│
-│                                                                              │
-│  [Pegar Próximo Caso]                                                        │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### 8.2 Níveis de Prioridade
-
-| Prioridade | Cor | Score | SLA |
-|------------|-----|-------|-----|
-| **CRÍTICO** | 🔴 | 90-100 | 1 minuto |
-| **ALTO** | 🟠 | 70-89 | 5 minutos |
-| **MÉDIO** | 🟡 | 50-69 | 15 minutos |
-| **BAIXO** | 🟢 | 30-49 | 30 minutos |
-
-### 8.3 Processo de Revisão
-
-1. Clique em **"Pegar Próximo Caso"** ou selecione um caso específico
-2. O sistema exibe todas as informações relevantes
-3. Analise os dados apresentados
-4. Escolha uma das ações:
-   - **Aprovar**: Libera a transação
-   - **Bloquear**: Impede a transação
-   - **Escalar**: Envia para supervisor
-5. Digite uma justificativa (obrigatório)
-6. Confirme a decisão
-
-### 8.4 Dicas para Revisão Eficiente
-
-- Comece pelos casos **CRÍTICOS** (SLA mais curto)
-- Use atalhos de teclado: **A** (Aprovar), **B** (Bloquear), **E** (Escalar)
-- Documente sempre a razão da sua decisão
-- Em caso de dúvida, **escale** o caso
+**Latência do Sistema:** Mostra a velocidade do sistema ao longo do dia.
+- Linha azul: latência atual
+- Se subir muito, pode haver problema técnico
 
 ---
 
-## 9. Calibração
+## 3. Analisando Transações
 
-### 9.1 Ajuste de Parâmetros
+### 3.1 Acessando a Lista
 
-A página de Calibração permite ajustar os parâmetros do sistema de detecção.
+1. Clique em **📋 Transações** no menu lateral
+2. Você verá uma lista com todas as transações do dia
+
+### 3.2 Entendendo a Lista
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            Calibração                                        │
-│                    Ajuste manual dos algoritmos                              │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  THRESHOLD DE RISCO                                                          │
-│  ─────────────────                                                           │
-│  Score para Revisão Manual: [70] ──────────●────────── [0-100]              │
-│  Score para Bloqueio:       [90] ────────────────●──── [0-100]              │
-│                                                                              │
-│  LIMITES POR CANAL                                                           │
-│  ─────────────────                                                           │
-│  PIX - Limite Suspeito:    R$ [50.000,00]                                    │
-│  TED - Limite Suspeito:    R$ [100.000,00]                                   │
-│  Cartão - Limite Suspeito: R$ [10.000,00]                                    │
-│                                                                              │
-│  HORÁRIOS SUSPEITOS                                                          │
-│  ─────────────────                                                           │
-│  Início: [00:00]   Fim: [06:00]   Boost de Score: [+20]                     │
-│                                                                              │
-│  IMPACTO ESTIMADO (baseado nos últimos 30 dias)                             │
-│  ────────────────                                                            │
-│  • Transações para Revisão: 450 → 520 (+15.5%)                               │
-│  • Falsos Positivos: 1.2% → 0.9% (-0.3%)                                     │
-│  • Tempo Médio de Revisão: +2.5 min/dia                                      │
-│                                                                              │
-│  [Simular Alterações]  [Aplicar]  [Cancelar]                                 │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                            Transações                                    │
+│        Lista e busca de transações processadas em tempo real             │
+├─────────────────────────────────────────────────────────────────────────┤
+│  🔍 Filtros                                                              │
+│  [Buscar: ID, CPF, cidade...]   [Status: Todos ▼]   [Tipo: Todos ▼]    │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Mostrando 50 de 250 transações                                          │
+├─────────────────────────────────────────────────────────────────────────┤
+│  ID                    │ Valor      │ Tipo   │ Canal │ Local   │ Data   │
+├────────────────────────┼────────────┼────────┼───────┼─────────┼────────┤
+│  TXN1764254880868000   │ R$ 1.234   │  PIX   │  TED  │São Paulo│ 14:48  │
+│  TXN1764254880604000   │ -R$ 100    │CREDITO │  PIX  │Rio de J.│ 14:48  │
+│  ...                   │            │        │       │         │        │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 9.2 Parâmetros Ajustáveis
+### 3.3 Os Tipos de Transação
 
-| Parâmetro | Descrição | Impacto |
-|-----------|-----------|---------|
-| **Score para Revisão** | Limite mínimo para enviar à fila manual | Menor = mais revisões |
-| **Score para Bloqueio** | Limite para bloqueio automático | Menor = mais bloqueios |
-| **Limite por Canal** | Valor que aumenta o score de risco | Menor = mais alertas |
-| **Horários Suspeitos** | Faixa horária com boost de score | Maior boost = mais alertas |
+| Tipo | O que é |
+|------|---------|
+| **PIX** | Pagamento instantâneo (mais comum hoje) |
+| **TED** | Transferência bancária tradicional |
+| **CREDITO** | Compra no cartão de crédito |
+| **DEBITO** | Compra no cartão de débito |
 
-### 9.3 Boas Práticas
+### 3.4 Filtrando Transações
 
-- Sempre **simule** antes de aplicar alterações
-- Faça mudanças **graduais** (máximo 10% por vez)
-- Monitore os resultados por **pelo menos 24h** após mudanças
-- Documente o motivo de cada alteração
+**Por Status:**
+- **Todos:** Mostra tudo
+- **Aprovado:** Transações que passaram
+- **Bloqueado:** Transações barradas pelo sistema
+- **Revisão:** Aguardando análise humana
+
+**Por Tipo:**
+- Selecione PIX, TED, CREDITO ou DEBITO
+
+**Por Busca:**
+- Digite o ID da transação
+- Digite o CPF do cliente
+- Digite a cidade
 
 ---
 
-## 10. Monitoramento
+## 4. Investigando Fraudes
 
-### 10.1 Saúde do Modelo
+### 4.1 Quando Investigar?
 
-A página de Monitoramento exibe informações sobre a saúde dos modelos de IA.
+Você deve investigar quando:
+- Receber um alerta de fraude
+- Ver uma transação com score alto
+- Cliente reclamar de bloqueio indevido
+
+### 4.2 Acessando a Central de Investigação
+
+1. Clique em **🔍 Investigação** no menu
+2. Você verá os casos que precisam de atenção
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          Monitoramento                                       │
-│                     Saúde dos modelos de IA                                  │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  STATUS GERAL: ✅ SAUDÁVEL                                                   │
-│                                                                              │
-│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐ │
-│  │ Acurácia      │  │ Precisão      │  │ Recall        │  │ F1-Score      │ │
-│  │   99.9%       │  │   100%        │  │   96.7%       │  │   98.3%       │ │
-│  │   ✓ OK        │  │   ✓ OK        │  │   ✓ OK        │  │   ✓ OK        │ │
-│  └───────────────┘  └───────────────┘  └───────────────┘  └───────────────┘ │
-│                                                                              │
-│  DRIFT DETECTION                                                             │
-│  ───────────────                                                             │
-│  Data Drift:    ✅ Normal (PSI: 0.05)                                        │
-│  Concept Drift: ✅ Normal (Accuracy stable)                                  │
-│  Última verificação: 27/11/2025 12:00:00                                     │
-│                                                                              │
-│  VERSÃO DO MODELO                                                            │
-│  ────────────────                                                            │
-│  Versão atual: 1.0.0                                                         │
-│  Data do treinamento: 15/11/2025                                             │
-│  Próximo retreino: 15/12/2025 (agendado)                                     │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    Central de Investigação                               │
+│            Análise detalhada de fraudes e casos suspeitos                │
+├─────────────────────────────────────────────────────────────────────────┤
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐                │
+│  │   0      │  │    0     │  │    0     │  │    0%    │                │
+│  │  Casos   │  │    Em    │  │Resolvidos│  │  Taxa de │                │
+│  │  Ativos  │  │Investigação         │  │ Resolução│                │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘                │
+├─────────────────────────────────────────────────────────────────────────┤
+│  [Buscar investigações...]   [Todos os Status ▼]                        │
+│                              [Todas as Prioridades ▼]                   │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│        🛡️ Nenhuma investigação encontrada                               │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 10.2 Indicadores de Saúde
+### 4.3 O Que Analisar em um Caso
 
-| Indicador | Valor Saudável | Alerta |
-|-----------|---------------|--------|
-| Acurácia | > 95% | < 90% |
-| Precisão | > 95% | < 90% |
-| Recall | > 90% | < 85% |
-| PSI (Drift) | < 0.1 | > 0.25 |
+1. **Valor da transação:** É compatível com o perfil do cliente?
+2. **Horário:** O cliente costuma transacionar nesse horário?
+3. **Local:** A transação foi feita de onde o cliente mora?
+4. **Histórico:** O cliente já fez transações similares?
+5. **Razões do alerta:** Por que o sistema flagrou?
 
-### 10.3 O que fazer quando há alerta
+### 4.4 Tomando uma Decisão
 
-1. **PSI Alto** (Drift detectado):
-   - Verifique se houve mudança no perfil das transações
-   - Comunique à equipe de Data Science
-   - Pode ser necessário retreinar o modelo
+Após analisar, você deve:
 
-2. **Acurácia baixa**:
-   - Revise os últimos feedbacks (podem estar incorretos)
-   - Verifique se há mudança no padrão de fraudes
-   - Comunique à equipe técnica
+| Decisão | Quando Usar | O Que Acontece |
+|---------|-------------|----------------|
+| **Confirmar Fraude** | Quando tem certeza que é fraude | Transação é bloqueada permanentemente |
+| **Falso Positivo** | Quando a transação é legítima | Libera o cliente, sistema aprende |
+| **Escalar** | Quando tem dúvida | Vai para supervisor |
 
 ---
 
-## 11. Métricas
+## 5. Revisão Manual
 
-### 11.1 Métricas em Tempo Real
+### 5.1 O Que é a Revisão Manual?
 
-A página de Métricas exibe contadores e estatísticas em tempo real.
+Algumas transações ficam na "zona cinza" - não são claramente fraude nem claramente legítimas. Essas vão para a fila de revisão manual, onde você decide.
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                             Métricas                                         │
-│                   Contadores e métricas em tempo real                        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  PERFORMANCE DO SISTEMA                                                      │
-│  ─────────────────────                                                       │
-│  TPS atual:          1.250 transações/segundo                                │
-│  Latência P50:       5.2ms                                                   │
-│  Latência P95:       9.8ms                                                   │
-│  Latência P99:       11.2ms                                                  │
-│  Taxa de erros:      0.01%                                                   │
-│                                                                              │
-│  TRANSAÇÕES HOJE                                                             │
-│  ────────────────                                                            │
-│  Total processado:   45.832                                                  │
-│  Aprovadas:          44.912 (98.0%)                                          │
-│  Bloqueadas:         287 (0.6%)                                              │
-│  Em revisão:         633 (1.4%)                                              │
-│                                                                              │
-│  VALOR PROTEGIDO                                                             │
-│  ───────────────                                                             │
-│  Fraudes evitadas:   R$ 2.345.678,00                                         │
-│  Este mês:           R$ 15.892.340,00                                        │
-│  Este ano:           R$ 187.543.210,00                                       │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+### 5.2 Acessando a Fila
 
----
-
-## 12. Alertas
-
-### 12.1 Central de Alertas
-
-A página de Alertas exibe todas as notificações do sistema.
+1. Clique em **👁️ Revisão Manual** no menu
+2. Você verá todas as transações aguardando
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                             Alertas                                          │
-│                    Alertas e notificações                                    │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  🔴 CRÍTICOS (2)   🟠 ALTOS (5)   🟡 MÉDIOS (12)   🟢 BAIXOS (28)            │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────────┐│
-│  │ 🔴 Pico de transações suspeitas detectado                               ││
-│  │    Há 5 minutos • Sistema                                                ││
-│  │    15 transações de alto risco nos últimos 10 minutos                   ││
-│  │    [Investigar] [Ignorar]                                               ││
-│  ├─────────────────────────────────────────────────────────────────────────┤│
-│  │ 🟠 SLA de revisão em risco                                              ││
-│  │    Há 12 minutos • Operações                                            ││
-│  │    3 casos próximos de estourar o SLA                                   ││
-│  │    [Ver Fila] [Ignorar]                                                 ││
-│  ├─────────────────────────────────────────────────────────────────────────┤│
-│  │ 🟡 Novo padrão de fraude identificado                                   ││
-│  │    Há 1 hora • Machine Learning                                         ││
-│  │    Sistema identificou novo padrão em cartões de crédito                ││
-│  │    [Ver Detalhes] [Marcar como Lido]                                    ││
-│  └─────────────────────────────────────────────────────────────────────────┘│
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                  Revisão Manual (Human-in-the-Loop)                      │
+│       Sistema de revisão manual para transações flagadas                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐                │
+│  │   0      │  │    0     │  │    0     │  │    0     │                │
+│  │  Total   │  │Pendentes │  │Completadas│ │ Expiradas│                │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘                │
+├─────────────────────────────────────────────────────────────────────────┤
+│       Transações para Revisão (0)                                        │
+│  ─────────────────────────────────────────────────────────────────────   │
+│  │ ID │ VALOR │ CPF │ RISCO │ STATUS │ AÇÕES │                          │
+│  ─────────────────────────────────────────────────────────────────────   │
+│                                                                          │
+│        Nenhuma transação pendente de revisão manual.                     │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 12.2 Tipos de Alertas
+### 5.3 Prioridades
 
-| Tipo | Cor | Ação Requerida |
-|------|-----|----------------|
-| **CRÍTICO** | 🔴 | Ação imediata necessária |
-| **ALTO** | 🟠 | Ação em até 30 minutos |
-| **MÉDIO** | 🟡 | Ação em até 4 horas |
-| **BAIXO** | 🟢 | Informativo |
+| Cor | Prioridade | SLA | O Que Fazer |
+|-----|------------|-----|-------------|
+| 🔴 | CRÍTICO | 1 min | Resolver imediatamente! |
+| 🟠 | ALTO | 5 min | Priorizar |
+| 🟡 | MÉDIO | 15 min | Resolver quando possível |
+| 🟢 | BAIXO | 30 min | Pode aguardar |
+
+### 5.4 Como Revisar
+
+1. Clique na transação para ver detalhes
+2. Analise as informações apresentadas
+3. Clique em **Aprovar** ou **Rejeitar**
+4. Digite uma justificativa (obrigatório)
+5. Confirme sua decisão
+
+**⚡ Dica:** Use atalhos de teclado!
+- **A** = Aprovar
+- **B** = Bloquear
+- **E** = Escalar
 
 ---
 
-## 13. Interpretação de Indicadores
+## 6. Calibrando o Sistema
 
-### 13.1 Score de Risco
+### 6.1 O Que é Calibragem?
 
-O score de risco varia de 0 a 100:
+Calibragem é ajustar a "sensibilidade" do sistema. Se está bloqueando muitos clientes legítimos, você pode diminuir a sensibilidade. Se está deixando passar fraudes, pode aumentar.
+
+### 6.2 Acessando a Calibragem
+
+1. Clique em **⚙️ Calibragem** no menu
+2. Você verá os controles de ajuste
+
+### 6.3 Os Controles Disponíveis
 
 ```
-0 ─────────────────────────────────────────────────────────────────────── 100
-     BAIXO      MÉDIO-BAIXO     MÉDIO         ALTO         CRÍTICO
-    (0-30)       (31-50)       (51-70)       (71-90)       (91-100)
-    
-   ✅ Aprovar   ✅ Aprovar    ⚠ Monitorar   ⏳ Revisar    ❌ Bloquear
-      Auto         Auto                       Manual          Auto
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        Calibragem Manual                                 │
+│          Ajuste em tempo real dos parâmetros dos algoritmos             │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  [Aplicar Mudanças ao Motor]   [Resetar Padrões]   [Ver Histórico]      │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐│
+│  │ Tier 1 - Velocistas │ Tier 2 - Rápidos │ Tier 3 - Avançados │ ...  ││
+│  └─────────────────────────────────────────────────────────────────────┘│
+│                                                                          │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐         │
+│  │ Motor de Regras │  │ Listas Negras   │  │ Velocidade      │         │
+│  │ Básicas      🔘 │  │              🔘 │  │              🔘 │         │
+│  │                 │  │                 │  │                 │         │
+│  │ Threshold: 80%  │  │ Threshold: 100% │  │ Threshold: 70%  │         │
+│  │ ────●────────── │  │ ──────────────● │  │ ──────●──────── │         │
+│  │                 │  │                 │  │                 │         │
+│  │ Peso: 0.150     │  │ Peso: 0.200     │  │ Peso: 0.120     │         │
+│  │ ●─────────────  │  │ ─●────────────  │  │ ●─────────────  │         │
+│  │                 │  │                 │  │                 │         │
+│  │ Valor Máx:      │  │ Cache: 300s     │  │ Janela: 3600s   │         │
+│  │ R$ 50.000       │  │                 │  │                 │         │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘         │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 13.2 Cores no Dashboard
+### 6.4 O Que Cada Controle Faz
 
-| Cor | Significado |
-|-----|-------------|
-| 🟢 Verde | Positivo / Normal / OK |
-| 🟡 Amarelo | Atenção / Alerta leve |
-| 🟠 Laranja | Importante / Risco elevado |
-| 🔴 Vermelho | Crítico / Ação imediata |
-| 🔵 Azul | Informativo / Neutro |
+| Controle | O Que Faz | Aumentar | Diminuir |
+|----------|-----------|----------|----------|
+| **Threshold** | Limite para considerar fraude | Menos bloqueios | Mais bloqueios |
+| **Peso** | Importância do algoritmo | Mais influente | Menos influente |
+| **Valor Máx** | Limite de aprovação auto | Mais aprovações | Menos aprovações |
+| **Janela** | Tempo de análise | Análise mais longa | Análise mais curta |
 
-### 13.3 Setas de Tendência
+### 6.5 Cuidados ao Calibrar
 
-| Símbolo | Significado |
-|---------|-------------|
-| ↑ Seta verde | Aumento positivo |
-| ↓ Seta verde | Diminuição positiva |
-| ↑ Seta vermelha | Aumento negativo |
-| ↓ Seta vermelha | Diminuição negativa |
-| → Seta cinza | Estável |
+⚠️ **ATENÇÃO:**
+- Mudanças afetam TODAS as transações
+- Sempre teste antes em ambiente seguro
+- Documente suas alterações
+- Monitore os resultados após mudanças
 
 ---
 
-## 14. Perguntas Frequentes (FAQ)
+## 7. Monitorando a Saúde
 
-### P: O que fazer quando vejo muitos falsos positivos?
+### 7.1 Para Que Serve?
 
-**R:** Se você notar muitas transações legítimas sendo bloqueadas:
-1. Acesse a página de **Calibração**
-2. Aumente levemente o **Score para Bloqueio** (ex: de 90 para 92)
-3. **Simule** o impacto antes de aplicar
-4. Monitore por 24-48 horas após a mudança
+A página de Monitoramento mostra se o sistema está funcionando bem. É como o "painel de instrumentos" de um carro.
 
-### P: Como sei se o modelo está funcionando corretamente?
+### 7.2 Acessando o Monitor
 
-**R:** Verifique a página de **Monitoramento**:
-- Acurácia > 95%
-- PSI < 0.1 (sem drift)
-- Status: SAUDÁVEL
+1. Clique em **📈 Monitoramento** no menu
+2. Você verá o status de todos os componentes
 
-### P: Posso aprovar uma transação bloqueada?
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      Monitoramento do Sistema                            │
+│           Saúde dos modelos de IA e performance em tempo real           │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                      [Auto-refresh ON]   [Atualizar]    │
+│                                                                          │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐                │
+│  │ Status   │  │ Modelos  │  │Trans/seg │  │  Tempo   │                │
+│  │ ✅       │  │    5     │  │   127    │  │  0.15s   │                │
+│  │ Saudável │  │  Ativos  │  │          │  │ Resposta │                │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘                │
+│                                                                          │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐                │
+│  │  Taxa    │  │  Falsos  │  │Processadas│ │  Uptime  │                │
+│  │ Detecção │  │Positivos │  │   Hoje   │  │          │                │
+│  │  94.2%   │  │   2.1%   │  │  15.420  │  │ 15d 8h   │                │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘                │
+│                                                                          │
+│                     Recursos do Sistema                                  │
+│           Monitoramento em tempo real dos recursos                       │
+│                                                                          │
+│  [💻 CPU]  [💾 Memória]  [📀 Disco]  [🌐 Rede]                          │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
-**R:** Não diretamente. Transações bloqueadas automaticamente precisam de:
-1. Análise na página de **Investigação**
-2. Documentação da justificativa
-3. Aprovação do supervisor (se necessário)
-4. Liberação via processo específico
+### 7.3 O Que Cada Indicador Significa
 
-### P: Com que frequência os dados são atualizados?
-
-**R:** Depende da página:
-- **Dashboard**: A cada 5 segundos
-- **Métricas**: Em tempo real
-- **Monitoramento**: A cada 30 segundos
-- **Transações**: On-demand (ao navegar)
-
-### P: O que significa PSI no Monitoramento?
-
-**R:** PSI (Population Stability Index) mede se as transações estão mudando:
-- < 0.1: Normal
-- 0.1 - 0.25: Mudança leve
-- > 0.25: Mudança significativa (alerta)
-
----
-
-## 15. Solução de Problemas
-
-### 15.1 Problemas Comuns
-
-| Problema | Causa Provável | Solução |
-|----------|----------------|---------|
-| Dashboard não carrega | Problema de conexão | Verifique sua internet, atualize a página |
-| Dados desatualizados | Cache do navegador | Limpe o cache ou use Ctrl+F5 |
-| Lentidão no sistema | Pico de processamento | Aguarde alguns minutos |
-| Erro de login | Credenciais expiradas | Redefina sua senha |
-| Gráficos vazios | Sem dados no período | Verifique os filtros de data |
-
-### 15.2 Contato com Suporte
-
-Se o problema persistir:
-
-1. **Nível 1 (Help Desk)**: suporte@sankofa.com.br
-2. **Nível 2 (Técnico)**: tecnico@sankofa.com.br
-3. **Emergências**: 0800-XXX-XXXX (24/7)
-
-Ao contatar o suporte, informe:
-- Descrição do problema
-- Horário em que ocorreu
-- Página/funcionalidade afetada
-- Screenshot do erro (se possível)
+| Indicador | Bom | Atenção | Crítico |
+|-----------|-----|---------|---------|
+| **Status Geral** | Saudável ✅ | Degradado ⚠️ | Crítico 🔴 |
+| **Modelos Ativos** | 5 | 3-4 | <3 |
+| **Trans/seg** | >100 | 50-100 | <50 |
+| **Tempo Resposta** | <0.15s | 0.15-0.5s | >0.5s |
+| **Taxa Detecção** | >90% | 80-90% | <80% |
+| **Falsos Positivos** | <3% | 3-5% | >5% |
 
 ---
 
-## 15. Limitações Conhecidas no Dashboard
+## 8. Gerando Relatórios
 
-### Páginas com Limitações
+### 8.1 Tipos de Relatório
 
-| Página | Limitação | Workaround |
-|--------|-----------|-----------|
-| **Transações** | Renderização: erros menores em listagem | Atualizar página se necessário |
-| **Alertas** | Dados simulados, não produção real | Para produção, conectar a sistema real |
-| **Calibração** | Endpoints em desenvolvimento | Ajustar via arquivo JSON config |
-| **Investigação** | Features limitadas | Funcionalidades core operacionais |
+| Relatório | Para Quê | Tempo |
+|-----------|----------|-------|
+| **Mensal de Fraudes** | Resumo do mês para diretoria | 5-10 min |
+| **Performance Trimestral** | Avaliação de performance | 3-5 min |
+| **Análise de Tendências** | Identificar padrões | 7-12 min |
+| **Impacto Financeiro** | Calcular economia | 4-8 min |
 
-### Dados de Teste vs. Produção
+### 8.2 Como Gerar
 
-- ✅ **Dados de Produção**: Dashboard, Transações (atual)
-- ⚠️ **Dados Simulados**: Alertas, Investigação (homologação)
-- 📋 **Não Implementado**: Webhooks de tempo real, Export automático
-
-### Performance
-
-- Latência típica: 10-50ms (ambiente de desenvolvimento Replit)
-- Para produção: esperar < 15ms com infraestrutura apropriada
-- Throughput: variável em dev, planejado para 100K+ TPS em produção
-
-### Como Reportar Problemas
-
-1. **Dashboard não carrega**: Limpar cache (Ctrl+F5)
-2. **Dados não aparecem**: Verificar se backend está rodando
-3. **Erros de calibração**: Usar arquivo JSON temporariamente
-4. Contatar: suporte@sankofa.com.br
+1. Clique em **📊 Relatórios** no menu
+2. Escolha o template desejado
+3. Configure o período
+4. Clique em **Gerar Relatório**
+5. Aguarde a conclusão
+6. Faça download do arquivo
 
 ---
 
-## 16. Glossário
+## 9. Entendendo os Alertas
 
-| Termo | Definição |
-|-------|-----------|
-| **Acurácia** | Percentual de previsões corretas do modelo |
-| **Drift** | Mudança no padrão de dados que pode degradar o modelo |
-| **Falso Positivo** | Transação legítima incorretamente classificada como fraude |
-| **Falso Negativo** | Fraude que não foi detectada pelo sistema |
-| **F1-Score** | Média harmônica entre precisão e recall |
-| **HITL** | Human-in-the-Loop (revisão manual por analista) |
-| **KPI** | Key Performance Indicator (indicador-chave) |
-| **Latência** | Tempo de resposta do sistema |
-| **P95/P99** | Percentil 95/99 (latência de 95%/99% das transações) |
-| **PIX** | Sistema de pagamentos instantâneos do Brasil |
-| **Precisão** | Percentual de alertas que são realmente fraudes |
-| **PSI** | Population Stability Index (mede drift) |
-| **Recall** | Percentual de fraudes que foram detectadas |
-| **Score** | Pontuação de risco (0-100) |
-| **SLA** | Service Level Agreement (tempo máximo para ação) |
-| **TPS** | Transações por segundo |
+### 9.1 Tipos de Alerta
+
+| Tipo | Severidade | Exemplo |
+|------|------------|---------|
+| 🔴 **Crítico** | Requer ação imediata | Sistema fora do ar |
+| 🟠 **Alto** | Investigar hoje | Pico de fraudes |
+| 🟡 **Médio** | Monitorar | Latência elevada |
+| 🔵 **Baixo** | Informativo | Novo modelo disponível |
+
+### 9.2 Acessando os Alertas
+
+1. Clique em **🔔 Alertas** no menu
+2. Ou clique no ícone de sino no topo (🔔)
+
+### 9.3 Gerenciando Alertas
+
+- **Novo:** Acabou de chegar
+- **Em Investigação:** Alguém está olhando
+- **Resolvido:** Problema corrigido
 
 ---
 
-**Dúvidas? Acesse a Central de Ajuda ou contate o suporte.**
+## 10. Dicas e Truques
 
-**Documento mantido por:** Equipe de Treinamento Sankofa  
-**Última atualização:** Novembro 2025  
-**Versão:** 1.0.0
+### 10.1 Atalhos de Teclado
+
+| Atalho | Ação |
+|--------|------|
+| `Ctrl + K` | Abrir busca rápida |
+| `A` | Aprovar transação (em revisão) |
+| `B` | Bloquear transação (em revisão) |
+| `E` | Escalar caso |
+| `R` | Atualizar página |
+
+### 10.2 Modo Escuro
+
+Clique no ícone 🌙 no topo para alternar entre modo claro e escuro.
+
+### 10.3 Notificações
+
+O sino 🔔 mostra quantos alertas novos você tem. Clique para ver.
+
+### 10.4 Boas Práticas
+
+1. **Comece pelo Dashboard:** Veja a situação geral antes de mergulhar nos detalhes
+2. **Priorize os críticos:** Sempre resolva alertas vermelhos primeiro
+3. **Documente suas decisões:** Escreva justificativas claras
+4. **Monitore após mudanças:** Sempre verifique se calibrações surtiram efeito
+5. **Escale quando em dúvida:** Melhor perguntar que errar
+
+---
+
+## 11. Perguntas Frequentes
+
+### "Por que uma transação legítima foi bloqueada?"
+
+O sistema analisa padrões. Se o cliente fez algo diferente do normal (compra maior, horário diferente, local novo), pode ser bloqueado por segurança. Você pode aprovar na Revisão Manual.
+
+### "O score de risco mudou sem eu fazer nada?"
+
+O sistema aprende continuamente. Conforme recebe feedback, os modelos se ajustam. Isso é normal e esperado.
+
+### "Como sei se o sistema está funcionando?"
+
+Vá em Monitoramento. Se o status estiver "Saudável" com check verde, está tudo ok.
+
+### "Posso desfazer uma aprovação/bloqueio?"
+
+Não diretamente. Mas você pode registrar feedback para o sistema aprender.
+
+### "O que fazer se o sistema ficar lento?"
+
+1. Verifique a página de Monitoramento
+2. Procure alertas sobre performance
+3. Se persistir, contate o suporte
+
+---
+
+## 12. Glossário
+
+| Termo | O Que Significa |
+|-------|-----------------|
+| **Score** | Nota de 0 a 100 que indica chance de fraude |
+| **Threshold** | Limite - acima dele, é considerado fraude |
+| **Latência** | Tempo que o sistema leva para responder |
+| **Falso Positivo** | Transação legítima marcada como fraude |
+| **HITL** | Human-in-the-Loop - quando você decide |
+| **Ensemble** | Combinação de vários modelos de IA |
+| **Drift** | Quando o modelo fica "desatualizado" |
+| **SLA** | Tempo máximo para resolver algo |
+| **PIX** | Sistema de pagamento instantâneo do Banco Central |
+| **SHAP** | Técnica que explica "por que" o sistema decidiu algo |
+
+---
+
+## Precisa de Ajuda?
+
+Se tiver dúvidas ou problemas:
+
+1. **Consulte este manual** - A maioria das respostas está aqui
+2. **Verifique os alertas** - Pode haver um aviso relevante
+3. **Pergunte ao colega** - Alguém pode já ter passado por isso
+4. **Contate o suporte** - Para problemas técnicos
+
+---
+
+*Manual do Usuário - Sankofa Enterprise Pro v11.0*  
+*Última atualização: 27 de Novembro de 2025*

@@ -1,242 +1,171 @@
-# Sankofa Enterprise Pro - Documentação Técnica de Arquitetura
+# Arquitetura Técnica - Sankofa Enterprise Pro v11.0
+## Documentação Técnica Detalhada
 
-**Versão:** 1.0.0  
-**Data:** Novembro 2025  
-**Classificação:** Confidencial - Uso Interno
-
----
-
-> **Nota:** Este documento descreve a arquitetura implementada e planejada do sistema.
-> Funcionalidades marcadas como **(Planejado)** ou **(Conceitual)** estão em desenvolvimento.
-> O sistema atual opera com Flask API, cache in-memory (fallback quando Redis indisponível),
-> e armazenamento baseado em arquivos JSON.
+**Versão:** 11.0  
+**Última Atualização:** 27 de Novembro de 2025  
+**Status:** Desenvolvimento/Staging - 45 Testes Passando
 
 ---
 
-## Sumário
+## Estado de Implementação
 
-1. [Visão Geral da Arquitetura](#1-visão-geral-da-arquitetura)
-2. [Stack Tecnológico](#2-stack-tecnológico)
-3. [Arquitetura Clean Architecture](#3-arquitetura-clean-architecture)
-4. [Componentes do Backend](#4-componentes-do-backend)
-5. [Motor de Machine Learning](#5-motor-de-machine-learning)
-6. [Infraestrutura MLOps](#6-infraestrutura-mlops)
-7. [Sistema de Cache](#7-sistema-de-cache)
-8. [Segurança e Autenticação](#8-segurança-e-autenticação)
-9. [Frontend Dashboard](#9-frontend-dashboard)
-10. [APIs e Endpoints](#10-apis-e-endpoints)
-11. [Configuração e Deployment](#11-configuração-e-deployment)
-12. [Monitoramento e Observabilidade](#12-monitoramento-e-observabilidade)
+| Componente | Implementado | Testado | Integrado na API |
+|------------|--------------|---------|------------------|
+| Flask API (50+ endpoints) | ✅ | ✅ | ✅ |
+| React Dashboard (9 páginas) | ✅ | ✅ | ✅ |
+| ML Stacking (RF+GB+LR) | ✅ | ✅ | ✅ |
+| PostgreSQL (Neon) | ✅ | ✅ | ✅ |
+| Explainability Engine | ✅ | ✅ | ⚠️ Módulo separado |
+| Probability Calibration | ✅ | ✅ | ⚠️ Módulo separado |
+| Location Entropy Features | ✅ | ✅ | ⚠️ Módulo separado |
+| Self-Training Optimizer | ✅ | ✅ | ⚠️ Módulo separado |
+| Redis Cache | ⚠️ | ⚠️ | Fallback in-memory |
 
 ---
 
 ## 1. Visão Geral da Arquitetura
 
-O Sankofa Enterprise Pro é um sistema de detecção de fraudes em tempo real projetado para ambientes bancários de alta escala, processando até **300 milhões de requisições por dia**.
+### 1.1 Diagrama de Alto Nível (Implementado)
 
-### 1.1 Características Principais
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        SANKOFA ENTERPRISE PRO v11.0                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   ┌──────────────┐     ┌──────────────┐     ┌──────────────┐                │
+│   │   FRONTEND   │     │   BACKEND    │     │   DATABASE   │                │
+│   │   React/Vite │────▶│   Flask API  │────▶│  PostgreSQL  │                │
+│   │   Port 5000  │     │   Port 8445  │     │   (Neon)     │                │
+│   └──────────────┘     └──────────────┘     └──────────────┘                │
+│          │                    │                    │                         │
+│          │                    ▼                    │                         │
+│          │             ┌──────────────┐           │                         │
+│          │             │   ML ENGINE  │           │                         │
+│          │             │  Stacking:   │           │                         │
+│          │             │  RF + GB + LR│           │                         │
+│          │             └──────────────┘           │                         │
+│          │                    │                    │                         │
+│          │                    ▼                    │                         │
+│          │             ┌──────────────┐           │                         │
+│          │             │    CACHE     │           │                         │
+│          └────────────▶│  In-Memory   │◀──────────┘                         │
+│                        │  (Principal) │                                      │
+│                        └──────────────┘                                      │
+│                                                                              │
+│   Módulos Adicionais (não integrados na API principal):                     │
+│   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                     │
+│   │ Explainability│  │ Probability │  │ Self-Training│                     │
+│   │    Engine    │  │ Calibration │  │  Optimizer   │                     │
+│   └──────────────┘  └──────────────┘  └──────────────┘                     │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
-| Característica | Especificação | Status |
-|---------------|---------------|--------|
-| Throughput | Variável (ambiente de desenvolvimento) | Atual |
-| Latência média | ~10-50ms (ambiente de desenvolvimento) | Atual |
-| Acurácia ML | 99.9% (em testes) | Validado |
-| Recall | 96.7% (em testes) | Validado |
-| Precisão | 100% (em testes) | Validado |
-| F1-Score | 98.3% (em testes) | Validado |
+### 1.2 Stack Tecnológico Atual
 
-> **Nota:** Métricas de ML foram validadas em ambiente de teste. Métricas de throughput
-> e latência de produção dependem da infraestrutura de deployment.
-
-### 1.2 Princípios Arquiteturais
-
-1. **Clean Architecture**: Separação clara entre camadas (Domain, Application, Infrastructure, Presentation)
-2. **Domain-Driven Design (DDD)**: Modelagem orientada ao domínio bancário
-3. **Event-Driven**: Processamento assíncrono de eventos
-4. **Microservices-Ready**: Componentes desacoplados e independentes
-5. **Security-First**: Segurança em todas as camadas
+| Camada | Tecnologia | Versão |
+|--------|------------|--------|
+| **Frontend** | React + Vite | 18+ / 5+ |
+| **UI Components** | shadcn/ui + TailwindCSS | - |
+| **Backend** | Flask + Flask-CORS | 3.0.0 |
+| **Autenticação** | Flask-JWT-Extended | 4.6.0 |
+| **Rate Limiting** | Flask-Limiter | - |
+| **ML Framework** | scikit-learn | 1.5.2+ |
+| **Gradient Boosting** | XGBoost, LightGBM | 2.1.2+, 4.5.0+ |
+| **Explicabilidade** | SHAP | - |
+| **Data Processing** | Pandas, NumPy | 2.2.3+, 1.26.4+ |
+| **Database** | PostgreSQL (Neon) | 13+ |
+| **ORM** | SQLAlchemy | - |
+| **Cache** | In-Memory (Redis fallback) | - |
+| **Logging** | Structured JSON | - |
 
 ---
 
-## 2. Stack Tecnológico
-
-### 2.1 Backend
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    STACK BACKEND                            │
-├─────────────────────────────────────────────────────────────┤
-│  Linguagem       │ Python 3.11+                             │
-│  Framework Web   │ Flask 3.0.0 + Flask-CORS                 │
-│  Autenticação    │ Flask-JWT-Extended 4.6.0                 │
-│  Rate Limiting   │ Flask-Limiter                            │
-│  ML Framework    │ scikit-learn 1.5.2+                      │
-│  Gradient Boost  │ XGBoost 2.1.2+, LightGBM 4.5.0+          │
-│  Data Processing │ Pandas 2.2.3+, NumPy 1.26.4+             │
-│  Cache           │ Redis 7.0+ (com fallback in-memory)      │
-│  Database        │ PostgreSQL 13+ (opcional)                │
-│  Serialização    │ Joblib (modelos), JSON (configs)         │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 2.2 Frontend
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    STACK FRONTEND                           │
-├─────────────────────────────────────────────────────────────┤
-│  Framework       │ React 18+                                │
-│  Build Tool      │ Vite                                     │
-│  Styling         │ TailwindCSS                              │
-│  UI Components   │ shadcn/ui                                │
-│  Charts          │ Recharts                                 │
-│  HTTP Client     │ Fetch API                                │
-│  State Mgmt      │ React Hooks                              │
-│  Routing         │ React Router                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 2.3 Infraestrutura
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                 INFRAESTRUTURA ATUAL                        │
-├─────────────────────────────────────────────────────────────┤
-│  Ambiente        │ Replit (desenvolvimento)                 │
-│  Servidor Web    │ Flask built-in server                    │
-│  Logging         │ Structured JSON Logging                  │
-│  Cache           │ In-memory (Redis indisponível)           │
-│  Armazenamento   │ Arquivos JSON                            │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│             INFRAESTRUTURA PLANEJADA (Produção)             │
-├─────────────────────────────────────────────────────────────┤
-│  Container       │ Docker + Docker Compose (Planejado)      │
-│  Load Balancer   │ Nginx (Planejado)                        │
-│  Monitoring      │ DataDog Integration (Planejado)          │
-│  SSL/TLS         │ TLS 1.3 (Planejado)                      │
-│  Encryption      │ AES-256 (Planejado)                      │
-└─────────────────────────────────────────────────────────────┘
-```
-
-> **Status:** A infraestrutura de produção está planejada. O sistema atual opera em ambiente de desenvolvimento Replit.
-
----
-
-## 3. Arquitetura Clean Architecture
-
-O sistema implementa Clean Architecture com 4 camadas distintas:
-
-### 3.1 Diagrama de Camadas
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         PRESENTATION LAYER                          │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │ React        │  │ REST API     │  │ Webhooks     │              │
-│  │ Dashboard    │  │ Controllers  │  │ Callbacks    │              │
-│  └──────────────┘  └──────────────┘  └──────────────┘              │
-├─────────────────────────────────────────────────────────────────────┤
-│                         APPLICATION LAYER                           │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │ Use Cases    │  │ DTOs         │  │ Mappers      │              │
-│  │ Orchestration│  │ Validators   │  │ Transformers │              │
-│  └──────────────┘  └──────────────┘  └──────────────┘              │
-├─────────────────────────────────────────────────────────────────────┤
-│                           DOMAIN LAYER                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │ Entities     │  │ Value Objects│  │ Domain       │              │
-│  │ Transaction  │  │ Money, Risk  │  │ Services     │              │
-│  └──────────────┘  └──────────────┘  └──────────────┘              │
-├─────────────────────────────────────────────────────────────────────┤
-│                       INFRASTRUCTURE LAYER                          │
-│  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐           │
-│  │ Database  │ │ ML Engine │ │ Cache     │ │ External  │           │
-│  │ Repository│ │ Service   │ │ System    │ │ APIs      │           │
-│  └───────────┘ └───────────┘ └───────────┘ └───────────┘           │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### 3.2 Estrutura de Diretórios
+## 2. Estrutura de Diretórios
 
 ```
 sankofa-enterprise-real/
 ├── backend/
-│   ├── api/                    # Presentation Layer
-│   │   ├── production_api.py   # API principal (endpoints implementados)
-│   │   └── services/           # Serviços de aplicação
+│   ├── api/
+│   │   └── production_api.py        # API principal (30+ endpoints)
 │   │
-│   ├── core/                   # Domain Layer
-│   │   ├── entities/           # Entidades de domínio
-│   │   │   ├── transaction.py  # Entidade Transação
-│   │   │   └── fraud_prediction.py
-│   │   ├── value_objects/      # Value Objects
-│   │   │   ├── money.py
-│   │   │   └── transaction_id.py
-│   │   └── use_cases/          # Casos de Uso
-│   │       ├── analyze_transaction.py
-│   │       └── process_feedback.py
+│   ├── ml_engine/
+│   │   ├── production_fraud_engine.py    # Motor ML principal
+│   │   ├── advanced_feature_engineering.py # 47+ features
+│   │   ├── explainability_engine.py      # SHAP values
+│   │   ├── probability_calibration.py    # Calibração isotônica/sigmoid
+│   │   └── self_training_optimizer.py    # Semi-supervised learning
 │   │
-│   ├── infrastructure/         # Infrastructure Layer
-│   │   ├── database/           # Repositórios
-│   │   ├── ml_service/         # Integração ML
-│   │   └── security/           # Segurança
+│   ├── mlops/
+│   │   ├── ab_testing_manager.py         # Testes A/B
+│   │   ├── canary_deployment_manager.py  # Deploy gradual
+│   │   ├── drift_detector.py             # Detecção de drift
+│   │   └── model_lifecycle_manager.py    # Versionamento
 │   │
-│   ├── ml_engine/              # Motor de ML
-│   │   └── production_fraud_engine.py
+│   ├── cache/
+│   │   └── redis_cache_system.py         # Sistema de cache
 │   │
-│   ├── mlops/                  # MLOps Components
-│   │   ├── ab_testing_manager.py
-│   │   ├── canary_deployment_manager.py
-│   │   └── drift_detector.py
+│   ├── security/
+│   │   └── enterprise_security_system.py # Segurança
 │   │
-│   ├── cache/                  # Sistema de Cache
-│   │   └── redis_cache_system.py
+│   ├── compliance/
+│   │   └── compliance_manager.py         # LGPD, BACEN, PCI
 │   │
-│   ├── compliance/             # Compliance & Regulatório
-│   │   └── compliance_manager.py
+│   ├── utils/
+│   │   ├── structured_logging.py         # Logs JSON
+│   │   └── error_handling.py             # Tratamento de erros
 │   │
-│   ├── security/               # Segurança Enterprise
-│   │   ├── enterprise_security_system.py
-│   │   └── middleware.py
+│   ├── tests/
+│   │   ├── test_improvements.py          # 20 testes ML
+│   │   └── test_e2e.py                   # 25 testes E2E
 │   │
-│   ├── config/                 # Configurações
-│   │   └── settings.py
-│   │
-│   └── utils/                  # Utilitários
-│       ├── structured_logging.py
-│       └── error_handling.py
+│   └── data/
+│       └── metrics_state.json            # Estado persistido
 │
-├── frontend/                   # Presentation Layer (Web)
-│   └── src/
-│       ├── pages/              # Páginas do Dashboard
-│       ├── components/         # Componentes React
-│       └── styles/             # Estilos CSS
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── Dashboard.tsx
+│   │   │   ├── Transactions.tsx
+│   │   │   ├── Calibration.tsx
+│   │   │   ├── Investigation.tsx
+│   │   │   ├── ManualReview.tsx
+│   │   │   ├── Monitoring.tsx
+│   │   │   ├── Reports.tsx
+│   │   │   ├── Metrics.tsx
+│   │   │   └── Alerts.tsx
+│   │   │
+│   │   ├── components/
+│   │   │   └── ui/                       # shadcn components
+│   │   │
+│   │   └── lib/
+│   │       └── api.ts                    # API client
+│   │
+│   └── vite.config.ts
 │
-├── config/                     # Configurações Globais
-│   └── configuration_rules.json
+├── docs/
+│   ├── DOCUMENTACAO_FUNCIONAL.md
+│   ├── ARQUITETURA_TECNICA.md
+│   ├── MANUAL_USUARIO.md
+│   └── USE_A_CABECA_SANKOFA.md
 │
-└── models/                     # Modelos ML Persistidos
+└── models/
+    └── fraud_ensemble_v*.joblib          # Modelos serializados
 ```
 
 ---
 
-## 4. Componentes do Backend
+## 3. Backend API
 
-### 4.1 Production API (`production_api.py`)
-
-A API principal do sistema, responsável por:
-
-- **~22 endpoints REST** para todas as operações
-- **Autenticação JWT** com rotação automática de chaves
-- **Rate Limiting** configurável por endpoint
-- **CORS** para integração com frontend
-- **Error Handling** estruturado
-
-#### Configuração de Rate Limiting
+### 3.1 Configuração do Flask
 
 ```python
+# production_api.py
+
+app = Flask(__name__)
+CORS(app, origins=["*"])
+
+# Rate Limiting
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
@@ -244,841 +173,637 @@ limiter = Limiter(
     storage_uri="memory://",
     strategy="fixed-window"
 )
+
+# JWT Configuration
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET', generate_key())
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
 ```
 
-#### Decorator de Autenticação
+### 3.2 Endpoints Principais
+
+| Endpoint | Método | Descrição | Rate Limit |
+|----------|--------|-----------|------------|
+| `/api/health` | GET | Health check | - |
+| `/api/fraud/predict` | POST | Predição em tempo real | 1000/min |
+| `/api/fraud/batch` | POST | Predição em lote | 100/min |
+| `/api/transactions` | GET | Listar transações | 500/min |
+| `/api/model/metrics` | GET | Métricas do modelo | 500/min |
+| `/api/feedback` | POST | Feedback do analista | 500/min |
+| `/api/dashboard/summary` | GET | Resumo do dashboard | 500/min |
+| `/api/dashboard/kpis` | GET | KPIs em tempo real | 500/min |
+| `/api/dashboard/timeseries` | GET | Dados temporais | 500/min |
+| `/api/dashboard/channels` | GET | Estatísticas por canal | 500/min |
+| `/api/dashboard/alerts` | GET | Alertas recentes | 500/min |
+| `/api/dashboard/model-status` | GET | Status dos modelos | 500/min |
+| `/api/manual-review` | GET | Fila de revisão | 500/min |
+| `/api/alerts` | GET | Lista de alertas | 500/min |
+
+### 3.3 Estrutura de Resposta Padrão
 
 ```python
-@require_auth
-def protected_endpoint():
-    # Endpoint protegido por JWT
-    user = g.user  # Usuário autenticado
+# Sucesso
+{
+    "success": True,
+    "data": {...},
+    "timestamp": "2025-11-27T14:30:00.000Z"
+}
+
+# Erro
+{
+    "success": False,
+    "error": {
+        "code": "VALIDATION_ERROR",
+        "message": "Campo obrigatório ausente",
+        "details": {...}
+    },
+    "timestamp": "2025-11-27T14:30:00.000Z"
+}
+```
+
+### 3.4 Tratamento de Erros
+
+```python
+class ErrorCategory(Enum):
+    VALIDATION = "validation"
+    DATABASE = "database"
+    ML_MODEL = "ml_model"
+    SECURITY = "security"
+    NETWORK = "network"
+
+class ErrorSeverity(Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+```
+
+---
+
+## 4. Motor de Machine Learning
+
+### 4.1 Arquitetura do Ensemble (Implementado)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    STACKING ENSEMBLE (Atual)                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   INPUT: Transação                                                           │
+│           │                                                                  │
+│           ▼                                                                  │
+│   ┌───────────────────────────────────────────────────────────────┐         │
+│   │              FEATURE ENGINEERING (Básico)                       │         │
+│   │   Features: Temporal, Valor, Geográficas básicas                │         │
+│   │   (Location Entropy disponível em módulo separado)              │         │
+│   └───────────────────────────────────────────────────────────────┘         │
+│           │                                                                  │
+│           ▼                                                                  │
+│   ┌───────────────────────────────────────────────────────────────┐         │
+│   │              BASE MODELS (sklearn StackingClassifier)           │         │
+│   │                                                                  │         │
+│   │  ┌─────────────┐  ┌─────────────┐                               │         │
+│   │  │   Random    │  │  Gradient   │                               │         │
+│   │  │   Forest    │  │  Boosting   │                               │         │
+│   │  │ n=100,d=15  │  │ n=100,d=8   │                               │         │
+│   │  └──────┬──────┘  └──────┬──────┘                               │         │
+│   │         │                │                                       │         │
+│   └─────────│────────────────│───────────────────────────────────────┘        │
+│             │                │                                               │
+│             ▼                ▼                                               │
+│   ┌───────────────────────────────────────────────────────────────┐         │
+│   │              META-MODEL (Final Estimator)                       │         │
+│   │   Logistic Regression                                           │         │
+│   │   - Combina predições dos base models                           │         │
+│   │   - Class weights balanced                                      │         │
+│   └───────────────────────────────────────────────────────────────┘         │
+│             │                                                                │
+│             ▼                                                                │
+│         OUTPUT: FraudPrediction                                              │
+│                                                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│   MÓDULOS DISPONÍVEIS (não integrados na API principal):                    │
+│                                                                              │
+│   ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
+│   │  EXPLAINABILITY  │  │   CALIBRATION    │  │  SELF-TRAINING   │         │
+│   │     ENGINE       │  │    (Isotonic/    │  │    OPTIMIZER     │         │
+│   │  (SHAP values)   │  │    Sigmoid)      │  │  (Pseudo-label)  │         │
+│   │   ✅ Testado     │  │   ✅ Testado     │  │   ✅ Testado     │         │
+│   └──────────────────┘  └──────────────────┘  └──────────────────┘         │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 4.2 Feature Engineering (47+ Features)
+
+#### Temporais (5 features)
+```python
+features['hour'] = df['timestamp'].dt.hour
+features['day_of_week'] = df['timestamp'].dt.dayofweek
+features['is_weekend'] = features['day_of_week'].isin([5, 6]).astype(int)
+features['is_night'] = ((features['hour'] >= 22) | (features['hour'] <= 6)).astype(int)
+features['is_business_hours'] = features['hour'].between(9, 18).astype(int)
+```
+
+#### Location Entropy (11 features) - NOVO
+```python
+def calculate_location_entropy(locations):
+    """Calcula entropia de Shannon para diversidade de localizações"""
+    if len(locations) <= 1:
+        return 0.0
+    counter = Counter(locations)
+    probs = [count / len(locations) for count in counter.values()]
+    return -sum(p * log2(p) for p in probs if p > 0)
+
+features['location_entropy'] = calculate_location_entropy(user_locations)
+features['unique_locations'] = len(set(user_locations))
+features['location_diversity_score'] = unique_locations / total_transactions
+```
+
+#### Transaction Patterns (NOVO)
+```python
+features['amount_zscore'] = (amount - mean) / std
+features['is_outlier'] = (features['amount_zscore'].abs() > 3).astype(int)
+features['hour_pattern_deviation'] = calculate_hour_deviation(user_history)
+```
+
+### 4.3 Probability Calibration
+
+```python
+class EnsembleCalibrator:
+    """Calibrador com seleção automática isotônica/sigmoid"""
+    
+    def __init__(self):
+        self.isotonic = IsotonicRegression(out_of_bounds='clip')
+        self.sigmoid = _SigmoidCalibration()
+        
+    def fit(self, y_prob, y_true):
+        # Treina ambos e seleciona melhor ECE
+        self.isotonic.fit(y_prob, y_true)
+        self.sigmoid.fit(y_prob, y_true)
+        
+        ece_iso = self._calculate_ece(self.isotonic.predict(y_prob), y_true)
+        ece_sig = self._calculate_ece(self.sigmoid.predict(y_prob), y_true)
+        
+        self.best_method = 'isotonic' if ece_iso < ece_sig else 'sigmoid'
+```
+
+### 4.4 Explainability Engine (SHAP)
+
+```python
+class ExplainabilityEngine:
+    """Motor de explicabilidade usando SHAP"""
+    
+    def explain_prediction(self, model, X, feature_names):
+        explainer = shap.TreeExplainer(model)
+        shap_values = explainer.shap_values(X)
+        
+        explanation = {
+            'shap_values': dict(zip(feature_names, shap_values[0])),
+            'top_features': self._get_top_features(shap_values, feature_names, n=5),
+            'text_explanation': self._generate_text_explanation(shap_values, feature_names)
+        }
+        return explanation
+    
+    def _generate_text_explanation(self, shap_values, feature_names):
+        """Gera explicação em texto para compliance LGPD"""
+        top_positive = self._get_top_features(shap_values, feature_names, n=3, positive=True)
+        
+        explanations = []
+        for feature, value in top_positive:
+            if feature == 'is_night':
+                explanations.append("Transação realizada em horário noturno")
+            elif feature == 'amount_zscore':
+                explanations.append("Valor significativamente diferente do padrão")
+            # ... mais mapeamentos
+        
+        return explanations
+```
+
+### 4.5 Self-Training Optimizer
+
+```python
+class SelfTrainingOptimizer:
+    """Semi-supervised learning com pseudo-labeling"""
+    
+    def __init__(self, confidence_threshold=0.95):
+        self.confidence_threshold = confidence_threshold
+        
+    def optimize(self, model, X_labeled, y_labeled, X_unlabeled):
+        # 1. Predição nos dados não rotulados
+        proba = model.predict_proba(X_unlabeled)
+        max_proba = np.max(proba, axis=1)
+        
+        # 2. Seleciona amostras de alta confiança
+        high_confidence_mask = max_proba >= self.confidence_threshold
+        pseudo_labels = np.argmax(proba[high_confidence_mask], axis=1)
+        
+        # 3. Combina com dados rotulados
+        X_combined = np.vstack([X_labeled, X_unlabeled[high_confidence_mask]])
+        y_combined = np.hstack([y_labeled, pseudo_labels])
+        
+        # 4. Retreina modelo
+        model.fit(X_combined, y_combined)
+        return model
+```
+
+---
+
+## 5. Banco de Dados
+
+### 5.1 Schema PostgreSQL
+
+```sql
+-- Tabela principal de transações
+CREATE TABLE transactions (
+    id VARCHAR PRIMARY KEY,
+    amount DECIMAL(15,2) NOT NULL,
+    channel VARCHAR(50),
+    location VARCHAR(100),
+    cpf VARCHAR(14),
+    timestamp TIMESTAMP DEFAULT NOW(),
+    fraud_score DECIMAL(5,2),
+    is_fraud BOOLEAN DEFAULT FALSE,
+    decision VARCHAR(20),
+    risk_factors JSONB,
+    shap_values JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Tabela de alertas
+CREATE TABLE alerts (
+    id SERIAL PRIMARY KEY,
+    transaction_id VARCHAR REFERENCES transactions(id),
+    type VARCHAR(50),
+    severity VARCHAR(20),
+    status VARCHAR(20) DEFAULT 'NEW',
+    details JSONB,
+    created_at TIMESTAMP DEFAULT NOW(),
+    resolved_at TIMESTAMP
+);
+
+-- Tabela de audit log
+CREATE TABLE audit_log (
+    id SERIAL PRIMARY KEY,
+    action VARCHAR(100),
+    entity_type VARCHAR(50),
+    entity_id VARCHAR,
+    user_id VARCHAR,
+    details JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Tabela de métricas
+CREATE TABLE metrics (
+    id SERIAL PRIMARY KEY,
+    metric_name VARCHAR(100),
+    metric_value DECIMAL(15,4),
+    labels JSONB,
+    timestamp TIMESTAMP DEFAULT NOW()
+);
+
+-- Índices para performance
+CREATE INDEX idx_transactions_timestamp ON transactions(timestamp);
+CREATE INDEX idx_transactions_cpf ON transactions(cpf);
+CREATE INDEX idx_transactions_channel ON transactions(channel);
+CREATE INDEX idx_alerts_status ON alerts(status);
+CREATE INDEX idx_audit_created ON audit_log(created_at);
+```
+
+### 5.2 Connection Pool
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.pool import QueuePool
+
+engine = create_engine(
+    DATABASE_URL,
+    poolclass=QueuePool,
+    pool_size=10,
+    max_overflow=20,
+    pool_pre_ping=True,  # Verifica conexões antes de usar
+    pool_recycle=300,    # Recicla conexões a cada 5 min
+    connect_args={
+        "connect_timeout": 10,
+        "sslmode": "require"
+    }
+)
+```
+
+---
+
+## 6. Frontend Architecture
+
+### 6.1 Estrutura de Componentes
+
+```
+src/
+├── pages/                  # Páginas principais
+│   ├── Dashboard.tsx       # KPIs e gráficos
+│   ├── Transactions.tsx    # Lista de transações
+│   ├── Calibration.tsx     # Ajustes de threshold
+│   ├── Investigation.tsx   # Central de investigação
+│   ├── ManualReview.tsx    # Fila HITL
+│   ├── Monitoring.tsx      # Saúde do sistema
+│   ├── Reports.tsx         # Geração de relatórios
+│   ├── Metrics.tsx         # Contadores real-time
+│   └── Alerts.tsx          # Central de alertas
+│
+├── components/
+│   ├── ui/                 # shadcn/ui components
+│   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── input.tsx
+│   │   ├── select.tsx
+│   │   ├── slider.tsx
+│   │   ├── switch.tsx
+│   │   └── table.tsx
+│   │
+│   ├── layout/
+│   │   ├── Sidebar.tsx
+│   │   ├── Header.tsx
+│   │   └── Layout.tsx
+│   │
+│   └── charts/
+│       ├── LineChart.tsx
+│       ├── BarChart.tsx
+│       └── PieChart.tsx
+│
+└── lib/
+    ├── api.ts              # API client
+    └── utils.ts            # Utilitários
+```
+
+### 6.2 API Client
+
+```typescript
+// lib/api.ts
+const API_BASE = 'http://0.0.0.0:8445/api';
+
+export async function fetchDashboardKPIs() {
+  const response = await fetch(`${API_BASE}/dashboard/kpis`);
+  return response.json();
+}
+
+export async function fetchTransactions(page = 1, limit = 50) {
+  const response = await fetch(
+    `${API_BASE}/transactions?page=${page}&limit=${limit}`
+  );
+  return response.json();
+}
+
+export async function predictFraud(transactions: Transaction[]) {
+  const response = await fetch(`${API_BASE}/fraud/predict`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ transactions })
+  });
+  return response.json();
+}
+```
+
+### 6.3 Vite Configuration
+
+```typescript
+// vite.config.ts
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    host: '0.0.0.0',
+    port: 5000,
+    allowedHosts: true,
+    proxy: {
+      '/api': {
+        target: 'http://0.0.0.0:8445',
+        changeOrigin: true
+      }
+    }
+  }
+});
+```
+
+---
+
+## 7. Segurança
+
+### 7.1 Autenticação JWT
+
+```python
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
+
+jwt = JWTManager(app)
+
+@app.route('/api/protected')
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(user=current_user)
+```
+
+### 7.2 Rate Limiting
+
+```python
+# Limites por endpoint
+@limiter.limit("1000/minute")
+@app.route('/api/fraud/predict', methods=['POST'])
+def predict():
+    ...
+
+@limiter.limit("100/minute")
+@app.route('/api/fraud/batch', methods=['POST'])
+def batch():
     ...
 ```
 
-### 4.2 MetricsCollector
+### 7.3 Input Validation
 
-Componente responsável por coletar e persistir métricas em tempo real:
-
+```python
+def validate_transaction(data):
+    required_fields = ['transaction_id', 'amount']
+    for field in required_fields:
+        if field not in data:
+            raise ValidationError(f"Campo obrigatório: {field}")
+    
+    if not isinstance(data['amount'], (int, float)):
+        raise ValidationError("Amount deve ser numérico")
+    
+    if data['amount'] < 0:
+        data['amount'] = abs(data['amount'])  # Normaliza
 ```
-┌─────────────────────────────────────────────────────────┐
-│                   METRICS COLLECTOR                      │
-├─────────────────────────────────────────────────────────┤
-│  • Transações do dia                                     │
-│  • Estatísticas de fraude                                │
-│  • Amostras de latência (últimas 1000)                   │
-│  • Estatísticas por hora                                 │
-│  • Estatísticas por canal (PIX, TED, etc)                │
-│  • Alertas ativos                                        │
-│  • Histórico diário (30 dias)                            │
-├─────────────────────────────────────────────────────────┤
-│  Persistência: JSON em data/metrics_state.json          │
-│  Thread-safe: RLock para concorrência                    │
-└─────────────────────────────────────────────────────────┘
-```
-
-### 4.3 Error Handling
-
-Sistema de tratamento de erros com categorização:
-
-| Categoria | Severidade | Ação |
-|-----------|------------|------|
-| VALIDATION | LOW/MEDIUM | Log + Response 400 |
-| DATABASE | MEDIUM/HIGH | Log + Retry + Response 500 |
-| ML_MODEL | HIGH | Log + Fallback + Alert |
-| SECURITY | CRITICAL | Log + Block + Alert |
 
 ---
 
-## 5. Motor de Machine Learning
+## 8. MLOps
 
-### 5.1 Arquitetura do Ensemble
-
-O `ProductionFraudEngine` implementa um **Stacking Ensemble** de alta performance:
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         STACKING ENSEMBLE                           │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│   INPUT (Transaction Features)                                       │
-│           │                                                          │
-│           ▼                                                          │
-│   ┌───────────────────────────────────────────────┐                 │
-│   │           PREPROCESSING LAYER                  │                 │
-│   │  • Feature Selection (47+ features)            │                 │
-│   │  • Missing Value Handling (median)             │                 │
-│   │  • StandardScaler Normalization                │                 │
-│   └───────────────────────────────────────────────┘                 │
-│           │                                                          │
-│           ▼                                                          │
-│   ┌───────────────────────────────────────────────┐                 │
-│   │           BASE MODELS (Layer 0)                │                 │
-│   │  ┌─────────────────┐ ┌─────────────────┐       │                 │
-│   │  │ Random Forest   │ │ Gradient Boost  │       │                 │
-│   │  │ n_estimators:100│ │ n_estimators:100│       │                 │
-│   │  │ max_depth: 15   │ │ max_depth: 8    │       │                 │
-│   │  │ balanced weights│ │ learning: 0.1   │       │                 │
-│   │  └────────┬────────┘ └────────┬────────┘       │                 │
-│   └───────────│───────────────────│────────────────┘                 │
-│               │                   │                                   │
-│               ▼                   ▼                                   │
-│   ┌───────────────────────────────────────────────┐                 │
-│   │         CALIBRATION LAYER                      │                 │
-│   │    CalibratedClassifierCV (isotonic)           │                 │
-│   │    • Probability calibration                   │                 │
-│   │    • Cross-validation: 5-fold                  │                 │
-│   └───────────────────────────────────────────────┘                 │
-│               │                                                      │
-│               ▼                                                      │
-│   ┌───────────────────────────────────────────────┐                 │
-│   │         META-MODEL (Layer 1)                   │                 │
-│   │    Logistic Regression                         │                 │
-│   │    • Combines base model predictions           │                 │
-│   │    • Balanced class weights                    │                 │
-│   │    • max_iter: 1000                            │                 │
-│   └───────────────────────────────────────────────┘                 │
-│               │                                                      │
-│               ▼                                                      │
-│   ┌───────────────────────────────────────────────┐                 │
-│   │         PRECISION RULES                        │                 │
-│   │    • extreme_amount_suspicious_hour            │                 │
-│   │    • velocity_burst detection                  │                 │
-│   │    • high_risk_combination                     │                 │
-│   └───────────────────────────────────────────────┘                 │
-│               │                                                      │
-│               ▼                                                      │
-│         FraudPrediction                                              │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### 5.2 Feature Engineering
-
-O sistema extrai **47+ features** automaticamente:
-
-#### Temporais
-- `hour`: Hora da transação (0-23)
-- `day_of_week`: Dia da semana (0-6)
-- `is_weekend`: Flag de fim de semana
-- `is_night`: Transação noturna (22h-6h)
-- `is_business_hours`: Horário comercial
-
-#### Baseadas em Valor
-- `amount_log`: Log do valor
-- `amount_squared`: Valor ao quadrado
-- `amount_normalized`: Valor normalizado
-- `is_round_amount`: Valor redondo
-- `amount_zscore`: Z-score do valor
-
-#### Geográficas
-- `distance_from_home`: Distância do local habitual
-- `location_risk_score`: Score de risco da localização
-- `is_international`: Transação internacional
-
-#### Comportamentais
-- `transaction_velocity_1h`: Velocidade (transações/hora)
-- `transaction_velocity_24h`: Velocidade (transações/dia)
-- `amount_deviation`: Desvio do padrão normal
-- `new_merchant`: Comerciante novo
-- `device_change`: Mudança de dispositivo
-
-### 5.3 Precision Rules (Regras de Alta Precisão)
+### 8.1 Drift Detection
 
 ```python
-precision_rules = {
-    "extreme_amount_suspicious_hour": {
-        "amount_threshold": 50000,      # R$ 50.000+
-        "suspicious_hours": [0,1,2,3,4,23],  # Madrugada
-        "probability_boost": 0.3        # +30% probabilidade
-    },
-    "velocity_burst": {
-        "frequency_threshold": 50,      # 50+ transações
-        "time_window_hours": 0.5,       # Em 30 minutos
-        "probability_boost": 0.4        # +40% probabilidade
-    },
-    "high_risk_combination": {
-        "location_risk_threshold": 0.9,
-        "device_risk_threshold": 0.9,
-        "probability_boost": 0.5        # +50% probabilidade
+class DriftDetector:
+    """Detecta data drift usando Jensen-Shannon divergence"""
+    
+    def detect_drift(self, reference_data, current_data, threshold=0.1):
+        for feature in self.features:
+            ref_dist = self._get_distribution(reference_data[feature])
+            cur_dist = self._get_distribution(current_data[feature])
+            
+            js_divergence = jensenshannon(ref_dist, cur_dist)
+            
+            if js_divergence > threshold:
+                self.alerts.append({
+                    'feature': feature,
+                    'divergence': js_divergence,
+                    'severity': self._classify_severity(js_divergence)
+                })
+        
+        return self.alerts
+```
+
+### 8.2 A/B Testing
+
+```python
+class ABTestingManager:
+    """Gerencia testes A/B entre modelos"""
+    
+    def __init__(self, variants, traffic_split):
+        self.variants = variants  # {'control': model_v1, 'treatment': model_v2}
+        self.traffic_split = traffic_split  # {'control': 0.5, 'treatment': 0.5}
+    
+    def route_request(self, transaction_id):
+        # Hash-based routing para consistência
+        hash_value = hash(transaction_id) % 100
+        
+        cumulative = 0
+        for variant, split in self.traffic_split.items():
+            cumulative += split * 100
+            if hash_value < cumulative:
+                return variant
+        
+        return 'control'
+```
+
+### 8.3 Canary Deployment
+
+```python
+class CanaryDeploymentManager:
+    """Deploy gradual de novos modelos"""
+    
+    STAGES = [0.05, 0.10, 0.25, 0.50, 1.0]  # 5%, 10%, 25%, 50%, 100%
+    
+    def advance_stage(self):
+        if self.health_check_passed():
+            self.current_stage += 1
+            self.traffic_to_canary = self.STAGES[self.current_stage]
+            return True
+        else:
+            self.rollback()
+            return False
+```
+
+---
+
+## 9. Observabilidade
+
+### 9.1 Structured Logging
+
+```python
+import structlog
+
+logger = structlog.get_logger()
+
+logger.info(
+    "Fraud prediction completed",
+    transaction_id=tx_id,
+    score=score,
+    is_fraud=is_fraud,
+    latency_ms=latency,
+    model_version=version
+)
+```
+
+### 9.2 Métricas Coletadas
+
+| Métrica | Tipo | Descrição |
+|---------|------|-----------|
+| `transactions_total` | Counter | Total de transações |
+| `frauds_detected` | Counter | Fraudes detectadas |
+| `prediction_latency` | Histogram | Latência de predição |
+| `model_accuracy` | Gauge | Acurácia do modelo |
+| `cache_hit_rate` | Gauge | Taxa de cache hit |
+| `db_connection_pool` | Gauge | Conexões ativas |
+
+### 9.3 Health Checks
+
+```python
+@app.route('/api/health')
+def health():
+    checks = {
+        'database': check_database(),
+        'ml_model': check_model_loaded(),
+        'cache': check_cache(),
+        'disk': check_disk_space()
     }
-}
-```
-
-### 5.4 FraudPrediction (Estrutura de Resposta)
-
-```python
-@dataclass
-class FraudPrediction:
-    transaction_id: str      # ID único da transação
-    is_fraud: bool           # Classificação binária
-    fraud_probability: float # Probabilidade (0-1)
-    risk_score: float        # Score de risco (0-100)
-    risk_level: str          # LOW/MEDIUM/HIGH/CRITICAL
-    confidence: float        # Confiança do modelo
-    processing_time_ms: float # Tempo de processamento
-    model_version: str       # Versão do modelo
-    detection_reason: List[str] # Razões da detecção
-    timestamp: str           # Timestamp ISO
+    
+    status = 'healthy' if all(checks.values()) else 'degraded'
+    
+    return jsonify({
+        'status': status,
+        'checks': checks,
+        'timestamp': datetime.utcnow().isoformat()
+    })
 ```
 
 ---
 
-## 6. Infraestrutura MLOps
+## 10. Performance
 
-### 6.1 A/B Testing Manager
+### 10.1 Benchmarks Atuais
 
-Sistema completo de testes A/B para comparação de modelos:
+| Operação | Latência P50 | Latência P95 | Latência P99 |
+|----------|--------------|--------------|--------------|
+| Health Check | 0.15ms | 0.20ms | 0.25ms |
+| Single Prediction | 22ms | 33ms | 45ms |
+| Batch (50 txns) | 250ms | 400ms | 600ms |
+| Dashboard KPIs | 0.4ms | 0.6ms | 1.0ms |
+| Transactions List | 12ms | 15ms | 20ms |
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        A/B TESTING SYSTEM                           │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│   ┌─────────────────────────────────────────────────────────┐       │
-│   │                    TRAFFIC ROUTER                        │       │
-│   │   Strategies:                                            │       │
-│   │   • RANDOM - Distribuição aleatória                      │       │
-│   │   • HASH_BASED - Consistente por transaction_id          │       │
-│   │   • GEOGRAPHIC - Por região do cliente                   │       │
-│   │   • TIME_BASED - Por período do dia                      │       │
-│   │   • RISK_BASED - Por nível de risco                      │       │
-│   └─────────────────────────────────────────────────────────┘       │
-│                          │                                           │
-│            ┌─────────────┼─────────────┐                            │
-│            ▼             ▼             ▼                            │
-│   ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                │
-│   │  VARIANT A   │ │  VARIANT B   │ │  VARIANT C   │                │
-│   │  (Control)   │ │ (Challenger) │ │ (Challenger) │                │
-│   │    60%       │ │     20%      │ │     20%      │                │
-│   └──────────────┘ └──────────────┘ └──────────────┘                │
-│            │             │             │                             │
-│            └─────────────┼─────────────┘                            │
-│                          ▼                                           │
-│   ┌─────────────────────────────────────────────────────────┐       │
-│   │              STATISTICAL ANALYZER                        │       │
-│   │   • Chi-square test                                      │       │
-│   │   • Confidence intervals                                 │       │
-│   │   • Statistical significance (p < 0.05)                  │       │
-│   │   • Minimum sample size validation                       │       │
-│   └─────────────────────────────────────────────────────────┘       │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
+### 10.2 Otimizações Implementadas
 
-#### Configuração de Teste A/B
-
-```python
-@dataclass
-class ABTestConfig:
-    test_id: str                    # ID único do teste
-    test_name: str                  # Nome descritivo
-    description: str                # Descrição do objetivo
-    variants: List[ModelVariant]    # Variantes (modelos)
-    traffic_split_strategy: TrafficSplitStrategy
-    start_date: str                 # Data início
-    end_date: str                   # Data fim
-    success_metrics: List[str]      # Métricas de sucesso
-    minimum_sample_size: int        # Tamanho mínimo da amostra
-    confidence_level: float         # Nível de confiança (0.95)
-    status: TestStatus              # DRAFT/ACTIVE/COMPLETED
-```
-
-### 6.2 Canary Deployment Manager
-
-Sistema de deploy gradual com rollback automático:
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                     CANARY DEPLOYMENT FLOW                          │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│   STEP 1 (5%)    STEP 2 (10%)   STEP 3 (25%)   STEP 4 (50%)        │
-│   ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐        │
-│   │  ████    │   │  ████    │   │  ████    │   │  ████    │        │
-│   │  ▓▓▓▓    │   │  ████    │   │  ████    │   │  ████    │        │
-│   │  ▓▓▓▓    │   │  ▓▓▓▓    │   │  ████    │   │  ████    │        │
-│   │  ▓▓▓▓    │   │  ▓▓▓▓    │   │  ▓▓▓▓    │   │  ████    │        │
-│   │  ▓▓▓▓    │   │  ▓▓▓▓    │   │  ▓▓▓▓    │   │  ▓▓▓▓    │        │
-│   └──────────┘   └──────────┘   └──────────┘   └──────────┘        │
-│   ████ = Canary   ▓▓▓▓ = Stable                                     │
-│                                                                      │
-│   HEALTH CHECKS em cada step:                                        │
-│   ┌─────────────────────────────────────────────────────────┐       │
-│   │  ✓ Error Rate < 1%                                       │       │
-│   │  ✓ Latency P95 < 15ms                                    │       │
-│   │  ✓ Accuracy > 99%                                        │       │
-│   │  ✓ False Positive Rate < 0.5%                            │       │
-│   └─────────────────────────────────────────────────────────┘       │
-│                                                                      │
-│   ROLLBACK AUTOMÁTICO se:                                           │
-│   • Error Rate > 5%                                                  │
-│   • Latency P95 > 50ms                                              │
-│   • Accuracy drop > 2%                                              │
-│   • 3 health checks consecutivos falhando                           │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-#### Status do Deployment
-
-```python
-class DeploymentStatus(Enum):
-    PENDING = "pending"           # Aguardando início
-    STARTING = "starting"         # Iniciando
-    ACTIVE = "active"             # Em execução
-    PROMOTING = "promoting"       # Promovendo para próximo step
-    COMPLETED = "completed"       # Concluído com sucesso
-    ROLLING_BACK = "rolling_back" # Executando rollback
-    ROLLED_BACK = "rolled_back"   # Rollback concluído
-    FAILED = "failed"             # Falhou
-```
-
-### 6.3 Drift Detector
-
-Sistema de detecção de degradação do modelo:
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                       DRIFT DETECTION SYSTEM                        │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│   TIPOS DE DRIFT MONITORADOS:                                        │
-│                                                                      │
-│   ┌──────────────────────────────────────────────────────────┐      │
-│   │  DATA DRIFT (Distribuição de Features)                    │      │
-│   │  ├─ Jensen-Shannon Divergence                             │      │
-│   │  ├─ Kolmogorov-Smirnov Test                               │      │
-│   │  └─ Population Stability Index (PSI)                      │      │
-│   └──────────────────────────────────────────────────────────┘      │
-│                                                                      │
-│   ┌──────────────────────────────────────────────────────────┐      │
-│   │  CONCEPT DRIFT (Relação Feature → Target)                 │      │
-│   │  ├─ Performance metrics degradation                       │      │
-│   │  ├─ Prediction distribution changes                       │      │
-│   │  └─ Chi-square test para categóricas                      │      │
-│   └──────────────────────────────────────────────────────────┘      │
-│                                                                      │
-│   SEVERITY LEVELS:                                                   │
-│   ├─ LOW:      PSI < 0.1   │ Monitorar                              │
-│   ├─ MEDIUM:   PSI < 0.25  │ Investigar                             │
-│   ├─ HIGH:     PSI < 0.5   │ Retreinar em breve                     │
-│   └─ CRITICAL: PSI >= 0.5  │ Retreinar IMEDIATAMENTE                │
-│                                                                      │
-│   AÇÕES AUTOMÁTICAS:                                                 │
-│   • Alert via webhook                                                │
-│   • Log estruturado                                                  │
-│   • Trigger de retreinamento (se configurado)                        │
-│   • Dashboard notification                                           │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
+1. **Connection Pooling:** 10 conexões base, 20 overflow
+2. **In-Memory Cache:** Fallback quando Redis indisponível
+3. **Lazy Loading:** Modelos carregados sob demanda
+4. **Batch Processing:** Vetorização de predições
+5. **Index Optimization:** Índices em campos de busca frequente
 
 ---
 
-## 7. Sistema de Cache
-
-### 7.1 Redis Cache System
-
-Arquitetura multi-camada com fallback:
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                      CACHE ARCHITECTURE                              │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│   REQUEST                                                            │
-│      │                                                               │
-│      ▼                                                               │
-│   ┌─────────────────────────────────────────────────────────┐       │
-│   │              L1: IN-MEMORY CACHE                         │       │
-│   │   • LRU eviction                                         │       │
-│   │   • TTL: configurable                                    │       │
-│   │   • Hit rate: ~95%                                       │       │
-│   │   • Latency: <1ms                                        │       │
-│   └─────────────────────────────────────────────────────────┘       │
-│      │ MISS                                                          │
-│      ▼                                                               │
-│   ┌─────────────────────────────────────────────────────────┐       │
-│   │              L2: REDIS CLUSTER                           │       │
-│   │   • Connection pooling (max: 100)                        │       │
-│   │   • Automatic serialization (JSON + Pickle)              │       │
-│   │   • TTL-based invalidation                               │       │
-│   │   • Latency: 1-5ms                                       │       │
-│   └─────────────────────────────────────────────────────────┘       │
-│      │ MISS / UNAVAILABLE                                            │
-│      ▼                                                               │
-│   ┌─────────────────────────────────────────────────────────┐       │
-│   │              FALLBACK: COMPUTATION                       │       │
-│   │   • Direct ML model inference                            │       │
-│   │   • Store result in cache layers                         │       │
-│   └─────────────────────────────────────────────────────────┘       │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### 7.2 Cache Keys Strategy
-
-```python
-# Padrões de chaves
-CACHE_KEYS = {
-    "transaction": "txn:{transaction_id}",
-    "user_profile": "user:{user_id}:profile",
-    "merchant": "merchant:{merchant_id}",
-    "model_prediction": "pred:{transaction_id}",
-    "metrics": "metrics:dashboard:current",
-    "config": "config:{config_name}",
-}
-
-# TTLs padrão (segundos)
-CACHE_TTLS = {
-    "transaction": 3600,      # 1 hora
-    "user_profile": 1800,     # 30 minutos
-    "merchant": 3600,         # 1 hora
-    "model_prediction": 300,  # 5 minutos
-    "metrics": 60,            # 1 minuto
-    "config": 600,            # 10 minutos
-}
-```
-
----
-
-## 8. Segurança e Autenticação
-
-### 8.1 JWT Authentication
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                      JWT AUTHENTICATION FLOW                        │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│   1. LOGIN                                                           │
-│   ┌──────────┐     POST /api/auth/login     ┌──────────────┐        │
-│   │  Client  │ ─────────────────────────────▶ │  API Server  │        │
-│   │          │   { username, password }      │              │        │
-│   └──────────┘                               └──────────────┘        │
-│                                                    │                 │
-│                                                    ▼                 │
-│                                              ┌──────────────┐        │
-│                                              │  Validate    │        │
-│                                              │  Credentials │        │
-│                                              └──────────────┘        │
-│                                                    │                 │
-│                                                    ▼                 │
-│   2. TOKEN GENERATION                                                │
-│   ┌──────────────────────────────────────────────────────────┐      │
-│   │  JWT Token = Header.Payload.Signature                     │      │
-│   │                                                           │      │
-│   │  Header:  { "alg": "HS256", "typ": "JWT" }                │      │
-│   │  Payload: {                                               │      │
-│   │    "sub": "user_id",                                      │      │
-│   │    "role": "analyst",                                     │      │
-│   │    "permissions": ["read", "write"],                      │      │
-│   │    "exp": 1234567890,                                     │      │
-│   │    "iat": 1234567000                                      │      │
-│   │  }                                                        │      │
-│   │  Signature: HMACSHA256(base64(header) + "." +             │      │
-│   │             base64(payload), JWT_SECRET)                  │      │
-│   └──────────────────────────────────────────────────────────┘      │
-│                                                                      │
-│   3. AUTHENTICATED REQUESTS                                          │
-│   ┌──────────┐  Authorization: Bearer <token>  ┌──────────────┐     │
-│   │  Client  │ ───────────────────────────────▶│  API Server  │     │
-│   └──────────┘                                 └──────────────┘     │
-│                                                       │              │
-│                                                       ▼              │
-│                                                ┌─────────────┐       │
-│                                                │ Validate    │       │
-│                                                │ JWT Token   │       │
-│                                                │ • Signature │       │
-│                                                │ • Expiration│       │
-│                                                │ • Claims    │       │
-│                                                └─────────────┘       │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### 8.2 Security Configuration
-
-```python
-# settings.py
-@dataclass
-class SecurityConfig:
-    jwt_secret: str           # 32+ caracteres, rotação a cada 30 dias
-    jwt_algorithm: str        # HS256
-    jwt_expiration_hours: int # 24 horas
-    enable_rate_limiting: bool
-    rate_limit_requests: int  # 1000/minuto
-    enable_audit_log: bool    # Obrigatório para compliance
-    encryption_key: str       # AES-256
-    tls_version: str          # TLS 1.3
-```
-
-### 8.3 Role-Based Access Control (RBAC)
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                          RBAC MATRIX                                 │
-├──────────────┬───────────┬───────────┬───────────┬─────────────────┤
-│  ENDPOINT    │   ADMIN   │  ANALYST  │  VIEWER   │   SYSTEM        │
-├──────────────┼───────────┼───────────┼───────────┼─────────────────┤
-│  /health     │    ✓      │    ✓      │    ✓      │      ✓          │
-│  /predict    │    ✓      │    ✓      │    ✗      │      ✓          │
-│  /batch      │    ✓      │    ✓      │    ✗      │      ✓          │
-│  /feedback   │    ✓      │    ✓      │    ✗      │      ✗          │
-│  /model/*    │    ✓      │    ✗      │    ✗      │      ✓          │
-│  /config/*   │    ✓      │    ✗      │    ✗      │      ✗          │
-│  /audit/*    │    ✓      │    ✓      │    ✓      │      ✗          │
-│  /admin/*    │    ✓      │    ✗      │    ✗      │      ✗          │
-└──────────────┴───────────┴───────────┴───────────┴─────────────────┘
-```
-
----
-
-## 9. Frontend Dashboard
-
-### 9.1 Arquitetura React
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    FRONTEND ARCHITECTURE                             │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│   src/                                                               │
-│   ├── App.jsx              # Router + Layout principal               │
-│   ├── pages/                                                         │
-│   │   ├── Dashboard.jsx    # KPIs e visão geral                      │
-│   │   ├── Transactions.jsx # Lista de transações                     │
-│   │   ├── Investigation.jsx# Análise detalhada                       │
-│   │   ├── ManualReview.jsx # Revisão manual HITL                     │
-│   │   ├── Calibration.jsx  # Ajuste de thresholds                    │
-│   │   ├── Monitoring.jsx   # Saúde do modelo                         │
-│   │   ├── Metrics.jsx      # Métricas em tempo real                  │
-│   │   └── Alerts.jsx       # Central de alertas                      │
-│   ├── components/                                                    │
-│   │   ├── ui/              # Componentes shadcn/ui                   │
-│   │   ├── Sidebar.jsx      # Navegação lateral                       │
-│   │   ├── Header.jsx       # Cabeçalho com busca                     │
-│   │   └── charts/          # Gráficos Recharts                       │
-│   └── styles/                                                        │
-│       ├── App.css          # Estilos globais                         │
-│       └── tokens.css       # Design tokens                           │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### 9.2 Páginas do Dashboard
-
-| Página | Funcionalidade | Atualização |
-|--------|----------------|-------------|
-| Dashboard | KPIs, gráficos de tendência, status geral | Real-time (5s) |
-| Transações | Lista, filtros, busca, detalhes | On-demand |
-| Investigação | Análise profunda de fraudes | On-demand |
-| Revisão Manual | Queue HITL, aprovar/rejeitar | Real-time |
-| Calibração | Ajuste de thresholds, impacto | On-demand |
-| Monitoramento | Saúde do modelo, drift, versões | Real-time (30s) |
-| Métricas | Contadores, latência, throughput | Real-time (5s) |
-| Alertas | Notificações, histórico, ações | Real-time |
-
----
-
-## 10. APIs e Endpoints
-
-### 10.1 Catálogo de Endpoints
-
-#### Health & Status
-
-```
-GET  /health                  # Health check simples
-GET  /api/health              # Health check detalhado
-GET  /api/status              # Status do sistema
-```
-
-#### Fraud Detection
-
-```
-POST /api/fraud/predict       # Predição single
-POST /api/fraud/batch         # Predição batch
-GET  /api/fraud/rules         # Regras ativas
-```
-
-#### Model Management
-
-```
-GET  /api/model/info          # Informações do modelo
-GET  /api/model/metrics       # Métricas de performance
-POST /api/model/train         # Trigger retreinamento
-GET  /api/model/versions      # Versões disponíveis
-```
-
-#### Dashboard Data
-
-```
-GET  /api/dashboard/kpis      # KPIs principais
-GET  /api/dashboard/hourly    # Dados por hora
-GET  /api/dashboard/channels  # Dados por canal
-GET  /api/dashboard/daily-history  # Histórico diário
-```
-
-#### Feedback & HITL
-
-```
-POST /api/feedback            # Enviar feedback
-GET  /api/feedback/pending    # Casos pendentes
-POST /api/feedback/resolve    # Resolver caso
-```
-
-#### MLOps
-
-```
-GET  /api/mlops/ab-tests          # Testes A/B ativos
-GET  /api/mlops/canary            # Deployments canary
-GET  /api/mlops/drift             # Status de drift
-```
-
-#### Auth & Config
-
-```
-POST /api/auth/login          # Autenticação
-GET  /api/auth/verify         # Verificar token
-GET  /api/config/rules        # Regras de configuração
-PUT  /api/config/rules        # Atualizar regras
-```
-
-### 10.2 Exemplo de Request/Response
-
-#### POST /api/fraud/predict
-
-**Request:**
-```json
-{
-  "transaction_id": "TXN-2025-001",
-  "amount": 15000.00,
-  "currency": "BRL",
-  "channel": "PIX",
-  "timestamp": "2025-11-27T14:30:00Z",
-  "customer_id": "CUST-12345",
-  "merchant_id": "MERCH-67890",
-  "location": {
-    "latitude": -23.5505,
-    "longitude": -46.6333
-  },
-  "device_fingerprint": "abc123xyz"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "prediction": {
-    "transaction_id": "TXN-2025-001",
-    "is_fraud": false,
-    "fraud_probability": 0.12,
-    "risk_score": 24.5,
-    "risk_level": "LOW",
-    "confidence": 0.94,
-    "processing_time_ms": 8.5,
-    "model_version": "1.0.0",
-    "detection_reason": [],
-    "timestamp": "2025-11-27T14:30:00.123Z"
-  }
-}
-```
-
----
-
-## 11. Configuração e Deployment
+## 11. Deployment
 
 ### 11.1 Variáveis de Ambiente
 
 ```bash
-# Ambiente
-ENVIRONMENT=production       # development/staging/production
-FLASK_DEBUG=false            # SEMPRE false em produção
-
-# Servidor
+# Backend
+FLASK_ENV=production
+DATABASE_URL=postgresql://...
+REDIS_URL=redis://...
+JWT_SECRET=<secret>
 API_PORT=8445
-FRONTEND_PORT=5000
 
-# Database (opcional)
-DATABASE_URL=postgresql://user:pass@host:5432/sankofa
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=sankofa
-DB_USER=sankofa_user
-DB_PASSWORD=secret
-
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-
-# Segurança
-JWT_SECRET=your-32-character-secret-key-here
-ENCRYPTION_KEY=your-aes-256-key
-
-# ML
-ML_MODEL_PATH=./models
-ML_CONFIDENCE_THRESHOLD=0.5
-
-# Monitoring
-DATADOG_API_KEY=your-datadog-key
-LOG_LEVEL=INFO
+# Frontend
+VITE_API_URL=http://0.0.0.0:8445
 ```
 
-### 11.2 Estrutura de Configuração
+### 11.2 Workflows Configurados
 
-```python
-# config/settings.py
-@dataclass
-class AppConfig:
-    environment: str
-    debug: bool
-    
-@dataclass
-class ServerConfig:
-    api_port: int
-    frontend_port: int
-    host: str
-    
-@dataclass
-class MLConfig:
-    model_path: str
-    confidence_threshold: float
-    batch_size: int
-    
-@dataclass
-class SecurityConfig:
-    jwt_secret: str
-    jwt_algorithm: str
-    jwt_expiration_hours: int
-    
-@dataclass
-class MonitoringConfig:
-    log_level: str
-    enable_metrics: bool
-    datadog_api_key: str
+```yaml
+# Backend API
+name: Backend API
+command: cd sankofa-enterprise-real/backend && python api/production_api.py
+
+# Frontend
+name: Sankofa Enterprise
+command: cd sankofa-enterprise-real/frontend && npm run dev
 ```
 
 ---
 
-## 12. Monitoramento e Observabilidade
-
-### 12.1 Métricas Coletadas
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                      MÉTRICAS DO SISTEMA                            │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│   PERFORMANCE                                                        │
-│   ├─ request_latency_ms (P50, P95, P99)                             │
-│   ├─ requests_per_second                                            │
-│   ├─ error_rate_percentage                                          │
-│   └─ cache_hit_rate                                                 │
-│                                                                      │
-│   MODEL                                                              │
-│   ├─ prediction_latency_ms                                          │
-│   ├─ fraud_detection_rate                                           │
-│   ├─ false_positive_rate                                            │
-│   ├─ false_negative_rate                                            │
-│   ├─ model_accuracy                                                 │
-│   ├─ model_precision                                                │
-│   ├─ model_recall                                                   │
-│   └─ model_f1_score                                                 │
-│                                                                      │
-│   BUSINESS                                                           │
-│   ├─ transactions_today                                             │
-│   ├─ frauds_detected                                                │
-│   ├─ value_protected_brl                                            │
-│   ├─ approval_rate                                                  │
-│   └─ pending_reviews                                                │
-│                                                                      │
-│   INFRASTRUCTURE                                                     │
-│   ├─ cpu_usage_percent                                              │
-│   ├─ memory_usage_mb                                                │
-│   ├─ redis_connections                                              │
-│   └─ db_connection_pool_size                                        │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### 12.2 Logging Estruturado
-
-```python
-# Formato de log JSON
-{
-    "timestamp": "2025-11-27T14:30:00.123Z",
-    "level": "INFO",
-    "logger": "production_api",
-    "message": "Transaction processed",
-    "transaction_id": "TXN-2025-001",
-    "is_fraud": false,
-    "processing_time_ms": 8.5,
-    "model_version": "1.0.0",
-    "trace_id": "abc123",
-    "span_id": "def456"
-}
-```
-
-### 12.3 Alertas
-
-| Alerta | Condição | Severidade | Ação |
-|--------|----------|------------|------|
-| High Latency | P95 > 50ms | WARNING | Investigar |
-| Error Rate | > 1% | CRITICAL | On-call |
-| Model Drift | PSI > 0.25 | WARNING | Planejar retrain |
-| Cache Down | Redis offline | HIGH | Fallback ativo |
-| Low Accuracy | < 95% | CRITICAL | Rollback modelo |
-
----
-
-## Apêndice A: Limitações Conhecidas
-
-### Status de Implementação
-
-Esta seção documenta componentes não ainda completamente operacionais:
-
-| Componente | Status | Observações |
-|-----------|--------|-------------|
-| **Endpoints Calibração** | ⚠️ Parcial | `/api/model/calibrate` em desenvolvimento |
-| **A/B Testing** | 📋 Conceitual | Estrutura implementada, não operacional |
-| **Canary Deployment** | 📋 Conceitual | Estrutura implementada, não operacional |
-| **Drift Detection** | 📋 Conceitual | Sistema monitorado manualmente |
-| **PostgreSQL** | ⚠️ Opcional | Sistema funciona com arquivos JSON |
-| **Redis** | ⚠️ Fallback | Cache in-memory quando indisponível |
-| **Docker/Nginx/DataDog** | 📋 Planejado | Infraestrutura para produção futura |
-| **TLS 1.3 / AES-256** | 📋 Planejado | Segurança para produção futura |
-
-### Páginas com Limitações no Dashboard
-
-- **Transações**: Pode apresentar problemas menores de renderização
-- **Alertas**: Dados simulados, não conectados a sistema real
-- **Calibração**: Endpoints parcialmente implementados
-
-### Recomendações
-
-- Sistema atual é adequado para **desenvolvimento e homologação**
-- Para **produção**, implementar componentes planejados listados acima
-- Testar extensivamente endpoints A/B e Canary antes de usar em produção
-
----
-
-## Apêndice B: Glossário Técnico
-
-| Termo | Definição |
-|-------|-----------|
-| Ensemble | Combinação de múltiplos modelos ML |
-| Stacking | Técnica de ensemble com meta-modelo |
-| Drift | Degradação de performance do modelo |
-| Canary | Deploy gradual para minimizar riscos |
-| HITL | Human-in-the-Loop (revisão manual) |
-| PSI | Population Stability Index |
-| JWT | JSON Web Token |
-| RBAC | Role-Based Access Control |
-
----
-
-**Documento mantido por:** Equipe de Engenharia Sankofa  
-**Última atualização:** Novembro 2025  
-**Versão:** 1.0.0
+*Documento técnico atualizado em 27 de Novembro de 2025*  
+*Sankofa Enterprise Pro v11.0*
