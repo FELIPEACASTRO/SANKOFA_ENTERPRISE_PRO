@@ -1,5 +1,8 @@
 # Manual do Usuario - Sankofa Enterprise Pro v12.0
+
 ## Guia Completo para Analistas de Fraude
+
+![Dashboard Analista](images/dashboard_interface_analista.png)
 
 **Versao:** 12.0  
 **Ultima Atualizacao:** 27 de Novembro de 2025  
@@ -11,21 +14,39 @@
 
 Este manual vai te guiar passo a passo no uso do sistema de deteccao de fraudes. Nao se preocupe se voce nao e tecnico - este guia foi feito pensando em voce!
 
----
-
-## Indice
-
-1. [Primeiros Passos](#1-primeiros-passos)
-2. [Conhecendo o Dashboard](#2-conhecendo-o-dashboard)
-3. [Analisando Transacoes](#3-analisando-transacoes)
-4. [Investigando Fraudes](#4-investigando-fraudes)
-5. [Revisao Manual](#5-revisao-manual)
-6. [Entendendo as Explicacoes (NOVO)](#6-entendendo-as-explicacoes)
-7. [Monitorando a Saude](#7-monitorando-a-saude)
-8. [Gerando Relatorios](#8-gerando-relatorios)
-9. [Entendendo os Alertas](#9-entendendo-os-alertas)
-10. [Perguntas Frequentes](#10-perguntas-frequentes)
-11. [Glossario](#11-glossario)
+```
++==================================================================+
+|                    MAPA DO MANUAL                                 |
++==================================================================+
+|                                                                   |
+|  ┌───────────────────────────────────────────────────────────┐   |
+|  │  1. PRIMEIROS PASSOS                                       │   |
+|  │     • Como acessar                                         │   |
+|  │     • O que voce vai ver                                   │   |
+|  └────────────────────────────┬──────────────────────────────┘   |
+|                               ▼                                   |
+|  ┌───────────────────────────────────────────────────────────┐   |
+|  │  2. CONHECENDO O DASHBOARD                                 │   |
+|  │     • O que significam os numeros                          │   |
+|  │     • As cores dos indicadores                             │   |
+|  └────────────────────────────┬──────────────────────────────┘   |
+|                               ▼                                   |
+|  ┌───────────────────────────────────────────────────────────┐   |
+|  │  3-5. TRABALHANDO COM TRANSACOES                           │   |
+|  │     • Analisando                                           │   |
+|  │     • Investigando                                         │   |
+|  │     • Revisao manual                                       │   |
+|  └────────────────────────────┬──────────────────────────────┘   |
+|                               ▼                                   |
+|  ┌───────────────────────────────────────────────────────────┐   |
+|  │  6-9. RECURSOS AVANCADOS                                   │   |
+|  │     • Explicacoes do sistema                               │   |
+|  │     • Monitoramento                                        │   |
+|  │     • Relatorios e alertas                                 │   |
+|  └───────────────────────────────────────────────────────────┘   |
+|                                                                   |
++==================================================================+
+```
 
 ---
 
@@ -33,49 +54,100 @@ Este manual vai te guiar passo a passo no uso do sistema de deteccao de fraudes.
 
 ### 1.1 Como Acessar
 
-1. Abra seu navegador (Chrome, Firefox, Edge ou Safari)
-2. Digite o endereco do sistema na barra de enderecos
-3. Voce vera a tela inicial do Sankofa
+```
++==============================================================================+
+|                         PASSO A PASSO                                         |
++==============================================================================+
+|                                                                               |
+|  PASSO 1: Abra seu navegador                                                  |
+|  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                                  |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   Recomendamos estes navegadores:                                        │ |
+|  │                                                                          │ |
+|  │   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐               │ |
+|  │   │          │  │          │  │          │  │          │               │ |
+|  │   │  Chrome  │  │ Firefox  │  │   Edge   │  │  Safari  │               │ |
+|  │   │    ✅    │  │    ✅    │  │    ✅    │  │    ✅    │               │ |
+|  │   │          │  │          │  │          │  │          │               │ |
+|  │   │   90+    │  │   88+    │  │   90+    │  │   14+    │               │ |
+|  │   └──────────┘  └──────────┘  └──────────┘  └──────────┘               │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  PASSO 2: Digite o endereco                                                   |
+|  ━━━━━━━━━━━━━━━━━━━━━━━━━━━                                                   |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │  🔒 https://sankofa.seubanco.com.br                             │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  │   DICA: Verifique sempre o cadeado 🔒 - significa conexao segura        │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  PASSO 3: Voce chegou!                                                        |
+|  ━━━━━━━━━━━━━━━━━━━━━                                                        |
+|                                                                               |
+|  Voce vera o Dashboard Executivo (proxima secao)                              |
+|                                                                               |
++==============================================================================+
+```
 
-### 1.2 Navegadores Suportados
-
-| Navegador | Versao Minima | Recomendado |
-|-----------|---------------|-------------|
-| Chrome | 90+ | Sim |
-| Firefox | 88+ | Sim |
-| Edge | 90+ | Sim |
-| Safari | 14+ | OK |
-
-### 1.3 Primeira Coisa que Voce Vera
-
-Ao acessar, voce caira direto no **Dashboard Executivo**:
+### 1.2 O Que Voce Vai Ver
 
 ```
-+-------------------------------------------------------------------------+
-|  Sankofa   [Buscar...]                              [Alertas] [Usuario] |
-+----------------+--------------------------------------------------------+
-|                |                                                         |
-|  Dashboard     |              Dashboard Executivo                        |
-|  (selecionado) |                                                         |
-|                |         Sistema Online   1 Algoritmo Ativo              |
-|  Transacoes    |                                                         |
-|                |   +---------+  +---------+  +---------+  +---------+   |
-|  Calibragem    |   |   518   |  |   23    |  |  95.6%  |  | 28.0ms  |   |
-|                |   |Transacoes|  | Fraudes |  |Aprovacao|  |Latencia |   |
-|  Investigacao  |   +---------+  +---------+  +---------+  +---------+   |
-|                |                                                         |
-|  Revisao       |                                                         |
-|                |                                                         |
-|  Monitoramento |                                                         |
-|                |                                                         |
-|  Relatorios    |                                                         |
-|                |                                                         |
-|  Metricas      |                                                         |
-|                |                                                         |
-|  Alertas       |                                                         |
-|                |                                                         |
-|  Sankofa v12.0 |                                                         |
-+----------------+---------------------------------------------------------+
++==============================================================================+
+|                         TELA INICIAL                                          |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  Sankofa   [Buscar...]                              [Alertas] [Usuario] │ |
+|  ├────────────┬────────────────────────────────────────────────────────────┤ |
+|  │            │                                                             │ |
+|  │  Dashboard │              Dashboard Executivo                            │ |
+|  │    ◀───    │                                                             │ |
+|  │            │         Sistema Online   1 Algoritmo Ativo                  │ |
+|  │  Transacoes│                                                             │ |
+|  │            │   ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐       │ |
+|  │  Calibragem│   │   518   │  │   23    │  │  95.6%  │  │ 28.0ms  │       │ |
+|  │            │   │Transac. │  │ Fraudes │  │Aprovacao│  │Latencia │       │ |
+|  │  Investig. │   └─────────┘  └─────────┘  └─────────┘  └─────────┘       │ |
+|  │            │                                                             │ |
+|  │  Revisao   │   ┌─────────────────────────────────────────────────────┐  │ |
+|  │            │   │                   GRAFICO DE ATIVIDADE               │  │ |
+|  │  Monit.    │   │                                                      │  │ |
+|  │            │   │     ▄▄▄▄                                             │  │ |
+|  │  Relatorios│   │    ▄████▄▄                      ▄▄                   │  │ |
+|  │            │   │   ▄██████████▄▄▄▄          ▄▄▄▄████▄                 │  │ |
+|  │  Metricas  │   │  ▄█████████████████▄▄▄▄▄▄████████████▄▄              │  │ |
+|  │            │   │  0h    4h    8h   12h   16h   20h   24h              │  │ |
+|  │  Alertas   │   │                                                      │  │ |
+|  │            │   └─────────────────────────────────────────────────────┘  │ |
+|  │            │                                                             │ |
+|  │ Sankofa    │                                                             │ |
+|  │  v12.0     │                                                             │ |
+|  └────────────┴─────────────────────────────────────────────────────────────┤ |
+|                                                                               |
+|  LEGENDA:                                                                     |
+|  ━━━━━━━━                                                                     |
+|                                                                               |
+|  ┌────────────┐  Menu lateral - navegue pelas funcoes                        |
+|  │ Dashboard  │                                                              |
+|  └────────────┘                                                              |
+|                                                                               |
+|  ┌─────────┐     Cartoes de resumo - visao rapida                           |
+|  │   518   │                                                                 |
+|  └─────────┘                                                                 |
+|                                                                               |
+|  ┌───────────────────┐  Graficos - evolucao ao longo do tempo               |
+|  │  ▄▄▄▄████▄▄▄▄     │                                                       |
+|  └───────────────────┘                                                       |
+|                                                                               |
++==============================================================================+
 ```
 
 ---
@@ -84,26 +156,145 @@ Ao acessar, voce caira direto no **Dashboard Executivo**:
 
 ### 2.1 O Que Significam os Numeros?
 
-**Transacoes Hoje:** Quantas transacoes passaram pelo sistema hoje.
-- Normal: Varia conforme o dia, geralmente entre 10.000-50.000.
-
-**Fraudes Detectadas:** Quantas transacoes o sistema identificou como suspeitas.
-- Normal: Geralmente 2-5% do total de transacoes.
-
-**Taxa de Aprovacao:** Percentual de transacoes aprovadas automaticamente.
-- Normal: Deve ficar acima de 95%.
-
-**Latencia Media:** Quanto tempo o sistema leva para analisar uma transacao.
-- Normal: Menos de 50ms (0.05 segundos).
-- NOVO: Agora monitorado em tempo real!
+```
++==============================================================================+
+|                    ENTENDENDO OS INDICADORES                                  |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   ┌─────────────────────────────────────────────────────────────────┐   │ |
+|  │   │                    TRANSACOES HOJE                               │   │ |
+|  │   │                                                                  │   │ |
+|  │   │         ┌───────────────────┐                                   │   │ |
+|  │   │         │       518         │                                   │   │ |
+|  │   │         └───────────────────┘                                   │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   O QUE E: Numero de transacoes que passaram pelo sistema hoje  │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   NORMAL: Varia conforme o dia, geralmente 10.000-50.000        │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   PREOCUPANTE: Se cair muito (sistema fora do ar?)              │   │ |
+|  │   │                 Se subir muito (ataque?)                         │   │ |
+|  │   │                                                                  │   │ |
+|  │   └─────────────────────────────────────────────────────────────────┘   │ |
+|  │                                                                          │ |
+|  │   ┌─────────────────────────────────────────────────────────────────┐   │ |
+|  │   │                    FRAUDES DETECTADAS                            │   │ |
+|  │   │                                                                  │   │ |
+|  │   │         ┌───────────────────┐                                   │   │ |
+|  │   │         │        23         │                                   │   │ |
+|  │   │         └───────────────────┘                                   │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   O QUE E: Transacoes que o sistema identificou como suspeitas  │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   NORMAL: Geralmente 2-5% do total de transacoes                │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   PREOCUPANTE: Aumento repentino (novo tipo de fraude?)         │   │ |
+|  │   │                 Zero (sistema com problema?)                     │   │ |
+|  │   │                                                                  │   │ |
+|  │   └─────────────────────────────────────────────────────────────────┘   │ |
+|  │                                                                          │ |
+|  │   ┌─────────────────────────────────────────────────────────────────┐   │ |
+|  │   │                    TAXA DE APROVACAO                             │   │ |
+|  │   │                                                                  │   │ |
+|  │   │         ┌───────────────────┐                                   │   │ |
+|  │   │         │      95.6%        │                                   │   │ |
+|  │   │         └───────────────────┘                                   │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   O QUE E: Percentual de transacoes aprovadas automaticamente   │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   NORMAL: Deve ficar acima de 95%                               │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   PREOCUPANTE: Abaixo de 90% (muitos falsos positivos)          │   │ |
+|  │   │                                                                  │   │ |
+|  │   └─────────────────────────────────────────────────────────────────┘   │ |
+|  │                                                                          │ |
+|  │   ┌─────────────────────────────────────────────────────────────────┐   │ |
+|  │   │                    LATENCIA MEDIA                                │   │ |
+|  │   │                                                                  │   │ |
+|  │   │         ┌───────────────────┐                                   │   │ |
+|  │   │         │      28.0ms       │                                   │   │ |
+|  │   │         └───────────────────┘                                   │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   O QUE E: Quanto tempo o sistema leva para analisar            │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   NORMAL: Menos de 50ms (0.05 segundos)                         │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   PREOCUPANTE: Acima de 200ms (sistema lento)                   │   │ |
+|  │   │                                                                  │   │ |
+|  │   │   NOVO: Agora monitorado em tempo real!                         │   │ |
+|  │   │                                                                  │   │ |
+|  │   └─────────────────────────────────────────────────────────────────┘   │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
 ### 2.2 As Cores dos Indicadores
 
-| Cor | Significado | Acao |
-|-----|-------------|------|
-| Verde | Tudo normal | Nenhuma |
-| Amarelo | Atencao | Monitorar |
-| Vermelho | Problema | Investigar imediatamente |
+```
++==============================================================================+
+|                    SISTEMA DE CORES                                           |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   🟢 VERDE - TUDO NORMAL                                                 │ |
+|  │   ━━━━━━━━━━━━━━━━━━━━━━━                                                 │ |
+|  │                                                                          │ |
+|  │   ┌──────────────────────────────────────────────────────────────────┐  │ |
+|  │   │                                                                   │  │ |
+|  │   │  O que significa:                                                 │  │ |
+|  │   │  • Sistema funcionando perfeitamente                              │  │ |
+|  │   │  • Metricas dentro do esperado                                    │  │ |
+|  │   │  • Nenhuma acao necessaria                                        │  │ |
+|  │   │                                                                   │  │ |
+|  │   │  O que fazer:                                                     │  │ |
+|  │   │  • Continue trabalhando normalmente                               │  │ |
+|  │   │  • Monitore periodicamente                                        │  │ |
+|  │   │                                                                   │  │ |
+|  │   └──────────────────────────────────────────────────────────────────┘  │ |
+|  │                                                                          │ |
+|  │   🟡 AMARELO - ATENCAO                                                   │ |
+|  │   ━━━━━━━━━━━━━━━━━━━━━                                                   │ |
+|  │                                                                          │ |
+|  │   ┌──────────────────────────────────────────────────────────────────┐  │ |
+|  │   │                                                                   │  │ |
+|  │   │  O que significa:                                                 │  │ |
+|  │   │  • Alguma metrica saiu do padrao                                  │  │ |
+|  │   │  • Ainda nao e critico                                            │  │ |
+|  │   │  • Precisa de atencao                                             │  │ |
+|  │   │                                                                   │  │ |
+|  │   │  O que fazer:                                                     │  │ |
+|  │   │  • Monitore a cada 15 minutos                                     │  │ |
+|  │   │  • Verifique se esta piorando                                     │  │ |
+|  │   │  • Avise o supervisor se continuar                                │  │ |
+|  │   │                                                                   │  │ |
+|  │   └──────────────────────────────────────────────────────────────────┘  │ |
+|  │                                                                          │ |
+|  │   🔴 VERMELHO - PROBLEMA                                                 │ |
+|  │   ━━━━━━━━━━━━━━━━━━━━━━━                                                 │ |
+|  │                                                                          │ |
+|  │   ┌──────────────────────────────────────────────────────────────────┐  │ |
+|  │   │                                                                   │  │ |
+|  │   │  O que significa:                                                 │  │ |
+|  │   │  • Problema serio identificado                                    │  │ |
+|  │   │  • Requer acao imediata                                           │  │ |
+|  │   │  • Pode estar afetando clientes                                   │  │ |
+|  │   │                                                                   │  │ |
+|  │   │  O que fazer:                                                     │  │ |
+|  │   │  • Investigue imediatamente                                       │  │ |
+|  │   │  • Acione o supervisor                                            │  │ |
+|  │   │  • Siga o procedimento de incidente                               │  │ |
+|  │   │                                                                   │  │ |
+|  │   └──────────────────────────────────────────────────────────────────┘  │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
@@ -111,99 +302,277 @@ Ao acessar, voce caira direto no **Dashboard Executivo**:
 
 ### 3.1 Acessando a Lista
 
-1. Clique em **Transacoes** no menu lateral
-2. Voce vera uma lista com todas as transacoes do dia
+```
++==============================================================================+
+|                    TELA DE TRANSACOES                                         |
++==============================================================================+
+|                                                                               |
+|  1. Clique em "Transacoes" no menu lateral                                    |
+|  2. Voce vera a lista de transacoes                                           |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  Sankofa                                               [Alertas] [User] │ |
+|  ├────────────┬────────────────────────────────────────────────────────────┤ |
+|  │            │                                                             │ |
+|  │  Dashboard │                    Transacoes                               │ |
+|  │            │     Lista e busca de transacoes processadas                 │ |
+|  │  Transacoes│                                                             │ |
+|  │    ◀───    │  ┌──────────────────────────────────────────────────────┐  │ |
+|  │            │  │  FILTROS                                              │  │ |
+|  │  Calibragem│  │                                                       │  │ |
+|  │            │  │  [Buscar ID, CPF...] [Status ▼] [Tipo ▼] [Data ▼]    │  │ |
+|  │  Investig. │  │                                                       │  │ |
+|  │            │  └──────────────────────────────────────────────────────┘  │ |
+|  │  Revisao   │                                                             │ |
+|  │            │  Mostrando 50 de 518 transacoes                             │ |
+|  │  Monitor.  │                                                             │ |
+|  │            │  ┌──────────────────────────────────────────────────────┐  │ |
+|  │  Relat.    │  │ ID               │ VALOR    │ TIPO   │ STATUS │ DATA │  │ |
+|  │            │  ├──────────────────┼──────────┼────────┼────────┼──────┤  │ |
+|  │  Metricas  │  │ TXN176425488...  │ R$ 1.234 │  PIX   │ ✅ OK  │ 14:48│  │ |
+|  │            │  ├──────────────────┼──────────┼────────┼────────┼──────┤  │ |
+|  │  Alertas   │  │ TXN176425488...  │ R$ 5.000 │CREDITO │ 🔴BLOCK│ 14:45│  │ |
+|  │            │  ├──────────────────┼──────────┼────────┼────────┼──────┤  │ |
+|  │            │  │ TXN176425488...  │ R$ 250   │  TED   │ ✅ OK  │ 14:42│  │ |
+|  │            │  ├──────────────────┼──────────┼────────┼────────┼──────┤  │ |
+|  │ v12.0      │  │ TXN176425488...  │ R$ 800   │ DEBITO │ ⚠️ REV │ 14:40│  │ |
+|  │            │  └──────────────────┴──────────┴────────┴────────┴──────┘  │ |
+|  └────────────┴─────────────────────────────────────────────────────────────┤ |
+|                                                                               |
++==============================================================================+
+```
 
-### 3.2 Entendendo a Lista
+### 3.2 Entendendo os Status
 
 ```
-+-------------------------------------------------------------------------+
-|                            Transacoes                                    |
-|        Lista e busca de transacoes processadas em tempo real             |
-+-------------------------------------------------------------------------+
-|  Filtros                                                                 |
-|  [Buscar: ID, CPF, cidade...]   [Status: Todos]   [Tipo: Todos]         |
-+-------------------------------------------------------------------------+
-|  Mostrando 50 de 250 transacoes                                          |
-+-------------------------------------------------------------------------+
-|  ID                    | Valor      | Tipo   | Canal | Local   | Data   |
-+------------------------+------------+--------+-------+---------+--------+
-|  TXN1764254880868000   | R$ 1.234   |  PIX   |  TED  |Sao Paulo| 14:48  |
-|  TXN1764254880604000   | -R$ 100    |CREDITO |  PIX  |Rio de J.| 14:48  |
-+-------------------------------------------------------------------------+
++==============================================================================+
+|                    STATUS DAS TRANSACOES                                      |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   ✅ OK (APROVADA)                                                       │ |
+|  │   ━━━━━━━━━━━━━━━━                                                       │ |
+|  │                                                                          │ |
+|  │   O que significa:                                                       │ |
+|  │   • Sistema avaliou como segura (score < 30)                            │ |
+|  │   • Foi aprovada automaticamente                                         │ |
+|  │   • Cliente pode usar normalmente                                        │ |
+|  │                                                                          │ |
+|  │   Cor: Verde                                                             │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   ⚠️ REV (EM REVISAO)                                                    │ |
+|  │   ━━━━━━━━━━━━━━━━━━━                                                    │ |
+|  │                                                                          │ |
+|  │   O que significa:                                                       │ |
+|  │   • Sistema tem duvida (score entre 30-85)                              │ |
+|  │   • Esta na fila de revisao manual                                       │ |
+|  │   • Precisa de decisao humana                                            │ |
+|  │                                                                          │ |
+|  │   Cor: Amarelo                                                           │ |
+|  │   Acao: Clique para revisar                                              │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   🔴 BLOCK (BLOQUEADA)                                                   │ |
+|  │   ━━━━━━━━━━━━━━━━━━━━                                                   │ |
+|  │                                                                          │ |
+|  │   O que significa:                                                       │ |
+|  │   • Sistema identificou como fraude (score > 85)                        │ |
+|  │   • Foi bloqueada automaticamente                                        │ |
+|  │   • Precisa de investigacao                                              │ |
+|  │                                                                          │ |
+|  │   Cor: Vermelho                                                          │ |
+|  │   Acao: Clique para investigar                                           │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
 ```
-
-### 3.3 Os Tipos de Transacao
-
-| Tipo | O que e |
-|------|---------|
-| **PIX** | Pagamento instantaneo (mais comum hoje) |
-| **TED** | Transferencia bancaria tradicional |
-| **CREDITO** | Compra no cartao de credito |
-| **DEBITO** | Compra no cartao de debito |
 
 ---
 
 ## 4. Investigando Fraudes
 
-### 4.1 Quando Investigar?
+### 4.1 Central de Investigacao
 
-Voce deve investigar quando:
-- Receber um alerta de fraude
-- Ver uma transacao com score alto
-- Cliente reclamar de bloqueio indevido
+```
++==============================================================================+
+|                    CENTRAL DE INVESTIGACAO                                    |
++==============================================================================+
+|                                                                               |
+|  Acesse: Menu > Investigacao                                                  |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │  ┌────────────────────────────────────────────────────────────────────┐ │ |
+|  │  │                    DETALHES DA TRANSACAO                           │ │ |
+|  │  │                                                                     │ │ |
+|  │  │  ID: TXN1764254880604000                                           │ │ |
+|  │  │                                                                     │ │ |
+|  │  │  ┌──────────────────┬──────────────────┬──────────────────┐        │ │ |
+|  │  │  │      VALOR       │     HORARIO      │      LOCAL       │        │ │ |
+|  │  │  │                  │                  │                  │        │ │ |
+|  │  │  │   R$ 5.000,00    │      03:15       │   Rio de Janeiro │        │ │ |
+|  │  │  │                  │                  │                  │        │ │ |
+|  │  │  │  ⚠️ Alto valor   │  ⚠️ Madrugada   │   Cliente mora   │        │ │ |
+|  │  │  │                  │                  │   em SP          │        │ │ |
+|  │  │  └──────────────────┴──────────────────┴──────────────────┘        │ │ |
+|  │  │                                                                     │ │ |
+|  │  │  ┌────────────────────────────────────────────────────────────┐    │ │ |
+|  │  │  │                    SCORE DE RISCO                          │    │ │ |
+|  │  │  │                                                             │    │ │ |
+|  │  │  │    0        30                    85         87.5    100   │    │ │ |
+|  │  │  │    │─────────│──────────────────────│──────────●─────────│    │ │ |
+|  │  │  │    │  BAIXO  │        MEDIO         │         ALTO        │    │ │ |
+|  │  │  │                                                             │    │ │ |
+|  │  │  │                     SCORE: 87.5 - ALTO RISCO               │    │ │ |
+|  │  │  └────────────────────────────────────────────────────────────┘    │ │ |
+|  │  │                                                                     │ │ |
+|  │  └────────────────────────────────────────────────────────────────────┘ │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
-### 4.2 Acessando a Central de Investigacao
+### 4.2 O Que Analisar
 
-1. Clique em **Investigacao** no menu
-2. Voce vera os casos que precisam de atencao
-
-### 4.3 O Que Analisar em um Caso
-
-1. **Valor da transacao:** E compativel com o perfil do cliente?
-2. **Horario:** O cliente costuma transacionar nesse horario?
-3. **Local:** A transacao foi feita de onde o cliente mora?
-4. **Historico:** O cliente ja fez transacoes similares?
-5. **Explicacao do Sistema (NOVO):** Por que o sistema flagrou?
-
-### 4.4 Tomando uma Decisao
-
-| Decisao | Quando Usar | O Que Acontece |
-|---------|-------------|----------------|
-| **Confirmar Fraude** | Quando tem certeza que e fraude | Transacao e bloqueada |
-| **Falso Positivo** | Quando a transacao e legitima | Libera o cliente |
-| **Escalar** | Quando tem duvida | Vai para supervisor |
+```
++==============================================================================+
+|                    CHECKLIST DE INVESTIGACAO                                  |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   PERGUNTE-SE:                                                           │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │                                                                 │    │ |
+|  │   │   1. VALOR                                                      │    │ |
+|  │   │      ┌─────────────────────────────────────────────────────┐   │    │ |
+|  │   │      │  E compativel com o perfil do cliente?              │   │    │ |
+|  │   │      │                                                      │   │    │ |
+|  │   │      │  Cliente costuma fazer transacoes deste valor?      │   │    │ |
+|  │   │      │  Se nao, pode ser fraude OU uma compra especial     │   │    │ |
+|  │   │      └─────────────────────────────────────────────────────┘   │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   2. HORARIO                                                    │    │ |
+|  │   │      ┌─────────────────────────────────────────────────────┐   │    │ |
+|  │   │      │  O cliente costuma transacionar neste horario?      │   │    │ |
+|  │   │      │                                                      │   │    │ |
+|  │   │      │  Transacao as 03h da manha de pessoa que trabalha   │   │    │ |
+|  │   │      │  em horario comercial e suspeita                     │   │    │ |
+|  │   │      └─────────────────────────────────────────────────────┘   │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   3. LOCAL                                                      │    │ |
+|  │   │      ┌─────────────────────────────────────────────────────┐   │    │ |
+|  │   │      │  A transacao foi feita de onde o cliente mora?      │   │    │ |
+|  │   │      │                                                      │   │    │ |
+|  │   │      │  Cliente de SP com transacao no RJ em 30min         │   │    │ |
+|  │   │      │  e impossivel fisicamente                            │   │    │ |
+|  │   │      └─────────────────────────────────────────────────────┘   │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   4. HISTORICO                                                  │    │ |
+|  │   │      ┌─────────────────────────────────────────────────────┐   │    │ |
+|  │   │      │  O cliente ja fez transacoes similares?             │   │    │ |
+|  │   │      │                                                      │   │    │ |
+|  │   │      │  Verifique ultimas 10 transacoes                     │   │    │ |
+|  │   │      │  Existe padrao? Esta fora do comum?                  │   │    │ |
+|  │   │      └─────────────────────────────────────────────────────┘   │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   5. EXPLICACAO DO SISTEMA (NOVO!)                              │    │ |
+|  │   │      ┌─────────────────────────────────────────────────────┐   │    │ |
+|  │   │      │  Leia a explicacao que o sistema gerou              │   │    │ |
+|  │   │      │                                                      │   │    │ |
+|  │   │      │  O sistema explica EXATAMENTE por que flagrou       │   │    │ |
+|  │   │      │  Isso ajuda a tomar decisao mais rapida              │   │    │ |
+|  │   │      └─────────────────────────────────────────────────────┘   │    │ |
+|  │   │                                                                 │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
 ## 5. Revisao Manual
 
-### 5.1 O Que e a Revisao Manual?
+### 5.1 Prioridades
 
-Algumas transacoes ficam na "zona cinza" - nao sao claramente fraude nem claramente legitimas. Essas vao para a fila de revisao manual.
-
-### 5.2 Acessando a Fila
-
-1. Clique em **Revisao Manual** no menu
-2. Voce vera todas as transacoes aguardando
-
-### 5.3 Prioridades
-
-| Cor | Prioridade | SLA | O Que Fazer |
-|-----|------------|-----|-------------|
-| Vermelho | CRITICO | 1 min | Resolver imediatamente! |
-| Laranja | ALTO | 5 min | Priorizar |
-| Amarelo | MEDIO | 15 min | Resolver quando possivel |
-| Verde | BAIXO | 30 min | Pode aguardar |
-
-### 5.4 Como Revisar
-
-1. Clique na transacao para ver detalhes
-2. **NOVO:** Leia a explicacao do sistema (por que foi flagrada)
-3. Analise as informacoes apresentadas
-4. Clique em **Aprovar** ou **Rejeitar**
-5. Digite uma justificativa (obrigatorio)
-6. Confirme sua decisao
+```
++==============================================================================+
+|                    FILA DE REVISAO MANUAL                                     |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   NIVEIS DE PRIORIDADE                                                   │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │                                                                 │    │ |
+|  │   │   🔴 CRITICO (SLA: 1 minuto)                                   │    │ |
+|  │   │   ━━━━━━━━━━━━━━━━━━━━━━━━━                                    │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   • Transacoes de valor muito alto                             │    │ |
+|  │   │   • Score proximo de 100                                       │    │ |
+|  │   │   • Cliente VIP                                                 │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   ACAO: Resolver IMEDIATAMENTE!                                │    │ |
+|  │   │                                                                 │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │                                                                 │    │ |
+|  │   │   🟠 ALTO (SLA: 5 minutos)                                     │    │ |
+|  │   │   ━━━━━━━━━━━━━━━━━━━━━━━                                      │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   • Score entre 75-85                                          │    │ |
+|  │   │   • Valor significativo                                        │    │ |
+|  │   │   • Multiplos indicadores                                      │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   ACAO: Priorizar apos criticos                                │    │ |
+|  │   │                                                                 │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │                                                                 │    │ |
+|  │   │   🟡 MEDIO (SLA: 15 minutos)                                   │    │ |
+|  │   │   ━━━━━━━━━━━━━━━━━━━━━━━━                                     │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   • Score entre 50-75                                          │    │ |
+|  │   │   • Valor moderado                                             │    │ |
+|  │   │   • Alguns indicadores                                         │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   ACAO: Resolver quando possivel                               │    │ |
+|  │   │                                                                 │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │                                                                 │    │ |
+|  │   │   🟢 BAIXO (SLA: 30 minutos)                                   │    │ |
+|  │   │   ━━━━━━━━━━━━━━━━━━━━━━━━━                                    │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   • Score entre 30-50                                          │    │ |
+|  │   │   • Valor baixo                                                │    │ |
+|  │   │   • Poucos indicadores                                         │    │ |
+|  │   │                                                                 │    │ |
+|  │   │   ACAO: Pode aguardar                                          │    │ |
+|  │   │                                                                 │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
@@ -211,166 +580,394 @@ Algumas transacoes ficam na "zona cinza" - nao sao claramente fraude nem clarame
 
 ### 6.1 O Que Sao as Explicacoes?
 
-Cada transacao flagrada agora vem com uma explicacao em texto simples de por que foi considerada suspeita. Isso ajuda voce a tomar decisoes mais rapidas e seguras.
+```
++==============================================================================+
+|                    EXPLICACOES DO SISTEMA                                     |
++==============================================================================+
+|                                                                               |
+|  O QUE E?                                                                     |
+|  ━━━━━━━━                                                                     |
+|  Cada transacao flagrada agora vem com uma explicacao em texto simples       |
+|  de por que foi considerada suspeita.                                         |
+|                                                                               |
+|  POR QUE ISSO E IMPORTANTE?                                                   |
+|  ━━━━━━━━━━━━━━━━━━━━━━━━━━                                                   |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   ANTES (sem explicacao):                                                │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │  Score: 87.5                                                    │    │ |
+|  │   │  Status: BLOQUEADA                                              │    │ |
+|  │   │                                                                  │    │ |
+|  │   │  🤔 "Por que foi bloqueada? Tenho que adivinhar?"               │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  │   AGORA (com explicacao):                                                │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │  Score: 87.5                                                    │    │ |
+|  │   │  Status: BLOQUEADA                                              │    │ |
+|  │   │                                                                  │    │ |
+|  │   │  EXPLICACAO:                                                    │    │ |
+|  │   │  ┌──────────────────────────────────────────────────────────┐  │    │ |
+|  │   │  │  "Transacao de alto valor (R$ 15.000) em horario         │  │    │ |
+|  │   │  │   noturno (03:00) com velocidade de transacoes           │  │    │ |
+|  │   │  │   acima do padrao do cliente"                            │  │    │ |
+|  │   │  └──────────────────────────────────────────────────────────┘  │    │ |
+|  │   │                                                                  │    │ |
+|  │   │  FATORES DE RISCO:                                              │    │ |
+|  │   │  • Valor: +45% de impacto                                       │    │ |
+|  │   │  • Horario: +32% de impacto                                     │    │ |
+|  │   │                                                                  │    │ |
+|  │   │  FATORES DE PROTECAO:                                           │    │ |
+|  │   │  • Dispositivo conhecido: -15%                                  │    │ |
+|  │   │                                                                  │    │ |
+|  │   │  ✅ "Agora sei exatamente o que aconteceu!"                     │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
-### 6.2 Exemplo de Explicacao
+### 6.2 Como Usar as Explicacoes
 
 ```
-+-------------------------------------------------------------------------+
-|  EXPLICACAO DA ANALISE                                                   |
-+-------------------------------------------------------------------------+
-|                                                                          |
-|  "Transacao de alto valor (R$ 15.000) em horario noturno (03:00)        |
-|   com velocidade de transacoes acima do padrao do cliente"               |
-|                                                                          |
-|  FATORES DE RISCO:                                                       |
-|  - Valor muito alto para o perfil                                        |
-|  - Horario incomum (madrugada)                                           |
-|  - Muitas transacoes em pouco tempo                                      |
-|                                                                          |
-|  FATORES DE PROTECAO:                                                    |
-|  - Dispositivo conhecido                                                 |
-|  - Localizacao habitual                                                  |
-|                                                                          |
-+-------------------------------------------------------------------------+
++==============================================================================+
+|                    USANDO AS EXPLICACOES                                      |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │  EXEMPLO PRATICO                                                         │ |
+|  │                                                                          │ |
+|  │  ┌────────────────────────────────────────────────────────────────────┐ │ |
+|  │  │                                                                     │ │ |
+|  │  │  TRANSACAO: TXN-2025-001                                           │ │ |
+|  │  │  VALOR: R$ 15.000                                                   │ │ |
+|  │  │  HORARIO: 03:00                                                     │ │ |
+|  │  │  LOCAL: Rio de Janeiro                                              │ │ |
+|  │  │                                                                     │ │ |
+|  │  │  ┌───────────────────────────────────────────────────────────────┐ │ │ |
+|  │  │  │               EXPLICACAO DO SISTEMA                           │ │ │ |
+|  │  │  │                                                                │ │ │ |
+|  │  │  │  "Transacao de alto valor (R$ 15.000) em horario noturno      │ │ │ |
+|  │  │  │   (03:00) com velocidade de transacoes acima do padrao        │ │ │ |
+|  │  │  │   do cliente"                                                  │ │ │ |
+|  │  │  │                                                                │ │ │ |
+|  │  │  │  FATORES DE RISCO:                                            │ │ │ |
+|  │  │  │  ┌─────────────────────────────────────────────────────────┐  │ │ │ |
+|  │  │  │  │ amount_normalized  ████████████████████████░░░░  45%    │  │ │ │ |
+|  │  │  │  │ is_night           ████████████████░░░░░░░░░░░░  32%    │  │ │ │ |
+|  │  │  │  │ velocity_1h        ████████░░░░░░░░░░░░░░░░░░░░  15%    │  │ │ │ |
+|  │  │  │  └─────────────────────────────────────────────────────────┘  │ │ │ |
+|  │  │  │                                                                │ │ │ |
+|  │  │  │  FATORES DE PROTECAO:                                         │ │ │ |
+|  │  │  │  ┌─────────────────────────────────────────────────────────┐  │ │ │ |
+|  │  │  │  │ device_trust       ░░░░░░░░░░░░░░░░░░░░░░░░░████  -15%  │  │ │ │ |
+|  │  │  │  └─────────────────────────────────────────────────────────┘  │ │ │ |
+|  │  │  │                                                                │ │ │ |
+|  │  │  └───────────────────────────────────────────────────────────────┘ │ │ |
+|  │  │                                                                     │ │ |
+|  │  │  MINHA ANALISE:                                                     │ │ |
+|  │  │  ┌───────────────────────────────────────────────────────────────┐ │ │ |
+|  │  │  │  O sistema flagrou por 3 motivos:                             │ │ │ |
+|  │  │  │  1. Valor alto (R$ 15.000)                                    │ │ │ |
+|  │  │  │  2. Horario incomum (03:00 da manha)                          │ │ │ |
+|  │  │  │  3. Muitas transacoes em pouco tempo                          │ │ │ |
+|  │  │  │                                                                │ │ │ |
+|  │  │  │  Porem, o dispositivo e conhecido (-15%)                      │ │ │ |
+|  │  │  │                                                                │ │ │ |
+|  │  │  │  Vou verificar:                                               │ │ │ |
+|  │  │  │  • Cliente viaja muito? (pode estar em fuso horario diferente)│ │ │ |
+|  │  │  │  • Historico de compras de alto valor?                        │ │ │ |
+|  │  │  │  • Entrar em contato para confirmar?                          │ │ │ |
+|  │  │  └───────────────────────────────────────────────────────────────┘ │ │ |
+|  │  │                                                                     │ │ |
+|  │  └────────────────────────────────────────────────────────────────────┘ │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
 ```
-
-### 6.3 Por Que Isso Importa?
-
-1. **Mais Rapido:** Voce entende o problema sem precisar analisar dezenas de dados
-2. **Mais Seguro:** Sabe exatamente o que o sistema viu
-3. **LGPD:** O cliente tem direito a saber por que foi bloqueado
-
-### 6.4 Como Usar as Explicacoes
-
-| Se a explicacao diz... | Provavelmente... |
-|------------------------|------------------|
-| "Horario incomum" | Verifique se o cliente costuma usar a noite |
-| "Valor muito alto" | Compare com transacoes anteriores do cliente |
-| "Localizacao diferente" | O cliente pode estar viajando |
-| "Dispositivo novo" | O cliente trocou de celular? |
 
 ---
 
 ## 7. Monitorando a Saude
 
-### 7.1 Para Que Serve?
+![Metricas](images/metricas_performance_dashboard.png)
 
-A pagina de Monitoramento mostra se o sistema esta funcionando bem.
-
-### 7.2 Acessando o Monitor
-
-1. Clique em **Monitoramento** no menu
-2. Voce vera o status de todos os componentes
-
-### 7.3 O Que Cada Indicador Significa (ATUALIZADO)
-
-| Indicador | Bom | Atencao | Critico |
-|-----------|-----|---------|---------|
-| **Status Geral** | Saudavel | Degradado | Critico |
-| **TPS** | >30 | 10-30 | <10 |
-| **Latencia p95** | <100ms | 100-300ms | >300ms |
-| **Error Rate** | 0% | <1% | >1% |
-| **SLA** | Compliant | - | Violacao |
-
-### 7.4 Metricas em Tempo Real (NOVO)
-
-O sistema agora mostra metricas em tempo real:
-- **TPS:** Transacoes processadas por segundo
-- **Latencia p50/p95/p99:** Tempo de resposta (percentis)
-- **Error Rate:** Percentual de erros
-- **SLA Status:** Se os acordos de nivel de servico estao sendo cumpridos
+```
++==============================================================================+
+|                    TELA DE MONITORAMENTO                                      |
++==============================================================================+
+|                                                                               |
+|  Acesse: Menu > Monitoramento                                                 |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │              PAINEL DE SAUDE DO SISTEMA                                  │ |
+|  │                                                                          │ |
+|  │   ┌───────────────┐  ┌───────────────┐  ┌───────────────┐               │ |
+|  │   │  LATENCIA P50 │  │  LATENCIA P95 │  │  LATENCIA P99 │               │ |
+|  │   │               │  │               │  │               │               │ |
+|  │   │    28 ms      │  │   300 ms      │  │   311 ms      │               │ |
+|  │   │               │  │               │  │               │               │ |
+|  │   │   ✅ BOM      │  │   ⚠️ ATENCAO  │  │   ⚠️ ATENCAO  │               │ |
+|  │   └───────────────┘  └───────────────┘  └───────────────┘               │ |
+|  │                                                                          │ |
+|  │   ┌───────────────┐  ┌───────────────┐  ┌───────────────┐               │ |
+|  │   │  THROUGHPUT   │  │  ERROR RATE   │  │    UPTIME     │               │ |
+|  │   │               │  │               │  │               │               │ |
+|  │   │  33.88 TPS    │  │    0.0%       │  │    99.9%      │               │ |
+|  │   │               │  │               │  │               │               │ |
+|  │   │   ✅ OTIMO    │  │   ✅ PERFEITO │  │   ✅ EXCELENTE│               │ |
+|  │   └───────────────┘  └───────────────┘  └───────────────┘               │ |
+|  │                                                                          │ |
+|  │   O QUE SIGNIFICAM ESSES NUMEROS?                                        │ |
+|  │   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                        │ |
+|  │                                                                          │ |
+|  │   • LATENCIA: Quanto tempo o sistema demora para responder               │ |
+|  │     - P50: Metade das requisicoes (28ms = OTIMO)                        │ |
+|  │     - P95: 95% das requisicoes (300ms = OK)                             │ |
+|  │     - P99: 99% das requisicoes (311ms = OK)                             │ |
+|  │                                                                          │ |
+|  │   • THROUGHPUT: Quantas transacoes por segundo                          │ |
+|  │     - 33.88 TPS = Sistema suporta bem a carga atual                     │ |
+|  │                                                                          │ |
+|  │   • ERROR RATE: Taxa de erros                                           │ |
+|  │     - 0.0% = Nenhum erro (perfeito!)                                    │ |
+|  │                                                                          │ |
+|  │   • UPTIME: Tempo que o sistema ficou no ar                             │ |
+|  │     - 99.9% = Quase 100% disponivel (excelente!)                        │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
 ## 8. Gerando Relatorios
 
-### 8.1 Tipos de Relatorio
-
-| Relatorio | Para Que | Tempo |
-|-----------|----------|-------|
-| **Mensal de Fraudes** | Resumo do mes para diretoria | 5-10 min |
-| **Performance Trimestral** | Avaliacao de performance | 3-5 min |
-| **Analise de Tendencias** | Identificar padroes | 7-12 min |
-| **Impacto Financeiro** | Calcular economia | 4-8 min |
-
-### 8.2 Como Gerar
-
-1. Clique em **Relatorios** no menu
-2. Escolha o template desejado
-3. Configure o periodo
-4. Clique em **Gerar Relatorio**
-5. Aguarde a conclusao
-6. Faca download do arquivo
+```
++==============================================================================+
+|                    GERANDO RELATORIOS                                         |
++==============================================================================+
+|                                                                               |
+|  Acesse: Menu > Relatorios                                                    |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   TIPOS DE RELATORIOS DISPONIVEIS                                        │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │                                                                 │    │ |
+|  │   │   📊 RELATORIO DIARIO                                          │    │ |
+|  │   │   ━━━━━━━━━━━━━━━━━━━                                          │    │ |
+|  │   │   • Total de transacoes                                         │    │ |
+|  │   │   • Fraudes detectadas                                          │    │ |
+|  │   │   • Taxa de aprovacao                                           │    │ |
+|  │   │   • Tempo medio de resposta                                     │    │ |
+|  │   │                                                                 │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │                                                                 │    │ |
+|  │   │   📈 RELATORIO SEMANAL                                         │    │ |
+|  │   │   ━━━━━━━━━━━━━━━━━━━━                                         │    │ |
+|  │   │   • Tendencias de fraude                                        │    │ |
+|  │   │   • Comparativo com semana anterior                             │    │ |
+|  │   │   • Top tipos de fraude                                         │    │ |
+|  │   │   • Performance do modelo ML                                    │    │ |
+|  │   │                                                                 │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  │   ┌────────────────────────────────────────────────────────────────┐    │ |
+|  │   │                                                                 │    │ |
+|  │   │   📋 RELATORIO LGPD                                            │    │ |
+|  │   │   ━━━━━━━━━━━━━━━━━                                            │    │ |
+|  │   │   • Decisoes automatizadas                                      │    │ |
+|  │   │   • Explicacoes fornecidas                                      │    │ |
+|  │   │   • Solicitacoes de revisao                                     │    │ |
+|  │   │   • Compliance status                                           │    │ |
+|  │   │                                                                 │    │ |
+|  │   └────────────────────────────────────────────────────────────────┘    │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
 ## 9. Entendendo os Alertas
 
-### 9.1 Tipos de Alerta
+![Alertas](images/fluxo_alertas_monitoramento.png)
 
-| Tipo | Icone | Descricao |
-|------|-------|-----------|
-| **Fraude Detectada** | Vermelho | Transacao bloqueada |
-| **Revisao Necessaria** | Amarelo | Precisa analise humana |
-| **Sistema** | Azul | Informacoes tecnicas |
-| **SLA (NOVO)** | Laranja | Alerta de performance |
-
-### 9.2 O Que Fazer com Cada Tipo
-
-| Alerta | Acao |
-|--------|------|
-| Fraude Detectada | Verificar se e fraude real |
-| Revisao Necessaria | Acessar fila de revisao |
-| Sistema | Informar TI se persistir |
-| SLA | Monitorar, informar TI se critico |
+```
++==============================================================================+
+|                    TIPOS DE ALERTAS                                           |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   🔴 ALERTA CRITICO                                                      │ |
+|  │   ━━━━━━━━━━━━━━━━━                                                      │ |
+|  │                                                                          │ |
+|  │   Quando aparece:                                                        │ |
+|  │   • Fraude de alto valor detectada                                       │ |
+|  │   • Sistema caiu                                                         │ |
+|  │   • Taxa de erro muito alta                                              │ |
+|  │                                                                          │ |
+|  │   O que fazer:                                                           │ |
+|  │   • PARE o que esta fazendo                                              │ |
+|  │   • Investigue imediatamente                                             │ |
+|  │   • Avise o supervisor                                                   │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   🟠 ALERTA ALTO                                                         │ |
+|  │   ━━━━━━━━━━━━━                                                          │ |
+|  │                                                                          │ |
+|  │   Quando aparece:                                                        │ |
+|  │   • Transacao suspeita de valor significativo                           │ |
+|  │   • Fila de revisao crescendo                                           │ |
+|  │   • Latencia aumentando                                                  │ |
+|  │                                                                          │ |
+|  │   O que fazer:                                                           │ |
+|  │   • Priorize quando terminar tarefa atual                               │ |
+|  │   • Monitore evolucao                                                    │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   🟡 ALERTA MEDIO                                                        │ |
+|  │   ━━━━━━━━━━━━━                                                          │ |
+|  │                                                                          │ |
+|  │   Quando aparece:                                                        │ |
+|  │   • Transacao na zona cinza                                             │ |
+|  │   • Pequeno aumento em metricas                                         │ |
+|  │                                                                          │ |
+|  │   O que fazer:                                                           │ |
+|  │   • Anote para verificar depois                                         │ |
+|  │   • Nao precisa parar o que esta fazendo                                │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   ℹ️ INFORMATIVO                                                         │ |
+|  │   ━━━━━━━━━━━━━                                                          │ |
+|  │                                                                          │ |
+|  │   Quando aparece:                                                        │ |
+|  │   • Modelo foi atualizado                                               │ |
+|  │   • Configuracao alterada                                                │ |
+|  │   • Manutencao programada                                               │ |
+|  │                                                                          │ |
+|  │   O que fazer:                                                           │ |
+|  │   • Apenas tome conhecimento                                             │ |
+|  │   • Nenhuma acao necessaria                                              │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
 ## 10. Perguntas Frequentes
 
-### "O sistema bloqueou um cliente legitimo. O que faco?"
-
-1. Acesse a Central de Investigacao
-2. Encontre a transacao
-3. Marque como "Falso Positivo"
-4. O sistema aprendera com isso!
-
-### "A latencia esta alta. O que significa?"
-
-Significa que o sistema esta demorando para responder. Normalmente se resolve sozinho. Se persistir por mais de 30 minutos, avise a TI.
-
-### "O que sao os 'fatores de risco' na explicacao?"
-
-Sao os motivos que fizeram o sistema considerar a transacao suspeita. Por exemplo: "valor alto" ou "horario incomum".
-
-### "Como sei se o sistema esta funcionando bem?"
-
-Acesse a pagina de Monitoramento. Se o status for "Saudavel" (verde), esta tudo bem. O sistema agora monitora SLAs automaticamente.
+```
++==============================================================================+
+|                    PERGUNTAS FREQUENTES (FAQ)                                 |
++==============================================================================+
+|                                                                               |
+|  ❓ O que fazer se o sistema ficar lento?                                     |
+|  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                       |
+|  1. Verifique o painel de Monitoramento                                       |
+|  2. Veja se a latencia esta acima de 500ms                                    |
+|  3. Avise a equipe de TI se continuar                                         |
+|                                                                               |
+|  ❓ Como sei se uma transacao e realmente fraude?                              |
+|  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                  |
+|  1. Leia a explicacao do sistema (NOVO!)                                      |
+|  2. Verifique o historico do cliente                                          |
+|  3. Compare com o padrao de comportamento                                     |
+|  4. Na duvida, escale para o supervisor                                       |
+|                                                                               |
+|  ❓ O que significa "score de risco"?                                          |
+|  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                          |
+|  E uma nota de 0 a 100 que indica a probabilidade de fraude:                  |
+|  • 0-30: Provavelmente legitima (verde)                                       |
+|  • 30-85: Precisa de analise humana (amarelo)                                 |
+|  • 85-100: Provavelmente fraude (vermelho)                                    |
+|                                                                               |
+|  ❓ Por que o sistema bloqueou uma transacao legitima?                         |
+|  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                             |
+|  Isso e chamado "falso positivo". Acontece quando:                            |
+|  • Cliente fez algo fora do comum                                             |
+|  • Transacao muito diferente do historico                                     |
+|  • Modelo precisa de ajuste                                                   |
+|                                                                               |
+|  Nesse caso:                                                                  |
+|  1. Marque como "Falso Positivo"                                              |
+|  2. Libere a transacao do cliente                                             |
+|  3. O sistema aprende com seu feedback!                                       |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
 ## 11. Glossario
 
-| Termo | Definicao |
-|-------|-----------|
-| **Threshold** | Limite de corte para decisao |
-| **Score** | Pontuacao de risco (0-100) |
-| **TPS** | Transacoes por segundo |
-| **SLA** | Acordo de nivel de servico |
-| **Latencia** | Tempo de resposta do sistema |
-| **Falso Positivo** | Transacao legitima bloqueada por engano |
-| **LGPD** | Lei de protecao de dados (exige explicacoes) |
-| **Fator de Risco** | Motivo que aumenta suspeita |
-| **Fator de Protecao** | Motivo que diminui suspeita |
+```
++==============================================================================+
+|                    GLOSSARIO DE TERMOS                                        |
++==============================================================================+
+|                                                                               |
+|  TERMO              SIGNIFICADO                                               |
+|  ━━━━━━             ━━━━━━━━━━━                                               |
+|                                                                               |
+|  Score              Nota de 0 a 100 que indica risco de fraude               |
+|                                                                               |
+|  Falso Positivo     Transacao legitima que foi marcada como fraude           |
+|                                                                               |
+|  Falso Negativo     Fraude que nao foi detectada (o pior caso!)              |
+|                                                                               |
+|  Threshold          Limite que define aprovacao/revisao/bloqueio             |
+|                                                                               |
+|  Latencia           Tempo que o sistema leva para responder                  |
+|                                                                               |
+|  TPS                Transacoes por segundo                                    |
+|                                                                               |
+|  SLA                Acordo de nivel de servico (tempo maximo)                |
+|                                                                               |
+|  ML/IA              Machine Learning / Inteligencia Artificial               |
+|                                                                               |
+|  LGPD               Lei Geral de Protecao de Dados                           |
+|                                                                               |
+|  Feature            Caracteristica analisada (valor, horario, etc)           |
+|                                                                               |
+|  Ensemble           Combinacao de varios modelos de ML                       |
+|                                                                               |
+|  Batch              Processamento de varias transacoes de uma vez            |
+|                                                                               |
+|  Dashboard          Painel visual com informacoes do sistema                 |
+|                                                                               |
+|  Uptime             Tempo que o sistema ficou disponivel                     |
+|                                                                               |
++==============================================================================+
+```
 
 ---
 
-## Contato e Suporte
-
-Para duvidas ou problemas, entre em contato com a equipe de suporte.
-
----
-
-*Manual do Usuario - Sankofa Enterprise Pro v12.0*  
-*Ultima atualizacao: 27 de Novembro de 2025*
+*Manual do Usuario atualizado em 27 de Novembro de 2025*  
+*Sankofa Enterprise Pro v12.0*  
+*Total: 15+ diagramas e ilustracoes visuais*
