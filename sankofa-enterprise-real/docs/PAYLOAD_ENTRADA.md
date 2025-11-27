@@ -28,13 +28,25 @@
 
 Este documento contém as seguintes ilustrações para facilitar o entendimento:
 
-| Ilustração | Descrição |
-|------------|-----------|
-| ![Jornada do Payload](images/jornada_do_payload_no_sistema.png) | Fluxo completo da transação no sistema |
-| ![Peso dos Campos](images/peso_dos_campos_do_payload.png) | Importância de cada campo do payload |
-| ![Árvore de Decisão](images/arvore_decisao_fraude.png) | Processo de tomada de decisão |
-| ![Engenharia de Features](images/engenharia_features_transformacao.png) | Transformação de dados em features ML |
-| ![Termômetro de Risco](images/termometro_risco_fraude.png) | Níveis de risco e ações correspondentes |
+### Jornada do Payload no Sistema
+![Jornada do Payload](images/jornada_do_payload_no_sistema.png)
+*Fluxo completo em 9 etapas: Recepção → Validação → Listas → Regras → Features → Modelo ML → Score → Decisão → Resposta*
+
+### Peso e Importância dos Campos
+![Peso dos Campos](images/peso_dos_campos_do_payload.png)
+*Gráfico de barras mostrando a importância de cada campo: Valor (100%), Horário (90%), Tipo (90%), Dispositivo (80%), Localização (80%), Canal (70%), Cliente (70%)*
+
+### Árvore de Decisão de Fraude
+![Árvore de Decisão](images/arvore_decisao_fraude.png)
+*Fluxograma de decisão: Valor Alto? → Horário Suspeito? → Localização Diferente? → Dispositivo Novo? → Aprovar/Revisar/Bloquear*
+
+### Engenharia de Features
+![Engenharia de Features](images/engenharia_features_transformacao.png)
+*Transformação: Dados Brutos (valor, hora, local) → Processamento → Features Criadas (valor_normalizado, hora_do_dia, velocidade)*
+
+### Termômetro de Risco
+![Termômetro de Risco](images/termometro_risco_fraude.png)
+*Níveis: Baixo Risco 0-30% (Aprovar) → Médio 30-60% (Revisar) → Alto 60-85% (Verificar) → Crítico 85-100% (Bloquear)*
 
 ---
 
