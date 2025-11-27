@@ -21,7 +21,8 @@ Complete documentation is available in the `sankofa-enterprise-real/docs/` folde
 | Document | Description |
 |----------|-------------|
 | [README.md](sankofa-enterprise-real/docs/README.md) | Documentation index with all resources |
-| [USE_A_CABECA_FRAUDES.md](sankofa-enterprise-real/docs/USE_A_CABECA_FRAUDES.md) | **NEW!** Head First style guide with real fraud cases, illustrations, and exercises |
+| [PAYLOAD_ENTRADA.md](sankofa-enterprise-real/docs/PAYLOAD_ENTRADA.md) | **NEW!** Complete payload guide with field weights, journey, and decision process |
+| [USE_A_CABECA_FRAUDES.md](sankofa-enterprise-real/docs/USE_A_CABECA_FRAUDES.md) | Head First style guide with real fraud cases, illustrations, and exercises |
 | [DOCUMENTACAO_FUNCIONAL.md](sankofa-enterprise-real/docs/DOCUMENTACAO_FUNCIONAL.md) | Use cases, business rules, compliance (v12.0) |
 | [ARQUITETURA_TECNICA.md](sankofa-enterprise-real/docs/ARQUITETURA_TECNICA.md) | Technical architecture, ML, APIs (v12.0) |
 | [MANUAL_USUARIO.md](sankofa-enterprise-real/docs/MANUAL_USUARIO.md) | User guide for fraud analysts (v12.0) |

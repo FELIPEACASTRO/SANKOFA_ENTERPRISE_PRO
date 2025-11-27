@@ -24,6 +24,20 @@
 
 ---
 
+## Ilustrações Visuais
+
+Este documento contém as seguintes ilustrações para facilitar o entendimento:
+
+| Ilustração | Descrição |
+|------------|-----------|
+| ![Jornada do Payload](images/jornada_do_payload_no_sistema.png) | Fluxo completo da transação no sistema |
+| ![Peso dos Campos](images/peso_dos_campos_do_payload.png) | Importância de cada campo do payload |
+| ![Árvore de Decisão](images/arvore_decisao_fraude.png) | Processo de tomada de decisão |
+| ![Engenharia de Features](images/engenharia_features_transformacao.png) | Transformação de dados em features ML |
+| ![Termômetro de Risco](images/termometro_risco_fraude.png) | Níveis de risco e ações correspondentes |
+
+---
+
 ## Sumário
 
 1. [O Que É o Payload de Entrada?](#1-o-que-é-o-payload-de-entrada)

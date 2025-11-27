@@ -89,6 +89,22 @@
 +==============================================================================+
 |                                                                               |
 |  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  📦 PAYLOAD_ENTRADA.md  ★ NOVO ★                                         │ |
+|  │  ━━━━━━━━━━━━━━━━━━━━━━                                                  │ |
+|  │                                                                          │ |
+|  │  Conteudo:                                                               │ |
+|  │  • Estrutura completa do payload JSON                                    │ |
+|  │  • Peso e importancia de cada campo                                      │ |
+|  │  • Jornada do payload no sistema                                         │ |
+|  │  • Engenharia de features e transformacoes                               │ |
+|  │  • Processo de tomada de decisao                                         │ |
+|  │  • Exemplos praticos comentados                                          │ |
+|  │                                                                          │ |
+|  │  Paginas: ~1400 linhas | Diagramas: 20+ | Imagens: 5                     │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
 |  │  📐 ARQUITETURA_TECNICA.md                                               │ |
 |  │  ━━━━━━━━━━━━━━━━━━━━━━━━━                                               │ |
 |  │                                                                          │ |
