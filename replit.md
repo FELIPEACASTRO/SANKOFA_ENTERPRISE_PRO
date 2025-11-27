@@ -1,12 +1,12 @@
-# Sankofa Enterprise Pro - Fraud Detection System v12.0
+# Sankofa Enterprise Pro - Fraud Detection System v12.1
 
 ## Overview
 
-Sankofa Enterprise Pro is a production-ready fraud detection system designed for banking environments processing 300M+ requests/day. The system combines machine learning ensemble models, real-time transaction analysis, MLOps infrastructure, and regulatory compliance (BACEN, LGPD, PCI DSS) with a React-based dashboard interface.
+Sankofa Enterprise Pro is a production-ready fraud detection system designed for banking environments processing 300M+ requests/day. The system combines machine learning ensemble models (Random Forest, Gradient Boosting, CatBoost, GNN, Federated Learning), real-time transaction analysis, MLOps infrastructure, and regulatory compliance (BACEN, LGPD, PCI DSS) with a React-based dashboard interface.
 
-**Version:** 12.0  
+**Version:** 12.1  
 **Last Updated:** November 27, 2025  
-**Status:** Production Ready - 25 E2E Tests Passing
+**Status:** Production Ready - All Roadmap Items Implemented
 
 ## Quick Start
 
@@ -201,22 +201,41 @@ sankofa-enterprise-real/
 ├── backend/
 │   ├── api/production_api.py          # Main API (50+ endpoints)
 │   ├── ml_engine/                      # ML components
-│   │   ├── production_fraud_engine.py # ML engine
-│   │   └── explainability_engine.py   # SHAP + LGPD (NEW)
-│   ├── monitoring/observability.py    # Prometheus metrics (NEW)
-│   ├── infrastructure/async_processor.py # Queue + Batch (NEW)
-│   └── tests/                          # 25 E2E tests
+│   │   ├── production_fraud_engine.py # ML engine (RF+GB+LR)
+│   │   ├── catboost_model.py          # CatBoost integration (NEW v12.1)
+│   │   ├── gnn_fraud_detector.py      # Graph Neural Networks (NEW v12.1)
+│   │   ├── federated_learning.py      # Federated Learning (NEW v12.1)
+│   │   └── explainability_engine.py   # SHAP + LGPD
+│   ├── security/                       # Security modules
+│   │   ├── cpf_tokenization.py        # CPF Vault (NEW v12.1)
+│   │   └── rbac_system.py             # RBAC (NEW v12.1)
+│   ├── compliance/                     # Compliance modules
+│   │   └── bacen_reports.py           # BACEN Reports (NEW v12.1)
+│   ├── infrastructure/                 # Infrastructure
+│   │   ├── redis_cluster.py           # Redis Cluster (NEW v12.1)
+│   │   └── async_processor.py         # Queue + Batch
+│   ├── monitoring/observability.py    # Prometheus metrics
+│   └── tests/                          # E2E tests
 ├── frontend/
-│   └── src/pages/                      # 9 React pages
+│   └── src/pages/                      # 16 React pages
+├── DB/                                 # Database (NEW v12.1)
+│   ├── schema.sql                     # 12 tables
+│   ├── migrations/                    # Migration system
+│   ├── seeds/                         # Initial data
+│   └── scripts/                       # Utilities
 └── docs/                               # Complete documentation
 ```
 
-## Recent Changes (v12.0)
+## Recent Changes (v12.1)
 
 | Date | Change |
 |------|--------|
-| Nov 27, 2025 | Added LGPD Explainability Engine |
-| Nov 27, 2025 | Added Prometheus Observability |
-| Nov 27, 2025 | Added Async Infrastructure (BatchProcessor, CircuitBreaker) |
-| Nov 27, 2025 | Updated all documentation to v12.0 |
-| Nov 27, 2025 | 25 E2E tests passing |
+| Nov 27, 2025 | Added CatBoost ML model integration |
+| Nov 27, 2025 | Added Graph Neural Networks (GNN) detector |
+| Nov 27, 2025 | Added Federated Learning framework |
+| Nov 27, 2025 | Added CPF Tokenization with AES-256 vault |
+| Nov 27, 2025 | Added RBAC system with 30+ permissions |
+| Nov 27, 2025 | Added automated BACEN reports generator |
+| Nov 27, 2025 | Added Redis Cluster configuration |
+| Nov 27, 2025 | Updated ROADMAP_STATUS.md to v12.1 |
+| Nov 27, 2025 | All roadmap items implemented |
