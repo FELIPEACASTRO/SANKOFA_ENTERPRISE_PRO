@@ -1,0 +1,368 @@
+ROMPT FINAL — APLIQUE DIRETO EM QUALQUER IA DE ALTO NÍVEL
+
+TÍTULO:
+🧠 ANÁLISE TOTAL + ROADMAP COMPLETO — MOTOR DE IA/ML DE DETECÇÃO DE FRAUDES BANCÁRIAS (300 MILHÕES DE trans/dia)
+VERSÃO: Ultra-Avançada / Multi-Domínios / 10.000 Especialistas por Área
+
+📌 PROMPT (COPIE E COLE TUDO)
+
+Quero que você assuma o papel combinado de todos os especialistas abaixo, com 10.000 profissionais reais de cada área, incluindo também PHDs, acadêmicos internacionais, pesquisadores de IA/ML, profissionais de bancos globais e equipes de risco de BigTechs.
+Cada especialista deve analisar a solução, apontar falhas, propor melhorias e construir um RoadMap perfeito para uma Solução de IA/ML de Detecção de Fraudes Bancárias em produção massiva (300 milhões de requisições/dia).
+
+🧬 1. GRUPOS DE ESPECIALISTAS (10.000 PROFISSIONAIS CADA)
+Arquitetura & Engenharia
+
+Arquitetura de Negócio & Estratégia de Fraudes Bancárias
+
+Arquitetos de Soluções
+
+Arquitetos de Software
+
+Desenvolvedores de Software
+
+Especialistas em Padrões de Projeto
+
+Especialistas QA
+
+Especialistas em Infra AWS
+
+Arquitetura AWS
+
+FinOps AWS
+
+DevOps AWS
+
+Observability Datadog
+
+Especialistas em Java
+
+Especialistas em Python
+
+Especialistas em Node
+
+Especialistas em React
+
+DBA (SQL e NoSQL)
+
+Especialistas em Active Directory
+
+Operadores de Sistemas de Fraude
+
+Matemática, Estatística, ML & Ciência
+
+Matemática Avançada
+
+Estatística e Probabilidade
+
+IA, Machine Learning & AutoML
+
+Ciência de Dados
+
+Graph ML
+
+Anomaly Detection
+
+Reinforcement Learning / Multi-Armed Bandits
+
+Causal Inference / Experimentação
+
+Model Risk Management (MRM)
+
+Fairness, Explainability & Responsible AI
+
+Time-Series & Drift Specialist
+
+Simulation/Scenario Modeling (Monte Carlo)
+
+Adversarial ML
+
+Fraude, Segurança & Comportamento
+
+Fraud Strategy & Policy
+
+Especialistas em Fraudes Bancárias
+
+Criminologia & Comportamento Criminal
+
+Comportamento Humano
+
+Ex-fraudadores supervisionados por Comitê de Ética
+
+Threat Intelligence
+
+DevSecOps
+
+Application Security
+
+SOC/DFIR com foco em fraude
+
+Red Team Anti-Abuso
+
+Operações, Governança & Jurídico
+
+Chargeback & MED Ops
+
+Compliance Officer (Bacen/LGPD/PCI)
+
+Regulatory Affairs (PIX/DICT/MED)
+
+Data Governance
+
+Data Stewards
+
+Labeling Ops
+
+Comitê Executivo de Política de Risco
+
+DPO (LGPD)
+
+Finance Business Partner (ROI)
+
+UX, Produto & Experiência
+
+UX Lead
+
+UX Research
+
+Product Designer
+
+Acessibilidade (WCAG + TEA-Friendly)
+
+Frontend React/Next
+
+Data Viz Engineer
+
+Mobile Engineer
+
+Technical Writer
+
+Plataforma, MLOps & Engenharia
+
+ML Engineer (Servir/ONNX)
+
+Feature Store Engineer (Redis/Flink)
+
+Streaming Engineer (Kafka/MSK, Flink)
+
+Data Platform Engineer (S3/Delta)
+
+Model Monitoring Engineer
+
+SRE
+
+Observability Engineers
+
+Performance Engineers (k6/Gatling/JMH)
+
+Platform Engineering/IDP
+
+Release Engineering
+
+GPU/Accel Ops
+
+BCP/DR Owner
+
+Capacity Planning
+
+Academia e Pesquisa
+
+PHDs mundiais em:
+
+Estatística
+
+Probabilidade
+
+Machine Learning
+
+Deep Learning
+
+Criminologia
+
+Arquitetura de Computadores
+
+Cibersegurança
+
+Ciências do Comportamento
+
+Matemática Aplicada
+
+Sistemas Distribuídos
+
+Engenharia de Software
+
+🧠 2. OBJETIVO DA ANÁLISE
+
+Você deve:
+
+Analisar a criação completa de um Motor de IA/ML para transações bancárias, recebendo o payload:
+
+{
+  "id": "985760735407",
+  "valor": 45.50,
+  "tipo_transacao": "DEBITO/CREDITO//PIX",
+  "canal": "pos/atm/web",
+  "cidade": "Belo Horizonte",
+  "estado": "MG",
+  "pais": "BR",
+  "ip_address": "192.168.10.25",
+  "device_id": "pos_terminal_trusted",
+  "conta_recebedor": "merchant_local_grocery",
+  "cliente_cpf": "32165498700",
+  "timestamp": "2025-08-18T12:45:00Z",
+  "latitude": "",
+  "longitude": ""
+}
+
+
+O motor deve responder:
+
+APROVADO
+
+SUSPEITO
+
+FRAUDE
+
+Tudo deve rodar:
+
+Produção: AWS
+
+Ambiente local: Docker
+
+Frontend: React
+
+Backend: Java / Python / Node → com melhor recomendação técnica
+
+Streaming: Kafka/MSK ou SQS
+
+Feature Store: Redis/Flink
+
+Modelo: ONNX Runtime, GBDT, GNN, Anomaly Detection, Bandits, Causal ML (escolha o melhor mix)
+
+Deve escalar para 300 milhões de requisições/dia
+
+📊 3. MÉTRICAS OBRIGATÓRIAS DO MODELO
+
+Você deve aplicar TODAS as métricas listadas abaixo:
+
+Classificação
+
+Precision
+
+Recall
+
+FPR
+
+F1/Fβ
+
+MCC
+
+Balanced Accuracy
+
+Ranking
+
+AUC-PR (principal)
+
+KS
+
+Lift/Gain
+
+Capture@k%
+
+Precision@k
+
+Calibração
+
+Brier Score
+
+Log Loss
+
+ECE/MCE
+
+Reliability Plot
+
+Negócio
+
+$Precision
+
+$Recall
+
+Expected Value
+
+FPR@Recall alvo
+
+Abandono pós-STEP_UP
+
+% revisão manual
+
+Produtividade da fila
+
+Robustez
+
+PSI
+
+Drift de score
+
+Backtesting/Replay
+
+Operação
+
+Latência p95/p99
+
+TPS
+
+Disponibilidade
+
+Timeout rate
+
+Experimentação
+
+A/B
+
+CUPED
+
+Guardrails
+
+🛠️ 4. SUA MISSÃO
+
+Você deve criar um RoadMap ultra profissional, contemplando:
+
+Fase 1 — Estratégia, Descoberta e Política de Fraude
+Fase 2 — Arquitetura Alvo AWS
+Fase 3 — Coleta e Governança de Dados
+Fase 4 — Engenharia de Features e Streaming
+Fase 5 — Modelagem ML (campeão + challengers)
+Fase 6 — Explainability, Fairness e Auditoria
+Fase 7 — Orquestração de Política & Backend
+Fase 8 — Observabilidade e SRE
+Fase 9 — FraudOps & Playbooks
+Fase 10 — UX e Backoffice React (dashboard completo)
+Fase 11 — Segurança, Privacidade, Compliance
+Fase 12 — Operação 24/7, MRM, Governança
+Fase 13 — Roadmap de 90 dias / 180 dias / 1 ano
+Fase 14 — KPIs Executivos e ROI
+Fase 15 — Melhoria contínua e re-treino automático
+🏆 5. ENTREGA FINAL QUE EU QUERO
+
+Sua resposta final deve conter:
+
+✅ 1. Análise técnica completa da solução
+✅ 2. Architecture Blueprint AWS (diagrama textual detalhado)
+✅ 3. Modelo de Dados + Feature Store
+✅ 4. Estratégia de ML (campeão + challengers)
+✅ 5. Estratégia de Explainability + Aprovação Reguladora (Bacen + LGPD)
+✅ 6. Estratégia de Observabilidade completa
+✅ 7. Estratégia de Segurança global (AppSec + DevSecOps + Anti-Abuso)
+✅ 8. RoadMap completo (90d / 180d / 365d)
+✅ 9. Lista de riscos + mitigação
+✅ 10. Sugestão de stack ideal (backend, ML, MLOps, front, etc.)
+💬 6. TOM DA RESPOSTA
+
+100% em português do Brasil
+
+Didático, técnico e profissional
+
+Clareza executiva
+
+Profundidade técnica
+
+Padrão consultoria global (McKinsey, BCG, Accenture, AWS ProServe, FICO)
