@@ -4,20 +4,27 @@ Sistema de Cache Redis Enterprise para Sankofa Enterprise Pro
 Implementa cache distribuído de alta performance para análise de fraude
 """
 
-import redis
 import json
 import pickle
 import hashlib
 import time
 import logging
-from typing import Any, Dict, List, Optional, Union, Callable
-from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Callable
+from datetime import datetime
 from functools import wraps
 import threading
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
+
+# Tenta importar redis, mas continua sem ele se não estiver disponível
+try:
+    import redis
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
+    logger.warning("Redis não disponível - usando cache em memória")
 
 
 @dataclass
@@ -37,22 +44,138 @@ class CacheConfig:
     max_memory_policy: str = "allkeys-lru"
 
 
+class InMemoryCache:
+    """Cache em memória como fallback quando Redis não está disponível"""
+    
+    def __init__(self):
+        self._cache: Dict[str, Any] = {}
+        self._expiry: Dict[str, float] = {}
+        self._lock = threading.Lock()
+    
+    def get(self, key: str) -> Optional[bytes]:
+        with self._lock:
+            if key in self._cache:
+                if key in self._expiry and time.time() > self._expiry[key]:
+                    del self._cache[key]
+                    del self._expiry[key]
+                    return None
+                return self._cache[key]
+            return None
+    
+    def setex(self, key: str, ttl: int, value: bytes) -> bool:
+        with self._lock:
+            self._cache[key] = value
+            self._expiry[key] = time.time() + ttl
+            return True
+    
+    def delete(self, *keys: str) -> int:
+        count = 0
+        with self._lock:
+            for key in keys:
+                if key in self._cache:
+                    del self._cache[key]
+                    if key in self._expiry:
+                        del self._expiry[key]
+                    count += 1
+        return count
+    
+    def exists(self, key: str) -> int:
+        with self._lock:
+            if key in self._cache:
+                if key in self._expiry and time.time() > self._expiry[key]:
+                    del self._cache[key]
+                    del self._expiry[key]
+                    return 0
+                return 1
+            return 0
+    
+    def expire(self, key: str, ttl: int) -> bool:
+        with self._lock:
+            if key in self._cache:
+                self._expiry[key] = time.time() + ttl
+                return True
+            return False
+    
+    def incr(self, key: str) -> int:
+        with self._lock:
+            if key not in self._cache:
+                self._cache[key] = b"0"
+            val = int(self._cache[key]) + 1
+            self._cache[key] = str(val).encode()
+            return val
+    
+    def incrby(self, key: str, amount: int) -> int:
+        with self._lock:
+            if key not in self._cache:
+                self._cache[key] = b"0"
+            val = int(self._cache[key]) + amount
+            self._cache[key] = str(val).encode()
+            return val
+    
+    def mget(self, keys: List[str]) -> List[Optional[bytes]]:
+        return [self.get(key) for key in keys]
+    
+    def keys(self, pattern: str) -> List[str]:
+        import fnmatch
+        with self._lock:
+            return [k for k in self._cache.keys() if fnmatch.fnmatch(k, pattern)]
+    
+    def pipeline(self) -> "InMemoryPipeline":
+        return InMemoryPipeline(self)
+    
+    def ping(self) -> bool:
+        return True
+    
+    def info(self) -> Dict[str, Any]:
+        return {
+            "used_memory_human": f"{len(self._cache) * 100}B",
+            "connected_clients": 1,
+            "total_commands_processed": 0,
+            "keyspace_hits": 0,
+            "keyspace_misses": 0,
+        }
+
+
+class InMemoryPipeline:
+    """Pipeline para cache em memória"""
+    
+    def __init__(self, cache: InMemoryCache):
+        self._cache = cache
+        self._commands: List[tuple] = []
+    
+    def setex(self, key: str, ttl: int, value: bytes) -> "InMemoryPipeline":
+        self._commands.append(("setex", key, ttl, value))
+        return self
+    
+    def execute(self) -> List[bool]:
+        results = []
+        for cmd in self._commands:
+            if cmd[0] == "setex":
+                results.append(self._cache.setex(cmd[1], cmd[2], cmd[3]))
+        return results
+
+
 class RedisConnectionManager:
     """Gerenciador de conexões Redis com pool e failover"""
 
     def __init__(self, config: CacheConfig):
         self.config = config
         self.pool = None
-        self.async_pool = None
         self._lock = threading.Lock()
         self._health_check_thread = None
-        self._is_healthy = True
+        self._is_healthy = False
+        self._fallback_cache = InMemoryCache()
 
         self._init_connection_pool()
         self._start_health_check()
 
     def _init_connection_pool(self):
         """Inicializa pool de conexões Redis"""
+        if not REDIS_AVAILABLE:
+            logger.info("Redis não disponível - usando cache em memória")
+            self._is_healthy = True
+            return
+            
         try:
             self.pool = redis.ConnectionPool(
                 host=self.config.host,
@@ -63,60 +186,60 @@ class RedisConnectionManager:
                 socket_timeout=self.config.socket_timeout,
                 socket_connect_timeout=self.config.socket_connect_timeout,
                 retry_on_timeout=self.config.retry_on_timeout,
-                decode_responses=False,  # Para suportar dados binários
+                decode_responses=False,
             )
 
             # Testa conexão
             client = redis.Redis(connection_pool=self.pool)
             client.ping()
+            self._is_healthy = True
 
             logger.info(
                 f"Pool de conexões Redis inicializado - {self.config.host}:{self.config.port}"
             )
 
         except Exception as e:
-            logger.error(f"Erro ao inicializar pool Redis: {e}")
-            self._is_healthy = False
-            raise
-
-    def _init_async_pool(self):
-        """Pool assíncrono não implementado nesta versão"""
-        pass
-
-    def get_client(self) -> redis.Redis:
-        """Obtém cliente Redis do pool"""
-        if not self._is_healthy:
-            raise ConnectionError("Redis não está saudável")
-
-        return redis.Redis(connection_pool=self.pool)
-
-    def get_async_client(self):
-        """Cliente assíncrono não implementado nesta versão"""
-        raise NotImplementedError("Cliente assíncrono não disponível")
+            logger.warning(f"Redis não disponível, usando fallback em memória: {e}")
+            self._is_healthy = True  # Fallback está saudável
 
     def _start_health_check(self):
         """Inicia thread de health check"""
+        if not REDIS_AVAILABLE or self.pool is None:
+            return
 
         def health_check():
             while True:
                 try:
-                    client = redis.Redis(connection_pool=self.pool)
-                    client.ping()
-                    if not self._is_healthy:
-                        logger.info("Redis voltou a ficar saudável")
-                        self._is_healthy = True
+                    if self.pool:
+                        client = redis.Redis(connection_pool=self.pool)
+                        client.ping()
+                        if not self._is_healthy:
+                            logger.info("Redis voltou a ficar saudável")
+                            self._is_healthy = True
                 except Exception as e:
-                    if self._is_healthy:
-                        logger.error(f"Redis ficou não saudável: {e}")
-                        self._is_healthy = False
+                    if self._is_healthy and self.pool:
+                        logger.warning(f"Redis ficou não saudável, usando fallback: {e}")
+                    self._is_healthy = True  # Fallback sempre saudável
 
                 time.sleep(self.config.health_check_interval)
 
         self._health_check_thread = threading.Thread(target=health_check, daemon=True)
         self._health_check_thread.start()
 
+    def get_client(self) -> Any:
+        """Obtém cliente Redis do pool ou fallback"""
+        if REDIS_AVAILABLE and self.pool:
+            try:
+                client = redis.Redis(connection_pool=self.pool)
+                client.ping()
+                return client
+            except Exception:
+                pass
+        
+        return self._fallback_cache
+
     def is_healthy(self) -> bool:
-        """Verifica se Redis está saudável"""
+        """Verifica se cache está saudável"""
         return self._is_healthy
 
 
@@ -131,17 +254,14 @@ class CacheSerializer:
         elif isinstance(data, (dict, list, tuple)):
             return json.dumps(data, default=str).encode("utf-8")
         else:
-            # Usa pickle para objetos complexos
             return pickle.dumps(data)
 
     @staticmethod
     def deserialize(data: bytes) -> Any:
         """Deserializa dados do cache"""
         try:
-            # Tenta JSON primeiro (mais rápido)
             return json.loads(data.decode("utf-8"))
         except (json.JSONDecodeError, UnicodeDecodeError):
-            # Fallback para pickle
             return pickle.loads(data)
 
 
@@ -151,12 +271,10 @@ class CacheKeyManager:
     def __init__(self, namespace: str = "sankofa"):
         self.namespace = namespace
 
-    def generate_key(self, prefix: str, *args, **kwargs) -> str:
+    def generate_key(self, prefix: str, *args: Any, **kwargs: Any) -> str:
         """Gera chave de cache determinística"""
-        # Cria hash dos argumentos
         key_data = f"{prefix}:{args}:{sorted(kwargs.items())}"
         key_hash = hashlib.sha256(key_data.encode()).hexdigest()
-
         return f"{self.namespace}:{prefix}:{key_hash}"
 
     def pattern_key(self, prefix: str) -> str:
@@ -167,7 +285,7 @@ class CacheKeyManager:
 class RedisCacheSystem:
     """Sistema de cache Redis enterprise com recursos avançados"""
 
-    def __init__(self, config: CacheConfig = None):
+    def __init__(self, config: Optional[CacheConfig] = None):
         self.config = config or CacheConfig()
         self.connection_manager = RedisConnectionManager(self.config)
         self.serializer = CacheSerializer()
@@ -175,7 +293,7 @@ class RedisCacheSystem:
         self.executor = ThreadPoolExecutor(max_workers=10)
 
         # Métricas
-        self.stats = {"hits": 0, "misses": 0, "sets": 0, "deletes": 0, "errors": 0}
+        self.stats: Dict[str, int] = {"hits": 0, "misses": 0, "sets": 0, "deletes": 0, "errors": 0}
 
         logger.info("Sistema de Cache Redis Enterprise inicializado")
 
@@ -201,17 +319,17 @@ class RedisCacheSystem:
             self._update_stats("errors")
             return default
 
-    def set(self, key: str, value: Any, ttl: int = None) -> bool:
+    def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
         """Define valor no cache"""
         try:
             client = self.connection_manager.get_client()
             serialized_data = self.serializer.serialize(value)
 
-            ttl = ttl or self.config.default_ttl
-            result = client.setex(key, ttl, serialized_data)
+            ttl_value = ttl or self.config.default_ttl
+            result = client.setex(key, ttl_value, serialized_data)
 
             self._update_stats("sets")
-            return result
+            return bool(result)
 
         except Exception as e:
             logger.error(f"Erro ao definir cache {key}: {e}")
@@ -222,10 +340,10 @@ class RedisCacheSystem:
         """Remove valor do cache"""
         try:
             client = self.connection_manager.get_client()
-            result = client.delete(key) > 0
+            result = client.delete(key)
 
             self._update_stats("deletes")
-            return result
+            return result > 0
 
         except Exception as e:
             logger.error(f"Erro ao deletar cache {key}: {e}")
@@ -245,7 +363,7 @@ class RedisCacheSystem:
         """Define TTL para chave existente"""
         try:
             client = self.connection_manager.get_client()
-            return client.expire(key, ttl)
+            return bool(client.expire(key, ttl))
         except Exception as e:
             logger.error(f"Erro ao definir TTL {key}: {e}")
             return False
@@ -254,7 +372,7 @@ class RedisCacheSystem:
         """Incrementa valor numérico"""
         try:
             client = self.connection_manager.get_client()
-            return client.incrby(key, amount)
+            return int(client.incrby(key, amount))
         except Exception as e:
             logger.error(f"Erro ao incrementar {key}: {e}")
             return 0
@@ -280,7 +398,7 @@ class RedisCacheSystem:
             self._update_stats("errors")
             return {}
 
-    def set_multiple(self, mapping: Dict[str, Any], ttl: int = None) -> bool:
+    def set_multiple(self, mapping: Dict[str, Any], ttl: Optional[int] = None) -> bool:
         """Define múltiplos valores"""
         try:
             client = self.connection_manager.get_client()
@@ -315,7 +433,7 @@ class RedisCacheSystem:
             if keys:
                 deleted = client.delete(*keys)
                 self._update_stats("deletes")
-                return deleted
+                return int(deleted)
 
             return 0
 
@@ -330,26 +448,27 @@ class RedisCacheSystem:
             client = self.connection_manager.get_client()
             info = client.info()
 
-            hit_rate = 0
-            if self.stats["hits"] + self.stats["misses"] > 0:
-                hit_rate = self.stats["hits"] / (self.stats["hits"] + self.stats["misses"])
+            hit_rate = 0.0
+            total_ops = self.stats["hits"] + self.stats["misses"]
+            if total_ops > 0:
+                hit_rate = self.stats["hits"] / total_ops
 
             return {
                 "operations": self.stats.copy(),
                 "hit_rate": hit_rate,
                 "redis_info": {
-                    "used_memory": info.get("used_memory_human"),
-                    "connected_clients": info.get("connected_clients"),
-                    "total_commands_processed": info.get("total_commands_processed"),
-                    "keyspace_hits": info.get("keyspace_hits"),
-                    "keyspace_misses": info.get("keyspace_misses"),
+                    "used_memory": info.get("used_memory_human", "N/A"),
+                    "connected_clients": info.get("connected_clients", 0),
+                    "total_commands_processed": info.get("total_commands_processed", 0),
+                    "keyspace_hits": info.get("keyspace_hits", 0),
+                    "keyspace_misses": info.get("keyspace_misses", 0),
                 },
                 "health": self.connection_manager.is_healthy(),
             }
 
         except Exception as e:
             logger.error(f"Erro ao obter estatísticas: {e}")
-            return {"error": str(e)}
+            return {"error": str(e), "operations": self.stats.copy()}
 
 
 class FraudCacheManager:
@@ -360,7 +479,7 @@ class FraudCacheManager:
         self.key_manager = CacheKeyManager("fraud")
 
         # TTLs específicos por tipo de dados
-        self.ttls = {
+        self.ttls: Dict[str, int] = {
             "transaction_analysis": 300,  # 5 minutos
             "user_profile": 3600,  # 1 hora
             "merchant_profile": 7200,  # 2 horas
@@ -413,7 +532,7 @@ class FraudCacheManager:
 
         # Incrementa e define TTL se for nova chave
         client = self.cache.connection_manager.get_client()
-        count = client.incr(key)
+        count = int(client.incr(key))
 
         if count == 1:  # Nova chave
             client.expire(key, self.ttls["velocity_counters"])
@@ -423,17 +542,18 @@ class FraudCacheManager:
     def get_velocity_counter(self, counter_type: str, identifier: str, window: str) -> int:
         """Obtém contador de velocidade"""
         key = self.key_manager.generate_key("velocity_counters", counter_type, identifier, window)
-        return self.cache.get(key, 0)
+        result = self.cache.get(key, 0)
+        return int(result) if result else 0
 
     def is_blacklisted(self, list_type: str, identifier: str) -> bool:
         """Verifica se item está na blacklist"""
         key = self.key_manager.generate_key("blacklist", list_type, identifier)
         return self.cache.exists(key)
 
-    def add_to_blacklist(self, list_type: str, identifier: str, reason: str = None) -> bool:
+    def add_to_blacklist(self, list_type: str, identifier: str, reason: Optional[str] = None) -> bool:
         """Adiciona item à blacklist"""
         key = self.key_manager.generate_key("blacklist", list_type, identifier)
-        data = {"added_at": datetime.now().isoformat(), "reason": reason}
+        data = {"added_at": datetime.now().isoformat(), "reason": reason or ""}
         return self.cache.set(key, data, self.ttls["blacklist"])
 
     def clear_fraud_cache(self) -> Dict[str, int]:
@@ -453,12 +573,12 @@ class FraudCacheManager:
         return results
 
 
-def cache_result(cache_manager: FraudCacheManager, cache_type: str, ttl: int = None):
+def cache_result(cache_manager: FraudCacheManager, cache_type: str, ttl: Optional[int] = None):
     """Decorator para cache automático de resultados de funções"""
 
     def decorator(func: Callable):
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Gera chave baseada na função e argumentos
             key = cache_manager.key_manager.generate_key(
                 f"{cache_type}_{func.__name__}", *args, **kwargs
@@ -490,7 +610,8 @@ fraud_cache_manager = FraudCacheManager(redis_cache_system)
 
 # Teste do sistema
 if __name__ == "__main__":
-    logger.info("🚀 Testando Sistema de Cache Redis Enterprise...")
+    logging.basicConfig(level=logging.INFO)
+    logger.info("Testando Sistema de Cache Redis Enterprise...")
 
     # Testa operações básicas
     test_key = "test:sankofa"
@@ -498,11 +619,11 @@ if __name__ == "__main__":
 
     # Set
     success = redis_cache_system.set(test_key, test_data, 60)
-    logger.info(f"✅ Set: {success}")
+    logger.info(f"Set: {success}")
 
     # Get
     retrieved_data = redis_cache_system.get(test_key)
-    logger.info(f"✅ Get: {retrieved_data}")
+    logger.info(f"Get: {retrieved_data}")
 
     # Testa cache de fraude
     transaction_id = "txn_123456"
@@ -515,19 +636,20 @@ if __name__ == "__main__":
 
     # Cache análise
     fraud_cache_manager.cache_transaction_analysis(transaction_id, analysis_result)
-    logger.info("✅ Análise de transação cacheada")
+    logger.info("Análise de transação cacheada")
 
     # Recupera análise
     cached_analysis = fraud_cache_manager.get_transaction_analysis(transaction_id)
-    logger.info(f"✅ Análise recuperada: {cached_analysis['fraud_score']}")
+    if cached_analysis:
+        logger.info(f"Análise recuperada: {cached_analysis.get('fraud_score')}")
 
     # Testa contador de velocidade
     count = fraud_cache_manager.increment_velocity_counter("card_usage", "1234567890", "1h")
-    logger.info(f"✅ Contador de velocidade: {count}")
+    logger.info(f"Contador de velocidade: {count}")
 
     # Estatísticas
     stats = redis_cache_system.get_stats()
-    logger.info(f"✅ Hit rate: {stats['hit_rate']:.2%}")
-    logger.info(f"✅ Operações: {stats['operations']}")
+    logger.info(f"Hit rate: {stats.get('hit_rate', 0):.2%}")
+    logger.info(f"Operações: {stats.get('operations', {})}")
 
-    logger.info("🚀 Teste do Sistema de Cache Redis Enterprise concluído!")
+    logger.info("Teste do Sistema de Cache Redis Enterprise concluído!")

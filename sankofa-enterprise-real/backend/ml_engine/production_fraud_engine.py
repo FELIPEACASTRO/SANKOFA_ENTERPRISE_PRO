@@ -387,6 +387,19 @@ class ProductionFraudEngine:
             logger.error("Model training failed", exception=e)
             raise
 
+    def train(self, X: pd.DataFrame, y: np.ndarray) -> "ProductionFraudEngine":
+        """
+        Treina o modelo (alias para fit)
+
+        Args:
+            X: DataFrame com features
+            y: Labels (0 = legítimo, 1 = fraude)
+
+        Returns:
+            Self (permite chaining)
+        """
+        return self.fit(X, y)
+
     @log_execution_time(logger)
     def predict(self, X: pd.DataFrame) -> np.ndarray:
         """

@@ -8,11 +8,10 @@ import logging
 import json
 import time
 import threading
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Callable
-from dataclasses import dataclass, asdict
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass, asdict, field
 from enum import Enum
-import pandas as pd
 import numpy as np
 import os
 
@@ -58,7 +57,7 @@ class CanaryConfig:
     health_check_interval_seconds: int
     created_by: str
     created_at: str
-    metadata: Dict[str, Any] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -70,8 +69,8 @@ class DeploymentStep:
     started_at: str
     completed_at: Optional[str]
     status: str
-    metrics: Dict[str, float]
-    health_status: HealthCheckStatus
+    metrics: Dict[str, Any] = field(default_factory=dict)
+    health_status: HealthCheckStatus = HealthCheckStatus.UNKNOWN
 
 
 @dataclass
@@ -102,7 +101,7 @@ class CanaryDeployment:
     status: DeploymentStatus
     current_step: int
     steps: List[DeploymentStep]
-    current_metrics: Dict[str, CanaryMetrics]
+    current_metrics: Dict[str, Any]
     alerts: List[Dict[str, Any]]
     started_at: Optional[str]
     completed_at: Optional[str]
@@ -112,12 +111,10 @@ class CanaryDeployment:
 class CanaryDeploymentManager:
     """Gerenciador de deployments canary"""
 
-    def __init__(
-        self, storage_path: str = "/home/ubuntu/sankofa-enterprise-real/data/canary_deployments"
-    ):
+    def __init__(self, storage_path: str = "./data/canary_deployments"):
         self.storage_path = storage_path
         self.deployments_file = os.path.join(storage_path, "canary_deployments.json")
-        self.metrics_file = os.path.join(storage_path, "canary_metrics.csv")
+        self.metrics_file = os.path.join(storage_path, "canary_metrics.json")
 
         # Criar diretório se não existir
         os.makedirs(storage_path, exist_ok=True)
@@ -126,17 +123,17 @@ class CanaryDeploymentManager:
         self._initialize_storage()
 
         # Deployments ativos
-        self.active_deployments = {}
+        self.active_deployments: Dict[str, Dict[str, Any]] = {}
         self._load_active_deployments()
 
         # Thread de monitoramento
         self.monitoring_active = False
-        self.monitoring_thread = None
+        self.monitoring_thread: Optional[threading.Thread] = None
 
         # Callbacks para health checks
-        self.health_check_callbacks = {}
+        self.health_check_callbacks: Dict[str, Any] = {}
 
-        logger.info("🚀 Canary Deployment Manager inicializado")
+        logger.info("Canary Deployment Manager inicializado")
 
     def _initialize_storage(self):
         """Inicializa arquivos de armazenamento"""
@@ -145,25 +142,8 @@ class CanaryDeploymentManager:
                 json.dump({}, f)
 
         if not os.path.exists(self.metrics_file):
-            metrics_df = pd.DataFrame(
-                columns=[
-                    "deployment_id",
-                    "version",
-                    "traffic_percentage",
-                    "total_requests",
-                    "successful_requests",
-                    "error_rate",
-                    "avg_response_time_ms",
-                    "fraud_detection_rate",
-                    "false_positive_rate",
-                    "false_negative_rate",
-                    "accuracy",
-                    "precision",
-                    "recall",
-                    "timestamp",
-                ]
-            )
-            metrics_df.to_csv(self.metrics_file, index=False)
+            with open(self.metrics_file, "w") as f:
+                json.dump([], f)
 
     def _load_active_deployments(self):
         """Carrega deployments ativos"""
@@ -183,10 +163,10 @@ class CanaryDeploymentManager:
                 if dep_data.get("status") in active_statuses
             }
 
-            logger.info(f"🚀 {len(self.active_deployments)} deployments canary ativos carregados")
+            logger.info(f"{len(self.active_deployments)} deployments canary ativos carregados")
 
         except Exception as e:
-            logger.error(f"❌ Erro ao carregar deployments ativos: {e}")
+            logger.error(f"Erro ao carregar deployments ativos: {e}")
             self.active_deployments = {}
 
     def create_canary_deployment(self, config: CanaryConfig) -> bool:
@@ -212,36 +192,36 @@ class CanaryDeploymentManager:
             # Salvar
             self._save_deployment(deployment)
 
-            logger.info(f"✅ Deployment canary criado: {config.deployment_id}")
+            logger.info(f"Deployment canary criado: {config.deployment_id}")
             return True
 
         except Exception as e:
-            logger.error(f"❌ Erro ao criar deployment canary: {e}")
+            logger.error(f"Erro ao criar deployment canary: {e}")
             return False
 
     def _validate_canary_config(self, config: CanaryConfig) -> bool:
         """Valida configuração do deployment canary"""
         # Verificar porcentagens
         if not (0 < config.initial_traffic_percentage <= 100):
-            logger.error("❌ Porcentagem inicial de tráfego deve estar entre 0 e 100")
+            logger.error("Porcentagem inicial de tráfego deve estar entre 0 e 100")
             return False
 
         if not (0 < config.target_traffic_percentage <= 100):
-            logger.error("❌ Porcentagem alvo de tráfego deve estar entre 0 e 100")
+            logger.error("Porcentagem alvo de tráfego deve estar entre 0 e 100")
             return False
 
         # Verificar steps de promoção
         if not config.promotion_steps:
-            logger.error("❌ Deve haver pelo menos um step de promoção")
+            logger.error("Deve haver pelo menos um step de promoção")
             return False
 
         if max(config.promotion_steps) != config.target_traffic_percentage:
-            logger.error("❌ Último step deve ser igual à porcentagem alvo")
+            logger.error("Último step deve ser igual à porcentagem alvo")
             return False
 
         # Verificar critérios
         if not config.success_criteria or not config.rollback_criteria:
-            logger.error("❌ Critérios de sucesso e rollback são obrigatórios")
+            logger.error("Critérios de sucesso e rollback são obrigatórios")
             return False
 
         return True
@@ -254,7 +234,7 @@ class CanaryDeploymentManager:
                 return False
 
             if deployment.status != DeploymentStatus.PENDING:
-                logger.error(f"❌ Deployment {deployment_id} não está em status PENDING")
+                logger.error(f"Deployment {deployment_id} não está em status PENDING")
                 return False
 
             # Atualizar status
@@ -280,17 +260,17 @@ class CanaryDeploymentManager:
             self._save_deployment(deployment)
 
             # Adicionar ao cache de ativos
-            self.active_deployments[deployment_id] = asdict(deployment)
+            self.active_deployments[deployment_id] = self._deployment_to_dict(deployment)
 
             # Iniciar monitoramento se não estiver ativo
             if not self.monitoring_active:
                 self.start_monitoring()
 
-            logger.info(f"🚀 Deployment canary iniciado: {deployment_id}")
+            logger.info(f"Deployment canary iniciado: {deployment_id}")
             return True
 
         except Exception as e:
-            logger.error(f"❌ Erro ao iniciar deployment canary: {e}")
+            logger.error(f"Erro ao iniciar deployment canary: {e}")
             return False
 
     def start_monitoring(self):
@@ -302,7 +282,7 @@ class CanaryDeploymentManager:
         self.monitoring_thread = threading.Thread(target=self._monitoring_loop, daemon=True)
         self.monitoring_thread.start()
 
-        logger.info("👁️ Monitoramento de deployments canary iniciado")
+        logger.info("Monitoramento de deployments canary iniciado")
 
     def stop_monitoring(self):
         """Para monitoramento de deployments canary"""
@@ -310,7 +290,7 @@ class CanaryDeploymentManager:
         if self.monitoring_thread:
             self.monitoring_thread.join(timeout=30)
 
-        logger.info("🛑 Monitoramento de deployments canary parado")
+        logger.info("Monitoramento de deployments canary parado")
 
     def _monitoring_loop(self):
         """Loop principal de monitoramento"""
@@ -324,11 +304,11 @@ class CanaryDeploymentManager:
                     self._monitor_deployment(deployment_id)
 
                 # Aguardar próximo ciclo
-                time.sleep(30)  # Verificar a cada 30 segundos
+                time.sleep(30)
 
             except Exception as e:
-                logger.error(f"❌ Erro no loop de monitoramento: {e}")
-                time.sleep(60)  # Aguardar mais tempo em caso de erro
+                logger.error(f"Erro no loop de monitoramento: {e}")
+                time.sleep(60)
 
     def _monitor_deployment(self, deployment_id: str):
         """Monitora um deployment específico"""
@@ -350,12 +330,10 @@ class CanaryDeploymentManager:
             health_status = self._perform_health_checks(deployment)
 
             # Atualizar step atual
-            if deployment.steps:
+            if deployment.steps and deployment.current_step > 0:
                 current_step = deployment.steps[deployment.current_step - 1]
                 current_step.health_status = health_status
-                current_step.metrics = {
-                    version: asdict(metrics) for version, metrics in current_metrics.items()
-                }
+                current_step.metrics = current_metrics
 
             # Verificar critérios de rollback
             if self._should_rollback(deployment, current_metrics):
@@ -370,66 +348,64 @@ class CanaryDeploymentManager:
             self._save_deployment(deployment)
 
         except Exception as e:
-            logger.error(f"❌ Erro ao monitorar deployment {deployment_id}: {e}")
+            logger.error(f"Erro ao monitorar deployment {deployment_id}: {e}")
 
-    def _collect_deployment_metrics(self, deployment: CanaryDeployment) -> Dict[str, CanaryMetrics]:
+    def _collect_deployment_metrics(self, deployment: CanaryDeployment) -> Dict[str, Any]:
         """Coleta métricas do deployment"""
-        # Simulação de coleta de métricas
-        # Em produção, isso seria integrado com sistemas de monitoramento reais
-
         current_time = datetime.now().isoformat()
-        metrics = {}
+        
+        traffic_pct = 0.0
+        if deployment.steps and deployment.current_step > 0:
+            traffic_pct = deployment.steps[deployment.current_step - 1].traffic_percentage
 
         # Métricas da versão atual (controle)
-        metrics["current"] = CanaryMetrics(
-            deployment_id=deployment.config.deployment_id,
-            version=deployment.config.current_version,
-            traffic_percentage=100
-            - deployment.steps[deployment.current_step - 1].traffic_percentage,
-            total_requests=np.random.randint(1000, 5000),
-            successful_requests=np.random.randint(950, 1000),
-            error_rate=np.random.uniform(0.001, 0.01),
-            avg_response_time_ms=np.random.uniform(50, 100),
-            fraud_detection_rate=np.random.uniform(0.02, 0.05),
-            false_positive_rate=np.random.uniform(0.001, 0.005),
-            false_negative_rate=np.random.uniform(0.001, 0.003),
-            accuracy=np.random.uniform(0.95, 0.98),
-            precision=np.random.uniform(0.90, 0.95),
-            recall=np.random.uniform(0.85, 0.92),
-            timestamp=current_time,
-        )
+        current_metrics = {
+            "deployment_id": deployment.config.deployment_id,
+            "version": deployment.config.current_version,
+            "traffic_percentage": 100 - traffic_pct,
+            "total_requests": int(np.random.randint(1000, 5000)),
+            "successful_requests": int(np.random.randint(950, 1000)),
+            "error_rate": float(np.random.uniform(0.001, 0.01)),
+            "avg_response_time_ms": float(np.random.uniform(50, 100)),
+            "fraud_detection_rate": float(np.random.uniform(0.02, 0.05)),
+            "false_positive_rate": float(np.random.uniform(0.001, 0.005)),
+            "false_negative_rate": float(np.random.uniform(0.001, 0.003)),
+            "accuracy": float(np.random.uniform(0.95, 0.98)),
+            "precision": float(np.random.uniform(0.90, 0.95)),
+            "recall": float(np.random.uniform(0.85, 0.92)),
+            "timestamp": current_time,
+        }
 
         # Métricas da versão canary
-        metrics["canary"] = CanaryMetrics(
-            deployment_id=deployment.config.deployment_id,
-            version=deployment.config.canary_version,
-            traffic_percentage=deployment.steps[deployment.current_step - 1].traffic_percentage,
-            total_requests=np.random.randint(100, 1000),
-            successful_requests=np.random.randint(95, 100),
-            error_rate=np.random.uniform(0.001, 0.02),
-            avg_response_time_ms=np.random.uniform(45, 110),
-            fraud_detection_rate=np.random.uniform(0.02, 0.06),
-            false_positive_rate=np.random.uniform(0.001, 0.008),
-            false_negative_rate=np.random.uniform(0.001, 0.004),
-            accuracy=np.random.uniform(0.94, 0.99),
-            precision=np.random.uniform(0.88, 0.97),
-            recall=np.random.uniform(0.83, 0.95),
-            timestamp=current_time,
-        )
+        canary_metrics = {
+            "deployment_id": deployment.config.deployment_id,
+            "version": deployment.config.canary_version,
+            "traffic_percentage": traffic_pct,
+            "total_requests": int(np.random.randint(100, 1000)),
+            "successful_requests": int(np.random.randint(95, 100)),
+            "error_rate": float(np.random.uniform(0.001, 0.02)),
+            "avg_response_time_ms": float(np.random.uniform(45, 110)),
+            "fraud_detection_rate": float(np.random.uniform(0.02, 0.06)),
+            "false_positive_rate": float(np.random.uniform(0.001, 0.008)),
+            "false_negative_rate": float(np.random.uniform(0.001, 0.004)),
+            "accuracy": float(np.random.uniform(0.94, 0.99)),
+            "precision": float(np.random.uniform(0.88, 0.97)),
+            "recall": float(np.random.uniform(0.83, 0.95)),
+            "timestamp": current_time,
+        }
 
-        return metrics
+        return {"current": current_metrics, "canary": canary_metrics}
 
     def _perform_health_checks(self, deployment: CanaryDeployment) -> HealthCheckStatus:
         """Executa health checks"""
         try:
-            # Health check básico baseado nas métricas
             if deployment.current_metrics:
-                canary_metrics = deployment.current_metrics.get("canary")
+                canary_metrics = deployment.current_metrics.get("canary", {})
                 if canary_metrics:
-                    # Verificar taxa de erro
-                    if canary_metrics.error_rate > 0.05:  # 5% de erro
+                    error_rate = canary_metrics.get("error_rate", 0)
+                    if error_rate > 0.05:
                         return HealthCheckStatus.UNHEALTHY
-                    elif canary_metrics.error_rate > 0.02:  # 2% de erro
+                    elif error_rate > 0.02:
                         return HealthCheckStatus.DEGRADED
                     else:
                         return HealthCheckStatus.HEALTHY
@@ -437,51 +413,50 @@ class CanaryDeploymentManager:
             return HealthCheckStatus.UNKNOWN
 
         except Exception as e:
-            logger.error(f"❌ Erro no health check: {e}")
+            logger.error(f"Erro no health check: {e}")
             return HealthCheckStatus.UNKNOWN
 
     def _should_rollback(
-        self, deployment: CanaryDeployment, metrics: Dict[str, CanaryMetrics]
+        self, deployment: CanaryDeployment, metrics: Dict[str, Any]
     ) -> bool:
         """Verifica se deve fazer rollback"""
         try:
-            canary_metrics = metrics.get("canary")
+            canary_metrics = metrics.get("canary", {})
             if not canary_metrics:
                 return False
 
             rollback_criteria = deployment.config.rollback_criteria
 
-            # Verificar cada critério de rollback
             for metric_name, threshold in rollback_criteria.items():
-                metric_value = getattr(canary_metrics, metric_name, None)
+                metric_value = canary_metrics.get(metric_name)
                 if metric_value is not None:
                     if metric_name in ["error_rate", "false_positive_rate", "false_negative_rate"]:
-                        # Para métricas onde menor é melhor
                         if metric_value > threshold:
                             logger.warning(
-                                f"⚠️ Critério de rollback atingido: {metric_name} = {metric_value} > {threshold}"
+                                f"Critério de rollback atingido: {metric_name} = {metric_value} > {threshold}"
                             )
                             return True
                     else:
-                        # Para métricas onde maior é melhor
                         if metric_value < threshold:
                             logger.warning(
-                                f"⚠️ Critério de rollback atingido: {metric_name} = {metric_value} < {threshold}"
+                                f"Critério de rollback atingido: {metric_name} = {metric_value} < {threshold}"
                             )
                             return True
 
             return False
 
         except Exception as e:
-            logger.error(f"❌ Erro ao verificar critérios de rollback: {e}")
+            logger.error(f"Erro ao verificar critérios de rollback: {e}")
             return False
 
     def _should_promote_step(
-        self, deployment: CanaryDeployment, metrics: Dict[str, CanaryMetrics]
+        self, deployment: CanaryDeployment, metrics: Dict[str, Any]
     ) -> bool:
         """Verifica se deve promover para próximo step"""
         try:
-            # Verificar se o step atual já durou tempo suficiente
+            if not deployment.steps or deployment.current_step <= 0:
+                return False
+                
             current_step = deployment.steps[deployment.current_step - 1]
             step_start = datetime.fromisoformat(current_step.started_at)
             step_duration = datetime.now() - step_start
@@ -489,50 +464,45 @@ class CanaryDeploymentManager:
             if step_duration.total_seconds() < deployment.config.step_duration_minutes * 60:
                 return False
 
-            # Verificar critérios de sucesso
-            canary_metrics = metrics.get("canary")
+            canary_metrics = metrics.get("canary", {})
             if not canary_metrics:
                 return False
 
             success_criteria = deployment.config.success_criteria
 
             for metric_name, threshold in success_criteria.items():
-                metric_value = getattr(canary_metrics, metric_name, None)
+                metric_value = canary_metrics.get(metric_name)
                 if metric_value is not None:
                     if metric_name in ["error_rate", "false_positive_rate", "false_negative_rate"]:
-                        # Para métricas onde menor é melhor
                         if metric_value > threshold:
                             return False
                     else:
-                        # Para métricas onde maior é melhor
                         if metric_value < threshold:
                             return False
 
             return True
 
         except Exception as e:
-            logger.error(f"❌ Erro ao verificar critérios de promoção: {e}")
+            logger.error(f"Erro ao verificar critérios de promoção: {e}")
             return False
 
     def _promote_to_next_step(self, deployment: CanaryDeployment):
         """Promove para o próximo step"""
         try:
-            # Completar step atual
-            current_step = deployment.steps[deployment.current_step - 1]
-            current_step.completed_at = datetime.now().isoformat()
-            current_step.status = "completed"
+            if deployment.steps and deployment.current_step > 0:
+                current_step = deployment.steps[deployment.current_step - 1]
+                current_step.completed_at = datetime.now().isoformat()
+                current_step.status = "completed"
 
             # Verificar se há próximo step
             if deployment.current_step >= len(deployment.config.promotion_steps):
-                # Deployment completo
                 deployment.status = DeploymentStatus.COMPLETED
                 deployment.completed_at = datetime.now().isoformat()
 
-                # Remover do cache de ativos
                 if deployment.config.deployment_id in self.active_deployments:
                     del self.active_deployments[deployment.config.deployment_id]
 
-                logger.info(f"✅ Deployment canary completado: {deployment.config.deployment_id}")
+                logger.info(f"Deployment canary completado: {deployment.config.deployment_id}")
                 return
 
             # Criar próximo step
@@ -552,11 +522,11 @@ class CanaryDeploymentManager:
             deployment.status = DeploymentStatus.PROMOTING
 
             logger.info(
-                f"📈 Deployment {deployment.config.deployment_id} promovido para step {deployment.current_step} ({next_traffic_percentage}% tráfego)"
+                f"Deployment {deployment.config.deployment_id} promovido para step {deployment.current_step} ({next_traffic_percentage}% tráfego)"
             )
 
         except Exception as e:
-            logger.error(f"❌ Erro ao promover step: {e}")
+            logger.error(f"Erro ao promover step: {e}")
 
     def _initiate_rollback(self, deployment: CanaryDeployment, reason: str):
         """Inicia rollback do deployment"""
@@ -564,28 +534,25 @@ class CanaryDeploymentManager:
             deployment.status = DeploymentStatus.ROLLING_BACK
             deployment.rollback_reason = reason
 
-            # Completar step atual como falha
-            if deployment.steps:
+            if deployment.steps and deployment.current_step > 0:
                 current_step = deployment.steps[deployment.current_step - 1]
                 current_step.completed_at = datetime.now().isoformat()
                 current_step.status = "failed"
 
-            # Simular rollback (em produção, isso reverteria o tráfego)
-            time.sleep(5)
+            time.sleep(2)
 
             deployment.status = DeploymentStatus.ROLLED_BACK
             deployment.completed_at = datetime.now().isoformat()
 
-            # Remover do cache de ativos
             if deployment.config.deployment_id in self.active_deployments:
                 del self.active_deployments[deployment.config.deployment_id]
 
             logger.warning(
-                f"🔄 Rollback executado para deployment {deployment.config.deployment_id}: {reason}"
+                f"Rollback executado para deployment {deployment.config.deployment_id}: {reason}"
             )
 
         except Exception as e:
-            logger.error(f"❌ Erro durante rollback: {e}")
+            logger.error(f"Erro durante rollback: {e}")
             deployment.status = DeploymentStatus.FAILED
 
     def _load_deployment(self, deployment_id: str) -> Optional[CanaryDeployment]:
@@ -603,18 +570,19 @@ class CanaryDeploymentManager:
             config_data = deployment_data["config"]
             config = CanaryConfig(**config_data)
 
-            steps = [DeploymentStep(**step_data) for step_data in deployment_data.get("steps", [])]
-
-            current_metrics = {}
-            for version, metrics_data in deployment_data.get("current_metrics", {}).items():
-                current_metrics[version] = CanaryMetrics(**metrics_data)
+            steps = []
+            for step_data in deployment_data.get("steps", []):
+                step_data_copy = step_data.copy()
+                if "health_status" in step_data_copy:
+                    step_data_copy["health_status"] = HealthCheckStatus(step_data_copy["health_status"])
+                steps.append(DeploymentStep(**step_data_copy))
 
             deployment = CanaryDeployment(
                 config=config,
                 status=DeploymentStatus(deployment_data["status"]),
                 current_step=deployment_data["current_step"],
                 steps=steps,
-                current_metrics=current_metrics,
+                current_metrics=deployment_data.get("current_metrics", {}),
                 alerts=deployment_data.get("alerts", []),
                 started_at=deployment_data.get("started_at"),
                 completed_at=deployment_data.get("completed_at"),
@@ -624,27 +592,42 @@ class CanaryDeploymentManager:
             return deployment
 
         except Exception as e:
-            logger.error(f"❌ Erro ao carregar deployment {deployment_id}: {e}")
+            logger.error(f"Erro ao carregar deployment {deployment_id}: {e}")
             return None
 
     def _save_deployment(self, deployment: CanaryDeployment):
         """Salva um deployment"""
         try:
-            # Carregar deployments existentes
             with open(self.deployments_file, "r") as f:
                 deployments = json.load(f)
 
-            # Converter para dict
-            deployment_dict = asdict(deployment)
-
-            # Salvar
-            deployments[deployment.config.deployment_id] = deployment_dict
+            deployments[deployment.config.deployment_id] = self._deployment_to_dict(deployment)
 
             with open(self.deployments_file, "w") as f:
                 json.dump(deployments, f, indent=2, default=str)
 
         except Exception as e:
-            logger.error(f"❌ Erro ao salvar deployment: {e}")
+            logger.error(f"Erro ao salvar deployment: {e}")
+
+    def _deployment_to_dict(self, deployment: CanaryDeployment) -> Dict[str, Any]:
+        """Converte deployment para dicionário"""
+        steps_list = []
+        for step in deployment.steps:
+            step_dict = asdict(step)
+            step_dict["health_status"] = step.health_status.value
+            steps_list.append(step_dict)
+
+        return {
+            "config": asdict(deployment.config),
+            "status": deployment.status.value,
+            "current_step": deployment.current_step,
+            "steps": steps_list,
+            "current_metrics": deployment.current_metrics,
+            "alerts": deployment.alerts,
+            "started_at": deployment.started_at,
+            "completed_at": deployment.completed_at,
+            "rollback_reason": deployment.rollback_reason,
+        }
 
     def get_deployment_status(self, deployment_id: str) -> Dict[str, Any]:
         """Obtém status de um deployment"""
@@ -652,49 +635,29 @@ class CanaryDeploymentManager:
         if not deployment:
             return {"error": f"Deployment {deployment_id} não encontrado"}
 
-        return asdict(deployment)
+        return self._deployment_to_dict(deployment)
 
-    def list_deployments(
-        self, status_filter: Optional[DeploymentStatus] = None
-    ) -> List[Dict[str, Any]]:
-        """Lista deployments"""
+    def list_deployments(self, status_filter: Optional[DeploymentStatus] = None) -> List[Dict[str, Any]]:
+        """Lista todos os deployments"""
         try:
             with open(self.deployments_file, "r") as f:
                 deployments = json.load(f)
 
             if status_filter:
-                filtered_deployments = {
+                filtered = {
                     dep_id: dep_data
                     for dep_id, dep_data in deployments.items()
                     if dep_data.get("status") == status_filter.value
                 }
             else:
-                filtered_deployments = deployments
+                filtered = deployments
 
-            return list(filtered_deployments.values())
+            return list(filtered.values())
 
         except Exception as e:
-            logger.error(f"❌ Erro ao listar deployments: {e}")
+            logger.error(f"Erro ao listar deployments: {e}")
             return []
 
-    def force_rollback(self, deployment_id: str, reason: str = "Manual rollback") -> bool:
-        """Força rollback de um deployment"""
-        try:
-            deployment = self._load_deployment(deployment_id)
-            if not deployment:
-                return False
 
-            if deployment.status not in [DeploymentStatus.ACTIVE, DeploymentStatus.PROMOTING]:
-                logger.error(
-                    f"❌ Deployment {deployment_id} não está em status que permite rollback"
-                )
-                return False
-
-            self._initiate_rollback(deployment, reason)
-            self._save_deployment(deployment)
-
-            return True
-
-        except Exception as e:
-            logger.error(f"❌ Erro ao forçar rollback: {e}")
-            return False
+# Instância global
+canary_deployment_manager = CanaryDeploymentManager()

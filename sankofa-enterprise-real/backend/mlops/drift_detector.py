@@ -7,11 +7,11 @@ Sankofa Enterprise Pro - Drift Detection System
 import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Tuple
-from dataclasses import dataclass
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass, field
 import logging
 from scipy import stats
-from sklearn.metrics import jensen_shannon_distance
+from scipy.spatial.distance import jensenshannon
 import json
 import os
 
@@ -50,26 +50,26 @@ class DriftDetector:
         self.reference_data: Dict[str, Any] = {}
         self.drift_history: List[DriftReport] = []
 
-        logger.info("🔍 Drift Detector inicializado")
-        logger.info(f"📊 Janela de referência: {reference_window_hours}h")
-        logger.info(f"🎯 Janela de detecção: {detection_window_hours}h")
+        logger.info("Drift Detector inicializado")
+        logger.info(f"Janela de referência: {reference_window_hours}h")
+        logger.info(f"Janela de detecção: {detection_window_hours}h")
 
-    def set_reference_data(self, data: pd.DataFrame, target_column: str = None):
+    def set_reference_data(self, data: pd.DataFrame, target_column: Optional[str] = None):
         """Define os dados de referência para comparação"""
         self.reference_data = {
             "data": data.copy(),
-            "target_column": target_column,
+            "target_column": target_column if target_column else "",
             "timestamp": datetime.now().isoformat(),
             "statistics": self._calculate_statistics(data, target_column),
         }
 
-        logger.info(f"📋 Dados de referência definidos: {len(data)} amostras")
-        logger.info(f"🎯 Colunas: {list(data.columns)}")
+        logger.info(f"Dados de referência definidos: {len(data)} amostras")
+        logger.info(f"Colunas: {list(data.columns)}")
 
     def detect_data_drift(self, current_data: pd.DataFrame) -> List[DriftReport]:
         """Detecta drift nos dados de entrada"""
         if not self.reference_data:
-            logger.warning("⚠️ Dados de referência não definidos")
+            logger.warning("Dados de referência não definidos")
             return []
 
         drift_reports = []
@@ -80,9 +80,10 @@ class DriftDetector:
 
         for column in numeric_columns:
             if column in reference_df.columns:
-                drift_score = self._calculate_data_drift_score(
-                    reference_df[column].values, current_data[column].values
-                )
+                ref_values = np.asarray(reference_df[column].values, dtype=np.float64)
+                cur_values = np.asarray(current_data[column].values, dtype=np.float64)
+                
+                drift_score = self._calculate_data_drift_score(ref_values, cur_values)
 
                 severity = self._determine_severity(drift_score, "data_drift")
                 is_drift = drift_score > self.drift_thresholds["data_drift"]["low"]
@@ -104,7 +105,7 @@ class DriftDetector:
 
                 if is_drift:
                     logger.warning(
-                        f"📊 Data drift detectado em {column}: " f"{drift_score:.3f} ({severity})"
+                        f"Data drift detectado em {column}: {drift_score:.3f} ({severity})"
                     )
 
         # Verificar drift para features categóricas
@@ -112,9 +113,10 @@ class DriftDetector:
 
         for column in categorical_columns:
             if column in reference_df.columns:
-                drift_score = self._calculate_categorical_drift_score(
-                    reference_df[column].values, current_data[column].values
-                )
+                ref_values = np.asarray(reference_df[column].values)
+                cur_values = np.asarray(current_data[column].values)
+                
+                drift_score = self._calculate_categorical_drift_score(ref_values, cur_values)
 
                 severity = self._determine_severity(drift_score, "data_drift")
                 is_drift = drift_score > self.drift_thresholds["data_drift"]["low"]
@@ -136,7 +138,7 @@ class DriftDetector:
 
                 if is_drift:
                     logger.warning(
-                        f"📊 Data drift detectado em {column}: " f"{drift_score:.3f} ({severity})"
+                        f"Data drift detectado em {column}: {drift_score:.3f} ({severity})"
                     )
 
         self.drift_history.extend(drift_reports)
@@ -146,11 +148,12 @@ class DriftDetector:
         self,
         current_data: pd.DataFrame,
         current_predictions: np.ndarray,
-        current_actuals: np.ndarray = None,
+        current_actuals: Optional[np.ndarray] = None,
     ) -> List[DriftReport]:
         """Detecta drift no conceito (relação entre features e target)"""
-        if not self.reference_data or self.reference_data["target_column"] is None:
-            logger.warning("⚠️ Dados de referência com target não definidos")
+        target_col = self.reference_data.get("target_column", "")
+        if not self.reference_data or not target_col:
+            logger.warning("Dados de referência com target não definidos")
             return []
 
         drift_reports = []
@@ -184,13 +187,14 @@ class DriftDetector:
 
             if is_drift:
                 logger.warning(
-                    f"🎯 Concept drift detectado na distribuição de predições: "
+                    f"Concept drift detectado na distribuição de predições: "
                     f"{drift_score:.3f} ({severity})"
                 )
 
         # Drift baseado na performance (se temos actuals)
         if current_actuals is not None and "performance_metrics" in reference_stats:
-            current_accuracy = np.mean(current_predictions == current_actuals)
+            actuals_array = np.asarray(current_actuals)
+            current_accuracy = float(np.mean(current_predictions == actuals_array))
             reference_accuracy = reference_stats["performance_metrics"].get("accuracy", 0.0)
 
             # Drift de performance (degradação significativa)
@@ -216,7 +220,7 @@ class DriftDetector:
 
             if is_drift:
                 logger.warning(
-                    f"📉 Concept drift detectado na performance: "
+                    f"Concept drift detectado na performance: "
                     f"{performance_drift:.3f} ({severity})"
                 )
 
@@ -230,8 +234,8 @@ class DriftDetector:
         try:
             # Criar histogramas normalizados
             bins = np.linspace(
-                min(np.min(reference_data), np.min(current_data)),
-                max(np.max(reference_data), np.max(current_data)),
+                min(float(np.min(reference_data)), float(np.min(current_data))),
+                max(float(np.max(reference_data)), float(np.max(current_data))),
                 50,
             )
 
@@ -239,22 +243,26 @@ class DriftDetector:
             cur_hist, _ = np.histogram(current_data, bins=bins, density=True)
 
             # Normalizar para que sejam distribuições de probabilidade
-            ref_hist = ref_hist / np.sum(ref_hist)
-            cur_hist = cur_hist / np.sum(cur_hist)
+            ref_sum = np.sum(ref_hist)
+            cur_sum = np.sum(cur_hist)
+            
+            if ref_sum > 0:
+                ref_hist = ref_hist / ref_sum
+            if cur_sum > 0:
+                cur_hist = cur_hist / cur_sum
 
             # Adicionar pequena constante para evitar divisão por zero
             epsilon = 1e-10
             ref_hist = ref_hist + epsilon
             cur_hist = cur_hist + epsilon
 
-            # Calcular Jensen-Shannon divergence
-            m = 0.5 * (ref_hist + cur_hist)
-            js_div = 0.5 * stats.entropy(ref_hist, m) + 0.5 * stats.entropy(cur_hist, m)
+            # Calcular Jensen-Shannon divergence usando scipy
+            js_dist = jensenshannon(ref_hist, cur_hist)
 
-            return np.sqrt(js_div)  # Jensen-Shannon distance
+            return float(js_dist)
 
         except Exception as e:
-            logger.error(f"❌ Erro ao calcular drift score: {e}")
+            logger.error(f"Erro ao calcular drift score: {e}")
             return 0.0
 
     def _calculate_categorical_drift_score(
@@ -282,9 +290,9 @@ class DriftDetector:
             observed = cur_counts
 
             # Evitar divisão por zero
-            expected = np.where(expected == 0, 1e-10, expected)
+            expected_values = np.where(expected.values == 0, 1e-10, expected.values)
 
-            chi_square = np.sum((observed - expected) ** 2 / expected)
+            chi_square = float(np.sum((observed.values - expected_values) ** 2 / expected_values))
 
             # Normalizar pelo número de categorias
             normalized_chi_square = chi_square / len(all_categories)
@@ -292,7 +300,7 @@ class DriftDetector:
             return min(normalized_chi_square / 100, 1.0)  # Limitar a 1.0
 
         except Exception as e:
-            logger.error(f"❌ Erro ao calcular drift categórico: {e}")
+            logger.error(f"Erro ao calcular drift categórico: {e}")
             return 0.0
 
     def _calculate_prediction_distribution(self, predictions: np.ndarray) -> Dict[str, float]:
@@ -302,7 +310,7 @@ class DriftDetector:
 
         distribution = {}
         for value, count in zip(unique_values, counts):
-            distribution[str(value)] = count / total
+            distribution[str(value)] = float(count / total)
 
         return distribution
 
@@ -325,10 +333,9 @@ class DriftDetector:
         cur_values = cur_values / np.sum(cur_values)
 
         # Jensen-Shannon divergence
-        m = 0.5 * (ref_values + cur_values)
-        js_div = 0.5 * stats.entropy(ref_values, m) + 0.5 * stats.entropy(cur_values, m)
+        js_dist = jensenshannon(ref_values, cur_values)
 
-        return np.sqrt(js_div)
+        return float(js_dist)
 
     def _determine_severity(self, drift_score: float, drift_type: str) -> str:
         """Determina a severidade do drift"""
@@ -346,10 +353,10 @@ class DriftDetector:
             return "none"
 
     def _calculate_statistics(
-        self, data: pd.DataFrame, target_column: str = None
+        self, data: pd.DataFrame, target_column: Optional[str] = None
     ) -> Dict[str, Any]:
         """Calcula estatísticas dos dados de referência"""
-        stats = {
+        statistics: Dict[str, Any] = {
             "shape": data.shape,
             "numeric_features": {},
             "categorical_features": {},
@@ -359,7 +366,7 @@ class DriftDetector:
         # Estatísticas para features numéricas
         numeric_columns = data.select_dtypes(include=[np.number]).columns
         for column in numeric_columns:
-            stats["numeric_features"][column] = {
+            statistics["numeric_features"][column] = {
                 "mean": float(data[column].mean()),
                 "std": float(data[column].std()),
                 "min": float(data[column].min()),
@@ -373,9 +380,9 @@ class DriftDetector:
         categorical_columns = data.select_dtypes(include=["object", "category"]).columns
         for column in categorical_columns:
             value_counts = data[column].value_counts()
-            stats["categorical_features"][column] = {
+            statistics["categorical_features"][column] = {
                 "unique_values": len(value_counts),
-                "most_frequent": value_counts.index[0] if len(value_counts) > 0 else None,
+                "most_frequent": str(value_counts.index[0]) if len(value_counts) > 0 else "",
                 "distribution": value_counts.to_dict(),
             }
 
@@ -383,14 +390,14 @@ class DriftDetector:
         if target_column and target_column in data.columns:
             if data[target_column].dtype in ["object", "category"]:
                 target_counts = data[target_column].value_counts()
-                stats["target_distribution"] = target_counts.to_dict()
+                statistics["target_distribution"] = target_counts.to_dict()
             else:
-                stats["target_statistics"] = {
+                statistics["target_statistics"] = {
                     "mean": float(data[target_column].mean()),
                     "std": float(data[target_column].std()),
                 }
 
-        return stats
+        return statistics
 
     def get_drift_summary(self, hours_back: int = 24) -> Dict[str, Any]:
         """Retorna resumo dos drifts detectados"""
@@ -428,7 +435,7 @@ class DriftDetector:
 
     def _get_most_affected_features(self, drifts: List[DriftReport]) -> List[Dict[str, Any]]:
         """Identifica as features mais afetadas por drift"""
-        feature_drifts = {}
+        feature_drifts: Dict[str, Dict[str, Any]] = {}
 
         for drift in drifts:
             if drift.is_drift_detected:
@@ -449,7 +456,7 @@ class DriftDetector:
         # Calcular médias e ordenar
         for feature_name in feature_drifts:
             scores = feature_drifts[feature_name]["scores"]
-            feature_drifts[feature_name]["avg_score"] = np.mean(scores)
+            feature_drifts[feature_name]["avg_score"] = float(np.mean(scores))
 
         # Ordenar por score médio
         sorted_features = sorted(
@@ -472,6 +479,7 @@ drift_detector = DriftDetector()
 
 if __name__ == "__main__":
     # Teste do detector de drift
+    logging.basicConfig(level=logging.INFO)
     detector = DriftDetector()
 
     # Gerar dados de referência
@@ -500,7 +508,7 @@ if __name__ == "__main__":
     # Detectar drifts
     data_drifts = detector.detect_data_drift(current_data)
 
-    logger.info("📊 Drifts de Dados Detectados:")
+    logger.info("Drifts de Dados Detectados:")
     for drift in data_drifts:
         if drift.is_drift_detected:
             logger.info(f"  {drift.feature_name}: {drift.drift_score:.3f} ({drift.severity})")
@@ -513,12 +521,12 @@ if __name__ == "__main__":
         current_data, current_predictions, current_actuals
     )
 
-    logger.info("\n🎯 Drifts de Conceito Detectados:")
+    logger.info("Drifts de Conceito Detectados:")
     for drift in concept_drifts:
         if drift.is_drift_detected:
             logger.info(f"  {drift.feature_name}: {drift.drift_score:.3f} ({drift.severity})")
 
     # Resumo
     summary = detector.get_drift_summary()
-    logger.info(f"\n📋 Resumo: {summary['total_drifts_detected']} drifts detectados")
-    logger.info("🔍 Drift Detector testado com sucesso!")
+    logger.info(f"Resumo: {summary['total_drifts_detected']} drifts detectados")
+    logger.info("Drift Detector testado com sucesso!")

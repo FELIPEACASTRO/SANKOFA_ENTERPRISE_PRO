@@ -8,11 +8,10 @@ import logging
 import json
 import hashlib
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from enum import Enum
-import pandas as pd
 import numpy as np
 import os
 
@@ -50,7 +49,7 @@ class ModelVariant:
     traffic_percentage: float
     description: str
     is_control: bool = False
-    metadata: Dict[str, Any] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -70,7 +69,7 @@ class ABTestConfig:
     status: TestStatus
     created_by: str
     created_at: str
-    metadata: Dict[str, Any] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -85,7 +84,7 @@ class ABTestResult:
     actual_label: Optional[int]
     processing_time_ms: float
     timestamp: str
-    metadata: Dict[str, Any] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -113,10 +112,10 @@ class ABTestMetrics:
 class ABTestingManager:
     """Gerenciador de testes A/B para modelos de detecção de fraude"""
 
-    def __init__(self, storage_path: str = "/home/ubuntu/sankofa-enterprise-real/data/ab_testing"):
+    def __init__(self, storage_path: str = "./data/ab_testing"):
         self.storage_path = storage_path
         self.tests_file = os.path.join(storage_path, "ab_tests.json")
-        self.results_file = os.path.join(storage_path, "ab_results.csv")
+        self.results_file = os.path.join(storage_path, "ab_results.json")
         self.metrics_file = os.path.join(storage_path, "ab_metrics.json")
 
         # Criar diretório se não existir
@@ -126,10 +125,10 @@ class ABTestingManager:
         self._initialize_storage()
 
         # Cache de testes ativos
-        self.active_tests = {}
+        self.active_tests: Dict[str, Dict[str, Any]] = {}
         self._load_active_tests()
 
-        logger.info("🧪 A/B Testing Manager inicializado")
+        logger.info("A/B Testing Manager inicializado")
 
     def _initialize_storage(self):
         """Inicializa arquivos de armazenamento"""
@@ -138,21 +137,10 @@ class ABTestingManager:
             with open(self.tests_file, "w") as f:
                 json.dump({}, f)
 
-        # Arquivo de resultados
+        # Arquivo de resultados (usando JSON em vez de CSV para evitar problemas de tipo)
         if not os.path.exists(self.results_file):
-            results_df = pd.DataFrame(
-                columns=[
-                    "test_id",
-                    "transaction_id",
-                    "variant_id",
-                    "model_prediction",
-                    "model_decision",
-                    "actual_label",
-                    "processing_time_ms",
-                    "timestamp",
-                ]
-            )
-            results_df.to_csv(self.results_file, index=False)
+            with open(self.results_file, "w") as f:
+                json.dump([], f)
 
         # Arquivo de métricas
         if not os.path.exists(self.metrics_file):
@@ -171,10 +159,10 @@ class ABTestingManager:
                 if test_config.get("status") == TestStatus.ACTIVE.value
             }
 
-            logger.info(f"📊 {len(self.active_tests)} testes A/B ativos carregados")
+            logger.info(f"{len(self.active_tests)} testes A/B ativos carregados")
 
         except Exception as e:
-            logger.error(f"❌ Erro ao carregar testes ativos: {e}")
+            logger.error(f"Erro ao carregar testes ativos: {e}")
             self.active_tests = {}
 
     def create_ab_test(self, config: ABTestConfig) -> bool:
@@ -199,11 +187,11 @@ class ABTestingManager:
             if config.status == TestStatus.ACTIVE:
                 self.active_tests[config.test_id] = asdict(config)
 
-            logger.info(f"✅ Teste A/B criado: {config.test_id}")
+            logger.info(f"Teste A/B criado: {config.test_id}")
             return True
 
         except Exception as e:
-            logger.error(f"❌ Erro ao criar teste A/B: {e}")
+            logger.error(f"Erro ao criar teste A/B: {e}")
             return False
 
     def _validate_test_config(self, config: ABTestConfig) -> bool:
@@ -212,7 +200,7 @@ class ABTestingManager:
         total_percentage = sum(variant.traffic_percentage for variant in config.variants)
         if abs(total_percentage - 100.0) > 0.01:
             logger.error(
-                f"❌ Soma das porcentagens de tráfego deve ser 100%, atual: {total_percentage}%"
+                f"Soma das porcentagens de tráfego deve ser 100%, atual: {total_percentage}%"
             )
             return False
 
@@ -220,7 +208,7 @@ class ABTestingManager:
         control_variants = [v for v in config.variants if v.is_control]
         if len(control_variants) != 1:
             logger.error(
-                f"❌ Deve haver exatamente uma variante de controle, encontradas: {len(control_variants)}"
+                f"Deve haver exatamente uma variante de controle, encontradas: {len(control_variants)}"
             )
             return False
 
@@ -229,10 +217,10 @@ class ABTestingManager:
             start_date = datetime.fromisoformat(config.start_date)
             end_date = datetime.fromisoformat(config.end_date)
             if end_date <= start_date:
-                logger.error("❌ Data de fim deve ser posterior à data de início")
+                logger.error("Data de fim deve ser posterior à data de início")
                 return False
         except ValueError as e:
-            logger.error(f"❌ Formato de data inválido: {e}")
+            logger.error(f"Formato de data inválido: {e}")
             return False
 
         return True
@@ -245,7 +233,6 @@ class ABTestingManager:
                 return None
 
             # Para simplicidade, usar o primeiro teste ativo
-            # Em produção, poderia haver lógica mais complexa para múltiplos testes
             test_id = list(self.active_tests.keys())[0]
             test_config = self.active_tests[test_id]
 
@@ -264,11 +251,11 @@ class ABTestingManager:
             return variant_id
 
         except Exception as e:
-            logger.error(f"❌ Erro ao determinar variante: {e}")
+            logger.error(f"Erro ao determinar variante: {e}")
             return None
 
     def _select_variant(
-        self, transaction_data: Dict[str, Any], test_config: Dict, strategy: TrafficSplitStrategy
+        self, transaction_data: Dict[str, Any], test_config: Dict[str, Any], strategy: TrafficSplitStrategy
     ) -> str:
         """Seleciona variante baseada na estratégia"""
         variants = test_config["variants"]
@@ -286,34 +273,34 @@ class ABTestingManager:
             # Fallback para seleção aleatória
             return self._random_selection(variants)
 
-    def _random_selection(self, variants: List[Dict]) -> str:
+    def _random_selection(self, variants: List[Dict[str, Any]]) -> str:
         """Seleção aleatória baseada nas porcentagens"""
         rand = random.random() * 100
-        cumulative = 0
+        cumulative = 0.0
 
         for variant in variants:
             cumulative += variant["traffic_percentage"]
             if rand <= cumulative:
-                return variant["variant_id"]
+                return str(variant["variant_id"])
 
         # Fallback para a primeira variante
-        return variants[0]["variant_id"]
+        return str(variants[0]["variant_id"])
 
-    def _hash_based_selection(self, transaction_data: Dict[str, Any], variants: List[Dict]) -> str:
+    def _hash_based_selection(self, transaction_data: Dict[str, Any], variants: List[Dict[str, Any]]) -> str:
         """Seleção baseada em hash para consistência"""
         # Usar ID da transação ou CPF para hash consistente
         hash_key = transaction_data.get("id", transaction_data.get("cliente_cpf", "default"))
         hash_value = int(hashlib.sha256(str(hash_key).encode()).hexdigest(), 16) % 100
 
-        cumulative = 0
+        cumulative = 0.0
         for variant in variants:
             cumulative += variant["traffic_percentage"]
             if hash_value < cumulative:
-                return variant["variant_id"]
+                return str(variant["variant_id"])
 
-        return variants[0]["variant_id"]
+        return str(variants[0]["variant_id"])
 
-    def _risk_based_selection(self, transaction_data: Dict[str, Any], variants: List[Dict]) -> str:
+    def _risk_based_selection(self, transaction_data: Dict[str, Any], variants: List[Dict[str, Any]]) -> str:
         """Seleção baseada no risco da transação"""
         # Calcular score de risco simples
         amount = float(transaction_data.get("valor", 0))
@@ -321,8 +308,8 @@ class ABTestingManager:
 
         # Transações de alto risco vão para variante de controle
         if risk_score > 0.8:
-            control_variant = next(v for v in variants if v["is_control"])
-            return control_variant["variant_id"]
+            control_variant = next((v for v in variants if v.get("is_control")), variants[0])
+            return str(control_variant["variant_id"])
 
         # Outras transações seguem distribuição normal
         return self._random_selection(variants)
@@ -331,37 +318,41 @@ class ABTestingManager:
         """Registra resultado de teste A/B"""
         try:
             # Carregar resultados existentes
-            results_df = pd.read_csv(self.results_file)
+            with open(self.results_file, "r") as f:
+                results = json.load(f)
 
             # Adicionar novo resultado
-            new_result = pd.DataFrame([asdict(result)])
-            results_df = pd.concat([results_df, new_result], ignore_index=True)
+            results.append(asdict(result))
 
             # Salvar
-            results_df.to_csv(self.results_file, index=False)
+            with open(self.results_file, "w") as f:
+                json.dump(results, f, indent=2, default=str)
 
             return True
 
         except Exception as e:
-            logger.error(f"❌ Erro ao registrar resultado A/B: {e}")
+            logger.error(f"Erro ao registrar resultado A/B: {e}")
             return False
 
     def calculate_test_metrics(self, test_id: str) -> Dict[str, ABTestMetrics]:
         """Calcula métricas para todas as variantes de um teste"""
         try:
             # Carregar resultados
-            results_df = pd.read_csv(self.results_file)
-            test_results = results_df[results_df["test_id"] == test_id]
+            with open(self.results_file, "r") as f:
+                all_results = json.load(f)
+            
+            test_results = [r for r in all_results if r.get("test_id") == test_id]
 
-            if test_results.empty:
-                logger.warning(f"⚠️ Nenhum resultado encontrado para teste {test_id}")
+            if not test_results:
+                logger.warning(f"Nenhum resultado encontrado para teste {test_id}")
                 return {}
 
-            metrics = {}
+            metrics: Dict[str, ABTestMetrics] = {}
 
             # Calcular métricas para cada variante
-            for variant_id in test_results["variant_id"].unique():
-                variant_results = test_results[test_results["variant_id"] == variant_id]
+            variant_ids = set(r["variant_id"] for r in test_results)
+            for variant_id in variant_ids:
+                variant_results = [r for r in test_results if r["variant_id"] == variant_id]
                 variant_metrics = self._calculate_variant_metrics(
                     test_id, variant_id, variant_results
                 )
@@ -373,20 +364,23 @@ class ABTestingManager:
             return metrics
 
         except Exception as e:
-            logger.error(f"❌ Erro ao calcular métricas do teste: {e}")
+            logger.error(f"Erro ao calcular métricas do teste: {e}")
             return {}
 
     def _calculate_variant_metrics(
-        self, test_id: str, variant_id: str, results_df: pd.DataFrame
+        self, test_id: str, variant_id: str, results: List[Dict[str, Any]]
     ) -> ABTestMetrics:
         """Calcula métricas para uma variante específica"""
-        total_transactions = len(results_df)
+        total_transactions = len(results)
 
         # Filtrar apenas resultados com labels conhecidos
-        labeled_results = results_df.dropna(subset=["actual_label"])
+        labeled_results = [r for r in results if r.get("actual_label") is not None]
 
-        if labeled_results.empty:
+        if not labeled_results:
             # Retornar métricas vazias se não há labels
+            processing_times = [r.get("processing_time_ms", 0) for r in results]
+            avg_time = float(np.mean(processing_times)) if processing_times else 0.0
+            
             return ABTestMetrics(
                 test_id=test_id,
                 variant_id=variant_id,
@@ -400,76 +394,54 @@ class ABTestingManager:
                 precision=0.0,
                 recall=0.0,
                 f1_score=0.0,
-                avg_processing_time_ms=results_df["processing_time_ms"].mean(),
+                avg_processing_time_ms=avg_time,
                 confidence_interval=(0.0, 0.0),
                 statistical_significance=False,
                 calculated_at=datetime.now().isoformat(),
             )
 
         # Calcular matriz de confusão
-        true_positives = len(
-            labeled_results[
-                (labeled_results["model_decision"] == "block")
-                & (labeled_results["actual_label"] == 1)
-            ]
-        )
-        true_negatives = len(
-            labeled_results[
-                (labeled_results["model_decision"] == "approve")
-                & (labeled_results["actual_label"] == 0)
-            ]
-        )
-        false_positives = len(
-            labeled_results[
-                (labeled_results["model_decision"] == "block")
-                & (labeled_results["actual_label"] == 0)
-            ]
-        )
-        false_negatives = len(
-            labeled_results[
-                (labeled_results["model_decision"] == "approve")
-                & (labeled_results["actual_label"] == 1)
-            ]
-        )
+        true_positives = len([r for r in labeled_results 
+            if r.get("model_decision") == "block" and r.get("actual_label") == 1])
+        true_negatives = len([r for r in labeled_results 
+            if r.get("model_decision") == "approve" and r.get("actual_label") == 0])
+        false_positives = len([r for r in labeled_results 
+            if r.get("model_decision") == "block" and r.get("actual_label") == 0])
+        false_negatives = len([r for r in labeled_results 
+            if r.get("model_decision") == "approve" and r.get("actual_label") == 1])
 
         # Calcular métricas
-        accuracy = (
-            (true_positives + true_negatives) / len(labeled_results)
-            if len(labeled_results) > 0
-            else 0
-        )
-        precision = (
-            true_positives / (true_positives + false_positives)
-            if (true_positives + false_positives) > 0
-            else 0
-        )
-        recall = (
-            true_positives / (true_positives + false_negatives)
-            if (true_positives + false_negatives) > 0
-            else 0
-        )
-        f1_score = (
-            2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
-        )
+        total_labeled = len(labeled_results)
+        accuracy = (true_positives + true_negatives) / total_labeled if total_labeled > 0 else 0.0
+        precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0.0
+        recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0.0
+        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
 
-        # Calcular intervalo de confiança para accuracy (aproximação simples)
-        if len(labeled_results) > 0:
-            std_error = np.sqrt(accuracy * (1 - accuracy) / len(labeled_results))
+        # Calcular intervalo de confiança para accuracy
+        if total_labeled > 0:
+            std_error = np.sqrt(accuracy * (1 - accuracy) / total_labeled)
             confidence_interval = (
-                max(0, accuracy - 1.96 * std_error),
-                min(1, accuracy + 1.96 * std_error),
+                max(0.0, accuracy - 1.96 * std_error),
+                min(1.0, accuracy + 1.96 * std_error),
             )
         else:
             confidence_interval = (0.0, 0.0)
 
         # Determinar significância estatística (simplificado)
-        statistical_significance = len(labeled_results) >= 1000 and abs(accuracy - 0.5) > 0.05
+        statistical_significance = total_labeled >= 1000 and abs(accuracy - 0.5) > 0.05
+
+        # Média de tempo de processamento
+        processing_times = [r.get("processing_time_ms", 0) for r in results]
+        avg_processing_time = float(np.mean(processing_times)) if processing_times else 0.0
+
+        # Contar fraudes detectadas
+        fraud_detected = len([r for r in results if r.get("model_decision") == "block"])
 
         return ABTestMetrics(
             test_id=test_id,
             variant_id=variant_id,
             total_transactions=total_transactions,
-            fraud_detected=len(results_df[results_df["model_decision"] == "block"]),
+            fraud_detected=fraud_detected,
             false_positives=false_positives,
             false_negatives=false_negatives,
             true_positives=true_positives,
@@ -477,8 +449,8 @@ class ABTestingManager:
             accuracy=accuracy,
             precision=precision,
             recall=recall,
-            f1_score=f1_score,
-            avg_processing_time_ms=results_df["processing_time_ms"].mean(),
+            f1_score=f1,
+            avg_processing_time_ms=avg_processing_time,
             confidence_interval=confidence_interval,
             statistical_significance=statistical_significance,
             calculated_at=datetime.now().isoformat(),
@@ -500,7 +472,7 @@ class ABTestingManager:
                 json.dump(all_metrics, f, indent=2, default=str)
 
         except Exception as e:
-            logger.error(f"❌ Erro ao salvar métricas: {e}")
+            logger.error(f"Erro ao salvar métricas: {e}")
 
     def get_test_status(self, test_id: str) -> Dict[str, Any]:
         """Obtém status completo de um teste A/B"""
@@ -518,8 +490,11 @@ class ABTestingManager:
             metrics = self.calculate_test_metrics(test_id)
 
             # Carregar resultados para estatísticas
-            results_df = pd.read_csv(self.results_file)
-            test_results = results_df[results_df["test_id"] == test_id]
+            with open(self.results_file, "r") as f:
+                all_results = json.load(f)
+            
+            test_results = [r for r in all_results if r.get("test_id") == test_id]
+            variant_ids = set(r["variant_id"] for r in test_results)
 
             return {
                 "test_config": test_config,
@@ -527,18 +502,19 @@ class ABTestingManager:
                 "total_transactions": len(test_results),
                 "variants_performance": {
                     variant_id: {
-                        "transactions": len(test_results[test_results["variant_id"] == variant_id]),
-                        "avg_processing_time": test_results[
-                            test_results["variant_id"] == variant_id
-                        ]["processing_time_ms"].mean(),
+                        "transactions": len([r for r in test_results if r["variant_id"] == variant_id]),
+                        "avg_processing_time": float(np.mean([
+                            r.get("processing_time_ms", 0) 
+                            for r in test_results if r["variant_id"] == variant_id
+                        ])) if any(r["variant_id"] == variant_id for r in test_results) else 0.0,
                     }
-                    for variant_id in test_results["variant_id"].unique()
+                    for variant_id in variant_ids
                 },
                 "last_updated": datetime.now().isoformat(),
             }
 
         except Exception as e:
-            logger.error(f"❌ Erro ao obter status do teste: {e}")
+            logger.error(f"Erro ao obter status do teste: {e}")
             return {"error": str(e)}
 
     def stop_test(self, test_id: str, reason: str = "Manual stop") -> bool:
@@ -549,7 +525,7 @@ class ABTestingManager:
                 tests = json.load(f)
 
             if test_id not in tests:
-                logger.error(f"❌ Teste {test_id} não encontrado")
+                logger.error(f"Teste {test_id} não encontrado")
                 return False
 
             # Atualizar status
@@ -565,11 +541,11 @@ class ABTestingManager:
             if test_id in self.active_tests:
                 del self.active_tests[test_id]
 
-            logger.info(f"🛑 Teste A/B parado: {test_id}")
+            logger.info(f"Teste A/B parado: {test_id}")
             return True
 
         except Exception as e:
-            logger.error(f"❌ Erro ao parar teste: {e}")
+            logger.error(f"Erro ao parar teste: {e}")
             return False
 
     def list_tests(self, status_filter: Optional[TestStatus] = None) -> List[Dict[str, Any]]:
@@ -590,5 +566,9 @@ class ABTestingManager:
             return list(filtered_tests.values())
 
         except Exception as e:
-            logger.error(f"❌ Erro ao listar testes: {e}")
+            logger.error(f"Erro ao listar testes: {e}")
             return []
+
+
+# Instância global
+ab_testing_manager = ABTestingManager()
