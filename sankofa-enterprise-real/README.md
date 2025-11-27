@@ -136,6 +136,7 @@ Documentacao completa em `docs/`:
 | Documento | Descricao |
 |-----------|-----------|
 | [README.md](docs/README.md) | Indice da documentacao |
+| [USE_A_CABECA_FRAUDES.md](docs/USE_A_CABECA_FRAUDES.md) | **NOVO!** Guia didatico com casos reais e ilustracoes |
 | [DOCUMENTACAO_FUNCIONAL.md](docs/DOCUMENTACAO_FUNCIONAL.md) | Casos de uso e regras |
 | [ARQUITETURA_TECNICA.md](docs/ARQUITETURA_TECNICA.md) | Arquitetura tecnica |
 | [MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md) | Manual do usuario |

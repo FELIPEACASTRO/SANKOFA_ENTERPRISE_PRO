@@ -28,7 +28,7 @@
 | [DOCUMENTACAO_FUNCIONAL.md](./DOCUMENTACAO_FUNCIONAL.md) | Analistas, Product Owners | Casos de uso, regras de negocio, compliance |
 | [MANUAL_USUARIO.md](./MANUAL_USUARIO.md) | Analistas de Fraude, Gerentes | Guia pratico do dashboard |
 | [DIAGRAMAS.md](./DIAGRAMAS.md) | Todos | Fluxogramas e diagramas ASCII/Mermaid |
-| [USE_A_CABECA_SANKOFA.md](./USE_A_CABECA_SANKOFA.md) | Todos | Guia didatico metodologia Head First |
+| [USE_A_CABECA_FRAUDES.md](./USE_A_CABECA_FRAUDES.md) | Todos | **NOVO!** Guia didatico estilo Head First com casos reais, ilustracoes e exercicios |
 | [RELATORIO_QA.md](./RELATORIO_QA.md) | QA, Desenvolvedores | Testes automatizados e metricas |
 | [BLUEPRINT_MOTOR_FRAUDE_300M.md](./BLUEPRINT_MOTOR_FRAUDE_300M.md) | Arquitetos Enterprise | Blueprint para 300M req/dia |
 
