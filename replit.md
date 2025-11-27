@@ -34,6 +34,22 @@ The master blueprint contains:
 
 Preferred communication style: Simple, everyday language.
 
+## External Research Resources
+
+**AIForge Repository** (https://github.com/FELIPEACASTRO/AIForge):
+A curated collection of AI/ML resources with sections highly relevant to this project:
+
+| Folder | Relevance |
+|--------|-----------|
+| `05_VERTICAL_APPLICATIONS/02_FINTECH_AND_FINANCIAL_AI/Fraud_Detection/` | Credit card fraud detection papers, AML monitoring, neural network approaches |
+| `04_MLOPS_AND_PRODUCTION_AI/` | A/B testing, canary deployment, feature stores, model registries |
+| `04_MLOPS_AND_PRODUCTION_AI/03_AI_SOFTWARE_AGENTS/` | 133 AI agent repositories |
+
+Key resources:
+- `Awesome_Fraud_Detection_Papers.md` - Curated academic papers
+- `Credit_Card_Fraud_Detection_A_Comprehensive_Machine_Learning_Approach.md`
+- `Aml_Fraud_Transaction_Monitoring.md` - AML compliance patterns
+
 ## System Architecture
 
 ### Core Architecture Pattern
