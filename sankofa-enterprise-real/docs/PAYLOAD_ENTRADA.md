@@ -1306,10 +1306,174 @@ O **payload de entrada** é o "pacote de informações" que você envia para o s
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 9.3 Exemplo 3: Transação para Revisão Manual
+### 9.3 Exemplo 3: Compra no Cartão de CRÉDITO (Aprovada)
 
 ```json
-// PAYLOAD DE ENTRADA
+// PAYLOAD DE ENTRADA - COMPRA NO CRÉDITO
+{
+  "transactions": [
+    {
+      "transaction_id": "CRED_SHOPPING_001",
+      "amount": 899.90,                   // ✅ Valor médio (eletrônico)
+      "customer_id": "CUST_ANA_SOUZA",
+      "merchant_id": "MERCH_MAGAZINE_LUIZA",
+      "transaction_type": "CREDITO",      // 💳 Cartão de Crédito
+      "channel": "pos",                   // ✅ Maquininha da loja
+      "device_id": "pos_magalu_sp_001",   // ✅ Terminal conhecido
+      "ip_address": "200.180.90.10",
+      "latitude": -23.5630,               // ✅ Shopping Ibirapuera, SP
+      "longitude": -46.6543,
+      "timestamp": "2025-11-27T15:30:00", // ✅ Horário comercial
+      "cpf": "33344455566",
+      "location": "São Paulo",
+      "estado": "SP"
+    }
+  ],
+  "include_explanation": true
+}
+```
+
+**Por que foi APROVADA?**
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ANÁLISE DO SISTEMA - CARTÃO DE CRÉDITO                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ✅ Tipo CRÉDITO = PROTEÇÃO AO CONSUMIDOR (chargeback disponível)           │
+│  ✅ Valor R$ 899,90 = COMPATÍVEL com limite do cartão                        │
+│  ✅ Horário 15:30 = COMERCIAL (horário típico de compras)                    │
+│  ✅ Terminal POS conhecido = LOJA CONFIÁVEL (Magazine Luiza)                 │
+│  ✅ Localização São Paulo = HABITUAL para a cliente                          │
+│  ✅ Cliente com histórico = 2 anos sem incidentes                            │
+│                                                                             │
+│  💳 CARACTERÍSTICAS DO CRÉDITO:                                              │
+│  • Risco base: 40% (menor que PIX devido proteção ao consumidor)            │
+│  • Possibilidade de contestação: SIM (até 120 dias)                         │
+│  • Verificação adicional: Chip + senha validados                            │
+│                                                                             │
+│  SCORE FINAL: 8.5% (muito baixo)                                            │
+│  DECISÃO: ✅ APROVADO AUTOMATICAMENTE                                       │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 9.4 Exemplo 4: Compra no Cartão de DÉBITO (Aprovada com Atenção)
+
+```json
+// PAYLOAD DE ENTRADA - COMPRA NO DÉBITO
+{
+  "transactions": [
+    {
+      "transaction_id": "DEB_SUPERMERCADO_001",
+      "amount": 287.45,                   // ✅ Valor típico de compras
+      "customer_id": "CUST_PEDRO_COSTA",
+      "merchant_id": "MERCH_CARREFOUR_RJ",
+      "transaction_type": "DEBITO",       // 💳 Cartão de Débito
+      "channel": "pos",                   // ✅ Maquininha do mercado
+      "device_id": "pos_carrefour_rj_045",
+      "ip_address": "189.40.75.120",
+      "latitude": -22.9068,               // ✅ Rio de Janeiro
+      "longitude": -43.1729,
+      "timestamp": "2025-11-27T19:15:00", // ✅ Final de tarde
+      "cpf": "77788899900",
+      "location": "Rio de Janeiro",
+      "estado": "RJ"
+    }
+  ],
+  "include_explanation": true
+}
+```
+
+**Por que foi APROVADA?**
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ANÁLISE DO SISTEMA - CARTÃO DE DÉBITO                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ✅ Tipo DÉBITO = REQUER SENHA (segurança adicional)                         │
+│  ✅ Valor R$ 287,45 = TÍPICO para supermercado                               │
+│  ✅ Horário 19:15 = COMUM para compras de supermercado                       │
+│  ✅ Comerciante conhecido = CARREFOUR (rede confiável)                       │
+│  ✅ Localização RJ = HABITUAL para o cliente                                 │
+│                                                                             │
+│  💳 CARACTERÍSTICAS DO DÉBITO:                                               │
+│  • Risco base: 30% (menor risco - requer senha física)                      │
+│  • Débito instantâneo: SIM (saldo verificado em tempo real)                 │
+│  • Proteção: Menor que crédito (sem chargeback automático)                  │
+│                                                                             │
+│  SCORE FINAL: 5.2% (muito baixo)                                            │
+│  DECISÃO: ✅ APROVADO AUTOMATICAMENTE                                       │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 9.5 Exemplo 5: Fraude em Cartão de CRÉDITO (Bloqueada)
+
+```json
+// PAYLOAD DE ENTRADA - TENTATIVA DE FRAUDE NO CRÉDITO
+{
+  "transactions": [
+    {
+      "transaction_id": "CRED_FRAUDE_001",
+      "amount": 12500.00,                 // 🚨 Valor muito alto
+      "customer_id": "CUST_VITIMA_CLONE",
+      "merchant_id": "MERCH_LOJA_ONLINE_DUVIDOSA",
+      "transaction_type": "CREDITO",      // 💳 Cartão clonado
+      "channel": "web",                   // ⚠️ E-commerce (maior risco)
+      "device_id": "device_desconhecido", // 🚨 Dispositivo nunca visto
+      "ip_address": "45.33.32.156",       // 🚨 IP de datacenter (bot?)
+      "latitude": 52.5200,                // 🚨 Berlim, Alemanha!
+      "longitude": 13.4050,
+      "timestamp": "2025-11-27T04:30:00", // 🚨 Madrugada
+      "cpf": "99988877766",
+      "location": "Berlin",
+      "estado": "BE",
+      "pais": "DE"                        // 🚨 País diferente
+    }
+  ],
+  "include_explanation": true
+}
+```
+
+**Por que foi BLOQUEADA?**
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ANÁLISE DO SISTEMA - FRAUDE DE CARTÃO CLONADO                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  🚨 CARTÃO POTENCIALMENTE CLONADO DETECTADO!                                │
+│                                                                             │
+│  🚨 Valor R$ 12.500 = MUITO ACIMA do padrão do cliente                      │
+│  🚨 Horário 04:30 = MADRUGADA (altíssimo risco)                             │
+│  🚨 Dispositivo NUNCA VISTO = Possível fraudador                            │
+│  🚨 Localização BERLIM = CLIENTE MORA EM SÃO PAULO                          │
+│     └─ Última transação legítima: SP há 6 horas (viagem impossível)         │
+│  🚨 IP de datacenter = COMPORTAMENTO DE BOT/AUTOMAÇÃO                       │
+│  🚨 Loja online sem histórico = PRIMEIRA COMPRA                             │
+│                                                                             │
+│  💳 PADRÃO DE FRAUDE IDENTIFICADO:                                          │
+│  • Tipo: Clonagem de cartão + uso internacional                             │
+│  • Método provável: Dados obtidos via phishing ou vazamento                 │
+│  • Característica: Compra online de madrugada em outro país                 │
+│                                                                             │
+│  SCORE FINAL: 97.8% (crítico)                                               │
+│  DECISÃO: 🚫 BLOQUEADO + ALERTA DE SEGURANÇA ENVIADO                        │
+│                                                                             │
+│  Ações automáticas:                                                         │
+│  • Cartão bloqueado preventivamente                                         │
+│  • SMS enviado ao titular                                                   │
+│  • Caso aberto para investigação                                            │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 9.6 Exemplo 6: PIX para Revisão Manual
+
+```json
+// PAYLOAD DE ENTRADA - PIX PARA REVISÃO
 {
   "transactions": [
     {
@@ -1317,7 +1481,7 @@ O **payload de entrada** é o "pacote de informações" que você envia para o s
       "amount": 3500.00,                  // ⚠️ Valor acima da média
       "customer_id": "CUST_CARLOS_ANTIGO",
       "merchant_id": "MERCH_ELETRO_SP",
-      "transaction_type": "PIX",
+      "transaction_type": "PIX",          // PIX instantâneo
       "channel": "mobile",                // ✅ App do banco
       "device_id": "device_carlos_samsung",// ✅ Dispositivo conhecido
       "ip_address": "200.150.100.75",
@@ -1337,7 +1501,7 @@ O **payload de entrada** é o "pacote de informações" que você envia para o s
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  ANÁLISE DO SISTEMA                                                          │
+│  ANÁLISE DO SISTEMA - PIX EM REVISÃO                                         │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  ✅ Dispositivo conhecido = POSITIVO                                         │
@@ -1346,14 +1510,60 @@ O **payload de entrada** é o "pacote de informações" que você envia para o s
 │  ⚠️ Horário 21:45 = NOITE (risco moderado)                                  │
 │  ⚠️ Campinas = DIFERENTE do usual (cliente mora em SP capital)              │
 │                                                                             │
+│  💡 CARACTERÍSTICAS DO PIX:                                                  │
+│  • Risco base: 80% (instantâneo, difícil reverter)                          │
+│  • Velocidade: Transferência imediata                                       │
+│  • Reversão: Muito difícil após confirmação                                 │
+│                                                                             │
 │  SCORE FINAL: 42.3% (médio)                                                 │
 │  DECISÃO: 👁️ REVISÃO MANUAL                                                │
 │                                                                             │
 │  Para o analista:                                                           │
-│  "Cliente confiável fazendo compra de valor incomum em cidade               │
+│  "Cliente confiável fazendo PIX de valor incomum em cidade                  │
 │   diferente. Pode ser viagem legítima. Confirmar com cliente."              │
 │                                                                             │
 │  Ação sugerida: Contato via app para confirmação                            │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Comparativo: PIX vs CRÉDITO vs DÉBITO
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    COMPARATIVO DE TIPOS DE TRANSAÇÃO                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  CARACTERÍSTICA           │    PIX     │   CRÉDITO   │   DÉBITO            │
+│  ─────────────────────────┼────────────┼─────────────┼──────────────────── │
+│  Risco Base               │    80%     │     40%     │     30%             │
+│  Velocidade               │ Instantâneo│  D+30 dias  │  Instantâneo        │
+│  Reversibilidade          │ Muito baixa│    Alta     │    Baixa            │
+│  Proteção ao Consumidor   │   Baixa    │    Alta     │    Média            │
+│  Autenticação             │ Senha/Bio  │ Chip+Senha  │  Chip+Senha         │
+│  Limite Típico            │ Diário     │   Mensal    │   Saldo             │
+│  Chargeback               │    Não     │     Sim     │    Limitado         │
+│                                                                             │
+│  ────────────────────────────────────────────────────────────────────────── │
+│                                                                             │
+│  CENÁRIOS DE MAIOR RISCO:                                                   │
+│                                                                             │
+│  PIX:                                                                       │
+│  • Transferência para conta desconhecida                                    │
+│  • Valor alto em horário noturno                                            │
+│  • Múltiplos PIX em sequência rápida                                        │
+│                                                                             │
+│  CRÉDITO:                                                                   │
+│  • Compra online em site desconhecido                                       │
+│  • Uso internacional sem aviso prévio                                       │
+│  • Múltiplas tentativas de compra negadas                                   │
+│                                                                             │
+│  DÉBITO:                                                                    │
+│  • Saque em ATM de cidade diferente                                         │
+│  • Compra presencial logo após saque ATM                                    │
+│  • Uso em estabelecimento de alto risco                                     │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
