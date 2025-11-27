@@ -702,7 +702,7 @@ def train_model():
         df = df.sample(frac=1).reset_index(drop=True)
         
         X = df.drop("is_fraud", axis=1)
-        y = df["is_fraud"].astype(int)
+        y = np.asarray(df["is_fraud"].astype(int).values)
         
         fraud_engine.train(X, y)
         

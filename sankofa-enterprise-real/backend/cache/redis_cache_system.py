@@ -20,9 +20,10 @@ logger = logging.getLogger(__name__)
 
 # Tenta importar redis, mas continua sem ele se não estiver disponível
 try:
-    import redis
+    import redis as redis_module
     REDIS_AVAILABLE = True
 except ImportError:
+    redis_module = None
     REDIS_AVAILABLE = False
     logger.warning("Redis não disponível - usando cache em memória")
 
@@ -171,13 +172,13 @@ class RedisConnectionManager:
 
     def _init_connection_pool(self):
         """Inicializa pool de conexões Redis"""
-        if not REDIS_AVAILABLE:
+        if not REDIS_AVAILABLE or redis_module is None:
             logger.info("Redis não disponível - usando cache em memória")
             self._is_healthy = True
             return
             
         try:
-            self.pool = redis.ConnectionPool(
+            self.pool = redis_module.ConnectionPool(
                 host=self.config.host,
                 port=self.config.port,
                 password=self.config.password,
@@ -190,7 +191,7 @@ class RedisConnectionManager:
             )
 
             # Testa conexão
-            client = redis.Redis(connection_pool=self.pool)
+            client = redis_module.Redis(connection_pool=self.pool)
             client.ping()
             self._is_healthy = True
 
@@ -210,8 +211,8 @@ class RedisConnectionManager:
         def health_check():
             while True:
                 try:
-                    if self.pool:
-                        client = redis.Redis(connection_pool=self.pool)
+                    if self.pool and redis_module:
+                        client = redis_module.Redis(connection_pool=self.pool)
                         client.ping()
                         if not self._is_healthy:
                             logger.info("Redis voltou a ficar saudável")
@@ -228,9 +229,9 @@ class RedisConnectionManager:
 
     def get_client(self) -> Any:
         """Obtém cliente Redis do pool ou fallback"""
-        if REDIS_AVAILABLE and self.pool:
+        if REDIS_AVAILABLE and self.pool and redis_module:
             try:
-                client = redis.Redis(connection_pool=self.pool)
+                client = redis_module.Redis(connection_pool=self.pool)
                 client.ping()
                 return client
             except Exception:

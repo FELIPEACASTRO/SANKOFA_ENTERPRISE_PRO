@@ -515,7 +515,7 @@ if __name__ == "__main__":
 
     # Simular predições
     current_predictions = np.random.binomial(1, 0.6, 500)  # Drift nas predições
-    current_actuals = current_data["target"].values
+    current_actuals = np.asarray(current_data["target"].values)
 
     concept_drifts = detector.detect_concept_drift(
         current_data, current_predictions, current_actuals
