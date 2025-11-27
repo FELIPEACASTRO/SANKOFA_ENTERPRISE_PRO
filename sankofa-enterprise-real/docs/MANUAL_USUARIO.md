@@ -714,6 +714,38 @@ Ao contatar o suporte, informe:
 
 ---
 
+## 15. Limitações Conhecidas no Dashboard
+
+### Páginas com Limitações
+
+| Página | Limitação | Workaround |
+|--------|-----------|-----------|
+| **Transações** | Renderização: erros menores em listagem | Atualizar página se necessário |
+| **Alertas** | Dados simulados, não produção real | Para produção, conectar a sistema real |
+| **Calibração** | Endpoints em desenvolvimento | Ajustar via arquivo JSON config |
+| **Investigação** | Features limitadas | Funcionalidades core operacionais |
+
+### Dados de Teste vs. Produção
+
+- ✅ **Dados de Produção**: Dashboard, Transações (atual)
+- ⚠️ **Dados Simulados**: Alertas, Investigação (homologação)
+- 📋 **Não Implementado**: Webhooks de tempo real, Export automático
+
+### Performance
+
+- Latência típica: 10-50ms (ambiente de desenvolvimento Replit)
+- Para produção: esperar < 15ms com infraestrutura apropriada
+- Throughput: variável em dev, planejado para 100K+ TPS em produção
+
+### Como Reportar Problemas
+
+1. **Dashboard não carrega**: Limpar cache (Ctrl+F5)
+2. **Dados não aparecem**: Verificar se backend está rodando
+3. **Erros de calibração**: Usar arquivo JSON temporariamente
+4. Contatar: suporte@sankofa.com.br
+
+---
+
 ## 16. Glossário
 
 | Termo | Definição |

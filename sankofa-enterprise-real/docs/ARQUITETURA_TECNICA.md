@@ -1033,7 +1033,38 @@ class MonitoringConfig:
 
 ---
 
-## Apêndice A: Glossário Técnico
+## Apêndice A: Limitações Conhecidas
+
+### Status de Implementação
+
+Esta seção documenta componentes não ainda completamente operacionais:
+
+| Componente | Status | Observações |
+|-----------|--------|-------------|
+| **Endpoints Calibração** | ⚠️ Parcial | `/api/model/calibrate` em desenvolvimento |
+| **A/B Testing** | 📋 Conceitual | Estrutura implementada, não operacional |
+| **Canary Deployment** | 📋 Conceitual | Estrutura implementada, não operacional |
+| **Drift Detection** | 📋 Conceitual | Sistema monitorado manualmente |
+| **PostgreSQL** | ⚠️ Opcional | Sistema funciona com arquivos JSON |
+| **Redis** | ⚠️ Fallback | Cache in-memory quando indisponível |
+| **Docker/Nginx/DataDog** | 📋 Planejado | Infraestrutura para produção futura |
+| **TLS 1.3 / AES-256** | 📋 Planejado | Segurança para produção futura |
+
+### Páginas com Limitações no Dashboard
+
+- **Transações**: Pode apresentar problemas menores de renderização
+- **Alertas**: Dados simulados, não conectados a sistema real
+- **Calibração**: Endpoints parcialmente implementados
+
+### Recomendações
+
+- Sistema atual é adequado para **desenvolvimento e homologação**
+- Para **produção**, implementar componentes planejados listados acima
+- Testar extensivamente endpoints A/B e Canary antes de usar em produção
+
+---
+
+## Apêndice B: Glossário Técnico
 
 | Termo | Definição |
 |-------|-----------|

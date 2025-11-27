@@ -1214,6 +1214,41 @@ sequenceDiagram
 
 ---
 
+## Apêndice: Limitações dos Diagramas
+
+### Componentes Planejados (Não Mostrados em Produção Atual)
+
+Os seguintes diagramas incluem componentes planejados para produção futura:
+
+| Componente | Diagrama | Status |
+|-----------|----------|--------|
+| Nginx Load Balancer | 1, 4, 5 | 📋 Planejado |
+| Docker Containers | 1, 4, 5 | 📋 Planejado |
+| DataDog Monitoring | 1, 12 | 📋 Planejado |
+| PostgreSQL Primary | 1, 7 | ⚠️ Fallback JSON |
+| Redis Primary Cache | 1, 7 | ⚠️ Fallback In-Memory |
+| A/B Testing (Operacional) | 4, 6 | 📋 Conceitual |
+| Canary Deploy (Automático) | 4, 9 | 📋 Conceitual |
+| TLS 1.3 / AES-256 | Vários | 📋 Planejado |
+
+### Como Interpretar
+
+- **🟢 Verde/Implementado**: Funcionalidade pronta para uso
+- **🟡 Amarelo/Parcial**: Funcionalidade básica implementada, melhorias em progresso
+- **📋 Azul/Planejado**: Funcionalidade projetada mas não implementada
+- **⚠️ Laranja/Fallback**: Sistema funciona com alternativa em desenvolvimento
+
+### Diagramas Mais Confiáveis
+
+Para ambiente atual (desenvolvimento):
+- ✅ Diagrama 1 (Arquitetura sem Nginx/Docker)
+- ✅ Diagrama 2 (Fluxo de Detecção - operacional)
+- ✅ Diagrama 3 (Pipeline ML - operacional)
+- ✅ Diagrama 6 (JWT - operacional)
+- ✅ Diagrama 8 (Revisão Manual - operacional)
+
+---
+
 **Documento mantido por:** Equipe de Engenharia Sankofa  
 **Última atualização:** Novembro 2025  
 **Versão:** 1.0.0

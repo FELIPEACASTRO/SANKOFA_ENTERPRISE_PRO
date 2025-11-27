@@ -712,7 +712,36 @@ HIGH_RISK_COMBINATIONS = [
 
 ---
 
-## 9. Glossário de Negócio
+## 9. Limitações Conhecidas
+
+### Funcionalidades em Desenvolvimento
+
+| Funcionalidade | Status | Impacto |
+|---|---|---|
+| **A/B Testing de Modelos** | 📋 Conceitual | Não afeta produção atual |
+| **Canary Deployment** | 📋 Conceitual | Não afeta produção atual |
+| **Monitoramento de Drift** | ⚠️ Básico | Monitorado manualmente |
+| **Integração DICT (BACEN)** | 📋 Planejado | Exportação manual possível |
+| **Endpoints de Calibração** | ⚠️ Parcial | Ajustes via arquivo JSON |
+| **Retreinamento Automático** | 📋 Planejado | Retreinamento manual possível |
+
+### Conformidade Atual
+
+- ✅ **LGPD**: Implementado (acesso/eliminação de dados)
+- ✅ **Audit Trail**: Implementado (logs estruturados)
+- ⚠️ **BACEN**: Funcionalidades core, integração com DICT em progresso
+- 📋 **PCI-DSS**: Estrutura pronta, certificação pendente
+
+### Recomendações para Produção
+
+1. Implementar A/B Testing antes de usar em ambiente bancário
+2. Adicionar Docker/Nginx para escalabilidade
+3. Integrar certificação PCI-DSS
+4. Implementar failover de Redis para alta disponibilidade
+
+---
+
+## 10. Glossário de Negócio
 
 | Termo | Definição |
 |-------|-----------|
