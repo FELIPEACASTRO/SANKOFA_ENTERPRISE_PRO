@@ -9,17 +9,23 @@
 
 ## Estado do Sistema
 
-| Componente | Status | Notas |
-|------------|--------|-------|
-| API Backend | ✅ Implementado | 50+ endpoints, Flask/Python |
-| Frontend Dashboard | ✅ Implementado | 9 páginas React |
+| Componente | Status | Persistência |
+|------------|--------|--------------|
+| API Backend | ✅ Implementado | 50+ endpoints Flask |
+| Frontend Dashboard | ✅ Implementado | 9 páginas React (dados estáticos/mock) |
 | ML Stacking Ensemble | ✅ Implementado | RF + GB + LR |
-| PostgreSQL | ✅ Integrado | Transações, alertas, audit |
-| Explainability (SHAP) | ⚠️ Módulo existe | Não integrado na API principal |
-| Probability Calibration | ⚠️ Módulo existe | Disponível, uso via código |
-| Location Entropy | ⚠️ Módulo existe | Features disponíveis |
-| Self-Training | ⚠️ Módulo existe | Disponível para uso |
-| Redis Cache | ⚠️ Opcional | Fallback in-memory |
+| Transações (PostgreSQL) | ✅ Integrado | INSERT via psycopg2 quando DATABASE_URL existe |
+| Transações (In-Memory) | ✅ Implementado | Cache para consultas recentes |
+| Configurações | ✅ Implementado | JSON files (system_config.json) |
+| Explainability (SHAP) | ⚠️ Módulo separado | Testado, não na API |
+| Probability Calibration | ⚠️ Módulo separado | Testado, uso via código |
+| Location Entropy | ⚠️ Módulo separado | Features testadas |
+| Self-Training | ⚠️ Módulo separado | Testado, uso via código |
+
+**Nota sobre persistência:**
+- **PostgreSQL:** Usado para persistir transações quando `DATABASE_URL` está configurado
+- **TransactionStore:** Cache em memória para consultas recentes (máximo 1000 itens)
+- **ConfigStore:** JSON files para hard rules, VIP list, HOT list, settings
 
 ---
 
@@ -38,50 +44,61 @@ O **Sankofa Enterprise Pro** é um sistema de detecção de fraudes financeiras 
 | **Equipe de Compliance** | Gerar relatórios, auditorias |
 | **Administradores de TI** | Configurar sistema, gerenciar integrações |
 
-### 1.3 Capacidades Implementadas
+### 1.3 Capacidades do Sistema
 
+**Implementado e Funcional:**
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    SANKOFA ENTERPRISE PRO v11.0             │
-├─────────────────────────────────────────────────────────────┤
-│  ✅ Análise em Tempo Real    │  ✅ Dashboard 9 Páginas      │
-│  ✅ ML Stacking (RF+GB+LR)   │  ✅ Alertas Básicos          │
-│  ✅ PostgreSQL Integrado     │  ✅ Revisão Manual (UI)      │
-│  ✅ 45 Testes Passando       │  ✅ Calibragem (UI)          │
-│  ⚠️ SHAP (módulo separado)  │  ⚠️ Location Entropy (mod.) │
+│  ✅ Análise em Tempo Real (API /api/fraud/predict)          │
+│  ✅ Dashboard 9 Páginas (React)                             │
+│  ✅ ML Stacking (RandomForest + GradientBoosting + LR)      │
+│  ✅ PostgreSQL para transações (psycopg2)                   │
+│  ✅ 45 Testes Automatizados Passando                        │
+│  ✅ Endpoints de Calibração (GET/PUT /api/calibration)      │
+│  ✅ Lista de Transações, Alertas, Revisão Manual (UI)       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Módulos Disponíveis (não integrados na API):**
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ⚠️ SHAP Explainability (explainability_engine.py)         │
+│  ⚠️ Probability Calibration (probability_calibration.py)   │
+│  ⚠️ Location Entropy Features (advanced_feature_eng.py)    │
+│  ⚠️ Self-Training Optimizer (self_training_optimizer.py)   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Roadmap (Planejado):**
+```
+┌─────────────────────────────────────────────────────────────┐
+│  📋 SHAP explanations nas respostas da API                  │
+│  📋 Timers de SLA automáticos na revisão manual             │
+│  📋 Métricas de produção reais (TPS, latência)              │
+│  📋 Redis cache (atualmente in-memory)                      │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 2. Métricas Atuais do Sistema
+## 2. Cobertura de Testes
 
-### 2.1 Performance Validada (27/Nov/2025)
-
-| Métrica | Valor | SLA |
-|---------|-------|-----|
-| **Transações Processadas** | 518+ hoje | - |
-| **Fraudes Detectadas** | 23 (4.4%) | - |
-| **Taxa de Aprovação** | 95.6% | >95% ✅ |
-| **Latência Média** | 33.50ms | <100ms ✅ |
-| **Taxa de Detecção** | 94.2% | >90% ✅ |
-| **Falsos Positivos** | 2.1% | <5% ✅ |
-| **Uptime** | 15d 8h 23m | 99.9% ✅ |
-
-### 2.2 Cobertura de Testes
+### 2.1 Resultados dos Testes Automatizados (45 testes)
 
 | Categoria | Testes | Status |
 |-----------|--------|--------|
-| ML Improvements | 20 | ✅ 100% |
-| E2E Infrastructure | 4 | ✅ 100% |
-| E2E API Endpoints | 5 | ✅ 100% |
-| E2E Fraud Prediction | 4 | ✅ 100% |
-| E2E Data Persistence | 2 | ✅ 100% |
-| E2E ML Pipeline | 3 | ✅ 100% |
-| E2E Performance | 3 | ✅ 100% |
-| E2E Validation | 3 | ✅ 100% |
-| E2E Integration | 1 | ✅ 100% |
-| **TOTAL** | **45** | **✅ 100%** |
+| E2E Infrastructure | 4 | ✅ Passando |
+| E2E API Endpoints | 5 | ✅ Passando |
+| E2E Fraud Prediction | 4 | ✅ Passando |
+| E2E Data Persistence | 2 | ✅ Passando |
+| E2E ML Pipeline | 3 | ✅ Passando |
+| E2E Performance | 3 | ✅ Passando |
+| E2E Validation | 3 | ✅ Passando |
+| E2E Integration | 1 | ✅ Passando |
+| ML Improvements | 20 | ✅ Passando |
+| **TOTAL** | **45** | **100%** |
+
+**Nota:** Métricas de produção (TPS, latência real, uptime) requerem instrumentação adicional que não está implementada. Os valores exibidos no dashboard são simulados para demonstração.
 
 ---
 
@@ -107,12 +124,11 @@ O **Sankofa Enterprise Pro** é um sistema de detecção de fraudes financeiras 
 │      ├───────────────►│                                              │
 │      │                │  ┌──────────────────────┐                    │
 │      │                │  │ 1. Validar Payload   │                    │
-│      │                │  │ 2. Extrair 47+ Feat  │                    │
-│      │                │  │ 3. Ensemble ML (5)   │                    │
-│      │                │  │ 4. Calibrar Prob.    │                    │
-│      │                │  │ 5. Aplicar Regras    │                    │
-│      │                │  │ 6. Gerar SHAP        │                    │
-│      │                │  │ 7. Salvar no BD      │                    │
+│      │                │  │ 2. Extrair Features  │                    │
+│      │                │  │ 3. Stacking (RF+GB)  │                    │
+│      │                │  │ 4. Meta-model (LR)   │                    │
+│      │                │  │ 5. Gerar Prediction  │                    │
+│      │                │  │ 6. Salvar no BD      │                    │
 │      │                │  └──────────────────────┘                    │
 │      │                │                                              │
 │      │  200 OK        │                                              │
@@ -140,7 +156,7 @@ O **Sankofa Enterprise Pro** é um sistema de detecção de fraudes financeiras 
 }
 ```
 
-**Exemplo de Resposta:**
+**Exemplo de Resposta (Atual):**
 ```json
 {
   "predictions": [{
@@ -148,33 +164,34 @@ O **Sankofa Enterprise Pro** é um sistema de detecção de fraudes financeiras 
     "is_fraud": true,
     "fraud_probability": 0.87,
     "risk_score": 87,
-    "decision": "BLOCK",
-    "risk_factors": [
-      "Transação de alto valor em horário noturno",
-      "Padrão de velocidade anormal detectado"
+    "risk_level": "HIGH",
+    "confidence": 0.92,
+    "processing_time_ms": 25.4,
+    "model_version": "1.0.0",
+    "detection_reason": [
+      "Transação de alto valor",
+      "Horário noturno"
     ],
-    "shap_explanation": {
-      "amount": 0.15,
-      "is_night": 0.12,
-      "velocity_1h": 0.08
-    }
+    "timestamp": "2025-11-27T14:30:00Z"
   }]
 }
 ```
+
+**Nota:** SHAP explanations estão disponíveis no módulo `explainability_engine.py` mas não são retornadas automaticamente pela API. Para integrar, veja a documentação técnica.
 
 ### 3.2 UC02: Investigação de Fraude
 
 **Ator:** Analista de Fraude  
 **Objetivo:** Investigar alerta e decidir ação
 
-**Fluxo:**
+**Fluxo (Atual):**
 1. Analista acessa Central de Investigação (`/investigation`)
 2. Visualiza casos com status "Novo" ou "Em Investigação"
 3. Abre detalhes da transação suspeita
-4. Analisa explicação SHAP do modelo
-5. Consulta histórico do cliente
-6. Registra decisão: Confirma Fraude ou Falso Positivo
-7. Decisão alimenta loop de melhoria do modelo
+4. Analisa informações disponíveis (valor, hora, local, score)
+5. Registra decisão: Confirma Fraude ou Falso Positivo
+
+**Roadmap:** Integração de SHAP explanations para justificar decisões do modelo.
 
 ### 3.3 UC03: Revisão Manual (Human-in-the-Loop)
 
@@ -184,15 +201,14 @@ O **Sankofa Enterprise Pro** é um sistema de detecção de fraudes financeiras 
 **Critérios de Encaminhamento:**
 - Score entre 40-70 (zona de incerteza)
 - Valor acima de R$ 10.000
-- Primeiro PIX internacional
-- Cliente novo (< 30 dias)
 
-**Fluxo:**
+**Fluxo (Atual):**
 1. Transação aparece na fila de revisão (`/manual-review`)
-2. Timer de SLA visível (5 minutos para críticos)
-3. Revisor analisa com contexto completo
-4. Aprova ou rejeita com justificativa obrigatória
-5. Feedback enviado para retreino do modelo
+2. Revisor visualiza lista de transações pendentes
+3. Analisa detalhes e toma decisão
+4. Registra aprovação ou rejeição
+
+**Roadmap:** Timers de SLA automáticos, priorização visual, feedback loop para retreino.
 
 ### 3.4 UC04: Calibragem de Algoritmos
 
@@ -238,156 +254,99 @@ O **Sankofa Enterprise Pro** é um sistema de detecção de fraudes financeiras 
 
 ### 4.1 Dashboard Executivo (`/`)
 
-**KPIs em Tempo Real:**
-- Transações Hoje: contador atualizado a cada 5s
-- Fraudes Detectadas: com variação percentual
-- Taxa de Aprovação: meta visual de 95%
-- Latência Média: com gráfico de tendência
+**Implementado (UI estática):**
+- Cards de KPIs: Transações, Fraudes, Taxa de Aprovação, Latência
+- Layout para gráficos e alertas
+- Cards de status dos modelos
 
-**Gráficos:**
-- Transações por Hora (últimas 24h)
-- Latência do Sistema (linha temporal)
-- Status dos Modelos de IA
-- Alertas Recentes
+**Nota:** Os valores exibidos são dados estáticos/mock. Não há polling ou atualização em tempo real implementada.
+
+**Roadmap:** Integração com API para dados em tempo real, atualização automática.
 
 ### 4.2 Central de Transações (`/transactions`)
 
-**Funcionalidades:**
-- Lista paginada (50 por página, 250 total carregadas)
-- Filtros: Status, Tipo, Busca por ID/CPF
-- Detalhes com clique
-- Exportação CSV
+**Implementado:**
+- Tabela com transações recentes (via API /api/transactions)
+- Colunas: ID, Valor, Tipo, Canal, Localização, CPF mascarado, Data/Hora
+- Filtros básicos de status e tipo (UI)
 
-**Colunas:**
-| Coluna | Descrição |
-|--------|-----------|
-| ID | Identificador único (TXN_*) |
-| Valor | Valor em R$ |
-| Tipo | PIX, TED, CREDITO, DEBITO |
-| Canal | Canal de origem |
-| Localização | Cidade/Estado |
-| CPF | Mascarado (XXX.XXX.XXX-XX) |
-| Data/Hora | Timestamp ISO |
+**Nota:** A paginação e exportação CSV são roadmap. A tabela exibe dados retornados pela API.
+
+**Roadmap:** Paginação server-side, filtros avançados, exportação CSV.
 
 ### 4.3 Calibragem Manual (`/calibration`)
 
-**Controles Disponíveis:**
+**Implementado (UI):**
+- Layout com cards para diferentes algoritmos
+- Sliders visuais para threshold
+- Botões de salvar/resetar
 
-1. **Motor de Regras Básicas**
-   - Toggle on/off
-   - Threshold: 0-100%
-   - Peso no Ensemble: 0-0.5
-   - Valor Máximo: R$ 1k - 100k
+**Nota:** A interface existe mas a integração com backend (GET/PUT /api/calibration) pode não refletir todas as opções visuais. Os endpoints de calibração existem na API.
 
-2. **Verificação de Listas Negras**
-   - Toggle on/off
-   - Threshold: 0-100%
-   - Peso: 0-0.5
-   - Cache Timeout: 60-3600s
-
-3. **Verificação de Velocidade**
-   - Toggle on/off
-   - Threshold: 0-100%
-   - Peso: 0-0.5
-   - Janela de Tempo: 60-86400s
-   - Máx. Transações/Janela: 1-100
+**Roadmap:** Integração completa de todos os controles com backend.
 
 ### 4.4 Central de Investigação (`/investigation`)
 
-**Estatísticas:**
-- Casos Ativos
-- Em Investigação
-- Resolvidos
-- Taxa de Resolução
+**Implementado (UI):**
+- Layout com cards de estatísticas
+- Lista de casos
+- Campos de busca e filtro (UI)
 
-**Filtros:**
-- Busca por texto
-- Status (Todos, Novo, Em Andamento, Resolvido)
-- Prioridade (Todas, Alta, Média, Baixa)
+**Nota:** A interface exibe layout estático. Os dados de investigação dependem de transações flagadas no sistema.
+
+**Roadmap:** Integração com fluxo de investigação completo.
 
 ### 4.5 Revisão Manual (`/manual-review`)
 
-**Fila de Trabalho:**
-- Total de casos pendentes
-- Pendentes (aguardando)
-- Completadas (hoje)
-- Expiradas (SLA estourado)
+**Implementado:**
+- Lista de transações pendentes de revisão
+- Contadores estáticos (total, pendentes, completadas)
+- Tabela com ID, valor, CPF mascarado, score de risco
+- Botões de ação (aprovar/rejeitar)
 
-**Tabela de Revisão:**
-| Coluna | Descrição |
-|--------|-----------|
-| ID | Identificador da transação |
-| Valor | Valor em R$ |
-| CPF | Documento mascarado |
-| Risco | Score 0-100 |
-| Status | Pendente/Aprovado/Rejeitado |
-| Ações | Botões de decisão |
+**Roadmap:** Timers de SLA automáticos, contagem de expiradas.
 
 ### 4.6 Monitoramento (`/monitoring`)
 
-**Saúde do Sistema:**
-- Status Geral: Saudável/Degradado/Crítico
-- Modelos Ativos: 5
-- Transações/seg: 127
-- Tempo Resposta: 0.15s
-- Taxa Detecção: 94.2%
-- Falsos Positivos: 2.1%
-- Processadas Hoje: 15.420
-- Uptime: 15d 8h 23m
+**Implementado (UI com dados simulados):**
+- Cards de status do sistema
+- Indicadores visuais de saúde
+- Layout para métricas de recursos
 
-**Recursos Monitorados:**
-- CPU, Memória, Disco, Rede
-- Conexões de Banco
-- Cache Redis
-- Filas de Processamento
+**Nota:** Os valores exibidos são simulados para demonstração. Métricas reais de CPU, memória, TPS e latência requerem instrumentação backend não implementada.
+
+**Roadmap:** Integração com métricas reais, monitoramento Redis, filas.
 
 ### 4.7 Central de Relatórios (`/reports`)
 
-**Templates Prontos:**
-1. Relatório Mensal de Fraudes (5-10 min)
-2. Performance Trimestral (3-5 min)
-3. Análise de Tendências (7-12 min)
-4. Impacto Financeiro (4-8 min)
+**Implementado:**
+- Lista de templates de relatórios
+- Interface de seleção
+- Botão de geração
 
-**Filtros:**
-- Busca por nome
-- Tipo de relatório
-- Status (Todos, Gerado, Pendente, Erro)
+**Nota:** A geração de relatórios retorna dados simulados. Integração com dados reais é roadmap.
 
 ### 4.8 Métricas e Contadores (`/metrics`)
 
-**Contadores em Tempo Real:**
-- Transações (total)
-- Fraudes (detectadas)
-- Precisão (%)
-- Tempo (ms)
+**Implementado:**
+- Cards de contadores (transações, fraudes, precisão, tempo)
+- Layout de hard rules e listas VIP/HOT
+- Toggle de auto-refresh (UI)
 
-**Hard Rules:**
-- Acionadas Hoje
-- Taxa de Bloqueio
-
-**VIP/HOT Lists:**
-- VIP Hits
-- HOT Hits
-
-**Auto-refresh:** Configurável ON/OFF
+**Nota:** Valores são simulados para demonstração. Contadores reais requerem integração com backend de métricas.
 
 ### 4.9 Central de Alertas (`/alerts`)
 
-**Estatísticas:**
-- Total de Alertas
-- Novos
-- Em Investigação
-- Resolvidos
-- Críticos
+**Implementado:**
+- Lista de alertas (via API /api/alerts)
+- Filtros por status
+- Ações de acknowledge
 
-**Tipos de Alerta:**
-| Tipo | Severidade | Exemplo |
-|------|------------|---------|
-| Fraude Detectada | Alto | PIX acima do limite |
-| Drift de Modelo | Médio | Distribuição alterada |
-| Performance | Baixo | Latência elevada |
-| Sistema | Crítico | Conexão BD perdida |
+**Tipos de Alerta (API):**
+| Tipo | Descrição |
+|------|-----------|
+| Fraude Detectada | Transação bloqueada |
+| Sistema | Erros de backend |
 
 ---
 
@@ -468,27 +427,33 @@ Regras que bloqueiam independente do score de ML:
 
 ## 7. Compliance e Regulamentação
 
+**Nota:** Esta seção descreve requisitos de compliance. A implementação atual atende parcialmente estes requisitos.
+
 ### 7.1 LGPD
 
-- ✅ Dados pessoais criptografados (AES-256)
-- ✅ Logs de acesso mantidos por 5 anos
-- ✅ Explicabilidade das decisões (SHAP values)
-- ✅ Possibilidade de exportar dados do titular
-- ✅ Anonimização para treinamento
+| Requisito | Status | Notas |
+|-----------|--------|-------|
+| Dados pessoais mascarados (CPF) | ✅ Implementado | UI exibe XXX.XXX.XXX-XX |
+| Logs de auditoria | ✅ Implementado | Tabela audit_log no PostgreSQL |
+| Explicabilidade (SHAP) | ⚠️ Módulo existe | Não integrado na API |
+| Exportação de dados | 📋 Roadmap | Não implementado |
 
 ### 7.2 BACEN Resolução 6/2023
 
-- ✅ Compartilhamento de dados de fraude
-- ✅ Tempo de resposta < 100ms
-- ✅ Disponibilidade 99.9%
-- ✅ Audit trail completo
+| Requisito | Status | Notas |
+|-----------|--------|-------|
+| API de detecção de fraude | ✅ Implementado | /api/fraud/predict |
+| Tempo de resposta | ⚠️ Não monitorado | Sem instrumentação de latência |
+| Disponibilidade | ⚠️ Não monitorado | Sem SLA enforcement |
+| Audit trail | ✅ Implementado | Via banco de dados |
 
 ### 7.3 PCI DSS
 
-- ✅ Dados de cartão tokenizados
-- ✅ Não armazenamos CVV
-- ✅ TLS 1.3 para comunicação
-- ✅ Logs sem dados sensíveis
+| Requisito | Status | Notas |
+|-----------|--------|-------|
+| CPF/dados sensíveis | ✅ Mascarados na UI | Não tokenizados no backend |
+| Logs seguros | ✅ Sem dados sensíveis | Structured logging |
+| TLS | ⚠️ Ambiente dev | Produção requer configuração |
 
 ---
 

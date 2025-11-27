@@ -14,12 +14,17 @@
 | Flask API (50+ endpoints) | ✅ | ✅ | ✅ |
 | React Dashboard (9 páginas) | ✅ | ✅ | ✅ |
 | ML Stacking (RF+GB+LR) | ✅ | ✅ | ✅ |
-| PostgreSQL (Neon) | ✅ | ✅ | ✅ |
+| PostgreSQL (Transações) | ✅ | ✅ | ✅ psycopg2 |
+| JSON Files (Config/Métricas) | ✅ | ✅ | ✅ fallback |
 | Explainability Engine | ✅ | ✅ | ⚠️ Módulo separado |
 | Probability Calibration | ✅ | ✅ | ⚠️ Módulo separado |
 | Location Entropy Features | ✅ | ✅ | ⚠️ Módulo separado |
 | Self-Training Optimizer | ✅ | ✅ | ⚠️ Módulo separado |
-| Redis Cache | ⚠️ | ⚠️ | Fallback in-memory |
+
+**Persistência:**
+- **Transações:** PostgreSQL via psycopg2 (INSERT/SELECT)
+- **Configurações:** JSON files em `data/` directory
+- **Métricas Dashboard:** JSON fallback (simuladas para demo)
 
 ---
 
