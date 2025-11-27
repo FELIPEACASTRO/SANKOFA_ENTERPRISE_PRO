@@ -99,6 +99,24 @@ The fraud detection engine uses a **Stacking Ensemble** approach:
    - Value-based features (log, squared, statistical)
    - Geographic features (distance calculations, location risk)
    - Behavioral features (transaction velocity, patterns)
+   - **Location Entropy** (diversidade de locais - NOVO)
+   - **Transaction Patterns** (z-score, outliers, padrões horários - NOVO)
+
+5. **Explainability Engine** (`explainability_engine.py` - NOVO):
+   - SHAP values para explicações individuais
+   - Feature importance global
+   - Geração de texto explicativo para compliance LGPD
+   - Relatórios de compliance (LGPD, BACEN, PCI DSS)
+
+6. **Probability Calibration** (`probability_calibration.py` - NOVO):
+   - Calibração isotônica e sigmoid
+   - Expected Calibration Error (ECE)
+   - Ensemble calibrator com seleção automática
+
+7. **Self-Training Optimizer** (`self_training_optimizer.py` - NOVO):
+   - Pseudo-labeling com threshold de confiança
+   - Self-training adaptativo
+   - Uso de dados não rotulados para melhorar recall
 
 ### MLOps Components
 

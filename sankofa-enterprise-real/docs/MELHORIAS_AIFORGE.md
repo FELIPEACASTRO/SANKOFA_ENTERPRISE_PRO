@@ -253,6 +253,99 @@ GNNs (GTAN/RGTAN/HOGRL) são interessantes academicamente, mas o custo de implem
 
 ---
 
-*Documento revisado em: 2025-11-27*
+## 9. Melhorias Implementadas (2025-11-27)
+
+### 9.1 Explainability Engine (SHAP)
+**Arquivo**: `ml_engine/explainability_engine.py`
+**Status**: ✅ Implementado e Testado
+
+Funcionalidades:
+- SHAP values para explicações individuais
+- Feature importance global
+- Geração de texto explicativo para compliance LGPD
+- Relatório de compliance (LGPD, BACEN, PCI DSS)
+- Níveis de risco: CRITICO, ALTO, MEDIO, BAIXO, MUITO_BAIXO
+
+```python
+from ml_engine.explainability_engine import ExplainabilityEngine
+
+engine = ExplainabilityEngine(model=model, feature_names=feature_names)
+explanation = engine.explain_prediction(X, transaction_id, fraud_probability)
+report = engine.to_compliance_report(explanation)
+```
+
+### 9.2 Entropia de Localização
+**Arquivo**: `ml_engine/advanced_feature_engineering.py`
+**Status**: ✅ Implementado e Testado
+
+Novas features:
+- `location_entropy`: Entropia de Shannon para diversidade de locais
+- `unique_locations_count`: Número de locais únicos
+- `is_diverse_locations`: Flag para alta diversidade
+- `location_entropy_normalized`: Entropia normalizada
+
+### 9.3 Padrões de Transação
+**Arquivo**: `ml_engine/advanced_feature_engineering.py`
+**Status**: ✅ Implementado e Testado
+
+Novas features:
+- `value_zscore`: Z-score do valor da transação
+- `is_value_outlier`: Detecção de outliers
+- `value_to_median_ratio`: Razão valor/mediana
+- `hour_entropy`: Entropia de padrão horário
+- `hour_deviation`: Desvio do horário usual
+- `is_unusual_hour`: Flag para horário incomum
+
+### 9.4 Calibração de Probabilidades
+**Arquivo**: `ml_engine/probability_calibration.py`
+**Status**: ✅ Implementado e Testado
+
+Funcionalidades:
+- Calibração isotônica e sigmoid
+- Expected Calibration Error (ECE)
+- Maximum Calibration Error (MCE)
+- Brier Score
+- Ensemble calibrator com seleção automática
+
+```python
+from ml_engine.probability_calibration import EnsembleCalibrator
+
+calibrator = EnsembleCalibrator()
+calibrator.fit(y_true, y_prob)
+calibrated_probs = calibrator.calibrate(y_prob)
+```
+
+### 9.5 Self-Training Otimizado
+**Arquivo**: `ml_engine/self_training_optimizer.py`
+**Status**: ✅ Implementado e Testado
+
+Funcionalidades:
+- Pseudo-labeling com threshold de confiança
+- Iterações controladas
+- Validação de qualidade dos pseudo-labels
+- Self-training adaptativo com ajuste de threshold
+
+```python
+from ml_engine.self_training_optimizer import SelfTrainingClassifier
+
+clf = SelfTrainingClassifier(threshold=0.95, max_iter=10)
+clf.fit(X_labeled, y_labeled, X_unlabeled)
+```
+
+### 9.6 Testes
+**Arquivo**: `tests/test_improvements.py`
+**Status**: ✅ 18/18 testes passando
+
+Cobertura:
+- TestExplainabilityEngine (4 testes)
+- TestProbabilityCalibration (4 testes)
+- TestSelfTraining (4 testes)
+- TestLocationEntropyFeatures (3 testes)
+- TestTransactionPatternFeatures (2 testes)
+- TestIntegration (1 teste)
+
+---
+
+*Documento atualizado em: 2025-11-27*
+*Melhorias implementadas e testadas com sucesso*
 *Double check realizado no repositório AIForge (https://github.com/FELIPEACASTRO/AIForge)*
-*Análise de código atual do Sankofa confirmada*

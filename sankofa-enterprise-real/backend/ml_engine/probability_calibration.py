@@ -85,10 +85,9 @@ class ProbabilityCalibrator:
         self.calibration_metrics = self.evaluate_calibration(y_true, calibrated_probs)
         
         logger.info(
-            "Calibrator fitted",
-            method=self.method,
-            ece=round(self.calibration_metrics.expected_calibration_error, 4),
-            well_calibrated=self.calibration_metrics.is_well_calibrated
+            f"Calibrator fitted: method={self.method}, "
+            f"ece={round(self.calibration_metrics.expected_calibration_error, 4)}, "
+            f"well_calibrated={self.calibration_metrics.is_well_calibrated}"
         )
         
         return self
@@ -236,10 +235,8 @@ class EnsembleCalibrator:
         self.is_fitted = True
         
         logger.info(
-            "EnsembleCalibrator fitted",
-            best_method=self.best_method,
-            isotonic_ece=round(iso_ece, 4),
-            sigmoid_ece=round(sig_ece, 4)
+            f"EnsembleCalibrator fitted: best_method={self.best_method}, "
+            f"isotonic_ece={round(iso_ece, 4)}, sigmoid_ece={round(sig_ece, 4)}"
         )
         
         return self

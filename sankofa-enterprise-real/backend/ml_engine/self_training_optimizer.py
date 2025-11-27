@@ -102,9 +102,8 @@ class SelfTrainingClassifier(BaseEstimator, ClassifierMixin):
             Self
         """
         logger.info(
-            "Starting self-training",
-            labeled_samples=len(X_labeled),
-            unlabeled_samples=len(X_unlabeled) if X_unlabeled is not None else 0
+            f"Starting self-training: labeled_samples={len(X_labeled)}, "
+            f"unlabeled_samples={len(X_unlabeled) if X_unlabeled is not None else 0}"
         )
         
         self.base_classifier.fit(X_labeled, y_labeled)
@@ -179,10 +178,9 @@ class SelfTrainingClassifier(BaseEstimator, ClassifierMixin):
         self.is_fitted = True
         
         logger.info(
-            "Self-training completed",
-            iterations=self.metrics.iterations,
-            pseudo_labels=self.metrics.pseudo_labels_added,
-            improvement=f"{self.metrics.improvement:.4f}"
+            f"Self-training completed: iterations={self.metrics.iterations}, "
+            f"pseudo_labels={self.metrics.pseudo_labels_added}, "
+            f"improvement={self.metrics.improvement:.4f}"
         )
         
         return self
