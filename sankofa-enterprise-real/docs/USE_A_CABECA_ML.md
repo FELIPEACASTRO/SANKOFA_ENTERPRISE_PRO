@@ -2331,6 +2331,729 @@ Vamos acompanhar uma transacao REAL do inicio ao fim. Conheca Maria:
 
 ---
 
+# PARTE 4: FONTES DE DADOS E INTELIGENCIA DE AMEACAS
+
+## 4.1 Datasets: Onde Treinar Seus Modelos
+
+```
++==============================================================================+
+|                    BANCOS DE DADOS PARA TREINAMENTO                         |
++==============================================================================+
+|                                                                              |
+|   Pense assim: Um medico precisa ver milhares de casos para diagnosticar.   |
+|   Um modelo de ML precisa ver milhoes de transacoes para detectar fraude.   |
+|                                                                              |
++==============================================================================+
+```
+
+### Datasets Publicos (Gratuitos)
+
+#### 1. IEEE-CIS Fraud Detection (O "ENEM" do ML de Fraude)
+
+```
++------------------------------------------------------------------------------+
+|   DATASET: IEEE-CIS (Vesta Corporation + IEEE)                               |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   Tamanho: 590.000 transacoes (treinamento)                                  |
+|            500.000 transacoes (teste)                                        |
+|                                                                              |
+|   Taxa de Fraude: 3.5% (realista!)                                           |
+|                                                                              |
+|   Features Originais: 393 colunas                                            |
+|   Features Uteis: 67 (apos limpeza dos melhores competidores)                |
+|                                                                              |
+|   Link: kaggle.com/c/ieee-fraud-detection                                    |
+|                                                                              |
++------------------------------------------------------------------------------+
+```
+
+**Estrutura do Dataset IEEE-CIS:**
+
+| Categoria | Features | Exemplos |
+|-----------|----------|----------|
+| **Basicas** | 3 | `TransactionDT`, `TransactionAMT`, `ProductCD` |
+| **Cartao** | 6 | `card1`-`card6` (tipo, categoria, banco, pais) |
+| **Endereco** | 2 | `addr1`, `addr2` (regiao, pais) |
+| **Dispositivo** | 2 | `DeviceType`, `DeviceInfo` |
+| **Identidade** | 41 | `id_01`-`id_38` + tipos de proxy |
+| **Anonimizadas (V)** | 339 | `V1`-`V339` (features proprietarias) |
+
+**Dica dos Campeoes Kaggle:**
+- Substituir NaN por -999 (funciona melhor que media/mediana)
+- Criar "fingerprint" combinando: card1 + addr1 + time + D1
+- V-features tem muitos NaN - selecione apenas as mais importantes
+
+---
+
+#### 2. AI-Powered Banking Fraud Detection 2025 (NOVO!)
+
+```
++------------------------------------------------------------------------------+
+|   DATASET: AI-Powered Banking 2025                                           |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   Publicado: Fevereiro 2025 (o mais recente!)                                |
+|                                                                              |
+|   Foco: Transacoes sinteticas realistas para modelos modernos                |
+|                                                                              |
+|   Link: kaggle.com/datasets/mdtalhask/ai-powered-banking-fraud-detection     |
+|                                                                              |
++------------------------------------------------------------------------------+
+```
+
+---
+
+#### 3. CiferAI (Hugging Face) - O GIGANTE
+
+```
++------------------------------------------------------------------------------+
+|   DATASET: CiferAI/Cifer-Fraud-Detection-Dataset-AF                          |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   Tamanho: 21 MILHOES de transacoes sinteticas! 🔥                           |
+|            (14 particoes x 1.5M cada)                                        |
+|                                                                              |
+|   Acuracia benchmark: 99.93%                                                 |
+|                                                                              |
+|   Baseado em: PaySim (dados de mobile money de 14+ paises)                   |
+|                                                                              |
+|   Ideal para: Federated Learning (privacidade)                               |
+|                                                                              |
+|   Link: huggingface.co/datasets/CiferAI/Cifer-Fraud-Detection-Dataset-AF     |
+|                                                                              |
++------------------------------------------------------------------------------+
+```
+
+---
+
+#### 4. Bank Account Fraud (NeurIPS 2022)
+
+```
++------------------------------------------------------------------------------+
+|   DATASET: Bank Account Fraud Suite (Academico)                              |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   Conferencia: NeurIPS 2022 (top academico!)                                 |
+|                                                                              |
+|   Foco: Datasets desbalanceados e tendenciosos                               |
+|         (simula problemas reais de ML)                                       |
+|                                                                              |
+|   Util para: Testar robustez do modelo                                       |
+|                                                                              |
+|   Link: kaggle.com/datasets/sgpjesus/bank-account-fraud-dataset-neurips-2022 |
+|                                                                              |
++------------------------------------------------------------------------------+
+```
+
+---
+
+#### 5. Amazon Fraud Dataset Benchmark (GitHub)
+
+```python
+# CODIGO: Como carregar o benchmark da Amazon
+from fdb.datasets import FraudDatasetBenchmark
+
+# Carrega IEEE-CIS pre-processado (67 features otimizadas)
+dataset = FraudDatasetBenchmark(key='ieeecis')
+
+# Tambem disponivel:
+# - 'bot': ataques de bot
+# - 'malicious': trafego malicioso
+# - 'loan': risco de emprestimo
+```
+
+**Link:** github.com/amazon-science/fraud-dataset-benchmark
+
+---
+
+### Comparativo de Datasets
+
+| Dataset | Tamanho | Taxa Fraude | Tipo | Melhor Para |
+|---------|---------|-------------|------|-------------|
+| **IEEE-CIS** | 590K | 3.5% | Real anonimizado | Competicoes |
+| **CiferAI** | 21M | Variavel | Sintetico | Federated Learning |
+| **Banking 2025** | ~500K | ~5% | Sintetico | Modelos modernos |
+| **NeurIPS 2022** | ~1M | 1-5% | Sintetico | Pesquisa academica |
+| **Credit Card ULB** | 284K | 0.17% | Real PCA | Baseline classico |
+
+---
+
+## 4.2 Padroes da Dark Web: O Que os Criminosos Vendem
+
+```
++==============================================================================+
+|                 INTELIGENCIA DE AMEACAS: DARK WEB                            |
++==============================================================================+
+|                                                                              |
+|   ⚠️  AVISO: Esta secao descreve padroes PARA DETECTAR, nao para praticar   |
+|                                                                              |
+|   O objetivo e treinar modelos para reconhecer esses padroes                 |
+|                                                                              |
++==============================================================================+
+```
+
+### Mercado de Cartoes Roubados
+
+**Estatisticas Recentes (2024-2025):**
+
+| Metrica | Valor |
+|---------|-------|
+| Cartoes vazados (2023-2024) | 2.3 milhoes (via malware infostealer) |
+| Cartoes liberados gratis (B1ack's Stash, Fev 2025) | 4 milhoes |
+| Maior vazamento unico | 30 milhoes (POS malware em postos de gasolina EUA) |
+| Preco medio por cartao | US$ 5-13 |
+
+**Tipos de Dados Vendidos:**
+
+```
++------------------------------------------------------------------------------+
+|   "FULLZ" = Dados completos do cartao                                        |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   - Numero do cartao                                                         |
+|   - Data de validade                                                         |
+|   - CVV                                                                      |
+|   - Nome completo                                                            |
+|   - CEP / Endereco                                                           |
+|   - Telefone                                                                 |
+|   - (Premium) CPF/SSN, data nascimento, nome da mae                          |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+|   "DUMPS" = Dados da tarja magnetica                                         |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   - Track 1 e Track 2 (dados brutos)                                         |
+|   - Usados para clonar cartoes fisicos                                       |
+|                                                                              |
++------------------------------------------------------------------------------+
+```
+
+**Prevalencia por Bandeira:**
+1. **Visa** (mais comum)
+2. **Mastercard** 
+3. **American Express** (premium, mais caro)
+
+**Origem dos Cartoes (Metodos de Roubo):**
+
+| Metodo | % dos Vazamentos | Tempo para Detectar |
+|--------|------------------|---------------------|
+| **POS Malware** | 35% | 10+ meses (!) |
+| **Data Breaches** | 30% | 3-6 meses |
+| **Brute Force** | 15% | Instantaneo |
+| **Phishing** | 12% | 1-7 dias |
+| **Skimmers ATM** | 8% | Semanas |
+
+---
+
+### Padroes de CARD TESTING (Carding)
+
+```
++==============================================================================+
+|                    COMO DETECTAR CARD TESTING                                |
++==============================================================================+
+|                                                                              |
+|   Card testing = criminosos testam cartoes roubados com compras pequenas     |
+|                  antes de fazer compras grandes                              |
+|                                                                              |
++==============================================================================+
+```
+
+**Red Flags para ML:**
+
+| Padrao | Feature ML | Threshold |
+|--------|------------|-----------|
+| Compra pequena seguida de grande | `txn_size_ratio` | > 50x |
+| Mesmo endereco, cartoes diferentes | `cards_per_address_1h` | > 3 |
+| Mesmo email, cartoes diferentes | `cards_per_email_1h` | > 3 |
+| Primeiros 12 digitos iguais | `bin_similarity` | > 0.9 |
+| CVV correto, validade errada | `cvv_valid_exp_wrong` | Boolean |
+| Item caro negado, varios baratos depois | `denial_followed_by_small` | Boolean |
+
+**Diagrama: Sequencia de Card Testing**
+
+```
+   PASSO 1              PASSO 2              PASSO 3
+   ─────────           ─────────            ─────────
+   
+   💳 Cartao           🛒 Teste             🛍️ Compra Grande
+   roubado             R$ 1,99              R$ 5.000
+                       (streaming,          (eletronicos,
+                       doacao)              gift cards)
+                       
+   ↓                   ↓                    ↓
+   
+   [Dark Web]    →    [Verificacao]   →    [Fraude Completa]
+                      Se aprovar,          Saque rapido
+                      cartao valido!       antes do bloqueio
+```
+
+---
+
+### Features para Detectar Dados Roubados
+
+| Feature | Descricao | Peso |
+|---------|-----------|------|
+| `device_fingerprint_match` | Dispositivo diferente do historico | 0.15 |
+| `ip_billing_mismatch` | IP nao bate com endereco | 0.12 |
+| `velocity_24h` | Transacoes em 24h (normal = 2-5) | 0.10 |
+| `form_fill_speed` | Velocidade de preenchimento (bots = muito rapido) | 0.08 |
+| `navigation_pattern` | Padrao de navegacao (bots = direto ao checkout) | 0.08 |
+| `browser_fingerprint` | Navegador/plugins suspeitos | 0.07 |
+
+---
+
+## 4.3 Anti-Money Laundering (AML): Detectando Lavagem de Dinheiro
+
+```
++==============================================================================+
+|                    LAVAGEM DE DINHEIRO: 3 FASES                              |
++==============================================================================+
+|                                                                              |
+|   1. PLACEMENT (Colocacao)                                                   |
+|      → Dinheiro sujo entra no sistema financeiro                             |
+|                                                                              |
+|   2. LAYERING (Estratificacao)                                               |
+|      → Dinheiro passa por varias camadas para obscurecer origem              |
+|                                                                              |
+|   3. INTEGRATION (Integracao)                                                |
+|      → Dinheiro "limpo" volta ao criminoso como legitimo                     |
+|                                                                              |
++==============================================================================+
+```
+
+### Smurfing vs Structuring
+
+```
++----------------------------------+----------------------------------+
+|          SMURFING                |         STRUCTURING              |
++----------------------------------+----------------------------------+
+|                                  |                                  |
+|  🧍🧍🧍 Multiplas pessoas        |  🧍 Uma pessoa                   |
+|                                  |                                  |
+|  Cada "smurf" deposita          |  Divide seus proprios            |
+|  pequenas quantias              |  depositos em partes             |
+|                                  |                                  |
+|  SEMPRE dinheiro ilicito        |  Pode ser dinheiro legal         |
+|                                  |  (mas ainda e crime!)            |
+|                                  |                                  |
+|  Exemplo:                        |  Exemplo:                        |
+|  3 pessoas depositam            |  Joao tem R$ 50.000              |
+|  R$ 9.000 cada na               |  Deposita R$ 9.000               |
+|  mesma conta                     |  por dia durante 6 dias          |
+|                                  |                                  |
++----------------------------------+----------------------------------+
+```
+
+### Features para AML
+
+#### Features de Valor (Threshold-based)
+
+| Feature | Descricao | Flag Se |
+|---------|-----------|---------|
+| `amount_near_threshold` | Proximo do limite de reporte | 90-100% do limite |
+| `rounded_amount` | Valor arredondado (intencional) | Multiplos de 1000 |
+| `multiple_below_threshold` | Varios depositos abaixo do limite | > 3 em 24h |
+| `withdrawal_deposit_ratio` | Saque = deposito - 10% (comissao) | Ratio 0.88-0.92 |
+
+#### Features Temporais
+
+| Feature | Descricao | Threshold |
+|---------|-----------|-----------|
+| `txn_frequency_24h` | Transacoes em 24 horas | > 5 |
+| `txn_frequency_7d` | Transacoes em 7 dias | > 15 |
+| `time_between_txns` | Tempo entre transacoes | < 5 min |
+| `weekend_holiday_ratio` | % em fins de semana/feriados | > 40% |
+
+#### Features de Rede (Graph)
+
+| Feature | Descricao | Alerta Se |
+|---------|-----------|-----------|
+| `degree_centrality` | Numero de conexoes da conta | Top 1% |
+| `clustering_coefficient` | Quao interconectados os contatos | > 0.8 |
+| `circular_flow` | Dinheiro retorna a origem | Detectado |
+| `cross_border_hops` | Paises diferentes na cadeia | > 3 |
+
+### Diagrama: Detectando Smurfing
+
+```
+   PADRAO NORMAL                    PADRAO SMURFING
+   ──────────────                   ───────────────
+   
+   [Cliente A]                      [Cliente A]
+       │                                │
+       │ R$ 50.000                      │
+       ↓                           ┌────┴────┐
+   [Conta A]                  [B]  [C]  [D]  [E]  [F]
+                               │    │    │    │    │
+                               │ R$ 9k cada │    │
+                               ↓    ↓    ↓    ↓    ↓
+                              [────────────────────]
+                                    Conta A
+                              (total: R$ 45.000)
+   
+   FEATURES DETECTAM:
+   - 5 depositos < R$ 10k no mesmo dia
+   - Todos para mesma conta destino
+   - Soma proxima de valor grande
+```
+
+---
+
+## 4.4 Synthetic Identity Fraud: Identidades Frankenstein
+
+```
++==============================================================================+
+|                    IDENTIDADE SINTETICA: O MONSTRO                           |
++==============================================================================+
+|                                                                              |
+|   Criminosos COMBINAM dados reais de varias pessoas para criar              |
+|   uma identidade NOVA que parece legitima mas nao existe.                   |
+|                                                                              |
+|   Exemplo:                                                                   |
+|   - CPF de uma crianca (pouco usado)                                        |
+|   - Nome similar a pessoa real                                              |
+|   - Endereco de imovel vago                                                 |
+|   - Email recen-criado                                                       |
+|                                                                              |
+|   = Identidade "Frankenstein" 🧟                                            |
+|                                                                              |
++==============================================================================+
+```
+
+### Estatisticas Alarmantes (2024)
+
+| Metrica | Valor |
+|---------|-------|
+| % de todas as fraudes de identidade | 30% |
+| Perdas globais (H1 2024) | US$ 3.2 bilhoes |
+| Melhoria com dados sinteticos para treino | +19% acuracia |
+
+### Features para Detectar Identidade Sintetica
+
+#### Anomalias de Identidade
+
+| Feature | Descricao | Red Flag |
+|---------|-----------|----------|
+| `credit_header_inconsistency` | Variacoes em nome/endereco/emprego | > 3 variacoes |
+| `ssn_issuance_mismatch` | CPF nao bate com data/local | Mismatch |
+| `pii_discrepancy` | Dados pessoais nao batem | Qualquer |
+| `proof_of_life` | Sinais de atividade humana real | Ausente |
+| `credit_inquiry_pattern` | Consultas de credito suspeitas | Padrao anormal |
+
+#### Analise de Links
+
+| Feature | Descricao | Threshold |
+|---------|-----------|-----------|
+| `ssn_reuse_count` | Mesmo CPF em multiplas contas | > 1 |
+| `address_reuse_count` | Mesmo endereco em multiplas contas | > 5 |
+| `phone_reuse_count` | Mesmo telefone em multiplas contas | > 3 |
+| `device_emulator_flag` | Dispositivo e emulador/VM | Detectado |
+| `browser_fingerprint_reuse` | Mesma config de browser | > 2 contas |
+
+#### Sinais Comportamentais
+
+| Feature | Descricao | Suspeito |
+|---------|-----------|----------|
+| `account_dormancy` | Conta inativa por muito tempo | > 6 meses |
+| `data_input_velocity` | Velocidade de digitacao | Muito rapido |
+| `navigation_pattern` | Padrao de navegacao | Robotico |
+| `session_duration` | Duracao da sessao | Muito curta |
+| `pii_change_frequency` | Mudancas frequentes de dados | > 3/ano |
+
+---
+
+## 4.5 Graph Neural Networks: Detectando Redes Criminosas
+
+```
++==============================================================================+
+|                    GNN: O DETECTOR DE QUADRILHAS                             |
++==============================================================================+
+|                                                                              |
+|   Enquanto XGBoost olha UMA transacao por vez...                             |
+|   GNN olha TODA A REDE de relacionamentos!                                   |
+|                                                                              |
+|   Exemplo: Uma conta parece normal sozinha, mas esta conectada               |
+|            a 10 contas ja marcadas como fraude → ALERTA!                     |
+|                                                                              |
++==============================================================================+
+```
+
+### Estrutura do Grafo
+
+**Nos (Entidades):**
+
+| Tipo de No | Descricao | Exemplo |
+|------------|-----------|---------|
+| **Usuario** | Conta bancaria | CPF 123.456.789-00 |
+| **Transacao** | Evento de pagamento | TXN_001 |
+| **Dispositivo** | Celular/PC | iPhone 15 (ID: xxx) |
+| **Comerciante** | Loja/empresa | Amazon BR |
+| **Endereco** | Localizacao | Av. Paulista, 1000 |
+
+**Arestas (Relacionamentos):**
+
+| Tipo de Aresta | Conecta | Atributos |
+|----------------|---------|-----------|
+| `faz_transacao` | Usuario → Transacao | Valor, hora |
+| `para_comerciante` | Transacao → Comerciante | Categoria |
+| `usa_dispositivo` | Usuario → Dispositivo | Frequencia |
+| `mesmo_endereco` | Usuario ↔ Usuario | Tipo (moradia/trabalho) |
+| `transfere_para` | Usuario → Usuario | Valor, frequencia |
+
+### Diagrama: Grafo de Fraude
+
+```
+                    GRAFO NORMAL                    GRAFO COM FRAUDE
+                    ────────────                    ────────────────
+                    
+                    [A]───[B]                       [A]───[B]
+                     │     │                         │     │
+                    [C]───[D]                       [C]───[D]
+                                                     │     │
+                                                    [🔴]───[🔴]───[🔴]
+                                                     │           │
+                                                    [🔴]─────────[🔴]
+                                                    
+                    Conexoes normais,               Cluster denso de
+                    esparsas                        contas suspeitas
+                                                    (fraud ring)
+```
+
+### Arquiteturas GNN para Fraude
+
+| Arquitetura | Melhor Para | Performance |
+|-------------|-------------|-------------|
+| **GCN** (Graph Convolutional) | Grafos homogeneos | +5% vs XGBoost |
+| **R-GCN** (Relational GCN) | Grafos heterogeneos | +10% vs XGBoost |
+| **GAT** (Graph Attention) | Explainability | Mostra quais conexoes importam |
+| **GraphSAGE** | Grafos grandes (sampling) | Escala para milhoes de nos |
+| **HGT** (Heterogeneous Graph Transformer) | Multiplos tipos de nos | Estado da arte |
+
+### Features de Grafo para Fraude
+
+| Feature | Calculo | Uso |
+|---------|---------|-----|
+| `degree_centrality` | Numero de conexoes | Contas muito conectadas = suspeitas |
+| `clustering_coefficient` | Densidade local | Clusters densos = fraud rings |
+| `pagerank` | Importancia na rede | Contas "hub" de lavagem |
+| `shortest_path_to_fraud` | Distancia para conta fraudulenta | < 2 = alto risco |
+| `neighbor_fraud_rate` | % de vizinhos fraudulentos | > 20% = alerta |
+
+### Codigo: GNN Simples com DGL
+
+```python
+import dgl
+import torch
+import torch.nn as nn
+from dgl.nn import RelGraphConv
+
+# 1. Construir grafo heterogeneo
+graph = dgl.heterograph({
+    ('usuario', 'faz', 'transacao'): (user_ids, txn_ids),
+    ('transacao', 'para', 'comerciante'): (txn_ids, merchant_ids),
+    ('usuario', 'usa', 'dispositivo'): (user_ids, device_ids)
+})
+
+# 2. Modelo R-GCN
+class FraudGNN(nn.Module):
+    def __init__(self, in_dim, hidden_dim, out_dim, num_rels):
+        super().__init__()
+        self.conv1 = RelGraphConv(in_dim, hidden_dim, num_rels)
+        self.conv2 = RelGraphConv(hidden_dim, out_dim, num_rels)
+    
+    def forward(self, g, features, etypes):
+        h = torch.relu(self.conv1(g, features, etypes))
+        h = self.conv2(g, h, etypes)
+        return h  # Embeddings das contas
+
+# 3. Combinar com XGBoost
+# GNN gera embeddings → XGBoost faz classificacao final
+# Resultado: -20% falsos positivos vs XGBoost sozinho
+```
+
+---
+
+## 4.6 Transfer Learning: Reutilizando Conhecimento
+
+```
++==============================================================================+
+|                    TRANSFER LEARNING: NAO REINVENTE A RODA                   |
++==============================================================================+
+|                                                                              |
+|   Por que treinar do zero se outro banco ja treinou um modelo bom?           |
+|                                                                              |
+|   Transfer Learning = pegar modelo pre-treinado e adaptar                    |
+|                                                                              |
++==============================================================================+
+```
+
+### Estrategias de Transfer Learning
+
+| Estrategia | Quando Usar | Exemplo |
+|------------|-------------|---------|
+| **Cross-Country** | Expandir para novo pais | Modelo BR → Modelo PT |
+| **Cross-Domain** | Novo tipo de transacao | E-commerce → Presencial |
+| **Pre-trained Weights** | Dados limitados | Usar pesos do TabTransformer |
+| **Federated Learning** | Privacidade | Treino entre bancos |
+
+### Caso: Transfer Learning Cross-Country (IEEE 2021)
+
+```
++------------------------------------------------------------------------------+
+|   ESTUDO: 200+ milhoes de transacoes e-commerce                              |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   Problema: Banco quer expandir de Pais A para Pais B                        |
+|             Mas fraude no Pais B e diferente!                                |
+|                                                                              |
+|   Solucao:                                                                   |
+|   1. Treinar modelo no Pais A (muito dados)                                  |
+|   2. Fine-tune com poucos dados do Pais B                                    |
+|   3. Resultado: 70% do tempo de treinamento economizado                      |
+|                                                                              |
+|   Referencia: arxiv.org/abs/2107.09323                                       |
+|                                                                              |
++------------------------------------------------------------------------------+
+```
+
+### Federated Transfer Learning (FED-SPFD, 2024)
+
+```
++------------------------------------------------------------------------------+
+|   MODELO: FED-SPFD (Federated Share-Private Fraud Detection)                 |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   Problema: Bancos nao podem compartilhar dados (LGPD!)                      |
+|             Mas fraude e parecida em todos...                                |
+|                                                                              |
+|   Solucao:                                                                   |
+|   - Cada banco treina localmente                                             |
+|   - So compartilham os PESOS do modelo (nao os dados)                        |
+|   - Agregador central combina os pesos                                       |
+|                                                                              |
+|   Resultado: +15% recall vs modelo isolado                                   |
+|                                                                              |
+|   Referencia: mdpi.com/2227-9091/13/11/208                                   |
+|                                                                              |
++------------------------------------------------------------------------------+
+```
+
+---
+
+## 4.7 PIX no Brasil: O Laboratorio de Fraude
+
+```
++==============================================================================+
+|                    PIX: CASO DE USO BRASILEIRO                               |
++==============================================================================+
+|                                                                              |
+|   O Brasil e o MAIOR laboratorio de fraude instantanea do mundo!             |
+|                                                                              |
+|   - 25 milhoes de transacoes PIX por dia                                     |
+|   - Latencia exigida: < 50ms                                                 |
+|   - Disponibilidade: 24/7/365                                                |
+|                                                                              |
++==============================================================================+
+```
+
+### Estatisticas PIX (2025)
+
+| Metrica | Valor |
+|---------|-------|
+| Volume diario | 25 milhoes de transacoes |
+| Latencia requerida | < 50ms |
+| Reducao de revisao manual (Bradesco) | 89% |
+| Reducao de falsos positivos (Bradesco) | 25% |
+
+### Tipos de Fraude PIX
+
+| Tipo | % do Total | Descricao |
+|------|------------|-----------|
+| **Engenharia Social** | 70% | WhatsApp falso, phishing |
+| **Malware (PixPirate)** | 15% | RAT no celular |
+| **Sequestro relampago** | 10% | Forcam vitima a transferir |
+| **Identidade sintetica** | 5% | Conta mula |
+
+### Features Especificas para PIX
+
+| Feature | Descricao | Peso |
+|---------|-----------|------|
+| `pix_destination_new` | Destinatario nunca recebeu antes | 0.18 |
+| `pix_key_type` | Tipo da chave (CPF/email/telefone/aleatoria) | 0.10 |
+| `night_transaction` | Transacao entre 20h-6h | 0.12 |
+| `device_registered` | Dispositivo registrado (BCB 491) | 0.15 |
+| `amount_vs_limit` | Valor vs limite diario | 0.10 |
+| `multiple_small_to_same` | Varias pequenas para mesmo destino | 0.08 |
+
+### Regulamentacoes Importantes
+
+| Norma | Requisito | Impacto no ML |
+|-------|-----------|---------------|
+| **BCB Normativa 491** | Limite R$200/txn para dispositivo nao registrado | Feature: `device_registered` |
+| **Resolucao 6/2023** | Compartilhamento de inteligencia entre bancos | Federated Learning |
+| **MED 2.0 (Fev 2026)** | Rastrear ate 5 camadas de contas | GNN obrigatorio |
+
+---
+
+## 4.8 Performance Benchmarks (Estado da Arte 2024-2025)
+
+### Melhores Modelos por Metrica
+
+| Modelo | Acuracia | Recall | F1 | Latencia |
+|--------|----------|--------|----|----------|
+| **Bi-LSTM** | 99.8% | 95% | 97% | 15ms |
+| **LSTM** | 99.2% | 93.3% | 96% | 12ms |
+| **TabTransformer** | 99.0% | 97% | 98% | 25ms |
+| **XGBoost** | 98.5% | 92% | 95% | 5ms |
+| **GNN + XGBoost** | 99.3% | 96% | 97% | 80ms |
+
+### Lidar com Desbalanceamento
+
+| Tecnica | Melhoria | Complexidade |
+|---------|----------|--------------|
+| **SMOTE** | +5% F1 | Baixa |
+| **Random Under-sampling** | +3% F1 | Baixa |
+| **Focal Loss** | +7% F1 | Media |
+| **GAN Oversampling** | +10% F1 | Alta |
+| **Class Weighting** | +4% F1 | Baixa |
+
+---
+
+## 4.9 Recursos e Ferramentas
+
+### Repositorios GitHub Essenciais
+
+| Repositorio | Descricao | Stars |
+|-------------|-----------|-------|
+| `amazon-science/fraud-dataset-benchmark` | Benchmark padrao | 500+ |
+| `shejz/IEEE-CIS-Fraud-Detection` | Top 12% Kaggle | 300+ |
+| `safe-graph/graph-fraud-detection-papers` | 100+ papers GNN | 1000+ |
+| `waittim/graph-fraud-detection` | Implementacao DGL | 200+ |
+
+### Plataformas de Producao
+
+| Plataforma | Uso | Custo |
+|------------|-----|-------|
+| **FICO SAFER** | Bradesco, Itau | Enterprise |
+| **Feedzai** | Bancos brasileiros | Enterprise |
+| **AWS SageMaker + Neptune** | GNN real-time | Pay-as-you-go |
+| **NVIDIA Triton** | Inferencia GPU | Open source |
+
+### Papers Fundamentais (2024-2025)
+
+| Paper | Conferencia | Contribuicao |
+|-------|-------------|--------------|
+| "Credit Card Fraud Detection Using Improved Deep Learning Models" | CMC 2024 | LSTM hyperparameter tuning |
+| "A Novel Federated Transfer Learning Framework..." | MDPI 2024 | FED-SPFD |
+| "Graph Neural Networks for Financial Fraud Detection: A Review" | arXiv 2024 | Survey completo |
+| "A Taxonomy of Pix Fraud in Brazil" | arXiv 2025 | Fraude PIX |
+| "Optimizing Fraud Detection with GNNs and GPUs" | NVIDIA 2024 | Performance |
+
+---
+
 ## Referencias
 
 | Recurso | Link | Descricao |
@@ -2340,9 +3063,19 @@ Vamos acompanhar uma transacao REAL do inicio ao fim. Conheca Maria:
 | Flower | flower.dev | Federated Learning |
 | PyTorch Geometric | pyg.org | GNN |
 | Fraud Detection Handbook | fraud-detection-handbook.github.io | Autoencoders |
+| IEEE-CIS Dataset | kaggle.com/c/ieee-fraud-detection | Dataset principal |
+| CiferAI Dataset | huggingface.co/datasets/CiferAI | 21M transacoes |
+| Amazon FDB | github.com/amazon-science/fraud-dataset-benchmark | Benchmark |
+| NVIDIA GNN Blueprint | developer.nvidia.com/blog | GNN producao |
+| arXiv Transfer Learning | arxiv.org/abs/2107.09323 | Cross-country |
+| MDPI FED-SPFD | mdpi.com/2227-9091/13/11/208 | Federated 2024 |
+| arXiv PIX Taxonomy | arxiv.org/abs/2511.20902 | Fraude PIX Brasil |
+| NordVPN Card Research | nordvpn.com/research-lab | Dark Web stats |
+| FICO Bradesco | fico.com/blogs | Caso real PIX |
 
 ---
 
 *Use a Cabeca: Machine Learning para Deteccao de Fraude*  
-*Sankofa Enterprise Pro v12.1*  
-*27 de Novembro de 2025*
+*Sankofa Enterprise Pro v12.2*  
+*27 de Novembro de 2025*  
+*Atualizado com: Datasets, Dark Web Patterns, AML, Synthetic ID, GNN, Transfer Learning, PIX*
