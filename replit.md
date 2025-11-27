@@ -10,10 +10,25 @@ Complete documentation is available in the `sankofa-enterprise-real/docs/` folde
 
 | Document | Description |
 |----------|-------------|
+| [BLUEPRINT_MOTOR_FRAUDE_300M.md](sankofa-enterprise-real/docs/BLUEPRINT_MOTOR_FRAUDE_300M.md) | **MASTER BLUEPRINT** - Complete enterprise architecture for 300M req/day fraud detection |
 | [ARQUITETURA_TECNICA.md](sankofa-enterprise-real/docs/ARQUITETURA_TECNICA.md) | Technical architecture, stack, components, APIs |
 | [DOCUMENTACAO_FUNCIONAL.md](sankofa-enterprise-real/docs/DOCUMENTACAO_FUNCIONAL.md) | Use cases, business rules, compliance |
 | [DIAGRAMAS.md](sankofa-enterprise-real/docs/DIAGRAMAS.md) | Flowcharts, architecture diagrams (Mermaid + ASCII) |
 | [MANUAL_USUARIO.md](sankofa-enterprise-real/docs/MANUAL_USUARIO.md) | User guide for dashboard operation |
+
+### Blueprint Highlights (BLUEPRINT_MOTOR_FRAUDE_300M.md)
+
+The master blueprint contains:
+- **15 complete sections** covering all aspects of enterprise fraud detection
+- **AWS Architecture** designed for 300M transactions/day
+- **Feature Store** with Redis Cluster + Apache Flink (150+ features)
+- **ML Ensemble** (XGBoost + LightGBM + CatBoost + GNN + Isolation Forest)
+- **Policy Engine** with STEP_UP authentication flows
+- **Backoffice React** wireframes and component architecture
+- **Compliance** framework (LGPD, BACEN, PCI DSS)
+- **MLOps** pipeline with champion-challenger and auto-retrain
+- **Roadmap** for 90/180/365 days with squad structure
+- **Risk Matrix** with contingency plans
 
 ## User Preferences
 
