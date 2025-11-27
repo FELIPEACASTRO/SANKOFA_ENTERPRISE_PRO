@@ -400,6 +400,25 @@ class ProductionFraudEngine:
         """
         return self.fit(X, y)
 
+    def _validate_required_features(self, X: pd.DataFrame) -> List[str]:
+        """
+        Valida se as features obrigatórias estão presentes
+        
+        Args:
+            X: DataFrame com features
+            
+        Returns:
+            Lista de features ausentes (vazia se todas presentes)
+        """
+        if not self.feature_names:
+            return []
+        
+        input_features = set(X.select_dtypes(include=[np.number]).columns)
+        required_features = set(self.feature_names)
+        missing = required_features - input_features
+        
+        return list(missing)
+    
     @log_execution_time(logger)
     def predict(self, X: pd.DataFrame) -> np.ndarray:
         """
@@ -415,7 +434,14 @@ class ProductionFraudEngine:
             raise ValueError("Model not trained. Call fit() first.")
 
         try:
-            # Preprocessar
+            missing_features = self._validate_required_features(X)
+            if missing_features:
+                logger.warning(
+                    "Missing features detected",
+                    missing=missing_features,
+                    provided=list(X.columns)
+                )
+            
             X_processed = self._preprocess_data(X, fit_transform=False)
 
             # Validar modelo
@@ -456,18 +482,22 @@ class ProductionFraudEngine:
 
         try:
             start_time = time.time()
+            
+            missing_features = self._validate_required_features(X)
+            if missing_features:
+                logger.warning(
+                    "Missing features in predict_detailed",
+                    missing=missing_features,
+                    provided=list(X.columns)
+                )
 
-            # Preprocessar
             X_processed = self._preprocess_data(X, fit_transform=False)
 
-            # Validar modelo
             if self.calibrated_model is None:
                 raise ValueError("Calibrated model not initialized. Call fit() first.")
 
-            # Predições
             y_proba = self.calibrated_model.predict_proba(X_processed)[:, 1]
 
-            # Aplicar regras de precisão
             if apply_rules:
                 y_proba = self._apply_precision_rules(X, y_proba)
 

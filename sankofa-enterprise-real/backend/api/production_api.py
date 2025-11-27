@@ -704,8 +704,10 @@ def get_model_info():
 
 
 @app.route("/api/model/train", methods=["POST"])
+@require_auth
+@limiter.limit("10 per hour")
 def train_model():
-    """Treina o modelo de detecção de fraude"""
+    """Treina o modelo de detecção de fraude (requer autenticação)"""
     logger.info("Starting model training", request_id=g.request_id)
     
     try:
@@ -896,8 +898,9 @@ def get_manual_review_queue():
 
 
 @app.route("/api/manual-review", methods=["POST"])
+@require_auth
 def add_to_manual_review():
-    """Adiciona transação à fila de revisão manual"""
+    """Adiciona transação à fila de revisão manual (requer autenticação)"""
     if not request.json:
         raise ValidationError("Request body is required")
     
@@ -914,8 +917,9 @@ def add_to_manual_review():
 
 
 @app.route("/api/manual-review/<int:item_id>", methods=["PUT"])
+@require_auth
 def update_manual_review(item_id: int):
-    """Atualiza status de item na revisão manual"""
+    """Atualiza status de item na revisão manual (requer autenticação)"""
     if not request.json:
         raise ValidationError("Request body is required")
     
@@ -924,8 +928,9 @@ def update_manual_review(item_id: int):
 
 
 @app.route("/api/manual-review/<int:item_id>", methods=["DELETE"])
+@require_auth
 def delete_manual_review(item_id: int):
-    """Remove item da fila de revisão manual"""
+    """Remove item da fila de revisão manual (requer autenticação)"""
     config_store.delete("manual_review_queue", item_id)
     return jsonify({"success": True, "message": "Deleted"})
 
@@ -938,8 +943,9 @@ def get_hard_rules():
 
 
 @app.route("/api/hard-rules", methods=["POST"])
+@require_auth
 def add_hard_rule():
-    """Adiciona nova regra de negócio"""
+    """Adiciona nova regra de negócio (requer autenticação)"""
     if not request.json:
         raise ValidationError("Request body is required")
     
@@ -956,8 +962,9 @@ def add_hard_rule():
 
 
 @app.route("/api/hard-rules/<int:rule_id>", methods=["PUT"])
+@require_auth
 def update_hard_rule(rule_id: int):
-    """Atualiza regra de negócio"""
+    """Atualiza regra de negócio (requer autenticação)"""
     if not request.json:
         raise ValidationError("Request body is required")
     
@@ -966,8 +973,9 @@ def update_hard_rule(rule_id: int):
 
 
 @app.route("/api/hard-rules/<int:rule_id>", methods=["DELETE"])
+@require_auth
 def delete_hard_rule(rule_id: int):
-    """Remove regra de negócio"""
+    """Remove regra de negócio (requer autenticação)"""
     config_store.delete("hard_rules", rule_id)
     return jsonify({"success": True, "message": "Deleted"})
 
@@ -980,8 +988,9 @@ def get_vip_list():
 
 
 @app.route("/api/vip-list", methods=["POST"])
+@require_auth
 def add_to_vip_list():
-    """Adiciona cliente à lista VIP"""
+    """Adiciona cliente à lista VIP (requer autenticação)"""
     if not request.json:
         raise ValidationError("Request body is required")
     
@@ -1000,8 +1009,9 @@ def add_to_vip_list():
 
 
 @app.route("/api/vip-list/<int:item_id>", methods=["DELETE"])
+@require_auth
 def remove_from_vip_list(item_id: int):
-    """Remove cliente da lista VIP"""
+    """Remove cliente da lista VIP (requer autenticação)"""
     config_store.delete("vip_list", item_id)
     return jsonify({"success": True, "message": "Deleted"})
 
@@ -1014,8 +1024,9 @@ def get_hot_list():
 
 
 @app.route("/api/hot-list", methods=["POST"])
+@require_auth
 def add_to_hot_list():
-    """Adiciona entidade à hotlist"""
+    """Adiciona entidade à hotlist (requer autenticação)"""
     if not request.json:
         raise ValidationError("Request body is required")
     
@@ -1034,8 +1045,9 @@ def add_to_hot_list():
 
 
 @app.route("/api/hot-list/<int:item_id>", methods=["DELETE"])
+@require_auth
 def remove_from_hot_list(item_id: int):
-    """Remove entidade da hotlist"""
+    """Remove entidade da hotlist (requer autenticação)"""
     config_store.delete("hot_list", item_id)
     return jsonify({"success": True, "message": "Deleted"})
 
@@ -1048,8 +1060,9 @@ def get_settings():
 
 
 @app.route("/api/settings", methods=["PUT"])
+@require_auth
 def update_settings():
-    """Atualiza configurações do sistema"""
+    """Atualiza configurações do sistema (requer autenticação)"""
     if not request.json:
         raise ValidationError("Request body is required")
     
@@ -1155,8 +1168,9 @@ def get_calibration():
 
 
 @app.route("/api/calibration", methods=["PUT"])
+@require_auth
 def update_calibration():
-    """Atualiza configurações de calibração"""
+    """Atualiza configurações de calibração (requer autenticação)"""
     if not request.json:
         raise ValidationError("Request body is required")
     

@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict, field
 from enum import Enum
-import numpy as np
+from pathlib import Path
 import os
 
 logger = logging.getLogger(__name__)
