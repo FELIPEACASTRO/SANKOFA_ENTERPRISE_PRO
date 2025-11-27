@@ -240,6 +240,29 @@
 |  └─────────────────────────────────────────────────────────────────────────┘ |
 |                                                                               |
 |  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  📚 USE_A_CABECA_ML.md  ★ NOVO ★                                         │ |
+|  │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                             │ |
+|  │                                                                          │ |
+|  │  AULA COMPLETA: Machine Learning para Deteccao de Fraude                │ |
+|  │                                                                          │ |
+|  │  CONTEUDO DA AULA:                                                      │ |
+|  │  • ATO 0: Antes de Comecar (objetivos, analogias)                       │ |
+|  │  • ATO 1: Jornada de 300ms (RF, XGBoost, LightGBM, Stacking)            │ |
+|  │  • ATO 2: Especialistas (LSTM, TabTransformer, Autoencoder, GNN, FL)    │ |
+|  │  • ATO 3: Sala de Guerra (metricas, cronologia, dashboard)              │ |
+|  │                                                                          │ |
+|  │  DESTAQUES:                                                             │ |
+|  │  • Caso Stripe: 59%→97%, $6B recuperados                                │ |
+|  │  • Caso Swift: 12 bancos globais com Federated Learning                 │ |
+|  │  • 10 modelos de IA explicados com analogias do dia a dia               │ |
+|  │  • Exercicios interativos "Use a Cabeca"                                │ |
+|  │  • Diagramas ASCII, fluxogramas e tabelas de metricas                   │ |
+|  │                                                                          │ |
+|  │  Paginas: ~1800 linhas | Estilo: Head First (didatico)                  │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
 |  │  📊 DataSets.md  ★ NOVO ★                                                │ |
 |  │  ━━━━━━━━━━━━━━━━━━━━━━━                                                  │ |
 |  │                                                                          │ |
