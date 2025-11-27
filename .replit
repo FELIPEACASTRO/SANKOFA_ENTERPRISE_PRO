@@ -60,8 +60,8 @@ externalPort = 3001
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["bash", "-c", "cd sankofa-enterprise-real/backend && python api/unified_server.py"]
-build = ["bash", "-c", "cd sankofa-enterprise-real/frontend && npm install && npm run build"]
+run = ["python", "sankofa-enterprise-real/backend/api/unified_server.py"]
+build = ["bash", "-c", "npm install --prefix sankofa-enterprise-real/frontend && npm run build --prefix sankofa-enterprise-real/frontend"]
 
 [userenv]
 
