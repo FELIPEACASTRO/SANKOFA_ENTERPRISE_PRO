@@ -8,7 +8,7 @@
 
 ---
 
-![Cerebro Detetive](images/detective_brain_analyzing_transactions.png)
+![Cerebro Detetive](images/cerebro_detetive_analisando_transacoes_brasileiras.png)
 
 > **"Se voce consegue explicar para sua avo, entao voce realmente entende."**
 > 
@@ -77,7 +77,7 @@ Voce NAO consegue analisar milhoes de transacoes manualmente. E por isso que pre
 
 # Capitulo 2: Conheca o Cerebro Anti-Fraude
 
-![Tres Modelos ML](images/three_ml_models_as_characters.png)
+![Tres Modelos ML](images/tres_modelos_ml_como_personagens_brasileiros.png)
 
 ## O Time de Especialistas
 
@@ -163,7 +163,7 @@ O Sankofa Enterprise Pro nao usa apenas UM algoritmo - ele usa um **time de tres
 
 ## Como os Tres Trabalham Juntos (Stacking Ensemble)
 
-![Diagrama ML](images/ml_features_decision_diagram.png)
+![Diagrama ML](images/diagrama_fatores_ml_em_portugues.png)
 
 ```
 +-------------------+     +-------------------+
@@ -207,7 +207,7 @@ O mesmo vale para deteccao de fraudes. Cada modelo tem seus pontos fortes e frac
 
 # Capitulo 3: A Jornada de uma Transacao
 
-![Analista de Seguranca](images/security_analyst_monitoring_dashboard.png)
+![Analista de Seguranca](images/analista_seguranca_monitorando_dashboard.png)
 
 ## Do Clique do Cliente ate a Decisao Final
 
@@ -340,7 +340,7 @@ O sistema transforma os dados brutos em **caracteristicas analisaveis**:
 
 ### Passo 5: Decisao Final
 
-![Tres Caminhos](images/three_decision_paths_flowchart.png)
+![Tres Caminhos](images/fluxograma_tres_decisoes_em_portugues.png)
 
 ```
 +------------------------------------------------------------------+
@@ -391,7 +391,7 @@ CLIENTE         SISTEMA           MODELOS          DECISAO
 
 # Capitulo 4: Os 7 Fatores que Denunciam uma Fraude
 
-![Comparacao Padroes](images/normal_vs_suspicious_pattern_comparison.png)
+![Comparacao Padroes](images/comparacao_padrao_normal_vs_suspeito.png)
 
 ## Os Sinais que o Sistema Procura
 
@@ -527,7 +527,7 @@ CENARIOS:
 
 ### Fator 5: VELOCIDADE (velocity_score)
 
-![Timeline de Transacoes](images/transaction_timeline_pattern_analysis.png)
+![Timeline de Transacoes](images/timeline_analise_padrao_transacoes.png)
 
 ```
 +------------------------------------------------------------------+
@@ -640,11 +640,11 @@ Cada anomalia adiciona pontos ao score de risco.
 
 # Capitulo 5: Casos Reais - Fraudes do Dia a Dia
 
-![Fraudador Bloqueado](images/fraudster_being_blocked_by_ai.png)
+![Fraudador Bloqueado](images/fraudador_bloqueado_pelo_sistema_ia.png)
 
 ## Caso 1: O Golpe do PIX Falso
 
-![PIX Fraude](images/pix_fraud_warning_signs.png)
+![PIX Fraude](images/sinais_alerta_fraude_pix_brasileiro.png)
 
 ### A Historia
 
@@ -666,7 +666,7 @@ Dona Maria, 68 anos, recebe uma mensagem no WhatsApp:
 +------------------------------------------------------------------+
 ```
 
-![Golpe WhatsApp](images/grandma_receiving_scam_message.png)
+![Golpe WhatsApp](images/avo_brasileira_recebendo_golpe_whatsapp.png)
 
 ### O que Dona Maria fez
 
@@ -744,7 +744,7 @@ O banco ligou para Dona Maria. Ela confirmou que recebeu a mensagem do "filho". 
 
 Carlos, empresario de 45 anos, teve seu cartao clonado em uma maquininha adulterada em um restaurante.
 
-![Clonagem de Cartao](images/card_cloning_fraud_illustration.png)
+![Clonagem de Cartao](images/ilustracao_clonagem_cartao_brasileiro.png)
 
 ### O que Aconteceu
 
@@ -1002,7 +1002,7 @@ Recomendamos confirmar com o fornecedor antes de pagar."
 
 # Capitulo 6: APROVADO, SUSPEITA ou FRAUDE - A Decisao Final
 
-![Medidor de Risco](images/risk_score_thermometer_meter.png)
+![Medidor de Risco](images/termometro_score_de_risco_portugues.png)
 
 ## Os Tres Vereditos
 
