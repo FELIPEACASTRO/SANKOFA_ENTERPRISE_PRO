@@ -43,6 +43,38 @@ class CacheConfig:
     health_check_interval: int = 30
     default_ttl: int = 3600  # 1 hora
     max_memory_policy: str = "allkeys-lru"
+    use_ssl: bool = False  # Para Upstash e outros serviços cloud
+    
+    @classmethod
+    def from_env(cls) -> "CacheConfig":
+        """Carrega configuração de variáveis de ambiente"""
+        import os
+        host = os.getenv("REDIS_HOST", "localhost")
+        use_ssl = host.startswith("rediss://") or os.getenv("REDIS_SSL", "false").lower() == "true"
+        
+        if host.startswith("rediss://"):
+            host = host.replace("rediss://", "")
+        elif host.startswith("redis://"):
+            host = host.replace("redis://", "")
+        
+        if "@" in host:
+            host = host.split("@")[-1]
+        if ":" in host:
+            parts = host.split(":")
+            host = parts[0]
+            port = int(parts[1].split("/")[0]) if len(parts) > 1 else 6379
+        else:
+            port = int(os.getenv("REDIS_PORT", "6379"))
+            
+        return cls(
+            host=host,
+            port=port,
+            password=os.getenv("REDIS_PASSWORD"),
+            db=int(os.getenv("REDIS_DB", "0")),
+            max_connections=int(os.getenv("REDIS_MAX_CONNECTIONS", "100")),
+            socket_timeout=float(os.getenv("REDIS_SOCKET_TIMEOUT", "5.0")),
+            use_ssl=use_ssl,
+        )
 
 
 class InMemoryCache:
@@ -205,17 +237,28 @@ class RedisConnectionManager:
             return
             
         try:
-            self.pool = redis_module.ConnectionPool(
-                host=self.config.host,
-                port=self.config.port,
-                password=self.config.password,
-                db=self.config.db,
-                max_connections=self.config.max_connections,
-                socket_timeout=self.config.socket_timeout,
-                socket_connect_timeout=self.config.socket_connect_timeout,
-                retry_on_timeout=self.config.retry_on_timeout,
-                decode_responses=False,
-            )
+            connection_kwargs = {
+                "host": self.config.host,
+                "port": self.config.port,
+                "password": self.config.password,
+                "db": self.config.db,
+                "max_connections": self.config.max_connections,
+                "socket_timeout": self.config.socket_timeout,
+                "socket_connect_timeout": self.config.socket_connect_timeout,
+                "retry_on_timeout": self.config.retry_on_timeout,
+                "decode_responses": False,
+            }
+            
+            if self.config.use_ssl:
+                import ssl
+                ssl_context = ssl.create_default_context()
+                ssl_context.check_hostname = True
+                ssl_context.verify_mode = ssl.CERT_REQUIRED
+                connection_kwargs["ssl"] = True
+                connection_kwargs["ssl_cert_reqs"] = "required"
+                logger.info("Redis SSL/TLS habilitado para conexão segura")
+            
+            self.pool = redis_module.ConnectionPool(**connection_kwargs)
 
             # Testa conexão
             client = redis_module.Redis(connection_pool=self.pool)
@@ -631,8 +674,8 @@ def cache_result(cache_manager: FraudCacheManager, cache_type: str, ttl: Optiona
     return decorator
 
 
-# Instância global do sistema de cache
-cache_config = CacheConfig()
+# Instância global do sistema de cache (carrega de variáveis de ambiente)
+cache_config = CacheConfig.from_env()
 redis_cache_system = RedisCacheSystem(cache_config)
 fraud_cache_manager = FraudCacheManager(redis_cache_system)
 
