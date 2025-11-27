@@ -158,6 +158,13 @@ class ProductionFraudEngine:
 
         # Rules para precision boosting
         self.precision_rules = self._initialize_precision_rules()
+        
+        # Modelos do ensemble carregado
+        self.loaded_models = None
+        self.model_weights = {'rf': 0.4, 'gb': 0.4, 'lr': 0.2}
+
+        # Tentar carregar modelo pré-treinado
+        self._try_load_pretrained_model()
 
         logger.info(
             "Production Fraud Engine initialized",
@@ -165,6 +172,68 @@ class ProductionFraudEngine:
             threshold=self.threshold,
             model_path=str(self.model_path),
         )
+    
+    def _try_load_pretrained_model(self):
+        """Tenta carregar modelo pré-treinado do disco"""
+        try:
+            model_file = self.model_path / "fraud_engine_v1.0.0.joblib"
+            simple_model_file = self.model_path / "production_model.joblib"
+            
+            if model_file.exists():
+                import joblib
+                model_data = joblib.load(model_file)
+                self.loaded_models = model_data.get('models', {})
+                self.scaler = model_data.get('scaler', self.scaler)
+                self.feature_names = model_data.get('feature_names', [])
+                self.threshold = model_data.get('threshold', 0.5)
+                self.model_weights = model_data.get('weights', self.model_weights)
+                
+                metrics_dict = model_data.get('metrics', {})
+                if metrics_dict:
+                    self.metrics = ModelMetrics(
+                        accuracy=metrics_dict.get('accuracy', 0),
+                        precision=metrics_dict.get('precision', 0),
+                        recall=metrics_dict.get('recall', 0),
+                        f1_score=metrics_dict.get('f1_score', 0),
+                        roc_auc=metrics_dict.get('roc_auc', 0),
+                        threshold=metrics_dict.get('threshold', 0.5),
+                        timestamp=metrics_dict.get('timestamp', '')
+                    )
+                
+                self.is_trained = True
+                logger.info(
+                    "Pre-trained model loaded successfully",
+                    model_file=str(model_file),
+                    features=len(self.feature_names),
+                    threshold=self.threshold
+                )
+            elif simple_model_file.exists():
+                import joblib
+                model_data = joblib.load(simple_model_file)
+                self.loaded_models = {'random_forest': model_data.get('model')}
+                self.scaler = model_data.get('scaler', self.scaler)
+                self.feature_names = model_data.get('feature_names', [])
+                self.threshold = model_data.get('threshold', 0.5)
+                
+                metrics_dict = model_data.get('metrics', {})
+                if metrics_dict:
+                    self.metrics = ModelMetrics(
+                        accuracy=metrics_dict.get('accuracy', 0),
+                        precision=metrics_dict.get('precision', 0),
+                        recall=metrics_dict.get('recall', 0),
+                        f1_score=metrics_dict.get('f1_score', 0),
+                        roc_auc=metrics_dict.get('roc_auc', 0),
+                        threshold=metrics_dict.get('threshold', 0.5),
+                        timestamp=metrics_dict.get('timestamp', '')
+                    )
+                
+                self.is_trained = True
+                logger.info(
+                    "Simple pre-trained model loaded",
+                    model_file=str(simple_model_file)
+                )
+        except Exception as e:
+            logger.warning(f"Could not load pre-trained model: {e}")
 
     def _initialize_precision_rules(self) -> Dict[str, Dict[str, Any]]:
         """Inicializa regras de alta precisão"""
@@ -186,6 +255,26 @@ class ProductionFraudEngine:
             },
         }
 
+    def _create_derived_features(self, X: pd.DataFrame) -> pd.DataFrame:
+        """Cria features derivadas necessárias para o modelo"""
+        df = X.copy()
+        
+        # Features derivadas do treinamento
+        if 'amount' in df.columns:
+            df['amount_log'] = np.log1p(df['amount'])
+            if 'avg_amount_30d' in df.columns:
+                df['amount_deviation'] = df['amount'] / (df['avg_amount_30d'] + 1)
+            else:
+                df['amount_deviation'] = df['amount'] / 500
+        
+        if 'velocity_score' in df.columns and 'is_new_device' in df.columns:
+            df['velocity_device_interaction'] = df['velocity_score'] * df['is_new_device']
+        
+        if 'is_night' in df.columns and 'amount' in df.columns:
+            df['night_high_amount'] = df['is_night'] * (df['amount'] > 2000).astype(int)
+        
+        return df
+
     @log_execution_time(logger)
     def _preprocess_data(self, X: pd.DataFrame, fit_transform: bool = False) -> np.ndarray:
         """
@@ -199,23 +288,37 @@ class ProductionFraudEngine:
             Array numpy processado
         """
         try:
-            # Selecionar features numéricas
-            numeric_cols = X.select_dtypes(include=[np.number]).columns.tolist()
-
-            if not numeric_cols:
-                raise ValueError("No numeric features found in input data")
-
-            X_selected = X[numeric_cols].copy()
+            # Criar features derivadas se modelo carregado
+            if self.loaded_models and self.feature_names:
+                X = self._create_derived_features(X)
+            
+            # Se temos feature_names do modelo, usar apenas essas
+            if self.feature_names and not fit_transform:
+                available_features = [f for f in self.feature_names if f in X.columns]
+                missing_features = [f for f in self.feature_names if f not in X.columns]
+                
+                if missing_features:
+                    # Adicionar features faltantes com valor 0
+                    for feat in missing_features:
+                        X[feat] = 0
+                
+                X_selected = X[self.feature_names].copy()
+            else:
+                # Selecionar features numéricas
+                numeric_cols = X.select_dtypes(include=[np.number]).columns.tolist()
+                if not numeric_cols:
+                    raise ValueError("No numeric features found in input data")
+                X_selected = X[numeric_cols].copy()
 
             # Tratar valores ausentes
-            X_selected = X_selected.fillna(X_selected.median())
+            X_selected = X_selected.fillna(0)
 
             # Scaling
             if fit_transform:
                 X_scaled = self.scaler.fit_transform(X_selected)
-                self.feature_names = numeric_cols
+                self.feature_names = list(X_selected.columns)
                 logger.info(
-                    "Features preprocessed", num_features=len(numeric_cols), num_samples=len(X)
+                    "Features preprocessed", num_features=len(self.feature_names), num_samples=len(X)
                 )
             else:
                 X_scaled = self.scaler.transform(X_selected)
@@ -493,10 +596,35 @@ class ProductionFraudEngine:
 
             X_processed = self._preprocess_data(X, fit_transform=False)
 
-            if self.calibrated_model is None:
-                raise ValueError("Calibrated model not initialized. Call fit() first.")
-
-            y_proba = self.calibrated_model.predict_proba(X_processed)[:, 1]
+            # Usar modelos carregados se disponíveis
+            if self.loaded_models:
+                probas = []
+                weights = []
+                
+                if 'random_forest' in self.loaded_models and self.loaded_models['random_forest']:
+                    rf_proba = self.loaded_models['random_forest'].predict_proba(X_processed)[:, 1]
+                    probas.append(rf_proba)
+                    weights.append(self.model_weights.get('rf', 0.4))
+                
+                if 'gradient_boosting' in self.loaded_models and self.loaded_models['gradient_boosting']:
+                    gb_proba = self.loaded_models['gradient_boosting'].predict_proba(X_processed)[:, 1]
+                    probas.append(gb_proba)
+                    weights.append(self.model_weights.get('gb', 0.4))
+                
+                if 'logistic_regression' in self.loaded_models and self.loaded_models['logistic_regression']:
+                    lr_proba = self.loaded_models['logistic_regression'].predict_proba(X_processed)[:, 1]
+                    probas.append(lr_proba)
+                    weights.append(self.model_weights.get('lr', 0.2))
+                
+                if probas:
+                    total_weight = sum(weights)
+                    y_proba = sum(p * w for p, w in zip(probas, weights)) / total_weight
+                else:
+                    raise ValueError("No loaded models available for prediction")
+            elif self.calibrated_model is not None:
+                y_proba = self.calibrated_model.predict_proba(X_processed)[:, 1]
+            else:
+                raise ValueError("No model available. Train or load a model first.")
 
             if apply_rules:
                 y_proba = self._apply_precision_rules(X, y_proba)
