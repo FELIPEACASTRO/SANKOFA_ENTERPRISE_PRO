@@ -46,11 +46,11 @@ export function Dashboard() {
         modelsRes.json()
       ]);
 
-      setKpis(kpisData);
-      setTimeSeriesData(timeseriesData.timeseries || []);
-      setChannelData(channelsData.channels || []);
-      setRecentAlerts(alertsData.alerts || []);
-      setModelStatus(modelsData.models || []);
+      setKpis(kpisData.data || kpisData);
+      setTimeSeriesData(timeseriesData.data?.timeseries || timeseriesData.data || []);
+      setChannelData(channelsData.data?.channels || channelsData.data || []);
+      setRecentAlerts(alertsData.alerts || alertsData.data?.alerts || []);
+      setModelStatus(modelsData.models || modelsData.data?.models || []);
       setLastUpdate(new Date());
       
     } catch (error) {

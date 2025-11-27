@@ -29,7 +29,7 @@ export function KPICard({
           currency: 'BRL'
         }).format(val);
       case 'percentage':
-        return `${(val * 100).toFixed(1)}%`;
+        return `${val.toFixed(1)}%`;
       case 'number':
         return new Intl.NumberFormat('pt-BR').format(val);
       case 'decimal':
