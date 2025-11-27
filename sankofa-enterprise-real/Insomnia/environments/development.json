@@ -1,0 +1,53 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-11-27T17:00:00.000Z",
+  "resources": [
+    {
+      "_id": "env_development",
+      "parentId": "env_base",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "Development",
+      "data": {
+        "base_url": "http://localhost:8000",
+        "frontend_url": "http://localhost:5000",
+        "jwt_token": "",
+        "admin_username": "admin",
+        "admin_password": "admin123",
+        "analyst_username": "analyst",
+        "analyst_password": "analyst123",
+        "test_customer_id": "CUST_TEST_001",
+        "test_merchant_id": "MERCH_TEST_001",
+        "test_device_id": "device_test_001"
+      },
+      "color": "#7ed321",
+      "isPrivate": false,
+      "metaSortKey": 1,
+      "_type": "environment"
+    },
+    {
+      "_id": "env_production",
+      "parentId": "env_base",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "Production",
+      "data": {
+        "base_url": "https://sankofa.seubanco.com.br/api",
+        "frontend_url": "https://sankofa.seubanco.com.br",
+        "jwt_token": "",
+        "admin_username": "",
+        "admin_password": "",
+        "analyst_username": "",
+        "analyst_password": "",
+        "test_customer_id": "",
+        "test_merchant_id": "",
+        "test_device_id": ""
+      },
+      "color": "#d0021b",
+      "isPrivate": true,
+      "metaSortKey": 2,
+      "_type": "environment"
+    }
+  ]
+}

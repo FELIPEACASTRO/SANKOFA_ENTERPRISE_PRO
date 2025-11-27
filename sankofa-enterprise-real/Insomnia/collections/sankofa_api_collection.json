@@ -1,0 +1,1395 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-11-27T17:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "wrk_sankofa_fraud_engine",
+      "parentId": null,
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "Sankofa Fraud Engine API v12.0",
+      "description": "Colecao completa de endpoints do Motor de Fraude Sankofa Enterprise Pro",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_base",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8000",
+        "jwt_token": "",
+        "customer_cpf": "12345678901",
+        "transaction_id": "TXN1732726800000"
+      },
+      "dataPropertyOrder": null,
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1,
+      "_type": "environment"
+    },
+    {
+      "_id": "fld_health",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "01 - Health & Status",
+      "description": "Endpoints de saude e status do sistema",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_root",
+      "parentId": "fld_health",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/",
+      "name": "GET / - Root Info",
+      "description": "Informacoes basicas da API",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 1,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_health",
+      "parentId": "fld_health",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/health",
+      "name": "GET /api/health - Health Check",
+      "description": "Verifica saude basica da API",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "req_health_live",
+      "parentId": "fld_health",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/health/live",
+      "name": "GET /api/health/live - Liveness Probe",
+      "description": "Kubernetes liveness probe",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 3,
+      "_type": "request"
+    },
+    {
+      "_id": "req_health_ready",
+      "parentId": "fld_health",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/health/ready",
+      "name": "GET /api/health/ready - Readiness Probe",
+      "description": "Kubernetes readiness probe",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 4,
+      "_type": "request"
+    },
+    {
+      "_id": "req_health_detailed",
+      "parentId": "fld_health",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/health/detailed",
+      "name": "GET /api/health/detailed - Health Detalhado",
+      "description": "Health check detalhado por componente",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 5,
+      "_type": "request"
+    },
+    {
+      "_id": "req_status",
+      "parentId": "fld_health",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/status",
+      "name": "GET /api/status - Status Completo",
+      "description": "Status completo do sistema",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 6,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_auth",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "02 - Autenticacao",
+      "description": "Endpoints de autenticacao JWT",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 2,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_auth_login",
+      "parentId": "fld_auth",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/auth/login",
+      "name": "POST /api/auth/login - Login",
+      "description": "Autenticacao e obtencao de token JWT",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "req_auth_login_analyst",
+      "parentId": "fld_auth",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/auth/login",
+      "name": "POST /api/auth/login - Login Analyst",
+      "description": "Login como analista de fraude",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"analyst\",\n  \"password\": \"analyst123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "req_auth_login_invalid",
+      "parentId": "fld_auth",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/auth/login",
+      "name": "POST /api/auth/login - Login Invalido",
+      "description": "Teste de login com credenciais invalidas",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"usuario_invalido\",\n  \"password\": \"senha_errada\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 3,
+      "_type": "request"
+    },
+    {
+      "_id": "req_auth_verify",
+      "parentId": "fld_auth",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/auth/verify",
+      "name": "GET /api/auth/verify - Verificar Token",
+      "description": "Verifica se o token JWT e valido",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {"name": "Authorization", "value": "Bearer {{ _.jwt_token }}"}
+      ],
+      "authentication": {},
+      "metaSortKey": 4,
+      "_type": "request"
+    },
+    {
+      "_id": "req_auth_refresh",
+      "parentId": "fld_auth",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/auth/refresh",
+      "name": "POST /api/auth/refresh - Renovar Token",
+      "description": "Renova o token JWT",
+      "method": "POST",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {"name": "Authorization", "value": "Bearer {{ _.jwt_token }}"}
+      ],
+      "authentication": {},
+      "metaSortKey": 5,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_fraud",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "03 - Deteccao de Fraude",
+      "description": "Endpoints principais de deteccao de fraude",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 3,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_fraud_predict_low",
+      "parentId": "fld_fraud",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/fraud/predict",
+      "name": "POST /api/fraud/predict - Transacao Baixo Risco",
+      "description": "Transacao normal de baixo valor em horario comercial",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"transactions\": [\n    {\n      \"transaction_id\": \"TXN_LOW_RISK_001\",\n      \"amount\": 150.00,\n      \"customer_id\": \"CUST001\",\n      \"merchant_id\": \"MERCH001\",\n      \"transaction_type\": \"PIX\",\n      \"channel\": \"mobile\",\n      \"device_id\": \"device_trusted_001\",\n      \"ip_address\": \"192.168.1.100\",\n      \"latitude\": -23.5505,\n      \"longitude\": -46.6333,\n      \"timestamp\": \"2025-11-27T14:30:00\"\n    }\n  ],\n  \"include_explanation\": true\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "req_fraud_predict_high",
+      "parentId": "fld_fraud",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/fraud/predict",
+      "name": "POST /api/fraud/predict - Transacao Alto Risco",
+      "description": "Transacao suspeita de alto valor em horario noturno",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"transactions\": [\n    {\n      \"transaction_id\": \"TXN_HIGH_RISK_001\",\n      \"amount\": 15000.00,\n      \"customer_id\": \"CUST_NEW\",\n      \"merchant_id\": \"MERCH_UNKNOWN\",\n      \"transaction_type\": \"PIX\",\n      \"channel\": \"web\",\n      \"device_id\": \"device_new_001\",\n      \"ip_address\": \"45.67.89.123\",\n      \"latitude\": -22.9068,\n      \"longitude\": -43.1729,\n      \"timestamp\": \"2025-11-27T03:15:00\"\n    }\n  ],\n  \"include_explanation\": true\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "req_fraud_predict_medium",
+      "parentId": "fld_fraud",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/fraud/predict",
+      "name": "POST /api/fraud/predict - Transacao Risco Medio (Revisao)",
+      "description": "Transacao que requer revisao manual",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"transactions\": [\n    {\n      \"transaction_id\": \"TXN_MEDIUM_RISK_001\",\n      \"amount\": 5000.00,\n      \"customer_id\": \"CUST002\",\n      \"merchant_id\": \"MERCH002\",\n      \"transaction_type\": \"CREDITO\",\n      \"channel\": \"pos\",\n      \"device_id\": \"device_002\",\n      \"ip_address\": \"200.100.50.25\",\n      \"latitude\": -19.9167,\n      \"longitude\": -43.9345,\n      \"timestamp\": \"2025-11-27T21:45:00\"\n    }\n  ],\n  \"include_explanation\": true\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 3,
+      "_type": "request"
+    },
+    {
+      "_id": "req_fraud_predict_international",
+      "parentId": "fld_fraud",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/fraud/predict",
+      "name": "POST /api/fraud/predict - Transacao Internacional",
+      "description": "Transacao de localizacao internacional suspeita",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"transactions\": [\n    {\n      \"transaction_id\": \"TXN_INTL_001\",\n      \"amount\": 8500.00,\n      \"customer_id\": \"CUST_BR_001\",\n      \"merchant_id\": \"MERCH_INTL\",\n      \"transaction_type\": \"CREDITO\",\n      \"channel\": \"web\",\n      \"device_id\": \"device_unknown\",\n      \"ip_address\": \"185.220.101.50\",\n      \"latitude\": 40.7128,\n      \"longitude\": -74.0060,\n      \"timestamp\": \"2025-11-27T04:00:00\"\n    }\n  ],\n  \"include_explanation\": true\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 4,
+      "_type": "request"
+    },
+    {
+      "_id": "req_fraud_predict_velocity",
+      "parentId": "fld_fraud",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/fraud/predict",
+      "name": "POST /api/fraud/predict - Alta Velocidade",
+      "description": "Multiplas transacoes em curto periodo (velocity)",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"transactions\": [\n    {\n      \"transaction_id\": \"TXN_VELOCITY_001\",\n      \"amount\": 500.00,\n      \"customer_id\": \"CUST_VELOCITY\",\n      \"merchant_id\": \"MERCH_MULTI\",\n      \"transaction_type\": \"DEBITO\",\n      \"channel\": \"atm\",\n      \"device_id\": \"device_atm_001\",\n      \"ip_address\": \"10.0.0.1\",\n      \"latitude\": -23.5505,\n      \"longitude\": -46.6333,\n      \"timestamp\": \"2025-11-27T10:00:00\",\n      \"transaction_count_1h\": 15,\n      \"transaction_count_24h\": 50\n    }\n  ],\n  \"include_explanation\": true\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 5,
+      "_type": "request"
+    },
+    {
+      "_id": "req_fraud_batch",
+      "parentId": "fld_fraud",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/fraud/batch",
+      "name": "POST /api/fraud/batch - Batch Processing",
+      "description": "Processamento em lote de multiplas transacoes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"transactions\": [\n    {\n      \"transaction_id\": \"BATCH_001\",\n      \"amount\": 100.00,\n      \"customer_id\": \"CUST_A\",\n      \"merchant_id\": \"MERCH_A\",\n      \"transaction_type\": \"PIX\",\n      \"channel\": \"mobile\"\n    },\n    {\n      \"transaction_id\": \"BATCH_002\",\n      \"amount\": 2500.00,\n      \"customer_id\": \"CUST_B\",\n      \"merchant_id\": \"MERCH_B\",\n      \"transaction_type\": \"CREDITO\",\n      \"channel\": \"web\"\n    },\n    {\n      \"transaction_id\": \"BATCH_003\",\n      \"amount\": 50000.00,\n      \"customer_id\": \"CUST_C\",\n      \"merchant_id\": \"MERCH_C\",\n      \"transaction_type\": \"TED\",\n      \"channel\": \"web\"\n    }\n  ]\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 6,
+      "_type": "request"
+    },
+    {
+      "_id": "req_fraud_invalid_payload",
+      "parentId": "fld_fraud",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/fraud/predict",
+      "name": "POST /api/fraud/predict - Payload Invalido",
+      "description": "Teste de validacao com payload invalido",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"transactions\": []\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 7,
+      "_type": "request"
+    },
+    {
+      "_id": "req_fraud_negative_amount",
+      "parentId": "fld_fraud",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/fraud/predict",
+      "name": "POST /api/fraud/predict - Valor Negativo",
+      "description": "Teste com valor de transacao negativo",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"transactions\": [\n    {\n      \"transaction_id\": \"TXN_NEGATIVE\",\n      \"amount\": -500.00,\n      \"customer_id\": \"CUST_TEST\",\n      \"merchant_id\": \"MERCH_TEST\",\n      \"transaction_type\": \"PIX\"\n    }\n  ]\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 8,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_model",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "04 - Modelo ML",
+      "description": "Endpoints do modelo de Machine Learning",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 4,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_model_metrics",
+      "parentId": "fld_model",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/model/metrics",
+      "name": "GET /api/model/metrics - Metricas do Modelo",
+      "description": "Recall, Precision, F1-Score do modelo",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "req_model_info",
+      "parentId": "fld_model",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/model/info",
+      "name": "GET /api/model/info - Info do Modelo",
+      "description": "Informacoes detalhadas do modelo",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "req_model_train",
+      "parentId": "fld_model",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/model/train",
+      "name": "POST /api/model/train - Treinar Modelo",
+      "description": "Inicia treinamento do modelo ML",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"dataset_id\": \"training_set_v1\",\n  \"hyperparameters\": {\n    \"n_estimators\": 100,\n    \"max_depth\": 10\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"},
+        {"name": "Authorization", "value": "Bearer {{ _.jwt_token }}"}
+      ],
+      "authentication": {},
+      "metaSortKey": 3,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_explainability",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "05 - Explicabilidade LGPD",
+      "description": "Endpoints de explicabilidade para compliance LGPD",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 5,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_explain_features",
+      "parentId": "fld_explainability",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/explainability/features",
+      "name": "GET /api/explainability/features - Features Importantes",
+      "description": "Lista features mais importantes do modelo",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "req_explain_transaction",
+      "parentId": "fld_explainability",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/explainability/explain",
+      "name": "POST /api/explainability/explain - Explicar Decisao",
+      "description": "Explicacao detalhada de uma decisao especifica",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"transaction_id\": \"TXN_HIGH_RISK_001\",\n  \"include_shap\": true\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_dashboard",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "06 - Dashboard",
+      "description": "Endpoints do dashboard executivo",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 6,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_dashboard_summary",
+      "parentId": "fld_dashboard",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/dashboard/summary",
+      "name": "GET /api/dashboard/summary - Resumo",
+      "description": "Resumo executivo do dashboard",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "req_dashboard_hourly",
+      "parentId": "fld_dashboard",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/dashboard/hourly",
+      "name": "GET /api/dashboard/hourly - Dados Horarios",
+      "description": "Metricas por hora",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "req_dashboard_kpis",
+      "parentId": "fld_dashboard",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/dashboard/kpis",
+      "name": "GET /api/dashboard/kpis - KPIs",
+      "description": "Indicadores chave de performance",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 3,
+      "_type": "request"
+    },
+    {
+      "_id": "req_dashboard_timeseries",
+      "parentId": "fld_dashboard",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/dashboard/timeseries",
+      "name": "GET /api/dashboard/timeseries - Series Temporais",
+      "description": "Dados de series temporais",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 4,
+      "_type": "request"
+    },
+    {
+      "_id": "req_dashboard_channels",
+      "parentId": "fld_dashboard",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/dashboard/channels",
+      "name": "GET /api/dashboard/channels - Por Canal",
+      "description": "Metricas por canal de transacao",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 5,
+      "_type": "request"
+    },
+    {
+      "_id": "req_dashboard_alerts",
+      "parentId": "fld_dashboard",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/dashboard/alerts",
+      "name": "GET /api/dashboard/alerts - Alertas",
+      "description": "Alertas do dashboard",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 6,
+      "_type": "request"
+    },
+    {
+      "_id": "req_dashboard_recent_alerts",
+      "parentId": "fld_dashboard",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/dashboard/recent-alerts",
+      "name": "GET /api/dashboard/recent-alerts - Alertas Recentes",
+      "description": "Ultimos alertas gerados",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 7,
+      "_type": "request"
+    },
+    {
+      "_id": "req_dashboard_model_status",
+      "parentId": "fld_dashboard",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/dashboard/model-status",
+      "name": "GET /api/dashboard/model-status - Status do Modelo",
+      "description": "Status atual do modelo ML",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 8,
+      "_type": "request"
+    },
+    {
+      "_id": "req_dashboard_models",
+      "parentId": "fld_dashboard",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/dashboard/models",
+      "name": "GET /api/dashboard/models - Lista Modelos",
+      "description": "Lista de modelos disponiveis",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 9,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_observability",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "07 - Observabilidade",
+      "description": "Endpoints de monitoramento e metricas",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 7,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_obs_metrics",
+      "parentId": "fld_observability",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/observability/metrics",
+      "name": "GET /api/observability/metrics - Metricas JSON",
+      "description": "Metricas em formato JSON",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "req_obs_prometheus",
+      "parentId": "fld_observability",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/observability/prometheus",
+      "name": "GET /api/observability/prometheus - Prometheus Format",
+      "description": "Metricas em formato Prometheus/Grafana",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "req_obs_sla",
+      "parentId": "fld_observability",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/observability/sla",
+      "name": "GET /api/observability/sla - Status SLA",
+      "description": "Verificacao de compliance SLA",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 3,
+      "_type": "request"
+    },
+    {
+      "_id": "req_obs_alerts",
+      "parentId": "fld_observability",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/observability/alerts",
+      "name": "GET /api/observability/alerts - Alertas Observabilidade",
+      "description": "Alertas de observabilidade",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 4,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_transactions",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "08 - Transacoes",
+      "description": "Endpoints de consulta de transacoes",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 8,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_transactions_list",
+      "parentId": "fld_transactions",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/transactions",
+      "name": "GET /api/transactions - Listar Transacoes",
+      "description": "Lista transacoes com paginacao",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {"name": "page", "value": "1"},
+        {"name": "per_page", "value": "20"}
+      ],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "req_transactions_filter_fraud",
+      "parentId": "fld_transactions",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/transactions",
+      "name": "GET /api/transactions - Filtrar Fraudes",
+      "description": "Lista apenas transacoes fraudulentas",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {"name": "status", "value": "fraud"},
+        {"name": "page", "value": "1"}
+      ],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "req_investigation",
+      "parentId": "fld_transactions",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/investigation/TXN_HIGH_RISK_001",
+      "name": "GET /api/investigation/:id - Investigar Transacao",
+      "description": "Detalhes para investigacao de fraude",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 3,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_review",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "09 - Revisao Manual",
+      "description": "Endpoints de revisao manual de transacoes",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 9,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_review_list",
+      "parentId": "fld_review",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/manual-review",
+      "name": "GET /api/manual-review - Fila de Revisao",
+      "description": "Lista transacoes pendentes de revisao",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "req_review_create",
+      "parentId": "fld_review",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/manual-review",
+      "name": "POST /api/manual-review - Adicionar a Revisao",
+      "description": "Adiciona transacao para revisao manual",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"transaction_id\": \"TXN_REVIEW_001\",\n  \"reason\": \"Score proximo ao threshold\",\n  \"priority\": \"high\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "req_feedback",
+      "parentId": "fld_review",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/feedback",
+      "name": "POST /api/feedback - Feedback do Analista",
+      "description": "Registra feedback do analista sobre decisao",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"transaction_id\": \"TXN_HIGH_RISK_001\",\n  \"analyst_decision\": \"fraud_confirmed\",\n  \"notes\": \"Confirmado como fraude apos contato com cliente\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 3,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_config",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "10 - Configuracoes",
+      "description": "Endpoints de configuracao do sistema",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 10,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_settings_get",
+      "parentId": "fld_config",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/settings",
+      "name": "GET /api/settings - Obter Configuracoes",
+      "description": "Configuracoes atuais do sistema",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "req_settings_update",
+      "parentId": "fld_config",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/settings",
+      "name": "PUT /api/settings - Atualizar Configuracoes",
+      "description": "Atualiza configuracoes do sistema",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"fraud_threshold\": 0.85,\n  \"manual_review_threshold\": 0.50,\n  \"enable_realtime_alerts\": true\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"},
+        {"name": "Authorization", "value": "Bearer {{ _.jwt_token }}"}
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "req_calibration_get",
+      "parentId": "fld_config",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/calibration",
+      "name": "GET /api/calibration - Calibracao do Modelo",
+      "description": "Configuracoes de calibracao",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 3,
+      "_type": "request"
+    },
+    {
+      "_id": "req_calibration_update",
+      "parentId": "fld_config",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/calibration",
+      "name": "PUT /api/calibration - Atualizar Calibracao",
+      "description": "Atualiza calibracao do modelo",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"threshold_fraud\": 0.85,\n  \"threshold_review\": 0.30,\n  \"weight_amount\": 1.2,\n  \"weight_velocity\": 1.5\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"},
+        {"name": "Authorization", "value": "Bearer {{ _.jwt_token }}"}
+      ],
+      "authentication": {},
+      "metaSortKey": 4,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_lists",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "11 - Listas (VIP, Hot, Hard Rules)",
+      "description": "Gerenciamento de listas especiais",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 11,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_vip_list",
+      "parentId": "fld_lists",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/vip-list",
+      "name": "GET /api/vip-list - Lista VIP",
+      "description": "Clientes com tratamento especial",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "req_vip_add",
+      "parentId": "fld_lists",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/vip-list",
+      "name": "POST /api/vip-list - Adicionar VIP",
+      "description": "Adiciona cliente a lista VIP",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"customer_id\": \"CUST_VIP_001\",\n  \"reason\": \"Cliente corporativo de alto valor\",\n  \"valid_until\": \"2026-12-31\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"},
+        {"name": "Authorization", "value": "Bearer {{ _.jwt_token }}"}
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "req_hot_list",
+      "parentId": "fld_lists",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/hot-list",
+      "name": "GET /api/hot-list - Hot List (Bloqueados)",
+      "description": "Lista de entidades bloqueadas",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 3,
+      "_type": "request"
+    },
+    {
+      "_id": "req_hot_add",
+      "parentId": "fld_lists",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/hot-list",
+      "name": "POST /api/hot-list - Adicionar Bloqueado",
+      "description": "Adiciona entidade a lista de bloqueio",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"entity_type\": \"device\",\n  \"entity_id\": \"device_fraudster_001\",\n  \"reason\": \"Dispositivo usado em multiplas fraudes\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"},
+        {"name": "Authorization", "value": "Bearer {{ _.jwt_token }}"}
+      ],
+      "authentication": {},
+      "metaSortKey": 4,
+      "_type": "request"
+    },
+    {
+      "_id": "req_hard_rules",
+      "parentId": "fld_lists",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/hard-rules",
+      "name": "GET /api/hard-rules - Regras Rigidas",
+      "description": "Regras de bloqueio automatico",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 5,
+      "_type": "request"
+    },
+    {
+      "_id": "req_hard_rules_add",
+      "parentId": "fld_lists",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/hard-rules",
+      "name": "POST /api/hard-rules - Adicionar Regra",
+      "description": "Adiciona nova regra rigida",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Bloquear transacoes acima de R$50.000\",\n  \"condition\": \"amount > 50000\",\n  \"action\": \"block\",\n  \"priority\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"},
+        {"name": "Authorization", "value": "Bearer {{ _.jwt_token }}"}
+      ],
+      "authentication": {},
+      "metaSortKey": 6,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_alerts",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "12 - Alertas",
+      "description": "Gerenciamento de alertas",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 12,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_alerts_list",
+      "parentId": "fld_alerts",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/alerts",
+      "name": "GET /api/alerts - Listar Alertas",
+      "description": "Lista todos os alertas",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {"name": "status", "value": "open"},
+        {"name": "severity", "value": "critical"}
+      ],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_audit",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "13 - Auditoria",
+      "description": "Endpoints de auditoria e compliance",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 13,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_audit_list",
+      "parentId": "fld_audit",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/audit",
+      "name": "GET /api/audit - Log de Auditoria",
+      "description": "Historico de acoes para compliance",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {"name": "page", "value": "1"},
+        {"name": "per_page", "value": "50"}
+      ],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "req_audit_export",
+      "parentId": "fld_audit",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/audit/export",
+      "name": "POST /api/audit/export - Exportar Auditoria",
+      "description": "Exporta log de auditoria",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"start_date\": \"2025-11-01\",\n  \"end_date\": \"2025-11-27\",\n  \"format\": \"csv\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"},
+        {"name": "Authorization", "value": "Bearer {{ _.jwt_token }}"}
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_infrastructure",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "14 - Infraestrutura de Escala",
+      "description": "Endpoints de processamento em escala",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 14,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_infra_queue_metrics",
+      "parentId": "fld_infrastructure",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/infrastructure/queue/metrics",
+      "name": "GET /api/infrastructure/queue/metrics - Metricas da Fila",
+      "description": "Metricas da fila assincrona",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "req_infra_batch_process",
+      "parentId": "fld_infrastructure",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/infrastructure/batch/process",
+      "name": "POST /api/infrastructure/batch/process - Batch Paralelo",
+      "description": "Processamento em batch paralelo otimizado",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"transactions\": [\n    {\"transaction_id\": \"INFRA_001\", \"amount\": 100, \"customer_id\": \"C1\", \"merchant_id\": \"M1\", \"transaction_type\": \"PIX\"},\n    {\"transaction_id\": \"INFRA_002\", \"amount\": 500, \"customer_id\": \"C2\", \"merchant_id\": \"M2\", \"transaction_type\": \"CREDITO\"},\n    {\"transaction_id\": \"INFRA_003\", \"amount\": 1000, \"customer_id\": \"C3\", \"merchant_id\": \"M3\", \"transaction_type\": \"DEBITO\"},\n    {\"transaction_id\": \"INFRA_004\", \"amount\": 2500, \"customer_id\": \"C4\", \"merchant_id\": \"M4\", \"transaction_type\": \"TED\"},\n    {\"transaction_id\": \"INFRA_005\", \"amount\": 5000, \"customer_id\": \"C5\", \"merchant_id\": \"M5\", \"transaction_type\": \"PIX\"}\n  ],\n  \"max_workers\": 4\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "req_infra_task_submit",
+      "parentId": "fld_infrastructure",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/infrastructure/task/submit",
+      "name": "POST /api/infrastructure/task/submit - Submeter Task",
+      "description": "Submete tarefa para fila assincrona",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"task_type\": \"fraud_analysis\",\n  \"priority\": \"high\",\n  \"payload\": {\n    \"transaction_id\": \"ASYNC_001\",\n    \"amount\": 15000,\n    \"customer_id\": \"CUST_ASYNC\"\n  }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"}
+      ],
+      "authentication": {},
+      "metaSortKey": 3,
+      "_type": "request"
+    },
+    {
+      "_id": "req_infra_task_status",
+      "parentId": "fld_infrastructure",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/infrastructure/task/task_12345/status",
+      "name": "GET /api/infrastructure/task/:id/status - Status da Task",
+      "description": "Verifica status de uma tarefa assincrona",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 4,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_reports",
+      "parentId": "wrk_sankofa_fraud_engine",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "name": "15 - Relatorios",
+      "description": "Geracao de relatorios",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 15,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_reports_list",
+      "parentId": "fld_reports",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/reports",
+      "name": "GET /api/reports - Listar Relatorios",
+      "description": "Lista relatorios disponiveis",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "_type": "request"
+    },
+    {
+      "_id": "req_reports_generate",
+      "parentId": "fld_reports",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/reports/generate",
+      "name": "POST /api/reports/generate - Gerar Relatorio",
+      "description": "Gera novo relatorio",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"report_type\": \"fraud_summary\",\n  \"start_date\": \"2025-11-01\",\n  \"end_date\": \"2025-11-27\",\n  \"include_charts\": true\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"},
+        {"name": "Authorization", "value": "Bearer {{ _.jwt_token }}"}
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "_type": "request"
+    },
+    {
+      "_id": "req_datasets",
+      "parentId": "fld_reports",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/datasets",
+      "name": "GET /api/datasets - Listar Datasets",
+      "description": "Lista datasets disponiveis para treinamento",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 3,
+      "_type": "request"
+    },
+    {
+      "_id": "req_metrics_dashboard",
+      "parentId": "fld_reports",
+      "modified": 1732726800000,
+      "created": 1732726800000,
+      "url": "{{ _.base_url }}/api/metrics/dashboard",
+      "name": "GET /api/metrics/dashboard - Metricas Dashboard",
+      "description": "Metricas consolidadas para dashboard",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 4,
+      "_type": "request"
+    }
+  ]
+}
