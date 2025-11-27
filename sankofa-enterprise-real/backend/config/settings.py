@@ -191,16 +191,19 @@ class AppConfig:
         if environment == "production":
             security = SecurityConfig.from_env()
         else:
-            # Development mode - usar valores padrão seguros
             try:
                 security = SecurityConfig.from_env()
             except ValueError:
-                logger.warning("⚠️  Using development security defaults - NOT FOR PRODUCTION")
+                import uuid
+                import hashlib
+                auto_jwt = hashlib.sha256(f"sankofa-dev-{uuid.uuid4()}".encode()).hexdigest()
+                auto_enc = hashlib.sha256(f"sankofa-enc-{uuid.uuid4()}".encode()).hexdigest()[:32]
+                logger.warning("⚠️  Auto-generated development secrets - NOT FOR PRODUCTION")
                 security = SecurityConfig(
-                    jwt_secret="dev-secret-change-in-production",
+                    jwt_secret=auto_jwt,
                     jwt_algorithm="HS256",
                     jwt_expiration=3600,
-                    encryption_key="dev-encryption-key-change-in-production",
+                    encryption_key=auto_enc,
                     rate_limit_per_minute=1000,
                     max_login_attempts=5,
                 )

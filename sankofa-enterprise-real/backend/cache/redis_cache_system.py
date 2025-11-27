@@ -46,12 +46,33 @@ class CacheConfig:
 
 
 class InMemoryCache:
-    """Cache em memória como fallback quando Redis não está disponível"""
+    """Cache em memória com LRU eviction como fallback quando Redis não está disponível"""
     
-    def __init__(self):
+    MAX_SIZE = 10000
+    
+    def __init__(self, max_size: int = MAX_SIZE):
         self._cache: Dict[str, Any] = {}
         self._expiry: Dict[str, float] = {}
+        self._access_order: List[str] = []
         self._lock = threading.Lock()
+        self._max_size = max_size
+        self._hits = 0
+        self._misses = 0
+    
+    def _evict_lru(self) -> None:
+        """Remove entradas menos usadas até estar dentro do limite"""
+        while len(self._cache) >= self._max_size and self._access_order:
+            oldest_key = self._access_order.pop(0)
+            if oldest_key in self._cache:
+                del self._cache[oldest_key]
+            if oldest_key in self._expiry:
+                del self._expiry[oldest_key]
+    
+    def _update_access(self, key: str) -> None:
+        """Atualiza ordem de acesso para LRU"""
+        if key in self._access_order:
+            self._access_order.remove(key)
+        self._access_order.append(key)
     
     def get(self, key: str) -> Optional[bytes]:
         with self._lock:
@@ -59,14 +80,20 @@ class InMemoryCache:
                 if key in self._expiry and time.time() > self._expiry[key]:
                     del self._cache[key]
                     del self._expiry[key]
+                    self._misses += 1
                     return None
+                self._update_access(key)
+                self._hits += 1
                 return self._cache[key]
+            self._misses += 1
             return None
     
     def setex(self, key: str, ttl: int, value: bytes) -> bool:
         with self._lock:
+            self._evict_lru()
             self._cache[key] = value
             self._expiry[key] = time.time() + ttl
+            self._update_access(key)
             return True
     
     def delete(self, *keys: str) -> int:

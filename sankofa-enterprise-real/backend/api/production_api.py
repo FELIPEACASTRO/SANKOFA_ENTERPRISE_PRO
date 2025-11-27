@@ -20,6 +20,11 @@ import os
 import threading
 from collections import defaultdict
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from functools import wraps
+import jwt as pyjwt
+
 from config.settings import get_config
 from utils.structured_logging import get_structured_logger
 from utils.error_handling import (
@@ -39,6 +44,42 @@ logger = get_structured_logger("production_api", config.monitoring.log_level)
 
 app = Flask(__name__)
 CORS(app)
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    default_limits=["1000 per minute", "50000 per hour"],
+    storage_uri="memory://",
+    strategy="fixed-window"
+)
+
+def require_auth(f):
+    """Decorator para exigir autenticação JWT em endpoints sensíveis"""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if config.environment == "development" and os.getenv("SKIP_AUTH", "false").lower() == "true":
+            g.user = {"id": "dev_user", "role": "admin"}
+            return f(*args, **kwargs)
+        
+        auth_header = request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            return jsonify({"success": False, "error": "Missing or invalid Authorization header"}), 401
+        
+        token = auth_header[7:]
+        try:
+            payload = pyjwt.decode(
+                token, 
+                config.security.jwt_secret, 
+                algorithms=[config.security.jwt_algorithm]
+            )
+            g.user = payload
+        except pyjwt.ExpiredSignatureError:
+            return jsonify({"success": False, "error": "Token expired"}), 401
+        except pyjwt.InvalidTokenError as e:
+            return jsonify({"success": False, "error": f"Invalid token: {str(e)}"}), 401
+        
+        return f(*args, **kwargs)
+    return decorated
 
 fraud_engine = get_fraud_engine()
 
@@ -514,8 +555,9 @@ def get_status():
 
 
 @app.route("/api/fraud/predict", methods=["POST"])
+@limiter.limit("500 per minute")
 def predict_fraud():
-    """Prediz fraude para uma ou mais transações"""
+    """Prediz fraude para uma ou mais transações (rate limited: 500/min)"""
     if not request.json:
         raise ValidationError(
             "Request body is required", context={"endpoint": "/api/fraud/predict"}
@@ -591,8 +633,9 @@ def predict_fraud():
 
 
 @app.route("/api/fraud/batch", methods=["POST"])
+@limiter.limit("100 per minute")
 def predict_fraud_batch():
-    """Processa lote grande de transações com otimização"""
+    """Processa lote grande de transações com otimização (rate limited: 100/min)"""
     if not request.json or "transactions" not in request.json:
         raise ValidationError("transactions field is required")
 
