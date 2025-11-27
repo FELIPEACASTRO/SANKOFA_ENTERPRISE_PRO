@@ -58,10 +58,14 @@ externalPort = 8000
 localPort = 38265
 externalPort = 3000
 
+[[ports]]
+localPort = 46495
+externalPort = 3001
+
 [deployment]
 deploymentTarget = "autoscale"
-run = ["bash", "-c", "cd sankofa-enterprise-real/backend && python simple_api.py & cd ../frontend && npx vite preview --host 0.0.0.0 --port 5000"]
-build = ["npm", "run", "build", "--prefix", "sankofa-enterprise-real/frontend"]
+run = ["bash", "-c", "(cd sankofa-enterprise-real/backend && python api/production_api.py) & (cd sankofa-enterprise-real/frontend && npx vite preview --host 0.0.0.0 --port 5000)"]
+build = ["bash", "-c", "cd sankofa-enterprise-real/frontend && npm run build"]
 
 [userenv]
 
