@@ -54,10 +54,6 @@ externalPort = 80
 localPort = 38265
 externalPort = 3000
 
-[[ports]]
-localPort = 40911
-externalPort = 3001
-
 [deployment]
 deploymentTarget = "autoscale"
 run = ["sh", "-c", "cd sankofa-enterprise-real/backend && python api/unified_server.py"]

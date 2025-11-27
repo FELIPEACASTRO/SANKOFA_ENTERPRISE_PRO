@@ -258,7 +258,7 @@
 |  │  • Exercicios interativos "Use a Cabeca"                                │ |
 |  │  • Diagramas ASCII, fluxogramas e tabelas de metricas                   │ |
 |  │                                                                          │ |
-|  │  Paginas: ~1800 linhas | Estilo: Head First (didatico)                  │ |
+|  │  Paginas: ~2200 linhas | Estilo: Head First (didatico)                  │ |
 |  │                                                                          │ |
 |  └─────────────────────────────────────────────────────────────────────────┘ |
 |                                                                               |

@@ -70,9 +70,601 @@
 |                                                                               |
 |   ANEXOS                                                                     |
 |   ══════                                                                     |
+|   • AS 47 FEATURES EXPLICADAS (NOVO!)                                        |
 |   • Glossario Visual                                                         |
 |   • Tabela de Metricas por Modelo                                            |
 |   • Referencias e Leitura Adicional                                          |
+|                                                                               |
++==============================================================================+
+```
+
+---
+
+# AS 47 FEATURES: O FORMULARIO DE SEGURANCA
+
+## O Que Sao Features?
+
+```
++==============================================================================+
+|                         FEATURES = PERGUNTAS DE SEGURANCA                    |
++==============================================================================+
+|                                                                               |
+|   Antes dos modelos de IA analisarem uma transacao, o sistema               |
+|   EXTRAI 47 informacoes (features) sobre ela.                               |
+|                                                                               |
+|   ANALOGIA: E como o formulario que voce preenche na imigracao:             |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  FORMULARIO DE IMIGRACAO              FORMULARIO DE TRANSACAO            │|
+|   │  ═══════════════════════              ═══════════════════════            │|
+|   │                                                                          │|
+|   │  Nome: ____________                   CPF: ____________                  │|
+|   │  Pais de origem: ______               Conta origem: ______               │|
+|   │  Destino: ____________                Conta destino: ______              │|
+|   │  Motivo da viagem: ____               Tipo transacao: ____               │|
+|   │  Quanto dinheiro traz: __             Valor: R$ ________                 │|
+|   │  Ja visitou antes? ____               Ja transferiu antes? __            │|
+|   │  Vem de onde? _________               Qual dispositivo? ____             │|
+|   │  Vai ficar quanto tempo?              Qual horario? ________             │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
+|   Cada resposta ajuda a IA a decidir se a transacao e suspeita.             |
+|                                                                               |
++==============================================================================+
+```
+
+## Diagrama: Features Alimentando os Modelos
+
+```
++==============================================================================+
+|                    COMO AS FEATURES ALIMENTAM OS MODELOS                     |
++==============================================================================+
+|                                                                               |
+|                           TRANSACAO                                          |
+|                       (PIX de R$ 5.000)                                      |
+|                              │                                               |
+|                              ▼                                               |
+|   ┌──────────────────────────────────────────────────────────────────────┐   |
+|   │                    EXTRACAO DE 47 FEATURES                            │   |
+|   │                                                                       │   |
+|   │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐         │   |
+|   │  │TEMPORAIS│ │  VALOR  │ │ CLIENTE │ │ DEVICE  │ │  LOCAL  │         │   |
+|   │  │ 7 feat  │ │ 6 feat  │ │ 8 feat  │ │ 4 feat  │ │ 5 feat  │         │   |
+|   │  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘         │   |
+|   │       │           │           │           │           │              │   |
+|   │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐         │   |
+|   │  │ CANAL   │ │VELOCID. │ │MERCHANT │ │  PIX    │ │ CARTAO  │         │   |
+|   │  │ 3 feat  │ │ 4 feat  │ │ 3 feat  │ │ 4 feat  │ │ 3 feat  │         │   |
+|   │  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘         │   |
+|   │       │           │           │           │           │              │   |
+|   │       └───────────┴───────────┴───────────┴───────────┘              │   |
+|   │                              │                                        │   |
+|   │                     47 FEATURES PRONTAS                               │   |
+|   │                              │                                        │   |
+|   └──────────────────────────────┼───────────────────────────────────────┘   |
+|                                  │                                            |
+|          ┌───────────────────────┼───────────────────────┐                   |
+|          │                       │                       │                   |
+|          ▼                       ▼                       ▼                   |
+|   ┌──────────────┐       ┌──────────────┐       ┌──────────────┐            |
+|   │    RANDOM    │       │   XGBOOST    │       │   LIGHTGBM   │            |
+|   │    FOREST    │       │              │       │              │            |
+|   │  Usa 47 feat │       │  Usa 47 feat │       │  Usa 47 feat │            |
+|   │  Score: 0.72 │       │  Score: 0.68 │       │  Score: 0.75 │            |
+|   └──────────────┘       └──────────────┘       └──────────────┘            |
+|                                                                               |
++==============================================================================+
+```
+
+## Tabela Completa: As 47 Features
+
+### Grupo 1: Features Temporais (7 features)
+
+```
++==============================================================================+
+|                    GRUPO 1: FEATURES TEMPORAIS                               |
++==============================================================================+
+|                                                                               |
+|   Essas features respondem: "QUANDO a transacao aconteceu?"                  |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  #  FEATURE            DESCRICAO                 PESO    EXEMPLO        │|
+|   │  ══════════════════════════════════════════════════════════════════════│|
+|   │                                                                          │|
+|   │  1  hour               Hora do dia (0-23)        0.08    14 (2h tarde)  │|
+|   │                                                                          │|
+|   │  2  day_of_week        Dia da semana (0-6)       0.03    1 (terca)      │|
+|   │                                                                          │|
+|   │  3  is_weekend         E final de semana?        0.05    0 (nao)        │|
+|   │                        1=sim, 0=nao                                      │|
+|   │                                                                          │|
+|   │  4  is_night           E horario noturno?        0.12    0 (nao)        │|
+|   │                        (22h-6h)                         ⚠️ ALTO PESO    │|
+|   │                                                                          │|
+|   │  5  is_business_hours  Horario comercial?        0.04    1 (sim)        │|
+|   │                        (9h-18h)                                          │|
+|   │                                                                          │|
+|   │  6  is_early_morning   Madrugada? (0h-6h)        0.15    0 (nao)        │|
+|   │                                                         ⚠️ ALTO PESO    │|
+|   │                                                                          │|
+|   │  7  timestamp          Data/hora exata           0.02    2025-11-27...  │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
+|   💡 INSIGHT: Transacoes de madrugada tem 8x mais chance de ser fraude!     |
+|                                                                               |
++==============================================================================+
+```
+
+### Grupo 2: Features de Valor (6 features)
+
+```
++==============================================================================+
+|                    GRUPO 2: FEATURES DE VALOR                                |
++==============================================================================+
+|                                                                               |
+|   Essas features respondem: "QUANTO dinheiro esta envolvido?"                |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  #  FEATURE            DESCRICAO                 PESO    EXEMPLO        │|
+|   │  ══════════════════════════════════════════════════════════════════════│|
+|   │                                                                          │|
+|   │  8  amount             Valor da transacao        0.18    5000.00        │|
+|   │                        (em reais)                       ⚠️ MAIOR PESO   │|
+|   │                                                                          │|
+|   │  9  log_value          Log do valor              0.08    8.52           │|
+|   │                        (suaviza valores altos)                           │|
+|   │                                                                          │|
+|   │  10 amount_zscore      Desvio do padrao          0.14    2.3 (alto!)    │|
+|   │                        (vs historico do cliente)        ⚠️ ALTO PESO    │|
+|   │                                                                          │|
+|   │  11 value_rounded      Valor e "redondo"?        0.04    1 (sim, R$5000)│|
+|   │                        (1000, 5000, 10000)                               │|
+|   │                                                                          │|
+|   │  12 is_high_value      Valor > R$ 5.000?         0.10    1 (sim)        │|
+|   │                                                                          │|
+|   │  13 is_very_high_value Valor > R$ 10.000?        0.12    0 (nao)        │|
+|   │                                                         ⚠️ ALTO PESO    │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
+|   💡 INSIGHT: "amount" e a feature MAIS importante! 18% do peso total.      |
+|                                                                               |
+|   EXEMPLO PRATICO:                                                           |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  Maria geralmente faz PIX de R$ 200-500.                                │|
+|   │  Hoje ela tenta fazer PIX de R$ 8.000.                                  │|
+|   │                                                                          │|
+|   │  amount = 8000 (alto)                                                   │|
+|   │  amount_zscore = 4.2 (MUITO acima do padrao!)                           │|
+|   │  is_high_value = 1                                                      │|
+|   │                                                                          │|
+|   │  → Sistema aciona alerta para verificacao!                              │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
++==============================================================================+
+```
+
+### Grupo 3: Features de Comportamento do Cliente (8 features)
+
+```
++==============================================================================+
+|                    GRUPO 3: FEATURES DE COMPORTAMENTO                        |
++==============================================================================+
+|                                                                               |
+|   Essas features respondem: "Isso COMBINA com o historico do cliente?"       |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  #  FEATURE                 DESCRICAO                PESO   EXEMPLO     │|
+|   │  ══════════════════════════════════════════════════════════════════════│|
+|   │                                                                          │|
+|   │  14 user_history            Score de historico       0.10   0.85        │|
+|   │                             (0=novo, 1=confiavel)                        │|
+|   │                                                                          │|
+|   │  15 amount_deviation_zscore Desvio do valor          0.14   2.3         │|
+|   │                             vs media historica              ⚠️ ALTO     │|
+|   │                                                                          │|
+|   │  16 tx_count_7d             Qtd transacoes           0.06   12          │|
+|   │                             nos ultimos 7 dias                           │|
+|   │                                                                          │|
+|   │  17 amount_normalized_hour  Valor vs media           0.05   1.8         │|
+|   │                             daquele horario                              │|
+|   │                                                                          │|
+|   │  18 amount_channel_ratio    Valor vs media           0.04   0.9         │|
+|   │                             daquele canal                                │|
+|   │                                                                          │|
+|   │  19 high_amount_suspicious  Valor alto + hora        0.15   1 (alerta!) │|
+|   │     _hour                   suspeita? (0h-4h)               ⚠️ ALTO     │|
+|   │                                                                          │|
+|   │  20 account_age_days        Idade da conta           0.08   2920        │|
+|   │                             (em dias)                       (8 anos)     │|
+|   │                                                                          │|
+|   │  21 previous_frauds         Fraudes anteriores       0.20   0           │|
+|   │                             nessa conta                     ⚠️ CRITICO  │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
+|   💡 INSIGHT: Contas com fraudes anteriores tem 15x mais chance de fraude!  |
+|                                                                               |
++==============================================================================+
+```
+
+### Grupo 4: Features de Dispositivo (4 features)
+
+```
++==============================================================================+
+|                    GRUPO 4: FEATURES DE DISPOSITIVO                          |
++==============================================================================+
+|                                                                               |
+|   Essas features respondem: "DE ONDE a transacao esta sendo feita?"          |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  #  FEATURE            DESCRICAO                 PESO    EXEMPLO        │|
+|   │  ══════════════════════════════════════════════════════════════════════│|
+|   │                                                                          │|
+|   │  22 device_risk        Score de risco do         0.12    0.15           │|
+|   │                        dispositivo (0-1)                ⚠️ ALTO         │|
+|   │                                                                          │|
+|   │  23 device_trust       Confianca no device       0.10    0.92           │|
+|   │                        (0=novo, 1=conhecido)                             │|
+|   │                                                                          │|
+|   │  24 device_fingerprint Device ja usado?          0.08    1 (sim)        │|
+|   │                        (1=sim, 0=novo)                                   │|
+|   │                                                                          │|
+|   │  25 device_change      Trocou de device          0.14    0 (nao)        │|
+|   │                        recentemente?                    ⚠️ ALTO         │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
+|   EXEMPLO PRATICO:                                                           |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  Maria sempre usa iPhone 13 (device_trust = 0.95)                       │|
+|   │  Hoje a transacao vem de um Android desconhecido:                       │|
+|   │                                                                          │|
+|   │  device_trust = 0.10 (MUITO BAIXO!)                                     │|
+|   │  device_change = 1 (SIM!)                                               │|
+|   │  device_fingerprint = 0 (NUNCA VISTO!)                                  │|
+|   │                                                                          │|
+|   │  → Sistema bloqueia e pede biometria!                                   │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
++==============================================================================+
+```
+
+### Grupo 5: Features de Localizacao (5 features)
+
+```
++==============================================================================+
+|                    GRUPO 5: FEATURES DE LOCALIZACAO                          |
++==============================================================================+
+|                                                                               |
+|   Essas features respondem: "A LOCALIZACAO faz sentido?"                     |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  #  FEATURE              DESCRICAO               PESO    EXEMPLO        │|
+|   │  ══════════════════════════════════════════════════════════════════════│|
+|   │                                                                          │|
+|   │  26 location_risk        Score de risco da       0.10    0.20           │|
+|   │                          localizacao (0-1)                               │|
+|   │                                                                          │|
+|   │  27 location_entropy     Variedade de locais     0.06    0.45           │|
+|   │                          (0=sempre mesmo,                                │|
+|   │                           1=muito variado)                               │|
+|   │                                                                          │|
+|   │  28 unique_locations     Qtd locais unicos       0.04    3              │|
+|   │     _count               nos ultimos 30 dias                             │|
+|   │                                                                          │|
+|   │  29 is_new_location      Localizacao nova?       0.12    0 (nao)        │|
+|   │                          (nunca usou antes)             ⚠️ ALTO         │|
+|   │                                                                          │|
+|   │  30 impossible_travel    "Viagem impossivel"?    0.25    0 (nao)        │|
+|   │                          (ex: SP→RJ em 5min)            ⚠️ CRITICO      │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
+|   💡 INSIGHT: "Viagem impossivel" e o maior indicador de cartao clonado!    |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  EXEMPLO: VIAGEM IMPOSSIVEL                                             │|
+|   │                                                                          │|
+|   │  14:30 - Transacao em BRASILIA (Fernanda comprando cafe)                │|
+|   │  14:35 - Transacao em RECIFE (criminoso usando cartao clonado)          │|
+|   │                                                                          │|
+|   │  Distancia: 1.600 km                                                    │|
+|   │  Tempo: 5 minutos                                                       │|
+|   │  Velocidade necessaria: 19.200 km/h (IMPOSSIVEL!)                       │|
+|   │                                                                          │|
+|   │  impossible_travel = 1 → BLOQUEIO IMEDIATO!                             │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
++==============================================================================+
+```
+
+### Grupo 6: Features de Canal e Tipo (3 features)
+
+```
++==============================================================================+
+|                    GRUPO 6: FEATURES DE CANAL                                |
++==============================================================================+
+|                                                                               |
+|   Essas features respondem: "POR QUAL CANAL a transacao foi feita?"          |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  #  FEATURE            DESCRICAO                 PESO    EXEMPLO        │|
+|   │  ══════════════════════════════════════════════════════════════════════│|
+|   │                                                                          │|
+|   │  31 channel_risk       Score de risco do         0.08    0.35           │|
+|   │                        canal (0-1)                                       │|
+|   │                                                                          │|
+|   │  32 transaction_type   Tipo (PIX, TED, etc)      0.05    "PIX"          │|
+|   │                        (codificado numericamente)                        │|
+|   │                                                                          │|
+|   │  33 online_purchase    Compra online?            0.10    0 (nao)        │|
+|   │                        (maior risco)                                     │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
+|   RANKING DE RISCO POR CANAL:                                                |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │                                                                          │|
+|   │  CANAL              RISCO        MOTIVO                                 │|
+|   │  ═════════════════════════════════════════════════════════════════════  │|
+|   │  PIX                ALTO         Irreversivel, instantaneo              │|
+|   │  E-commerce         ALTO         Cartao nao presente                    │|
+|   │  TED/DOC            MEDIO        Pode ser revertido                     │|
+|   │  Debito presencial  BAIXO        Cartao + senha                         │|
+|   │  Credito presencial BAIXO        Chargeback possivel                    │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
++==============================================================================+
+```
+
+### Grupo 7: Features de Velocidade (4 features)
+
+```
++==============================================================================+
+|                    GRUPO 7: FEATURES DE VELOCIDADE                           |
++==============================================================================+
+|                                                                               |
+|   Essas features respondem: "QUANTAS transacoes em POUCO TEMPO?"             |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  #  FEATURE            DESCRICAO                 PESO    EXEMPLO        │|
+|   │  ══════════════════════════════════════════════════════════════════════│|
+|   │                                                                          │|
+|   │  34 velocity_score     Score de velocidade       0.15    0.20           │|
+|   │                        geral (0-1)                      ⚠️ ALTO         │|
+|   │                                                                          │|
+|   │  35 velocity_1h        Qtd transacoes na         0.12    2              │|
+|   │                        ultima hora                      ⚠️ ALTO         │|
+|   │                                                                          │|
+|   │  36 velocity_5min      Qtd transacoes nos        0.18    0              │|
+|   │                        ultimos 5 minutos                ⚠️ CRITICO      │|
+|   │                                                                          │|
+|   │  37 inter_event_time   Tempo desde a             0.08    3600           │|
+|   │                        ultima transacao (seg)           (1 hora)        │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
+|   💡 INSIGHT: Criminosos tentam agir RAPIDO antes do bloqueio!              |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  EXEMPLO: CARD TESTING (Caso Stripe)                                    │|
+|   │                                                                          │|
+|   │  23:45:00 - tx $1.00 (velocity_5min = 1)                                │|
+|   │  23:45:01 - tx $1.00 (velocity_5min = 2)                                │|
+|   │  23:45:02 - tx $1.00 (velocity_5min = 3)                                │|
+|   │  ...                                                                     │|
+|   │  23:55:00 - tx $1.00 (velocity_5min = 600!)                             │|
+|   │                                                                          │|
+|   │  inter_event_time = 1 segundo (IMPOSSIVEL para humano!)                 │|
+|   │  → BLOQUEIO + Alerta de CARD TESTING                                    │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
++==============================================================================+
+```
+
+### Grupo 8: Features de Merchant (3 features)
+
+```
++==============================================================================+
+|                    GRUPO 8: FEATURES DE MERCHANT                             |
++==============================================================================+
+|                                                                               |
+|   Essas features respondem: "PARA QUEM o dinheiro esta indo?"                |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  #  FEATURE            DESCRICAO                 PESO    EXEMPLO        │|
+|   │  ══════════════════════════════════════════════════════════════════════│|
+|   │                                                                          │|
+|   │  38 merchant_risk      Score de risco do         0.12    0.15           │|
+|   │                        comerciante (0-1)                ⚠️ ALTO         │|
+|   │                                                                          │|
+|   │  39 merchant_category  Categoria (MCC)           0.06    5411           │|
+|   │                        (supermercado, posto...)         (mercado)        │|
+|   │                                                                          │|
+|   │  40 is_new_merchant    Comerciante novo?         0.10    0 (nao)        │|
+|   │                        (nunca comprou antes)                             │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
+|   CATEGORIAS DE ALTO RISCO (MCC):                                            |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │                                                                          │|
+|   │  MCC      CATEGORIA            RISCO    MOTIVO                          │|
+|   │  ═══════════════════════════════════════════════════════════════════    │|
+|   │  7995     Apostas/Gambling     ALTO     Lavagem de dinheiro             │|
+|   │  5967     Direct Marketing     ALTO     Golpes comuns                   │|
+|   │  6051     Criptomoedas         ALTO     Irreversivel                    │|
+|   │  6211     Corretoras           MEDIO    Grandes valores                 │|
+|   │  5411     Supermercados        BAIXO    Uso diario normal               │|
+|   │  5812     Restaurantes         BAIXO    Uso diario normal               │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
++==============================================================================+
+```
+
+### Grupo 9: Features Especificas PIX (4 features)
+
+```
++==============================================================================+
+|                    GRUPO 9: FEATURES ESPECIFICAS PIX                         |
++==============================================================================+
+|                                                                               |
+|   Essas features sao usadas APENAS para transacoes PIX:                      |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  #  FEATURE             DESCRICAO                PESO    EXEMPLO        │|
+|   │  ══════════════════════════════════════════════════════════════════════│|
+|   │                                                                          │|
+|   │  41 velocity_pix_1h     Qtd PIX na ultima        0.15    1              │|
+|   │                         hora                            ⚠️ ALTO         │|
+|   │                                                                          │|
+|   │  42 pix_destination_new Destinatario nunca       0.18    0 (nao)        │|
+|   │                         usado antes?                    ⚠️ CRITICO      │|
+|   │                                                                          │|
+|   │  43 pix_night_amount    Valor do PIX se          0.12    0              │|
+|   │                         for noturno                     (nao e noturno) │|
+|   │                                                                          │|
+|   │  44 pix_recipient_risk  Score de risco do        0.14    0.20           │|
+|   │                         recebedor                       ⚠️ ALTO         │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
+|   💡 INSIGHT: PIX para destinatario NOVO + valor ALTO = maior alerta!       |
+|                                                                               |
++==============================================================================+
+```
+
+### Grupo 10: Features Especificas Cartao (3 features)
+
+```
++==============================================================================+
+|                    GRUPO 10: FEATURES ESPECIFICAS CARTAO                     |
++==============================================================================+
+|                                                                               |
+|   Essas features sao usadas para transacoes de CARTAO:                       |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │  #  FEATURE            DESCRICAO                 PESO    EXEMPLO        │|
+|   │  ══════════════════════════════════════════════════════════════════════│|
+|   │                                                                          │|
+|   │  45 card_present       Cartao fisico presente?   0.12    1 (sim)        │|
+|   │                        (chip/tarja)                     (mais seguro)    │|
+|   │                                                                          │|
+|   │  46 is_international   Compra internacional?     0.15    0 (nao)        │|
+|   │                        (fora do Brasil)                 ⚠️ ALTO         │|
+|   │                                                                          │|
+|   │  47 card_velocity_1h   Qtd compras na            0.10    2              │|
+|   │                        ultima hora                                       │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
++==============================================================================+
+```
+
+## Resumo Visual: Importancia das Features
+
+```
++==============================================================================+
+|                    RANKING DE IMPORTANCIA DAS FEATURES                       |
++==============================================================================+
+|                                                                               |
+|   TOP 10 FEATURES MAIS IMPORTANTES PARA DETECTAR FRAUDE:                     |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │                                                                          │|
+|   │  #1  amount (valor)                    ████████████████████  18%        │|
+|   │  #2  impossible_travel                 █████████████████     25%*       │|
+|   │  #3  pix_destination_new               ██████████████        18%        │|
+|   │  #4  velocity_5min                     ██████████████        18%        │|
+|   │  #5  is_early_morning                  ████████████          15%        │|
+|   │  #6  high_amount_suspicious_hour       ████████████          15%        │|
+|   │  #7  amount_deviation_zscore           ███████████           14%        │|
+|   │  #8  device_change                     ███████████           14%        │|
+|   │  #9  is_international                  ████████████          15%        │|
+|   │  #10 pix_recipient_risk                ███████████           14%        │|
+|   │                                                                          │|
+|   │  * impossible_travel e calculado, nao e input direto                    │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
+|   COMBINACOES PERIGOSAS (triggers automaticos):                              |
+|                                                                               |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │                                                                          │|
+|   │  🚨 BLOQUEIO IMEDIATO:                                                  │|
+|   │     • impossible_travel = 1                                             │|
+|   │     • previous_frauds >= 2                                              │|
+|   │                                                                          │|
+|   │  ⚠️ ALERTA ALTO (pede confirmacao):                                     │|
+|   │     • is_early_morning + is_high_value + pix_destination_new            │|
+|   │     • device_change + is_new_location + amount_deviation > 3            │|
+|   │                                                                          │|
+|   │  📊 MONITORAMENTO:                                                      │|
+|   │     • velocity_1h > 5 transacoes                                        │|
+|   │     • is_new_merchant + is_high_value                                   │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
++==============================================================================+
+```
+
+## Exercicio: Calcule as Features!
+
+```
++==============================================================================+
+|                    🧠 EXERCICIO: CALCULE AS FEATURES                         |
++==============================================================================+
+|                                                                               |
+|   SITUACAO:                                                                  |
+|   Maria (conta de 8 anos, media de R$300/transacao) faz:                    |
+|   - PIX de R$ 12.000                                                        |
+|   - As 3h da manha                                                          |
+|   - Para conta que nunca usou antes                                         |
+|   - De um celular novo                                                      |
+|                                                                               |
+|   PREENCHA AS FEATURES:                                                      |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │                                                                          │|
+|   │  is_early_morning = ___  (0 ou 1?)                                      │|
+|   │  is_high_value = ___     (0 ou 1?)                                      │|
+|   │  is_very_high_value = ___ (0 ou 1?)                                     │|
+|   │  pix_destination_new = ___ (0 ou 1?)                                    │|
+|   │  device_change = ___     (0 ou 1?)                                      │|
+|   │  amount_deviation_zscore = ___ (alto ou baixo?)                         │|
+|   │                                                                          │|
+|   │  SCORE ESPERADO: ___ (baixo, medio ou alto?)                            │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
+|                                                                               |
+|   .                                                                          |
+|   .                                                                          |
+|   (role para ver a resposta)                                                |
+|   .                                                                          |
+|   .                                                                          |
+|                                                                               |
+|   RESPOSTA:                                                                  |
+|   ┌─────────────────────────────────────────────────────────────────────────┐|
+|   │                                                                          │|
+|   │  is_early_morning = 1        (3h da manha = madrugada)                  │|
+|   │  is_high_value = 1           (R$12.000 > R$5.000)                       │|
+|   │  is_very_high_value = 1      (R$12.000 > R$10.000)                      │|
+|   │  pix_destination_new = 1     (nunca transferiu para essa conta)         │|
+|   │  device_change = 1           (celular novo)                             │|
+|   │  amount_deviation_zscore = 40x! (12000/300 = 40 desvios!)               │|
+|   │                                                                          │|
+|   │  SCORE: MUITO ALTO! (provavelmente > 0.90)                              │|
+|   │                                                                          │|
+|   │  ACAO: BLOQUEIO + SMS + Ligacao para Maria                              │|
+|   │                                                                          │|
+|   │  (Se for Maria mesmo, ela confirma e transacao e liberada)              │|
+|   │  (Se for golpista, bloqueio salvou R$ 12.000!)                          │|
+|   │                                                                          │|
+|   └─────────────────────────────────────────────────────────────────────────┘|
 |                                                                               |
 +==============================================================================+
 ```
