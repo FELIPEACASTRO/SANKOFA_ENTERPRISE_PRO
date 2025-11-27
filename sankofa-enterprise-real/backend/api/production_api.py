@@ -208,7 +208,7 @@ class MetricsCollector:
             total_historical_transactions = sum(
                 stats.get("transactions", 0) for stats in self._daily_history.values()
             )
-            families_protected = max(1000, (total_historical_transactions + transactions_today) // 10)
+            families_protected = (total_historical_transactions + transactions_today) // 10
             
             return {
                 "transacoes_hoje": transactions_today,
