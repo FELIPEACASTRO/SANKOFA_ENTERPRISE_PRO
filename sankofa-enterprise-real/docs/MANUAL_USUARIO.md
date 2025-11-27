@@ -342,7 +342,89 @@ Este manual vai te guiar passo a passo no uso do sistema de deteccao de fraudes.
 +==============================================================================+
 ```
 
-### 3.2 Entendendo os Status
+### 3.2 Tipos de Transacao
+
+```
++==============================================================================+
+|                    TIPOS DE TRANSACAO NO SISTEMA                              |
++==============================================================================+
+|                                                                               |
+|  O sistema analisa diferentes tipos de transacao. Cada um tem                 |
+|  caracteristicas proprias que influenciam a avaliacao de risco:               |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   💳 PIX                                                                 │ |
+|  │   ━━━━━                                                                  │ |
+|  │   • Transferencia instantanea (24/7)                                    │ |
+|  │   • Risco BASE: ALTO (dificil reverter)                                 │ |
+|  │   • Fraudes comuns: Golpe do falso funcionario, sequestro               │ |
+|  │   • O sistema analisa: valor, horario, destinatario, velocidade         │ |
+|  │                                                                          │ |
+|  │   Sinais de alerta:                                                      │ |
+|  │   [!] PIX de madrugada para desconhecido                                │ |
+|  │   [!] Valor muito acima do padrao do cliente                            │ |
+|  │   [!] Multiplos PIX em sequencia rapida                                 │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   💳 CREDITO (Cartao de Credito)                                         │ |
+|  │   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                         │ |
+|  │   • Compra com limite pre-aprovado                                       │ |
+|  │   • Risco BASE: MEDIO (pode haver chargeback)                           │ |
+|  │   • Fraudes comuns: Clonagem, compra online com dados vazados           │ |
+|  │   • O sistema analisa: local, comerciante, padrao de compra             │ |
+|  │                                                                          │ |
+|  │   Sinais de alerta:                                                      │ |
+|  │   [!] Compra internacional sem aviso de viagem                          │ |
+|  │   [!] Varias compras em lojas diferentes em minutos                     │ |
+|  │   [!] Primeiro uso online apos meses sem usar                           │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   💳 DEBITO (Cartao de Debito)                                           │ |
+|  │   ━━━━━━━━━━━━━━━━━━━━━━━━━━━                                           │ |
+|  │   • Desconto direto do saldo da conta                                    │ |
+|  │   • Risco BASE: BAIXO (requer senha + cartao fisico)                    │ |
+|  │   • Fraudes comuns: Clonagem em maquininha, troca de cartao             │ |
+|  │   • O sistema analisa: localizacao, ATM usado, horario                  │ |
+|  │                                                                          │ |
+|  │   Sinais de alerta:                                                      │ |
+|  │   [!] Saques em ATMs de cidades diferentes em minutos                   │ |
+|  │   [!] Compra presencial + saque logo depois                             │ |
+|  │   [!] Uso em estabelecimento de alto risco                              │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │                                                                          │ |
+|  │   💳 TED/DOC                                                             │ |
+|  │   ━━━━━━━━                                                               │ |
+|  │   • Transferencia bancaria tradicional                                   │ |
+|  │   • Risco BASE: MEDIO (pode ser revertido em alguns casos)              │ |
+|  │   • Fraudes comuns: Golpe do boleto, engenharia social                  │ |
+|  │   • O sistema analisa: valor, destinatario, frequencia                  │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  RESUMO DE RISCO POR TIPO:                                                    |
+|  ┌────────────┬───────────────────────────────────────────────────────────┐ |
+|  │ TIPO       │ RISCO BASE │ REVERSIVEL? │ FRAUDE MAIS COMUM             │ |
+|  ├────────────┼────────────┼─────────────┼───────────────────────────────┤ |
+|  │ PIX        │    ALTO    │    NAO      │ Engenharia social            │ |
+|  │ CREDITO    │    MEDIO   │    SIM      │ Clonagem / dados vazados     │ |
+|  │ DEBITO     │    BAIXO   │    NAO      │ Clonagem fisica              │ |
+|  │ TED        │    MEDIO   │    TALVEZ   │ Golpe do falso boleto        │ |
+|  └────────────┴────────────┴─────────────┴───────────────────────────────┘ |
+|                                                                               |
++==============================================================================+
+```
+
+### 3.3 Entendendo os Status
 
 ```
 +==============================================================================+
