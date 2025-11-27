@@ -239,6 +239,40 @@
 |  │                                                                          │ |
 |  └─────────────────────────────────────────────────────────────────────────┘ |
 |                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  📊 DataSets.md  ★ NOVO ★                                                │ |
+|  │  ━━━━━━━━━━━━━━━━━━━━━━━                                                  │ |
+|  │                                                                          │ |
+|  │  50 Historias de Fraude do Dia a Dia                                    │ |
+|  │                                                                          │ |
+|  │  Conteudo:                                                               │ |
+|  │  • 15 golpes de PIX (falso gerente, WhatsApp, QR Code)                  │ |
+|  │  • 15 fraudes de cartao de credito (clonagem, teste)                    │ |
+|  │  • 10 fraudes de debito/ATM (chupa-cabra, troca)                        │ |
+|  │  • 5 casos de lavagem de dinheiro (laranjas, smurfing)                  │ |
+|  │  • 5 golpes combinados (phishing + fraude)                              │ |
+|  │                                                                          │ |
+|  │  Paginas: ~1500 linhas | Fontes: 14 datasets reais                      │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  🤖 tl.md  ★ NOVO ★                                                      │ |
+|  │  ━━━━━━━━━━━━━━━━━                                                        │ |
+|  │                                                                          │ |
+|  │  Transfer Learning para Deteccao de Fraude                              │ |
+|  │                                                                          │ |
+|  │  Conteudo:                                                               │ |
+|  │  • BERT4ETH: 6 padroes de fraude em criptomoedas                        │ |
+|  │  • FraudGT: 6 padroes de lavagem em grafos                              │ |
+|  │  • FinBERT/GPT-2: 6 padroes de fraude contabil                          │ |
+|  │  • FraudTransformer: 6 padroes em tempo real                            │ |
+|  │  • Autoencoders: 6 padroes de anomalias                                 │ |
+|  │                                                                          │ |
+|  │  Paginas: ~1200 linhas | Fontes: 12 repositorios GitHub                 │ |
+|  │                                                                          │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
 +==============================================================================+
 ```
 

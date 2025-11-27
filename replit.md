@@ -29,7 +29,8 @@ Complete documentation is available in the `sankofa-enterprise-real/docs/` folde
 | [RELATORIO_QA.md](sankofa-enterprise-real/docs/RELATORIO_QA.md) | QA report with 25 E2E tests passing |
 | [DIAGRAMAS.md](sankofa-enterprise-real/docs/DIAGRAMAS.md) | Flowcharts, architecture diagrams |
 | [BLUEPRINT_MOTOR_FRAUDE_300M.md](sankofa-enterprise-real/docs/BLUEPRINT_MOTOR_FRAUDE_300M.md) | Enterprise blueprint for 300M req/day |
-| [DataSets.md](sankofa-enterprise-real/docs/DataSets.md) | **NEW!** Fraud datasets guide with real-world examples (PIX, Credit, Debit) |
+| [DataSets.md](sankofa-enterprise-real/docs/DataSets.md) | **NEW!** 50 fraud stories (PIX, Credit, Debit, Money Laundering, Combined) |
+| [tl.md](sankofa-enterprise-real/docs/tl.md) | **NEW!** Transfer Learning guide - 30 fraud patterns from AI models |
 
 ## New Features v12.0
 
