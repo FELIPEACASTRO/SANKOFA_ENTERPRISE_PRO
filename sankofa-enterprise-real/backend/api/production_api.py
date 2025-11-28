@@ -836,11 +836,11 @@ from datetime import timezone
 
 def get_user_from_db(username: str) -> Optional[Dict[str, Any]]:
     """Busca usuário no PostgreSQL usando pool de conexões"""
-    if not pg_persistence.is_available:
+    if not db_persistence.is_available:
         logger.error("Database not available for authentication")
         return None
     try:
-        conn = pg_persistence._pool.getconn()
+        conn = db_persistence._pool.getconn()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute(
             """SELECT u.id, u.username, u.email, u.password_hash, u.name, u.role, 
@@ -854,7 +854,7 @@ def get_user_from_db(username: str) -> Optional[Dict[str, Any]]:
         )
         user = cursor.fetchone()
         cursor.close()
-        pg_persistence._pool.putconn(conn)
+        db_persistence._pool.putconn(conn)
         return dict(user) if user else None
     except Exception as e:
         logger.error(f"Database error fetching user: {e}")
@@ -863,10 +863,10 @@ def get_user_from_db(username: str) -> Optional[Dict[str, Any]]:
 
 def update_login_attempt(user_id: int, username: str, success: bool):
     """Atualiza tentativas de login no banco usando pool"""
-    if not pg_persistence.is_available:
+    if not db_persistence.is_available:
         return
     try:
-        conn = pg_persistence._pool.getconn()
+        conn = db_persistence._pool.getconn()
         cursor = conn.cursor()
         if success:
             cursor.execute(
@@ -886,7 +886,7 @@ def update_login_attempt(user_id: int, username: str, success: bool):
             )
         conn.commit()
         cursor.close()
-        pg_persistence._pool.putconn(conn)
+        db_persistence._pool.putconn(conn)
     except Exception as e:
         logger.error(f"Database error updating login attempt: {e}")
 
