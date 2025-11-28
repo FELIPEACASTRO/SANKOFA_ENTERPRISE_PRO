@@ -8,6 +8,19 @@ Sankofa Enterprise Pro is a production-ready fraud detection system designed for
 - Avoid technical jargon when possible
 - Documentation in Portuguese for main documents
 
+## Recent Changes (November 2025)
+
+### Research & Documentation Update
+- Added comprehensive fraud detection research document: `docs/RESEARCH_FRAUD_DETECTION_2025.md`
+- Consolidated findings from 9+ parallel web searches on datasets, features, and transfer learning
+- Documented PIX-specific fraud patterns and BACEN regulatory requirements
+
+### Key Research Findings
+- **PIX Fraud Taxonomy**: 15 methodologies identified (arXiv:2511.20902)
+- **Top Datasets**: IEEE-CIS (590K TX, 394 features), PaySim (proxy for PIX)
+- **Model Benchmarks 2025**: CatBoost (F1: 0.9161), LightGBM (25-30% faster), Stacking Ensemble (99% accuracy)
+- **Federated Learning**: Google Cloud + SWIFT partnership launching H1 2025 with 12 financial institutions
+
 ## System Architecture
 
 ### Core Architecture Pattern
@@ -27,6 +40,25 @@ The fraud detection engine employs a **Stacking Ensemble** approach:
 2.  **Meta-Model (Layer 1)**: A Logistic Regression model combines predictions from the base models.
 3.  **Explainability Engine**: Provides feature importance and LGPD-compliant explanations for fraud predictions.
 4.  **Feature Engineering**: Automated extraction of over 47 features.
+
+### Feature Categories (Research-Based)
+Based on 2025 research, the system implements features across these categories:
+
+**PIX-Specific Features:**
+- `device_registered`: BCB 491 compliance (R$200 limit for unregistered devices)
+- `recipient_is_pj`: 2/3 of PIX frauds go to business accounts
+- `pix_key_type`: CPF, CNPJ, email, phone, random key analysis
+- `night_transaction`: Nocturnal limit enforcement (R$1,000 default)
+
+**Velocity Features:**
+- Transaction counts in 1h, 24h, 7d windows
+- Distinct recipients/merchants analysis
+- Time since last transaction
+
+**Behavioral Features:**
+- Amount deviation from historical average (z-score)
+- Typical hour/location deviation
+- Device fingerprint analysis
 
 ### System Design Choices
 - **Comprehensive QA Coverage**: 136 automated tests covering 40+ test categories based on an 87-type QA framework, ensuring 100% test pass rate.
@@ -50,3 +82,19 @@ The system exposes a variety of API endpoints for health checks, authentication,
 - `JWT_SECRET`: Secret key for JSON Web Token authentication.
 - `ENCRYPTION_KEY`: AES-256 key for encrypting sensitive data like CPF tokens.
 - `ENVIRONMENT`: Specifies the deployment environment (e.g., `development`, `production`).
+
+## Performance Targets (Based on Research)
+
+| Metric | Target | Source |
+|--------|--------|--------|
+| Latência P99 | < 50ms | Bradesco PIX standard |
+| TPS | > 3,500 | 300M requests/day |
+| Recall | > 90% | Minimize missed frauds |
+| Precision | > 70% | Minimize false positives |
+| F1 Score | > 80% | Balanced performance |
+
+## Documentation
+
+- `docs/RESEARCH_FRAUD_DETECTION_2025.md` - Comprehensive research on datasets, features, and models
+- `RECALIBRATION_GUIDE.md` - Guide for model recalibration
+- `SECURITY_TESTING.md` - Security testing documentation
