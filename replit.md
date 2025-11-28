@@ -21,9 +21,20 @@ Sankofa Enterprise Pro is a production-ready fraud detection system designed for
 - **World Bank Fast Payments Report**: PIX-specific metrics, compliance requirements
 
 ### Documentation Added
+- `docs/GLOBAL_FRAUD_RESOURCES_COMPLETE.md` - **NEW** Catálogo completo com 50+ recursos
 - `docs/FRAUD_DETECTION_RESOURCES_HUB.md` - Datasets, models, integration roadmap
 - `docs/METRICS_BENCHMARKS_2025.md` - Performance KPIs, SLA targets, compliance metrics
+- `docs/RESEARCH_FRAUD_DETECTION_2025.md` - Pesquisa acadêmica e features
 - `ml_engine/huggingface_integration.py` - Production-ready integration code
+
+### Phase 4: Deep Research Expansion (Latest)
+- **21+ Datasets Catalogados**: CiferAI (21M), IEEE-CIS (590K), Elliptic++ (822K wallets), Bank Account Fraud (6M), PaySim (6.3M)
+- **Cloud Platforms**: AWS SageMaker (GNN+DGL), Google Cloud (AML AI), NVIDIA NGC (Blueprint)
+- **Enterprise Vendors**: BioCatch ($160M ARR, 555M users), SEON (900+ signals), Fingerprint.com (98% accuracy)
+- **arXiv 2025 SOTA**: RAGFormer (GNN+Transformer), BRIGHT (75% latency reduction), Hybrid MoE (98.7% accuracy)
+- **Regulatory Intelligence**: BIS digital fraud paper, ECB/EBA 2024 report (€4.3B fraud), BACEN MED 2.0
+- **Behavioral Biometrics**: 3,000+ sinais, keystroke dynamics, mouse patterns, BioCatch Trust Network
+- **Device Fingerprinting**: VPN/GPS spoofing detection, emulator detection, 98% sustained accuracy
 
 ### Key Integration Resources
 - **PIX Recommended**: LightGBM (25ms latency) + CiferAI dataset
