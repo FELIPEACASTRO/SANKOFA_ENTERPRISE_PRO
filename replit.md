@@ -1,12 +1,12 @@
-# Sankofa Enterprise Pro - Fraud Detection System v12.1
+# Sankofa Enterprise Pro - Fraud Detection System v12.3
 
 ## Overview
 
 Sankofa Enterprise Pro is a production-ready fraud detection system designed for banking environments processing 300M+ requests/day. The system combines machine learning ensemble models (Random Forest, Gradient Boosting, CatBoost, GNN, Federated Learning), real-time transaction analysis, MLOps infrastructure, and regulatory compliance (BACEN, LGPD, PCI DSS) with a React-based dashboard interface.
 
-**Version:** 12.2  
+**Version:** 12.3  
 **Last Updated:** November 28, 2025  
-**Status:** Production Ready - All Roadmap Items + Persistence + Integration Verified
+**Status:** Production Ready - Full Security + RBAC + 31 E2E Tests Passing
 
 ## Quick Start
 
@@ -229,30 +229,52 @@ sankofa-enterprise-real/
 └── docs/                               # Complete documentation
 ```
 
-## Recent Changes (v12.2)
+## Recent Changes (v12.3)
 
 | Date | Change |
 |------|--------|
+| Nov 28, 2025 | **SECURITY**: Full RBAC protection with 5 roles and 20+ permissions |
+| Nov 28, 2025 | **SECURITY**: All 15+ sensitive endpoints protected with JWT+RBAC |
+| Nov 28, 2025 | **SECURITY**: Migrated users from hardcoded to PostgreSQL with bcrypt |
+| Nov 28, 2025 | **TESTS**: 31 E2E tests passing (6 security-focused tests added) |
 | Nov 28, 2025 | **CRITICAL FIX**: Added PostgreSQL persistence for RBAC (6 tables) |
 | Nov 28, 2025 | **CRITICAL FIX**: Added PostgreSQL persistence for CPF tokenization (2 tables) |
-| Nov 28, 2025 | Fixed LSP errors in production_api.py (lines 1076, 2156) |
 | Nov 28, 2025 | Integrated CatBoost/GNN in production_fraud_engine.py predict_detailed() |
-| Nov 28, 2025 | Added rbac_persistence.py and cpf_persistence.py modules |
 | Nov 27, 2025 | Added CatBoost ML model integration |
 | Nov 27, 2025 | Added Graph Neural Networks (GNN) detector |
-| Nov 27, 2025 | Added Federated Learning framework |
-| Nov 27, 2025 | Added CPF Tokenization with AES-256 vault |
 | Nov 27, 2025 | Added RBAC system with 30+ permissions |
-| Nov 27, 2025 | Added automated BACEN reports generator |
-| Nov 27, 2025 | Added Redis Cluster configuration |
+| Nov 27, 2025 | Added CPF Tokenization with AES-256 vault |
 
-## New Tables (v12.2)
+## Security Architecture (v12.3)
+
+### RBAC Roles and Permissions
+
+| Role | Permissions |
+|------|-------------|
+| admin | All permissions (wildcard *) |
+| analyst | fraud:*, transactions:*, alerts:*, reports:*, dashboard:*, metrics:*, investigation:*, audit:*, observability:* |
+| operator | fraud:view/predict, transactions:view, alerts:view, dashboard:view, metrics:view, observability:view |
+| viewer | dashboard:view, metrics:view, transactions:view, alerts:view |
+| system | fraud:predict/batch, model:train/view, observability:view |
+
+### Protected Endpoints
+
+All sensitive endpoints require JWT authentication and RBAC permissions:
+- `/api/transactions` - transactions:view
+- `/api/alerts/*` - alerts:view/acknowledge/update
+- `/api/explainability/*` - fraud:explain
+- `/api/observability/*` - observability:view
+- `/api/feedback` - fraud:feedback
+- `/api/reports/*` - reports:view/generate
+- `/api/model/train` - model:train
+
+## New Tables (v12.3)
 
 | Table | Purpose |
 |-------|---------|
-| `rbac_roles` | Papéis do sistema com permissões JSON |
-| `rbac_user_roles` | Relacionamento usuário-papel |
-| `rbac_sessions` | Sessões de autenticação persistidas |
-| `rbac_permissions_override` | Overrides de permissão por usuário |
-| `cpf_tokens` | Tokens CPF criptografados (AES-256) |
-| `cpf_access_log` | Auditoria de acesso a CPFs (LGPD)
+| `users` | User credentials with bcrypt hashed passwords |
+| `rbac_roles` | System roles with JSON permissions |
+| `rbac_user_roles` | User-role relationships |
+| `rbac_sessions` | Persisted authentication sessions |
+| `cpf_tokens` | CPF tokens encrypted (AES-256) |
+| `cpf_access_log` | CPF access audit (LGPD compliance)
