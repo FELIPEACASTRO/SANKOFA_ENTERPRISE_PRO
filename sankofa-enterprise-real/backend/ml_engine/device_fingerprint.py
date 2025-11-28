@@ -17,6 +17,7 @@ Componentes:
 import hashlib
 import json
 import logging
+import threading
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -41,11 +42,22 @@ class DeviceProfile:
     """Perfil de um dispositivo conhecido"""
     fingerprint: str
     user_id: str
-    first_seen: datetime
-    last_seen: datetime
+    first_seen: datetime  # REQUIRED - deve ser sempre preenchido com datetime.utcnow()
+    last_seen: datetime   # REQUIRED - deve ser sempre preenchido com datetime.utcnow()
     usage_count: int
     is_trusted: bool
     components: Dict[str, Any]
+    
+    def __post_init__(self):
+        """Validação após inicialização"""
+        if not isinstance(self.first_seen, datetime):
+            raise TypeError(f"first_seen deve ser datetime, got {type(self.first_seen)}")
+        if not isinstance(self.last_seen, datetime):
+            raise TypeError(f"last_seen deve ser datetime, got {type(self.last_seen)}")
+        if not self.fingerprint or len(self.fingerprint) == 0:
+            raise ValueError("fingerprint não pode ser vazio")
+        if not self.user_id or len(self.user_id) == 0:
+            raise ValueError("user_id não pode ser vazio")
 
 
 class DeviceFingerprintPersistence:
@@ -71,42 +83,53 @@ class DeviceFingerprintPersistence:
 
 
 class InMemoryPersistence(DeviceFingerprintPersistence):
-    """Persistência em memória (para testes/desenvolvimento)"""
+    """
+    Persistência em memória (para testes/desenvolvimento).
+    
+    THREAD-SAFE: Usa Lock para evitar race conditions.
+    Adequada para desenvolvimento, NÃO para produção com alta concorrência.
+    """
     
     def __init__(self):
         self.devices: Dict[str, DeviceProfile] = {}
         self.user_devices: Dict[str, List[str]] = {}
         self.device_users: Dict[str, List[str]] = {}
+        self._lock = threading.RLock()  # Reentrante para nested calls
     
     def save_device(self, profile: DeviceProfile) -> bool:
-        self.devices[profile.fingerprint] = profile
-        
-        if profile.user_id not in self.user_devices:
-            self.user_devices[profile.user_id] = []
-        if profile.fingerprint not in self.user_devices[profile.user_id]:
-            self.user_devices[profile.user_id].append(profile.fingerprint)
-        
-        if profile.fingerprint not in self.device_users:
-            self.device_users[profile.fingerprint] = []
-        if profile.user_id not in self.device_users[profile.fingerprint]:
-            self.device_users[profile.fingerprint].append(profile.user_id)
-        
-        return True
+        with self._lock:
+            self.devices[profile.fingerprint] = profile
+            
+            if profile.user_id not in self.user_devices:
+                self.user_devices[profile.user_id] = []
+            if profile.fingerprint not in self.user_devices[profile.user_id]:
+                self.user_devices[profile.user_id].append(profile.fingerprint)
+            
+            if profile.fingerprint not in self.device_users:
+                self.device_users[profile.fingerprint] = []
+            if profile.user_id not in self.device_users[profile.fingerprint]:
+                self.device_users[profile.fingerprint].append(profile.user_id)
+            
+            return True
     
     def get_device(self, fingerprint: str) -> Optional[DeviceProfile]:
-        return self.devices.get(fingerprint)
+        with self._lock:
+            return self.devices.get(fingerprint)
     
     def get_user_devices(self, user_id: str) -> List[str]:
-        return self.user_devices.get(user_id, [])
+        with self._lock:
+            return list(self.user_devices.get(user_id, []))
     
     def get_device_users(self, fingerprint: str) -> List[str]:
-        return self.device_users.get(fingerprint, [])
+        with self._lock:
+            return list(self.device_users.get(fingerprint, []))
     
     def update_device(self, profile: DeviceProfile) -> bool:
-        if profile.fingerprint in self.devices:
-            self.devices[profile.fingerprint] = profile
-            return True
-        return False
+        with self._lock:
+            if profile.fingerprint in self.devices:
+                self.devices[profile.fingerprint] = profile
+                return True
+            return False
 
 
 class PostgresPersistence(DeviceFingerprintPersistence):

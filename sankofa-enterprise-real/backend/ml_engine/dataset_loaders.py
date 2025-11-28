@@ -332,28 +332,58 @@ class DatasetLoader:
             
         Returns:
             X_train, X_test, y_train, y_test
+            
+        Raises:
+            ValueError: Se dataset for muito pequeno ou não tiver coluna target
         """
         from sklearn.model_selection import train_test_split
         
+        # VALIDAÇÃO 1: Verificar tamanho mínimo
+        if len(df) < 10:
+            raise ValueError(f"Dataset muito pequeno: {len(df)} registros (mínimo 10)")
+        
+        # VALIDAÇÃO 2: Encontrar coluna target
         if target_col not in df.columns:
             possible_targets = ['isFraud', 'is_fraud', 'fraud', 'Class', 'label']
+            found = False
             for col in possible_targets:
                 if col in df.columns:
                     target_col = col
+                    found = True
                     break
+            if not found:
+                raise ValueError(f"Coluna target não encontrada. Esperado: {target_col}")
         
         numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
         numeric_cols = [c for c in numeric_cols if c != target_col]
         
+        if len(numeric_cols) == 0:
+            raise ValueError("Nenhuma coluna numérica encontrada para features")
+        
         X = df[numeric_cols].fillna(0)
         y = df[target_col]
         
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=test_size, random_state=42, stratify=y
-        )
+        # VALIDAÇÃO 3: Verificar classes
+        unique_classes = y.nunique()
+        if unique_classes < 2:
+            raise ValueError(f"Target precisa de pelo menos 2 classes, encontrou {unique_classes}")
+        
+        # VALIDAÇÃO 4: Garantir suficientes amostras por classe
+        class_counts = y.value_counts()
+        min_class_count = class_counts.min()
+        if min_class_count < 2:
+            logger.warning(f"Classe minoritária tem apenas {min_class_count} amostra(s), desabilitando stratify")
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=test_size, random_state=42, stratify=None
+            )
+        else:
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=test_size, random_state=42, stratify=y
+            )
         
         logger.info(f"Dataset preparado: {len(X_train)} treino, {len(X_test)} teste")
         logger.info(f"Taxa de fraude: {y.mean():.4%}")
+        logger.info(f"Features: {len(numeric_cols)} colunas numéricas")
         
         return X_train, X_test, y_train, y_test
 
