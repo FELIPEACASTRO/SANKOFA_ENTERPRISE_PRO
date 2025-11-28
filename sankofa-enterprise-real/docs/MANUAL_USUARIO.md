@@ -1,11 +1,11 @@
-# Manual do Usuario - Sankofa Enterprise Pro v12.0
+# Manual do Usuario - Sankofa Enterprise Pro v12.4
 
 ## Guia Completo para Analistas de Fraude
 
 ![Dashboard Analista](images/dashboard_interface_analista.png)
 
-**Versao:** 12.0  
-**Ultima Atualizacao:** 27 de Novembro de 2025  
+**Versao:** 12.4  
+**Ultima Atualizacao:** 28 de Novembro de 2025  
 **Publico:** Analistas de Fraude, Gerentes de Operacoes, Compliance Officers
 
 ---
