@@ -830,22 +830,89 @@ def get_status():
     )
 
 
-USERS_DB = {
-    "admin": {"password_hash": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", "role": "admin", "name": "Administrador"},
-    "analyst": {"password_hash": "20249749412d73a3f5799f6f1dcf910e7b4aa3ce4de133b1f8a63c044792a4e9", "role": "analyst", "name": "Analista"},
-}
+import bcrypt
+from datetime import timezone
 
 
-def hash_password(password: str) -> str:
-    """Hash password using SHA-256"""
-    import hashlib
-    return hashlib.sha256(password.encode()).hexdigest()
+def get_user_from_db(username: str) -> Optional[Dict[str, Any]]:
+    """Busca usuário no PostgreSQL usando pool de conexões"""
+    if not pg_persistence.is_available:
+        logger.error("Database not available for authentication")
+        return None
+    try:
+        conn = pg_persistence._pool.getconn()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            """SELECT u.id, u.username, u.email, u.password_hash, u.name, u.role, 
+                      u.is_active, u.failed_login_attempts, u.locked_until,
+                      COALESCE(
+                          (SELECT array_agg(role_name) FROM rbac_user_roles WHERE user_id = u.id::text),
+                          ARRAY[u.role]
+                      ) as roles
+               FROM users u WHERE username = %s""",
+            (username,)
+        )
+        user = cursor.fetchone()
+        cursor.close()
+        pg_persistence._pool.putconn(conn)
+        return dict(user) if user else None
+    except Exception as e:
+        logger.error(f"Database error fetching user: {e}")
+        return None
+
+
+def update_login_attempt(user_id: int, username: str, success: bool):
+    """Atualiza tentativas de login no banco usando pool"""
+    if not pg_persistence.is_available:
+        return
+    try:
+        conn = pg_persistence._pool.getconn()
+        cursor = conn.cursor()
+        if success:
+            cursor.execute(
+                """UPDATE users SET failed_login_attempts = 0, last_login = NOW() 
+                   WHERE id = %s""",
+                (user_id,)
+            )
+        else:
+            cursor.execute(
+                """UPDATE users SET failed_login_attempts = failed_login_attempts + 1,
+                   locked_until = CASE 
+                       WHEN failed_login_attempts >= 4 THEN NOW() + INTERVAL '15 minutes'
+                       ELSE locked_until
+                   END
+                   WHERE id = %s""",
+                (user_id,)
+            )
+        conn.commit()
+        cursor.close()
+        pg_persistence._pool.putconn(conn)
+    except Exception as e:
+        logger.error(f"Database error updating login attempt: {e}")
+
+
+def verify_password(password: str, password_hash: str) -> bool:
+    """Verifica senha usando bcrypt"""
+    try:
+        return bcrypt.checkpw(password.encode(), password_hash.encode())
+    except Exception:
+        return False
+
+
+def is_account_locked(locked_until) -> bool:
+    """Verifica se conta está bloqueada (timezone-aware)"""
+    if not locked_until:
+        return False
+    now = datetime.now(timezone.utc)
+    if locked_until.tzinfo is None:
+        locked_until = locked_until.replace(tzinfo=timezone.utc)
+    return locked_until > now
 
 
 @app.route("/api/auth/login", methods=["POST"])
 @limiter.limit("10 per minute")
 def login():
-    """Autenticação de usuário e geração de token JWT"""
+    """Autenticação de usuário com bcrypt e PostgreSQL"""
     if not request.json:
         raise ValidationError("Request body is required")
     
@@ -858,7 +925,7 @@ def login():
             "error": {"message": "Username and password are required"}
         }), 400
     
-    user = USERS_DB.get(username)
+    user = get_user_from_db(username)
     if not user:
         logger.warning("Login attempt for unknown user", username=username)
         return jsonify({
@@ -866,19 +933,41 @@ def login():
             "error": {"message": "Invalid credentials"}
         }), 401
     
-    if hash_password(password) != user["password_hash"]:
+    if not user.get("is_active", False):
+        logger.warning("Login attempt for inactive user", username=username)
+        return jsonify({
+            "success": False,
+            "error": {"message": "Account is disabled"}
+        }), 401
+    
+    if is_account_locked(user.get("locked_until")):
+        logger.warning("Login attempt for locked user", username=username)
+        return jsonify({
+            "success": False,
+            "error": {"message": "Account is temporarily locked. Try again later."}
+        }), 401
+    
+    if not verify_password(password, user["password_hash"]):
+        update_login_attempt(user["id"], username, success=False)
         logger.warning("Invalid password for user", username=username)
         return jsonify({
             "success": False,
             "error": {"message": "Invalid credentials"}
         }), 401
     
+    update_login_attempt(user["id"], username, success=True)
+    
+    roles = user.get("roles", [user["role"]])
+    primary_role = roles[0] if roles else user["role"]
+    
     token_payload = {
         "sub": username,
+        "user_id": user["id"],
         "name": user["name"],
-        "role": user["role"],
-        "iat": datetime.utcnow(),
-        "exp": datetime.utcnow() + timedelta(hours=24)
+        "role": primary_role,
+        "roles": roles,
+        "iat": datetime.now(timezone.utc),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=24)
     }
     
     token = pyjwt.encode(
@@ -887,16 +976,19 @@ def login():
         algorithm=config.security.jwt_algorithm
     )
     
-    logger.info("User logged in successfully", username=username, role=user["role"])
+    logger.info("User logged in successfully", username=username, role=primary_role)
     
     return jsonify({
         "success": True,
         "data": {
             "token": token,
             "user": {
+                "id": user["id"],
                 "username": username,
                 "name": user["name"],
-                "role": user["role"]
+                "role": primary_role,
+                "roles": roles,
+                "email": user.get("email")
             },
             "expires_in": 86400
         }
