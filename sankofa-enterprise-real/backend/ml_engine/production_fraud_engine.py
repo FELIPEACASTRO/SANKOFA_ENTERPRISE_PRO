@@ -448,6 +448,12 @@ class ProductionFraudEngine:
         # Treinar modelo
         self.fit(X, y)
         
+        # Atualizar loaded_models com modelos treinados
+        if hasattr(self.ensemble, 'named_estimators_'):
+            self.loaded_models = dict(self.ensemble.named_estimators_)
+        else:
+            self.loaded_models = {}
+        
         # Atualizar feature names para features da API
         self.api_feature_names = [
             'amount', 'hour', 'amount_log', 'amount_normalized',
@@ -772,6 +778,9 @@ class ProductionFraudEngine:
         """
         if not self.is_trained:
             raise ValueError("Model not trained. Call fit() first.")
+
+        if X is None or len(X) == 0:
+            return []
 
         try:
             start_time = time.time()
