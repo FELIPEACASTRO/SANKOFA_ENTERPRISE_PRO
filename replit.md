@@ -127,6 +127,10 @@ The system exposes a variety of API endpoints for health checks, authentication,
 
 ## Documentation
 
+- `docs/DESCOBERTAS_E_ROADMAP_INTEGRACAO.md` - **NOVO** Roadmap completo de integração com 6 fases
+- `docs/GLOBAL_FRAUD_RESOURCES_COMPLETE.md` - Catálogo com 50+ recursos globais
 - `docs/RESEARCH_FRAUD_DETECTION_2025.md` - Comprehensive research on datasets, features, and models
+- `docs/FRAUD_DETECTION_RESOURCES_HUB.md` - Hub de datasets e modelos
+- `docs/METRICS_BENCHMARKS_2025.md` - KPIs e benchmarks de produção
 - `RECALIBRATION_GUIDE.md` - Guide for model recalibration
 - `SECURITY_TESTING.md` - Security testing documentation
