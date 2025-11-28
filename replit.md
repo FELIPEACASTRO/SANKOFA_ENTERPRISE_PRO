@@ -10,14 +10,35 @@ Sankofa Enterprise Pro is a production-ready fraud detection system designed for
 
 ## Recent Changes (November 2025)
 
-### Research & Documentation Update
-- Added comprehensive fraud detection research document: `docs/RESEARCH_FRAUD_DETECTION_2025.md`
-- Consolidated findings from 9+ parallel web searches on datasets, features, and transfer learning
+### Phase 3: Global Resources Integration (Latest)
+- **Hugging Face Integration**: Added 4 pre-trained models + 4 datasets (21M+ transactions)
+  - CiferAI 21M mobile money dataset (PIX proxy)
+  - Keras-io imbalanced classification (99.82% fraud recall)
+  - VAE-GAN autoencoder for anomalies
+  - Mistral-7B LLM for fraud transcript analysis
+- **Stanford SNAP Datasets**: Elliptic (203K Bitcoin TX), Elliptic++ (822K wallets)
+- **Papers with Code SOTA**: Stacking Ensemble (99% accuracy, 0.99 AUC)
+- **World Bank Fast Payments Report**: PIX-specific metrics, compliance requirements
+
+### Documentation Added
+- `docs/FRAUD_DETECTION_RESOURCES_HUB.md` - Datasets, models, integration roadmap
+- `docs/METRICS_BENCHMARKS_2025.md` - Performance KPIs, SLA targets, compliance metrics
+- `ml_engine/huggingface_integration.py` - Production-ready integration code
+
+### Key Integration Resources
+- **PIX Recommended**: LightGBM (25ms latency) + CiferAI dataset
+- **Max Accuracy**: Stacking Ensemble + IEEE-CIS dataset
+- **GNN Networks**: Elliptic++ for fraud ring detection
+- **Federated Learning**: Multi-bank training with privacy preservation
+
+### Research & Documentation (Earlier Phase)
+- Comprehensive fraud detection research document: `docs/RESEARCH_FRAUD_DETECTION_2025.md`
+- Consolidated findings from 15+ parallel web searches on datasets, features, and transfer learning
 - Documented PIX-specific fraud patterns and BACEN regulatory requirements
 
 ### Key Research Findings
 - **PIX Fraud Taxonomy**: 15 methodologies identified (arXiv:2511.20902)
-- **Top Datasets**: IEEE-CIS (590K TX, 394 features), PaySim (proxy for PIX)
+- **Top Datasets**: IEEE-CIS (590K TX, 394 features), PaySim (proxy for PIX), CiferAI (21M)
 - **Model Benchmarks 2025**: CatBoost (F1: 0.9161), LightGBM (25-30% faster), Stacking Ensemble (99% accuracy)
 - **Federated Learning**: Google Cloud + SWIFT partnership launching H1 2025 with 12 financial institutions
 
