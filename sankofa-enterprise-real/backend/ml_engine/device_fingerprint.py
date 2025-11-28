@@ -70,9 +70,10 @@ class DeviceProfile:
         if len(self.user_id) > 255:
             raise ValueError(f"user_id muito longo: {len(self.user_id)} (máx 255)")
         
-        # CRITICAL: Validação de segurança contra injection
+        # CRITICAL: Validação de segurança contra injection (COMPREHENSIVE)
         import re
-        dangerous_chars = re.compile(r'[;\'"`\-\(\)\[\]\{\}|&$<>\\]')
+        # Block: SQL/NoSQL, OS commands, path traversal, URL encoding, wildcards, special control chars
+        dangerous_chars = re.compile(r'[;\'"`\-\(\)\[\]\{\}|&$<>\\/.%*?@!~^=+#\x00-\x1f]')
         if dangerous_chars.search(self.fingerprint):
             raise ValueError(f"fingerprint contém caracteres perigosos: {self.fingerprint}")
         if dangerous_chars.search(self.user_id):
