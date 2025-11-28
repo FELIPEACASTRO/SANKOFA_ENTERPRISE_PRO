@@ -1,0 +1,215 @@
+lista completa, atualizada e extremamente sólida dos maiores sites e repositórios do mundo focados em:
+
+✔ Datasets grandes
+✔ Modelos de IA avançados
+✔ Features / embeddings
+✔ Bases científicas
+✔ APIs públicas para IA e Data Science
+
+Além de Kaggle e HuggingFace, que são os líderes globais.
+
+🌍 TOP SITES & REPOSITÓRIOS MUNDIAIS (LEVEL GLOBAL)
+
+Os mais usados por cientistas de dados, pesquisadores e engenheiros de IA.
+
+🧠 1. Google Dataset Search
+
+🔗 https://datasetsearch.research.google.com
+
+É o Google dos datasets. Indexa milhões de bases públicas no mundo.
+
+🧠 2. UCI Machine Learning Repository
+
+🔗 https://archive.ics.uci.edu
+
+O repositório acadêmico mais clássico de Machine Learning.
+
+🧠 3. Papers With Code (inclui SOTA e datasets)
+
+🔗 https://paperswithcode.com
+
+Integra papers, datasets, benchmarks e modelos SOTA com links diretos para GitHub.
+
+🧠 4. AWS Open Data Registry
+
+🔗 https://registry.opendata.aws
+
+Dataset gigantes hospedados na AWS (clima, satélite, genética, mapas, etc).
+
+🧠 5. Microsoft Research Open Data
+
+🔗 https://msropendata.com
+
+Datasets avançados para visão computacional, NLP e bioinformática.
+
+🧠 6. OpenML
+
+🔗 https://www.openml.org
+
+Portal científico colaborativo de datasets + benchmarks prontos para ML.
+
+🧠 7. Stanford Large Network Dataset Collection (SNAP)
+
+🔗 https://snap.stanford.edu/data
+
+Melhor fonte mundial de datasets de grafos, redes sociais, fraudes, relacionamentos.
+
+🧠 8. Allen Institute for AI (AI2)
+
+🔗 https://allenai.org/data
+
+Datasets avançados para NLP, raciocínio, visão computacional e multimodal.
+
+🧠 9. Google Cloud Public Datasets
+
+🔗 https://cloud.google.com/datasets
+
+Gigantes datasets públicos na infraestrutura GCP.
+
+🧠 10. Open Data Soft
+
+🔗 https://www.opendatasoft.com
+
+Plataforma global de datalakes públicos (governos + empresas).
+
+📊 SITES DE GOVERNO (GRANDES DIMENSÕES)
+🇺🇸 11. Data.gov (EUA)
+
+🔗 https://www.data.gov
+
+Maior portal governamental do mundo: economia, finanças, saúde, clima, crimes.
+
+🇪🇺 12. European Union Open Data Portal
+
+🔗 https://data.europa.eu
+
+Dados oficiais financeiros, bancários, riscos, transportes e população.
+
+🇬🇧 13. UK Data Service
+
+🔗 https://ukdataservice.ac.uk
+
+Fortíssimo para economia, demografia, risco, segurança e pesquisas sociais.
+
+🧬 SITES CIENTÍFICOS AVANÇADOS
+14. PhysioNet (dados biomédicos)
+
+🔗 https://physionet.org
+
+Sinais fisiológicos, ECG, EEG — referência mundial.
+
+15. ImageNet
+
+🔗 https://www.image-net.org
+
+Base histórica de Visão Computacional.
+
+16. COCO Dataset
+
+🔗 https://cocodataset.org
+
+Referência global para deteção de objetos.
+
+17. LAION (datasets gigantes multimodais)
+
+🔗 https://laion.ai
+
+Usado para treinar modelos como Stable Diffusion.
+
+📚 PORTAIS MULTIDOMÍNIO
+18. Zenodo
+
+🔗 https://zenodo.org
+
+Armazena datasets de universidades e centros de pesquisa do mundo todo.
+
+19. Figshare
+
+🔗 https://figshare.com
+
+Datasets científicos de alta qualidade.
+
+20. DataHub
+
+🔗 https://datahub.io
+
+Bases estruturadas prontas para Data Science.
+
+🤖 MODELOS DE IA (MODELOS + FEATURES + DATA)
+21. TensorFlow Hub
+
+🔗 https://tfhub.dev
+
+Modelos treinados, embeddings, NLP, visão, multimodal.
+
+22. PyTorch Hub
+
+🔗 https://pytorch.org/hub
+
+Modelos oficiais PyTorch SOTA.
+
+23. ONNX Model Zoo
+
+🔗 https://github.com/onnx/models
+
+Modelos otimizados para produção e baixa latência.
+
+24. NVIDIA GPU Cloud (NGC)
+
+🔗 https://ngc.nvidia.com/catalog/models
+
+Modelos avançados para deep learning, visão, NLP, grafos.
+
+25. IBM Model Asset Exchange
+
+🔗 https://developer.ibm.com/exchanges/models
+
+Modelos pré-treinados enterprise.
+
+🧾 GIGANTES REPOS ONLINE
+26. GitHub – Awesome Public Datasets
+
+🔗 https://github.com/awesomedata/awesome-public-datasets
+
+Coleção curada de datasets de todos os temas.
+
+27. Google BigQuery Public Datasets
+
+🔗 https://cloud.google.com/bigquery/public-data
+
+Usado em pesquisas de larga escala.
+
+28. FiveThirtyEight Datasets
+
+🔗 https://github.com/fivethirtyeight/data
+
+Excelentes dados de estatística, política, esportes.
+
+29. Registry of Open Data on AWS (Redundante mas essencial)
+
+🔗 https://registry.opendata.aws
+
+Um dos maiores do planeta.
+
+30. NumFOCUS / Open Data Science
+
+🔗 https://numfocus.org
+
+Datasets para ML, ciência e matemática.
+
+📦 SEGMENTOS ESPECÍFICOS
+🌎 Clima, Satélite, Geoespacial
+
+NASA Earth Data — https://earthdata.nasa.gov
+
+USGS Earth Explorer — https://earthexplorer.usgs.gov
+
+NOAA Big Data — https://www.noaa.gov
+
+💳 Fraudes / Pagamentos / Economia
+
+World Bank Open Data — https://data.worldbank.org
+
+IMF Data — https://www.imf.org/en/Data
+
+BIS (Bank for International Settlements) — https://www.bis.org/statistics
