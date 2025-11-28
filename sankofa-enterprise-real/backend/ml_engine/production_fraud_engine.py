@@ -194,66 +194,150 @@ class ProductionFraudEngine:
         )
     
     def _try_load_pretrained_model(self):
-        """Tenta carregar modelo pré-treinado do disco"""
+        """Tenta carregar modelo pré-treinado ou treina novo com features da API."""
         try:
             model_file = self.model_path / "fraud_engine_v1.0.0.joblib"
+            api_model_file = self.model_path / "fraud_engine_api.joblib"
             simple_model_file = self.model_path / "production_model.joblib"
             
+            # Primeiro, tentar carregar modelo treinado com features da API
+            if api_model_file.exists():
+                import joblib
+                model_data = joblib.load(api_model_file)
+                self._load_model_data(model_data, str(api_model_file))
+                return
+            
+            # Se existir modelo legacy (V1-V28), verificar compatibilidade
             if model_file.exists():
                 import joblib
                 model_data = joblib.load(model_file)
-                self.loaded_models = model_data.get('models', {})
-                self.scaler = model_data.get('scaler', self.scaler)
-                self.feature_names = model_data.get('feature_names', [])
-                self.threshold = model_data.get('threshold', 0.5)
-                self.model_weights = model_data.get('weights', self.model_weights)
+                features = model_data.get('feature_names', [])
                 
-                metrics_dict = model_data.get('metrics', {})
-                if metrics_dict:
-                    self.metrics = ModelMetrics(
-                        accuracy=metrics_dict.get('accuracy', 0),
-                        precision=metrics_dict.get('precision', 0),
-                        recall=metrics_dict.get('recall', 0),
-                        f1_score=metrics_dict.get('f1_score', 0),
-                        roc_auc=metrics_dict.get('roc_auc', 0),
-                        threshold=metrics_dict.get('threshold', 0.5),
-                        timestamp=metrics_dict.get('timestamp', '')
+                # Verificar se modelo usa features V1-V28 (incompatível com API)
+                if any(f.startswith('V') and f[1:].isdigit() for f in features):
+                    logger.warning(
+                        "Legacy model uses V1-V28 features incompatible with API. Training new model.",
+                        legacy_features=features[:5]
                     )
+                    self._train_and_save_api_model(api_model_file)
+                    return
                 
-                self.is_trained = True
-                logger.info(
-                    "Pre-trained model loaded successfully",
-                    model_file=str(model_file),
-                    features=len(self.feature_names),
-                    threshold=self.threshold
-                )
+                self._load_model_data(model_data, str(model_file))
+                return
             elif simple_model_file.exists():
                 import joblib
                 model_data = joblib.load(simple_model_file)
+                features = model_data.get('feature_names', [])
+                
+                # Verificar se modelo simples usa features V1-V28
+                if any(f.startswith('V') and f[1:].isdigit() for f in features):
+                    logger.warning("Simple model uses V1-V28 features. Training new model.")
+                    self._train_and_save_api_model(api_model_file)
+                    return
+                
                 self.loaded_models = {'random_forest': model_data.get('model')}
                 self.scaler = model_data.get('scaler', self.scaler)
-                self.feature_names = model_data.get('feature_names', [])
+                self.feature_names = features
                 self.threshold = model_data.get('threshold', 0.5)
-                
-                metrics_dict = model_data.get('metrics', {})
-                if metrics_dict:
-                    self.metrics = ModelMetrics(
-                        accuracy=metrics_dict.get('accuracy', 0),
-                        precision=metrics_dict.get('precision', 0),
-                        recall=metrics_dict.get('recall', 0),
-                        f1_score=metrics_dict.get('f1_score', 0),
-                        roc_auc=metrics_dict.get('roc_auc', 0),
-                        threshold=metrics_dict.get('threshold', 0.5),
-                        timestamp=metrics_dict.get('timestamp', '')
-                    )
                 
                 self.is_trained = True
                 logger.info(
                     "Simple pre-trained model loaded",
                     model_file=str(simple_model_file)
                 )
+            else:
+                # Nenhum modelo encontrado - treinar novo com features da API
+                logger.info("No pre-trained model found. Training new model with API features.")
+                self._train_and_save_api_model(api_model_file)
+                
         except Exception as e:
-            logger.warning(f"Could not load pre-trained model: {e}")
+            logger.warning(f"Could not load pre-trained model: {e}. Training new model.")
+            try:
+                api_model_file = self.model_path / "fraud_engine_api.joblib"
+                self._train_and_save_api_model(api_model_file)
+            except Exception as train_error:
+                logger.error(f"Failed to train model: {train_error}")
+    
+    def _load_model_data(self, model_data: dict, model_file: str):
+        """Carrega dados do modelo a partir de um dicionário."""
+        self.loaded_models = model_data.get('models', {})
+        self.scaler = model_data.get('scaler', self.scaler)
+        self.feature_names = model_data.get('feature_names', [])
+        self.threshold = model_data.get('threshold', 0.5)
+        self.model_weights = model_data.get('weights', self.model_weights)
+        
+        if 'calibrated_model' in model_data and model_data['calibrated_model'] is not None:
+            self.calibrated_model = model_data['calibrated_model']
+        
+        if 'ensemble' in model_data and model_data['ensemble'] is not None:
+            self.ensemble = model_data['ensemble']
+        
+        metrics_dict = model_data.get('metrics', {})
+        if metrics_dict:
+            self.metrics = ModelMetrics(
+                accuracy=metrics_dict.get('accuracy', 0),
+                precision=metrics_dict.get('precision', 0),
+                recall=metrics_dict.get('recall', 0),
+                f1_score=metrics_dict.get('f1_score', 0),
+                roc_auc=metrics_dict.get('roc_auc', 0),
+                threshold=metrics_dict.get('threshold', 0.5),
+                timestamp=metrics_dict.get('timestamp', '')
+            )
+        
+        self.is_trained = True
+        logger.info(
+            "Model loaded successfully",
+            model_file=model_file,
+            features=len(self.feature_names),
+            threshold=self.threshold
+        )
+    
+    def _train_and_save_api_model(self, model_file: Path):
+        """Treina e salva modelo com features compatíveis com a API."""
+        import joblib
+        
+        logger.info("Training new model with API-compatible features...")
+        self.train_with_api_features()
+        
+        # Extrair modelos treinados do ensemble
+        trained_models = {}
+        if hasattr(self.ensemble, 'estimators_') and hasattr(self.ensemble, 'named_estimators_'):
+            trained_models = dict(self.ensemble.named_estimators_)
+        
+        # Salvar modelo treinado
+        model_data = {
+            'models': trained_models,
+            'calibrated_model': self.calibrated_model,
+            'ensemble': self.ensemble,
+            'scaler': self.scaler,
+            'feature_names': self.feature_names,
+            'threshold': self.threshold,
+            'weights': self.model_weights,
+            'metrics': {
+                'accuracy': self.metrics.accuracy if self.metrics else 0,
+                'precision': self.metrics.precision if self.metrics else 0,
+                'recall': self.metrics.recall if self.metrics else 0,
+                'f1_score': self.metrics.f1_score if self.metrics else 0,
+                'roc_auc': self.metrics.roc_auc if self.metrics else 0,
+                'threshold': self.threshold,
+                'timestamp': datetime.utcnow().isoformat() + "Z"
+            },
+            'version': self.VERSION,
+            'api_compatible': True
+        }
+        
+        # Garantir que o diretório existe
+        model_file.parent.mkdir(parents=True, exist_ok=True)
+        joblib.dump(model_data, model_file)
+        
+        # Atualizar loaded_models para usar modelos treinados
+        self.loaded_models = trained_models
+        
+        logger.info(
+            "API-compatible model trained and saved",
+            model_file=str(model_file),
+            features=len(self.feature_names)
+        )
 
     def _initialize_precision_rules(self) -> Dict[str, Dict[str, Any]]:
         """Inicializa regras de alta precisão"""
@@ -276,24 +360,110 @@ class ProductionFraudEngine:
         }
 
     def _create_derived_features(self, X: pd.DataFrame) -> pd.DataFrame:
-        """Cria features derivadas necessárias para o modelo"""
+        """Cria features derivadas necessárias para o modelo.
+        
+        Gera features de engenharia a partir dos dados de entrada da API.
+        Estas features são usadas para detecção de fraude baseada em padrões.
+        """
         df = X.copy()
         
-        # Features derivadas do treinamento
+        # Feature engineering a partir dos dados da API
         if 'amount' in df.columns:
             df['amount_log'] = np.log1p(df['amount'])
+            df['amount_normalized'] = df['amount'] / 10000
+            df['is_high_amount'] = (df['amount'] > 5000).astype(int)
+            df['is_very_high_amount'] = (df['amount'] > 10000).astype(int)
             if 'avg_amount_30d' in df.columns:
                 df['amount_deviation'] = df['amount'] / (df['avg_amount_30d'] + 1)
             else:
                 df['amount_deviation'] = df['amount'] / 500
         
+        if 'hour' in df.columns:
+            df['is_night'] = ((df['hour'] >= 0) & (df['hour'] <= 5) | (df['hour'] >= 23)).astype(int)
+            df['is_business_hours'] = ((df['hour'] >= 8) & (df['hour'] <= 18)).astype(int)
+            df['hour_sin'] = np.sin(2 * np.pi * df['hour'] / 24)
+            df['hour_cos'] = np.cos(2 * np.pi * df['hour'] / 24)
+        
+        if 'amount' in df.columns and 'hour' in df.columns:
+            df['night_high_amount'] = ((df.get('is_night', 0) == 1) & (df['amount'] > 2000)).astype(int)
+            df['suspicious_combo'] = ((df.get('is_night', 0) == 1) & (df['amount'] > 5000)).astype(int)
+        
         if 'velocity_score' in df.columns and 'is_new_device' in df.columns:
             df['velocity_device_interaction'] = df['velocity_score'] * df['is_new_device']
         
-        if 'is_night' in df.columns and 'amount' in df.columns:
-            df['night_high_amount'] = df['is_night'] * (df['amount'] > 2000).astype(int)
+        if 'channel' in df.columns:
+            df['channel_pix'] = (df['channel'] == 'pix').astype(int)
+            df['channel_web'] = (df['channel'] == 'web').astype(int)
+            df['channel_mobile'] = (df['channel'] == 'mobile').astype(int)
         
         return df
+    
+    def train_with_api_features(self) -> "ProductionFraudEngine":
+        """Treina o modelo com features compatíveis com a API.
+        
+        Gera dados de treino sintéticos baseados em padrões de fraude conhecidos
+        e treina o modelo para trabalhar com as features disponíveis na API.
+        
+        Returns:
+            Self (permite chaining)
+        """
+        np.random.seed(42)
+        n_samples = 10000
+        fraud_rate = 0.02
+        n_fraud = int(n_samples * fraud_rate)
+        n_legit = n_samples - n_fraud
+        
+        logger.info("Training model with API-compatible features", n_samples=n_samples)
+        
+        # Gerar transações legítimas (padrões normais)
+        legit_data = {
+            'amount': np.random.exponential(500, n_legit),
+            'hour': np.random.choice(range(8, 22), n_legit),
+            'channel': np.random.choice(['pix', 'web', 'mobile', 'atm'], n_legit, p=[0.4, 0.3, 0.2, 0.1]),
+        }
+        legit_df = pd.DataFrame(legit_data)
+        legit_labels = np.zeros(n_legit)
+        
+        # Gerar transações fraudulentas (padrões suspeitos)
+        fraud_data = {
+            'amount': np.concatenate([
+                np.random.uniform(5000, 50000, n_fraud // 2),
+                np.random.exponential(2000, n_fraud - n_fraud // 2)
+            ]),
+            'hour': np.random.choice([0, 1, 2, 3, 4, 23], n_fraud),
+            'channel': np.random.choice(['pix', 'web', 'mobile', 'atm'], n_fraud, p=[0.6, 0.2, 0.15, 0.05]),
+        }
+        fraud_df = pd.DataFrame(fraud_data)
+        fraud_labels = np.ones(n_fraud)
+        
+        # Combinar dados
+        X = pd.concat([legit_df, fraud_df], ignore_index=True)
+        y = np.concatenate([legit_labels, fraud_labels])
+        
+        # Shuffle
+        idx = np.random.permutation(len(X))
+        X = X.iloc[idx].reset_index(drop=True)
+        y = y[idx]
+        
+        # Treinar modelo
+        self.fit(X, y)
+        
+        # Atualizar feature names para features da API
+        self.api_feature_names = [
+            'amount', 'hour', 'amount_log', 'amount_normalized',
+            'is_high_amount', 'is_very_high_amount', 'amount_deviation',
+            'is_night', 'is_business_hours', 'hour_sin', 'hour_cos',
+            'night_high_amount', 'suspicious_combo',
+            'channel_pix', 'channel_web', 'channel_mobile'
+        ]
+        
+        logger.info(
+            "Model trained with API features",
+            feature_count=len(self.feature_names),
+            features=self.feature_names[:10]
+        )
+        
+        return self
 
     @log_execution_time(logger)
     def _preprocess_data(self, X: pd.DataFrame, fit_transform: bool = False) -> np.ndarray:

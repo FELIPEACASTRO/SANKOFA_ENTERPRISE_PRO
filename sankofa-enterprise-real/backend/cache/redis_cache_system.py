@@ -216,81 +216,113 @@ class InMemoryPipeline:
 
 
 class RedisConnectionManager:
-    """Gerenciador de conexões Redis com pool e failover"""
+    """Gerenciador de conexões Redis com pool e failover.
+    
+    COMPORTAMENTO POR AMBIENTE:
+    - Desenvolvimento: Usa InMemoryCache automaticamente (sem tentar conectar Redis)
+    - Produção: Tenta conectar ao Redis, fallback para InMemoryCache se falhar
+    
+    CONFIGURAÇÃO:
+    - ENVIRONMENT: development (default) ou production
+    - REDIS_URL: URL de conexão Redis (ex: redis://host:6379)
+    """
 
     def __init__(self, config: CacheConfig):
+        import os
         self.config = config
         self.pool = None
         self._lock = threading.Lock()
         self._health_check_thread = None
         self._is_healthy = False
         self._fallback_cache = InMemoryCache()
+        self._environment = os.getenv("ENVIRONMENT", "development")
+        self._redis_url = os.getenv("REDIS_URL")
+        self._use_memory_only = False
 
         self._init_connection_pool()
         self._start_health_check()
 
     def _init_connection_pool(self):
-        """Inicializa pool de conexões Redis"""
-        if not REDIS_AVAILABLE or redis_module is None:
-            logger.info("Redis não disponível - usando cache em memória")
+        """Inicializa pool de conexões Redis baseado no ambiente."""
+        import os
+        
+        if self._environment == "development" and not self._redis_url:
+            logger.info("Development mode: Using in-memory cache (set REDIS_URL for Redis)")
             self._is_healthy = True
+            self._use_memory_only = True
+            return
+        
+        if not REDIS_AVAILABLE or redis_module is None:
+            logger.info("Redis package not available - using in-memory cache")
+            self._is_healthy = True
+            self._use_memory_only = True
             return
             
         try:
-            connection_kwargs = {
-                "host": self.config.host,
-                "port": self.config.port,
-                "password": self.config.password,
-                "db": self.config.db,
-                "max_connections": self.config.max_connections,
-                "socket_timeout": self.config.socket_timeout,
-                "socket_connect_timeout": self.config.socket_connect_timeout,
-                "retry_on_timeout": self.config.retry_on_timeout,
-                "decode_responses": False,
-            }
-            
-            if self.config.use_ssl:
-                import ssl
-                ssl_context = ssl.create_default_context()
-                ssl_context.check_hostname = True
-                ssl_context.verify_mode = ssl.CERT_REQUIRED
-                connection_kwargs["ssl"] = True
-                connection_kwargs["ssl_cert_reqs"] = "required"
-                logger.info("Redis SSL/TLS habilitado para conexão segura")
-            
-            self.pool = redis_module.ConnectionPool(**connection_kwargs)
+            if self._redis_url:
+                self.pool = redis_module.ConnectionPool.from_url(
+                    self._redis_url,
+                    socket_timeout=self.config.socket_timeout,
+                    socket_connect_timeout=self.config.socket_connect_timeout,
+                    retry_on_timeout=self.config.retry_on_timeout,
+                    decode_responses=False
+                )
+            else:
+                connection_kwargs = {
+                    "host": self.config.host,
+                    "port": self.config.port,
+                    "password": self.config.password,
+                    "db": self.config.db,
+                    "max_connections": self.config.max_connections,
+                    "socket_timeout": self.config.socket_timeout,
+                    "socket_connect_timeout": self.config.socket_connect_timeout,
+                    "retry_on_timeout": self.config.retry_on_timeout,
+                    "decode_responses": False,
+                }
+                
+                if self.config.use_ssl:
+                    import ssl
+                    ssl_context = ssl.create_default_context()
+                    ssl_context.check_hostname = True
+                    ssl_context.verify_mode = ssl.CERT_REQUIRED
+                    connection_kwargs["ssl"] = True
+                    connection_kwargs["ssl_cert_reqs"] = "required"
+                    logger.info("Redis SSL/TLS enabled")
+                
+                self.pool = redis_module.ConnectionPool(**connection_kwargs)
 
-            # Testa conexão
             client = redis_module.Redis(connection_pool=self.pool)
             client.ping()
             self._is_healthy = True
 
-            logger.info(
-                f"Pool de conexões Redis inicializado - {self.config.host}:{self.config.port}"
-            )
+            logger.info(f"Redis pool initialized - {self.config.host}:{self.config.port}")
 
         except Exception as e:
-            logger.warning(f"Redis não disponível, usando fallback em memória: {e}")
-            self._is_healthy = True  # Fallback está saudável
+            if self._environment == "production":
+                logger.warning(f"Redis not available in production: {e}. Using in-memory cache.")
+            else:
+                logger.info(f"Redis not available, using in-memory cache")
+            self._is_healthy = True
+            self._use_memory_only = True
 
     def _start_health_check(self):
-        """Inicia thread de health check"""
-        if not REDIS_AVAILABLE or self.pool is None:
+        """Inicia thread de health check (somente se Redis estiver conectado)."""
+        if self._use_memory_only or not REDIS_AVAILABLE or self.pool is None:
             return
 
         def health_check():
             while True:
                 try:
-                    if self.pool and redis_module:
+                    if self.pool and redis_module and not self._use_memory_only:
                         client = redis_module.Redis(connection_pool=self.pool)
                         client.ping()
                         if not self._is_healthy:
-                            logger.info("Redis voltou a ficar saudável")
+                            logger.info("Redis connection restored")
                             self._is_healthy = True
                 except Exception as e:
-                    if self._is_healthy and self.pool:
-                        logger.warning(f"Redis ficou não saudável, usando fallback: {e}")
-                    self._is_healthy = True  # Fallback sempre saudável
+                    if self._is_healthy and self.pool and not self._use_memory_only:
+                        logger.warning(f"Redis health check failed: {e}")
+                    self._is_healthy = True
 
                 time.sleep(self.config.health_check_interval)
 

@@ -172,7 +172,21 @@ class MemoryCache(CacheBackend):
 
 
 class RedisCache(CacheBackend):
-    """Cache Redis com suporte a cluster"""
+    """Cache Redis com suporte a cluster e fallback inteligente.
+    
+    COMPORTAMENTO POR AMBIENTE:
+    - Desenvolvimento: Usa MemoryCache automaticamente (não tenta conectar ao Redis)
+    - Produção: Tenta conectar ao Redis, fallback para MemoryCache se falhar
+    
+    CONFIGURAÇÃO DE PRODUÇÃO:
+    Defina REDIS_URL no ambiente para usar Redis real:
+    - REDIS_URL=redis://localhost:6379
+    - REDIS_URL=redis://user:pass@host:6379/0
+    
+    SEM REDIS_URL:
+    - Em produção: Loga warning e usa MemoryCache
+    - Em desenvolvimento: Usa MemoryCache silenciosamente
+    """
     
     def __init__(self, config: RedisClusterConfig):
         self.config = config
@@ -180,11 +194,59 @@ class RedisCache(CacheBackend):
         self._is_cluster = len(config.nodes) > 1
         self._fallback = MemoryCache()
         self._connected = False
+        self._environment = os.getenv("ENVIRONMENT", "development")
+        self._redis_url = os.getenv("REDIS_URL")
         
-        self._try_connect()
+        self._initialize_cache()
     
-    def _try_connect(self):
-        """Tenta conectar ao Redis"""
+    def _initialize_cache(self):
+        """Inicializa o cache baseado no ambiente e configuração."""
+        if self._environment == "development" and not self._redis_url:
+            logger.info(
+                "Development mode: Using in-memory cache. "
+                "Set REDIS_URL for Redis in production."
+            )
+            self._connected = False
+            return
+        
+        if self._redis_url:
+            self._try_connect_with_url()
+        elif self.config.nodes:
+            self._try_connect_with_config()
+        else:
+            if self._environment == "production":
+                logger.warning(
+                    "REDIS_URL not configured in production. Using MemoryCache. "
+                    "For 300M req/day, configure Redis: REDIS_URL=redis://host:6379"
+                )
+            self._connected = False
+    
+    def _try_connect_with_url(self):
+        """Conecta ao Redis usando REDIS_URL."""
+        try:
+            import redis
+            
+            self._client = redis.from_url(
+                self._redis_url,
+                socket_timeout=self.config.socket_timeout,
+                socket_connect_timeout=self.config.socket_connect_timeout,
+                retry_on_timeout=self.config.retry_on_timeout,
+                decode_responses=self.config.decode_responses
+            )
+            
+            self._client.ping()
+            self._connected = True
+            logger.info("Connected to Redis via REDIS_URL")
+            
+        except ImportError:
+            logger.warning("Redis package not installed, using memory fallback")
+            self._connected = False
+        except Exception as e:
+            logger.warning(f"Could not connect to Redis: {e}. Using memory fallback")
+            self._connected = False
+    
+    def _try_connect_with_config(self):
+        """Tenta conectar ao Redis usando configuração de nós."""
         try:
             import redis
             

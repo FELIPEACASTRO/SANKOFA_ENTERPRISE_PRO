@@ -831,10 +831,34 @@ def handle_not_found(error):
     }), 404
 
 
+@app.errorhandler(ValidationError)
+def handle_validation_error(error):
+    """Handler específico para erros de validação - retorna 400"""
+    error_context = error.get_context()
+    
+    return jsonify({
+        "success": False,
+        "error": {
+            "id": error_context.error_id,
+            "category": error_context.category.value,
+            "severity": error_context.severity.value,
+            "message": error_context.message,
+            "recovery_action": error_context.recovery_action,
+        }
+    }), 400
+
+
 @app.errorhandler(Exception)
 def handle_exception(error):
     """Handler global de exceções"""
     error_context = handle_error(error, raise_exception=False)
+    
+    # Determinar status code baseado na categoria do erro
+    status_code = 500
+    if error_context.category.value == "validation":
+        status_code = 400
+    elif error_context.category.value == "security":
+        status_code = 403
     
     if config.environment == "production":
         message = "An internal error occurred"
@@ -856,7 +880,7 @@ def handle_exception(error):
                 },
             }
         ),
-        500,
+        status_code,
     )
 
 
