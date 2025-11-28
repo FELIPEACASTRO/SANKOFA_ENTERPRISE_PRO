@@ -20,7 +20,7 @@ import logging
 import threading
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +58,10 @@ class DeviceProfile:
             raise ValueError("fingerprint não pode ser vazio")
         if not self.user_id or len(self.user_id) == 0:
             raise ValueError("user_id não pode ser vazio")
+        if len(self.fingerprint) > 64:
+            raise ValueError(f"fingerprint muito longo: {len(self.fingerprint)} (máx 64)")
+        if len(self.user_id) > 255:
+            raise ValueError(f"user_id muito longo: {len(self.user_id)} (máx 255)")
 
 
 class DeviceFingerprintPersistence:
@@ -216,10 +220,13 @@ class PostgresPersistence(DeviceFingerprintPersistence):
             return None
         except Exception as e:
             logger.error(f"Erro ao buscar device: {e}")
+            if conn:
+                self.db_pool.putconn(conn, close=True)
             return None
-        finally:
+        else:
             if conn:
                 self.db_pool.putconn(conn)
+            return None if not result else None
     
     def get_user_devices(self, user_id: str) -> List[str]:
         """Lista devices de um usuário"""
@@ -232,13 +239,14 @@ class PostgresPersistence(DeviceFingerprintPersistence):
                     (user_id,)
                 )
                 results = cur.fetchall()
+            if conn:
+                self.db_pool.putconn(conn)
             return [r[0] for r in results]
         except Exception as e:
             logger.error(f"Erro ao buscar devices do usuário: {e}")
-            return []
-        finally:
             if conn:
-                self.db_pool.putconn(conn)
+                self.db_pool.putconn(conn, close=True)
+            return []
     
     def get_device_users(self, fingerprint: str) -> List[str]:
         """Lista usuários que usam um device"""
@@ -251,13 +259,14 @@ class PostgresPersistence(DeviceFingerprintPersistence):
                     (fingerprint,)
                 )
                 results = cur.fetchall()
+            if conn:
+                self.db_pool.putconn(conn)
             return [r[0] for r in results]
         except Exception as e:
             logger.error(f"Erro ao buscar usuários do device: {e}")
-            return []
-        finally:
             if conn:
-                self.db_pool.putconn(conn)
+                self.db_pool.putconn(conn, close=True)
+            return []
     
     def update_device(self, profile: DeviceProfile) -> bool:
         """Atualiza device existente"""
