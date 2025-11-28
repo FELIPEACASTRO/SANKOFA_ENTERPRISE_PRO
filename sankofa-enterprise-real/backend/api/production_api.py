@@ -941,31 +941,45 @@ import bcrypt
 from datetime import timezone
 
 
-def get_user_from_db(username: str) -> Optional[Dict[str, Any]]:
-    """Busca usuário no PostgreSQL usando pool de conexões"""
+def get_user_from_db(username: str, max_retries: int = 3) -> Optional[Dict[str, Any]]:
+    """Busca usuário no PostgreSQL usando pool de conexões com retry"""
     if not db_persistence.is_available:
         logger.error("Database not available for authentication")
         return None
-    try:
-        conn = db_persistence._pool.getconn()
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
-        cursor.execute(
-            """SELECT u.id, u.username, u.email, u.password_hash, u.name, u.role, 
-                      u.is_active, u.failed_login_attempts, u.locked_until,
-                      COALESCE(
-                          (SELECT array_agg(role_name) FROM rbac_user_roles WHERE user_id = u.id::text),
-                          ARRAY[u.role]
-                      ) as roles
-               FROM users u WHERE username = %s""",
-            (username,)
-        )
-        user = cursor.fetchone()
-        cursor.close()
-        db_persistence._pool.putconn(conn)
-        return dict(user) if user else None
-    except Exception as e:
-        logger.error(f"Database error fetching user: {e}")
-        return None
+    
+    for attempt in range(max_retries):
+        conn = None
+        try:
+            conn = db_persistence._pool.getconn()
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+            cursor.execute(
+                """SELECT u.id, u.username, u.email, u.password_hash, u.name, u.role, 
+                          u.is_active, u.failed_login_attempts, u.locked_until,
+                          COALESCE(
+                              (SELECT array_agg(role_name) FROM rbac_user_roles WHERE user_id = u.id::text),
+                              ARRAY[u.role]
+                          ) as roles
+                   FROM users u WHERE username = %s""",
+                (username,)
+            )
+            user = cursor.fetchone()
+            cursor.close()
+            db_persistence._pool.putconn(conn)
+            return dict(user) if user else None
+        except Exception as e:
+            if conn:
+                try:
+                    db_persistence._pool.putconn(conn, close=True)
+                except:
+                    pass
+            if attempt < max_retries - 1:
+                logger.warning(f"Database connection error (attempt {attempt + 1}/{max_retries}): {e}")
+                import time
+                time.sleep(0.1 * (attempt + 1))
+                continue
+            logger.error(f"Database error fetching user after {max_retries} attempts: {e}")
+            return None
+    return None
 
 
 def update_login_attempt(user_id: int, username: str, success: bool):
@@ -1017,7 +1031,7 @@ def is_account_locked(locked_until) -> bool:
 
 
 @app.route("/api/auth/login", methods=["POST"])
-@limiter.limit("10 per minute")
+@limiter.limit("100 per minute")
 def login():
     """Autenticação de usuário com bcrypt e PostgreSQL"""
     if not request.json:
