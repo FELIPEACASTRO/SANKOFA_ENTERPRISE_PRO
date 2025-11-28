@@ -113,6 +113,8 @@ class PostgresPersistence(DeviceFingerprintPersistence):
     """
     Persistência em PostgreSQL para produção.
     
+    Usa psycopg2 ThreadedConnectionPool (conforme production_api.py).
+    
     Requer tabela:
     CREATE TABLE device_fingerprints (
         fingerprint VARCHAR(64) PRIMARY KEY,
@@ -127,75 +129,115 @@ class PostgresPersistence(DeviceFingerprintPersistence):
     CREATE INDEX idx_device_user ON device_fingerprints(user_id);
     """
     
-    def __init__(self, db_session):
-        self.db = db_session
+    def __init__(self, db_pool):
+        """
+        Inicializa com psycopg2 connection pool.
+        
+        Args:
+            db_pool: psycopg2.pool.ThreadedConnectionPool
+        """
+        self.db_pool = db_pool
     
     def save_device(self, profile: DeviceProfile) -> bool:
+        """Salva/atualiza device usando connection pool"""
+        conn = None
         try:
-            self.db.execute(
-                """
-                INSERT INTO device_fingerprints 
-                (fingerprint, user_id, first_seen, last_seen, usage_count, is_trusted, components)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (fingerprint) DO UPDATE SET
-                    last_seen = EXCLUDED.last_seen,
-                    usage_count = device_fingerprints.usage_count + 1
-                """,
-                (profile.fingerprint, profile.user_id, profile.first_seen, 
-                 profile.last_seen, profile.usage_count, profile.is_trusted,
-                 json.dumps(profile.components))
-            )
-            self.db.commit()
+            conn = self.db_pool.getconn()
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO device_fingerprints 
+                    (fingerprint, user_id, first_seen, last_seen, usage_count, is_trusted, components)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (fingerprint) DO UPDATE SET
+                        last_seen = EXCLUDED.last_seen,
+                        usage_count = device_fingerprints.usage_count + 1
+                    """,
+                    (profile.fingerprint, profile.user_id, profile.first_seen, 
+                     profile.last_seen, profile.usage_count, profile.is_trusted,
+                     json.dumps(profile.components))
+                )
+            conn.commit()
             return True
         except Exception as e:
             logger.error(f"Erro ao salvar device: {e}")
+            if conn:
+                conn.rollback()
             return False
+        finally:
+            if conn:
+                self.db_pool.putconn(conn)
     
     def get_device(self, fingerprint: str) -> Optional[DeviceProfile]:
+        """Busca device pelo fingerprint"""
+        conn = None
         try:
-            result = self.db.execute(
-                "SELECT * FROM device_fingerprints WHERE fingerprint = %s",
-                (fingerprint,)
-            ).fetchone()
+            conn = self.db_pool.getconn()
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT * FROM device_fingerprints WHERE fingerprint = %s",
+                    (fingerprint,)
+                )
+                result = cur.fetchone()
             
             if result:
                 return DeviceProfile(
-                    fingerprint=result['fingerprint'],
-                    user_id=result['user_id'],
-                    first_seen=result['first_seen'],
-                    last_seen=result['last_seen'],
-                    usage_count=result['usage_count'],
-                    is_trusted=result['is_trusted'],
-                    components=result['components']
+                    fingerprint=result[0],
+                    user_id=result[1],
+                    first_seen=result[2],
+                    last_seen=result[3],
+                    usage_count=result[4],
+                    is_trusted=result[5],
+                    components=json.loads(result[6]) if isinstance(result[6], str) else result[6]
                 )
             return None
         except Exception as e:
             logger.error(f"Erro ao buscar device: {e}")
             return None
+        finally:
+            if conn:
+                self.db_pool.putconn(conn)
     
     def get_user_devices(self, user_id: str) -> List[str]:
+        """Lista devices de um usuário"""
+        conn = None
         try:
-            results = self.db.execute(
-                "SELECT fingerprint FROM device_fingerprints WHERE user_id = %s",
-                (user_id,)
-            ).fetchall()
-            return [r['fingerprint'] for r in results]
+            conn = self.db_pool.getconn()
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT fingerprint FROM device_fingerprints WHERE user_id = %s",
+                    (user_id,)
+                )
+                results = cur.fetchall()
+            return [r[0] for r in results]
         except Exception as e:
             logger.error(f"Erro ao buscar devices do usuário: {e}")
             return []
+        finally:
+            if conn:
+                self.db_pool.putconn(conn)
     
     def get_device_users(self, fingerprint: str) -> List[str]:
+        """Lista usuários que usam um device"""
+        conn = None
         try:
-            results = self.db.execute(
-                "SELECT DISTINCT user_id FROM device_fingerprints WHERE fingerprint = %s",
-                (fingerprint,)
-            ).fetchall()
-            return [r['user_id'] for r in results]
+            conn = self.db_pool.getconn()
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT DISTINCT user_id FROM device_fingerprints WHERE fingerprint = %s",
+                    (fingerprint,)
+                )
+                results = cur.fetchall()
+            return [r[0] for r in results]
         except Exception as e:
             logger.error(f"Erro ao buscar usuários do device: {e}")
             return []
+        finally:
+            if conn:
+                self.db_pool.putconn(conn)
     
     def update_device(self, profile: DeviceProfile) -> bool:
+        """Atualiza device existente"""
         return self.save_device(profile)
 
 
