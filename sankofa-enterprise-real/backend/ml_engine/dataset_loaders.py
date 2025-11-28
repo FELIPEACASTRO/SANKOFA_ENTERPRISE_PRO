@@ -182,7 +182,7 @@ class DatasetLoader:
             logger.error("Instale: pip install torch torch-geometric")
             raise
     
-    def load_paysim(self, sample_size: Optional[int] = None, full_dataset: bool = False) -> pd.DataFrame:
+    def load_paysim(self, sample_size: Optional[int] = None, full_dataset: bool = False, encoding: str = 'utf-8') -> pd.DataFrame:
         """
         Carrega dataset PaySim.
         6.3M transações de mobile money (proxy para PIX)
@@ -217,7 +217,11 @@ class DatasetLoader:
                 urllib.request.urlretrieve(url, paysim_path)
         
         logger.info("Carregando PaySim...")
-        df = pd.read_csv(paysim_path)
+        try:
+            df = pd.read_csv(paysim_path, encoding=encoding, on_bad_lines='skip')
+        except (UnicodeDecodeError, LookupError):
+            logger.warning(f"Erro com encoding {encoding}, tentando latin-1")
+            df = pd.read_csv(paysim_path, encoding='latin-1', on_bad_lines='skip')
         
         if sample_size:
             df = df.sample(n=min(sample_size, len(df)), random_state=42)
@@ -230,7 +234,7 @@ class DatasetLoader:
         
         return df
     
-    def load_credit_card_ulb(self) -> pd.DataFrame:
+    def load_credit_card_ulb(self, encoding: str = 'utf-8') -> pd.DataFrame:
         """
         Carrega dataset Credit Card ULB do OpenML
         284K transações de cartão de crédito europeu

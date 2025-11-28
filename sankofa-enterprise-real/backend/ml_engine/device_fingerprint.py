@@ -21,8 +21,15 @@ import threading
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+import warnings
+
+# Suppress deprecation warnings for utcnow
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="datetime")
 
 logger = logging.getLogger(__name__)
+
+# Constante de schema version para migrations
+DB_SCHEMA_VERSION = "1.0.0"
 
 
 @dataclass
@@ -156,14 +163,16 @@ class PostgresPersistence(DeviceFingerprintPersistence):
     CREATE INDEX idx_device_user ON device_fingerprints(user_id);
     """
     
-    def __init__(self, db_pool):
+    def __init__(self, db_pool, connect_timeout: int = 5):
         """
         Inicializa com psycopg2 connection pool.
         
         Args:
             db_pool: psycopg2.pool.ThreadedConnectionPool
+            connect_timeout: Timeout em segundos para conexões (default 5)
         """
         self.db_pool = db_pool
+        self.connect_timeout = connect_timeout
     
     def save_device(self, profile: DeviceProfile) -> bool:
         """Salva/atualiza device usando connection pool"""
