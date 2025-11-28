@@ -1,0 +1,334 @@
+1. Testes unitários (obrigatórios)
+
+Ferramentas: Jest + React Testing Library (se React).
+
+Testar:
+
+componentes críticos
+
+lógica de exibição de risco
+
+máscaras
+
+validação de formulários
+
+componentes de auditoria
+
+componentes de revisão manual
+
+renderização condicional de níveis de risco
+
+componentes de tabela/paginação
+
+gráficos de fraude
+
+loaders e skeletons
+
+Se algum desses falhar → usuário pode tomar decisão errada.
+
+2. Testes de integração da UI
+
+Testar:
+
+API funcionando end-to-end com interface
+
+fluxo de aprovação de transação
+
+fluxo de rejeição
+
+fluxo de revisão manual
+
+eventos de auditoria sendo exibidos
+
+filtros e exportações
+
+gráfico de monitoramento (latência, TPS, fraude por hora)
+
+autenticação / sessão expirada
+
+3. Testes E2E (end-to-end)
+
+Ferramentas: Playwright ou Cypress.
+
+Fluxos obrigatórios:
+
+login e sessão
+
+dashboard de fraude carregando com dados reais
+
+fluxo completo:
+
+envio de transação
+
+detecção da fraude
+
+exibição no painel
+
+revisão manual
+
+decisão final
+
+auditoria sendo salva
+
+Respostas lentas → spinner correto
+
+Erros do back-end → mensagens adequadas
+
+Paginação com milhares de transações
+
+Responsividade
+
+4. Testes de Acessibilidade (A11y)
+
+Ferramentas: axe-core, lighthouse.
+
+Obrigatório validar:
+
+contraste
+
+navegação por teclado
+
+ARIA tags
+
+leitura por screen reader
+
+textos descritivos nos botões
+
+Banco + antifraude + LGPD = tudo acessível.
+
+5. Testes de Performance do Front-end
+
+Ferramentas: Lighthouse / Web Vitals.
+
+Mínimos:
+
+FCP < 1.5s
+
+LCP < 2.5s
+
+CLS < 0.1
+
+bundle otimizado
+
+lazy loading
+
+hydration sem travar a máquina
+
+✔ Conclusão do Front-End:
+
+Agora sim temos os testes críticos para garantir que o front-end é confiável, auditável e seguro.
+
+🚀 AGORA O MAIS IMPORTANTE:
+TESTES OBRIGATÓRIOS DA SOLUÇÃO DE MACHINE LEARNING
+
+Essa é a parte mais crítica do sistema.
+Decisões erradas do ML custam:
+
+perdas financeiras enormes
+
+processos regulatórios
+
+reclamações no BACEN
+
+falsos negativos (fraude passa)
+
+falsos positivos (cliente inocente bloqueado)
+
+Aqui é onde 90% das empresas falham.
+Então vou listar o que NENHUMA IA faria sem eu te ajudar:
+
+⚠️ TESTES OBRIGATÓRIOS DE MACHINE LEARNING (rigor nível antifraude)
+🔵 1. Testes de Qualidade do Dataset
+
+Testar:
+
+missing values
+
+outliers
+
+colunas com valores constantes
+
+colunas desbalanceadas
+
+correlações espúrias
+
+data leakage
+
+duplicidades
+
+timestamps fora da ordem
+
+distribuição temporal
+
+cardinalidade de categorias
+
+Sem isso → modelo vira lixo.
+
+🔵 2. Testes de Feature Engineering
+
+Testar:
+
+transformação correta das features
+
+normalização / padronização
+
+encoding de categorias
+
+detecção de vazamento de dados
+
+consistência entre treino e produção
+
+drift estrutural entre conjuntos
+
+funções matemáticas retornando valores plausíveis
+
+🔵 3. Testes do Modelo (unitários do ML)
+
+Isso é raríssimo, mas obrigatório:
+
+validar que o modelo carrega corretamente
+
+prever com inputs sintéticos
+
+prever com dados reais anonimizados
+
+testar extremos (valores fora da distribuição)
+
+testar consistência de decisões
+
+testar estabilidade da previsão (várias execuções)
+
+🔵 4. Testes Estatísticos
+
+Para garantir que o modelo está matematicamente correto:
+
+Testar:
+
+AUC
+
+F1
+
+Recall (muito importante em fraude)
+
+KS Statistic
+
+Lift
+
+Brier Score
+
+ROC
+
+PR Curve
+
+força das features (SHAP)
+
+estabilidade por segmento (clientes novos, idosos, alto risco, etc.)
+
+🔵 5. Testes de Regressão do Modelo
+
+Garantir que:
+
+➡️ uma nova versão NÃO PIORA os indicadores
+Senão você “evolui” o modelo e mata o sistema.
+
+🔵 6. Testes de DRIFT obrigatórios
+
+Testar:
+
+Data Drift
+
+Concept Drift
+
+Feature Drift
+
+Population Stability Index (PSI)
+
+Se drift > 0.1 → atenção
+Se drift > 0.25 → modelo inútil para produção
+
+🔵 7. Testes de Performance do Modelo
+
+Modelos lentos matam SLA.
+
+Testar:
+
+tempo de inferência por amostra
+
+inferência em lote
+
+latência p95 e p99
+
+consumo de CPU/Memória
+
+🔵 8. Testes de Estabilidade e Robustez
+
+Testar:
+
+inputs adversariais
+
+dados faltantes
+
+valores absurdos (injection de lixo)
+
+valores nulos
+
+encoding corrompido
+
+ataques de evasão de modelo
+
+🔵 9. Testes de Explainability
+
+Usando SHAP:
+
+verificar se as features que mais influenciam fazem sentido
+
+validar que não há viés absurdo
+
+validar que a classificação é consistente com o comportamento histórico
+
+🔵 10. Testes de Integração ML ↔ Domínio
+
+Validar:
+
+entrada correta de features
+
+saída correta do score
+
+thresholds de risco funcionando
+
+fallback seguro
+
+logs do modelo
+
+auditoria do resultado
+
+🔵 11. Testes de MLOps
+
+Testar:
+
+versionamento do modelo
+
+rollback de modelo
+
+tracking de experimentos
+
+monitoramento
+
+reprocessamento automático
+
+re-treino seguro
+
+assinatura de modelo (checksum)
+
+✅ CONCLUSÃO FINAL COMO Q&A SÊNIOR:
+
+Sua solução só pode ser considerada “100% funcional, sem erros, problemas e gaps” se:
+
+Você fizer TODOS os testes abaixo:
+Back-end (antes listado) – 11 categorias
+Front-end (5 categorias)
+Machine Learning (11 categorias)
+
+📌 TOTAL: 27 categorias obrigatórias de testes
+
+Isso é padrão de um sistema bancário antifraude em produção, e é exatamente o nível que você está construindo.

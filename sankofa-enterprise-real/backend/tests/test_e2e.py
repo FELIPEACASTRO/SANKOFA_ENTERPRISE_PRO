@@ -1,6 +1,7 @@
 """
 Testes End-to-End (E2E) - Sankofa Enterprise Pro
 Cobertura: Frontend -> API -> BD -> ML -> Response
+Versão 12.2.1: Todos endpoints sensíveis requerem autenticação JWT
 """
 
 import pytest
@@ -15,6 +16,32 @@ from datetime import datetime
 BASE_URL = "http://localhost:8000"
 FRONTEND_URL = "http://localhost:5000"
 
+
+_cached_token = None
+
+def get_auth_token():
+    """Obtém token JWT para testes autenticados (com cache para evitar rate limit)"""
+    global _cached_token
+    if _cached_token:
+        return _cached_token
+    
+    response = requests.post(
+        f"{BASE_URL}/api/auth/login",
+        json={"username": "admin", "password": "SankofaAdmin2025!"},
+        timeout=10
+    )
+    if response.status_code == 200:
+        _cached_token = response.json()["data"]["token"]
+        return _cached_token
+    raise Exception(f"Failed to authenticate: {response.text}")
+
+
+def get_auth_headers():
+    """Retorna headers com autenticação (usa token cached)"""
+    token = get_auth_token()
+    return {"Authorization": f"Bearer {token}"}
+
+
 class TestE2EInfrastructure:
     """Testes de infraestrutura básica"""
     
@@ -26,7 +53,7 @@ class TestE2EInfrastructure:
         print("Frontend: OK")
     
     def test_backend_health(self):
-        """Testa health check do backend"""
+        """Testa health check do backend (endpoint público)"""
         response = requests.get(f"{BASE_URL}/api/health", timeout=10)
         assert response.status_code == 200
         data = response.json()
@@ -69,18 +96,112 @@ class TestE2EInfrastructure:
         print(f"Database Tables: {existing_tables}")
 
 
+class TestE2EAuthentication:
+    """Testes de autenticação (CRÍTICO para produção)"""
+    
+    def test_login_success(self):
+        """Testa login com credenciais válidas"""
+        global _cached_token
+        _cached_token = None
+        
+        response = requests.post(
+            f"{BASE_URL}/api/auth/login",
+            json={"username": "admin", "password": "SankofaAdmin2025!"},
+            timeout=10
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert "token" in data["data"]
+        
+        _cached_token = data["data"]["token"]
+        print("Login Success: OK")
+    
+    def test_login_failure(self):
+        """Testa login com credenciais inválidas"""
+        response = requests.post(
+            f"{BASE_URL}/api/auth/login",
+            json={"username": "admin", "password": "wrongpassword"},
+            timeout=10
+        )
+        assert response.status_code == 401
+        print("Login Failure: OK (401 as expected)")
+    
+    def test_protected_endpoint_without_auth(self):
+        """Testa acesso a endpoint protegido sem autenticação"""
+        response = requests.get(f"{BASE_URL}/api/dashboard/kpis", timeout=10)
+        assert response.status_code == 401
+        print("Protected Endpoint Without Auth: OK (401 as expected)")
+    
+    def test_fraud_predict_without_auth(self):
+        """Testa acesso à predição de fraude sem autenticação"""
+        payload = {"transactions": [{"transaction_id": "TEST", "amount": 100}]}
+        response = requests.post(f"{BASE_URL}/api/fraud/predict", json=payload, timeout=10)
+        assert response.status_code == 401
+        print("Fraud Predict Without Auth: OK (401 as expected)")
+    
+    def test_all_sensitive_endpoints_protected(self):
+        """Testa que TODOS os endpoints sensíveis retornam 401 sem auth"""
+        sensitive_endpoints = [
+            ("GET", "/api/transactions"),
+            ("GET", "/api/alerts"),
+            ("GET", "/api/audit"),
+            ("GET", "/api/explainability/features"),
+            ("GET", "/api/observability/metrics"),
+            ("GET", "/api/observability/prometheus"),
+            ("GET", "/api/observability/sla"),
+            ("GET", "/api/observability/alerts"),
+            ("GET", "/api/reports"),
+            ("GET", "/api/datasets"),
+            ("GET", "/api/investigation/TEST123"),
+            ("POST", "/api/feedback"),
+            ("POST", "/api/reports/generate"),
+            ("POST", "/api/alerts/1/acknowledge"),
+            ("PUT", "/api/alerts/1/status"),
+        ]
+        
+        unprotected = []
+        for method, endpoint in sensitive_endpoints:
+            if method == "GET":
+                response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)
+            elif method == "POST":
+                response = requests.post(f"{BASE_URL}{endpoint}", json={}, timeout=10)
+            elif method == "PUT":
+                response = requests.put(f"{BASE_URL}{endpoint}", json={"status": "test"}, timeout=10)
+            
+            if response.status_code != 401:
+                unprotected.append(f"{method} {endpoint} returned {response.status_code}")
+        
+        assert len(unprotected) == 0, f"Unprotected endpoints found: {unprotected}"
+        print(f"All {len(sensitive_endpoints)} Sensitive Endpoints Protected: OK")
+    
+    def test_token_validation(self):
+        """Testa que tokens inválidos são rejeitados"""
+        fake_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        headers = {"Authorization": f"Bearer {fake_token}"}
+        
+        response = requests.get(f"{BASE_URL}/api/dashboard/kpis", headers=headers, timeout=10)
+        assert response.status_code == 401
+        print("Invalid Token Rejected: OK (401 as expected)")
+
+
 class TestE2EAPIEndpoints:
-    """Testes de todos os endpoints da API"""
+    """Testes de todos os endpoints da API (com autenticação)"""
+    
+    @pytest.fixture(autouse=True)
+    def setup_auth(self):
+        """Setup de autenticação para todos os testes"""
+        self.headers = get_auth_headers()
     
     def test_api_root(self):
-        """Testa endpoint raiz"""
+        """Testa endpoint raiz (público)"""
         response = requests.get(BASE_URL, timeout=10)
         assert response.status_code == 200
         print("API Root: OK")
     
     def test_model_metrics(self):
-        """Testa endpoint de métricas do modelo"""
-        response = requests.get(f"{BASE_URL}/api/model/metrics", timeout=10)
+        """Testa endpoint de métricas do modelo (autenticado)"""
+        response = requests.get(f"{BASE_URL}/api/model/metrics", headers=self.headers, timeout=10)
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
@@ -91,24 +212,24 @@ class TestE2EAPIEndpoints:
         print(f"Model Metrics: precision={data['data']['metrics']['precision']:.4f}")
     
     def test_dashboard_summary(self):
-        """Testa endpoint de summary do dashboard"""
-        response = requests.get(f"{BASE_URL}/api/dashboard/summary", timeout=10)
+        """Testa endpoint de summary do dashboard (autenticado)"""
+        response = requests.get(f"{BASE_URL}/api/dashboard/summary", headers=self.headers, timeout=10)
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
         print(f"Dashboard Summary: {data['data']}")
     
     def test_dashboard_kpis(self):
-        """Testa endpoint de KPIs"""
-        response = requests.get(f"{BASE_URL}/api/dashboard/kpis", timeout=10)
+        """Testa endpoint de KPIs (autenticado)"""
+        response = requests.get(f"{BASE_URL}/api/dashboard/kpis", headers=self.headers, timeout=10)
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
         print(f"Dashboard KPIs: {data['data']}")
     
     def test_dashboard_alerts(self):
-        """Testa endpoint de alertas"""
-        response = requests.get(f"{BASE_URL}/api/dashboard/alerts", timeout=10)
+        """Testa endpoint de alertas (autenticado)"""
+        response = requests.get(f"{BASE_URL}/api/dashboard/alerts", headers=self.headers, timeout=10)
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
@@ -116,10 +237,15 @@ class TestE2EAPIEndpoints:
 
 
 class TestE2EFraudPrediction:
-    """Testes de predição de fraude E2E"""
+    """Testes de predição de fraude E2E (com autenticação)"""
+    
+    @pytest.fixture(autouse=True)
+    def setup_auth(self):
+        """Setup de autenticação para todos os testes"""
+        self.headers = get_auth_headers()
     
     def test_single_transaction_prediction(self):
-        """Testa predição de uma única transação"""
+        """Testa predição de uma única transação (autenticado)"""
         payload = {
             "transactions": [{
                 "transaction_id": f"E2E_TEST_{int(time.time())}",
@@ -132,6 +258,7 @@ class TestE2EFraudPrediction:
         response = requests.post(
             f"{BASE_URL}/api/fraud/predict",
             json=payload,
+            headers=self.headers,
             timeout=30
         )
         
@@ -150,7 +277,7 @@ class TestE2EFraudPrediction:
         print(f"Single Prediction: is_fraud={pred['is_fraud']}, risk_score={pred['risk_score']:.4f}")
     
     def test_batch_transaction_prediction(self):
-        """Testa predição em lote"""
+        """Testa predição em lote (autenticado)"""
         transactions = []
         for i in range(10):
             transactions.append({
@@ -165,6 +292,7 @@ class TestE2EFraudPrediction:
         response = requests.post(
             f"{BASE_URL}/api/fraud/predict",
             json=payload,
+            headers=self.headers,
             timeout=60
         )
         
@@ -177,7 +305,7 @@ class TestE2EFraudPrediction:
         print(f"Batch Prediction: total={summary['total']}, frauds={summary['frauds_detected']}")
     
     def test_high_risk_transaction(self):
-        """Testa detecção de transação de alto risco"""
+        """Testa detecção de transação de alto risco (autenticado)"""
         payload = {
             "transactions": [{
                 "transaction_id": f"E2E_HIGH_RISK_{int(time.time())}",
@@ -191,6 +319,7 @@ class TestE2EFraudPrediction:
         response = requests.post(
             f"{BASE_URL}/api/fraud/predict",
             json=payload,
+            headers=self.headers,
             timeout=30
         )
         
@@ -201,7 +330,7 @@ class TestE2EFraudPrediction:
         print(f"High Risk Test: risk_score={pred['risk_score']:.4f}, level={pred['risk_level']}")
     
     def test_low_risk_transaction(self):
-        """Testa transação de baixo risco"""
+        """Testa transação de baixo risco (autenticado)"""
         payload = {
             "transactions": [{
                 "transaction_id": f"E2E_LOW_RISK_{int(time.time())}",
@@ -214,6 +343,7 @@ class TestE2EFraudPrediction:
         response = requests.post(
             f"{BASE_URL}/api/fraud/predict",
             json=payload,
+            headers=self.headers,
             timeout=30
         )
         
@@ -225,10 +355,15 @@ class TestE2EFraudPrediction:
 
 
 class TestE2EDataPersistence:
-    """Testes de persistência de dados"""
+    """Testes de persistência de dados (com autenticação)"""
+    
+    @pytest.fixture(autouse=True)
+    def setup_auth(self):
+        """Setup de autenticação para todos os testes"""
+        self.headers = get_auth_headers()
     
     def test_transaction_saved_to_db(self):
-        """Verifica se transação é salva no banco"""
+        """Verifica se transação é salva no banco (autenticado)"""
         unique_id = f"E2E_PERSIST_{int(time.time())}"
         
         payload = {
@@ -243,6 +378,7 @@ class TestE2EDataPersistence:
         response = requests.post(
             f"{BASE_URL}/api/fraud/predict",
             json=payload,
+            headers=self.headers,
             timeout=30
         )
         
@@ -278,11 +414,16 @@ class TestE2EDataPersistence:
 
 
 class TestE2EMLPipeline:
-    """Testes do pipeline de ML"""
+    """Testes do pipeline de ML (com autenticação)"""
+    
+    @pytest.fixture(autouse=True)
+    def setup_auth(self):
+        """Setup de autenticação para todos os testes"""
+        self.headers = get_auth_headers()
     
     def test_model_loaded(self):
-        """Verifica se modelo está carregado"""
-        response = requests.get(f"{BASE_URL}/api/model/metrics", timeout=10)
+        """Verifica se modelo está carregado (autenticado)"""
+        response = requests.get(f"{BASE_URL}/api/model/metrics", headers=self.headers, timeout=10)
         data = response.json()
         
         assert data["data"]["status"] == "trained"
@@ -291,7 +432,7 @@ class TestE2EMLPipeline:
         print(f"Model: trained, {data['data']['feature_count']} features")
     
     def test_prediction_consistency(self):
-        """Testa consistência das predições"""
+        """Testa consistência das predições (autenticado)"""
         payload = {
             "transactions": [{
                 "transaction_id": "E2E_CONSISTENCY",
@@ -306,6 +447,7 @@ class TestE2EMLPipeline:
             response = requests.post(
                 f"{BASE_URL}/api/fraud/predict",
                 json=payload,
+                headers=self.headers,
                 timeout=30
             )
             data = response.json()
@@ -342,10 +484,15 @@ class TestE2EMLPipeline:
 
 
 class TestE2EPerformance:
-    """Testes de performance"""
+    """Testes de performance (com autenticação)"""
+    
+    @pytest.fixture(autouse=True)
+    def setup_auth(self):
+        """Setup de autenticação para todos os testes"""
+        self.headers = get_auth_headers()
     
     def test_health_latency(self):
-        """Testa latência do health check"""
+        """Testa latência do health check (público)"""
         latencies = []
         for _ in range(5):
             start = time.time()
@@ -361,7 +508,7 @@ class TestE2EPerformance:
         print(f"Health Latency: avg={avg_latency:.2f}ms, max={max_latency:.2f}ms")
     
     def test_prediction_latency(self):
-        """Testa latência de predição"""
+        """Testa latência de predição (autenticado)"""
         payload = {
             "transactions": [{
                 "transaction_id": f"PERF_{int(time.time())}",
@@ -377,6 +524,7 @@ class TestE2EPerformance:
             response = requests.post(
                 f"{BASE_URL}/api/fraud/predict",
                 json=payload,
+                headers=self.headers,
                 timeout=30
             )
             latency = (time.time() - start) * 1000
@@ -390,7 +538,7 @@ class TestE2EPerformance:
         print(f"Prediction Latency: avg={avg_latency:.2f}ms, p95={p95_latency:.2f}ms")
     
     def test_batch_throughput(self):
-        """Testa throughput em lote"""
+        """Testa throughput em lote (autenticado)"""
         transactions = []
         for i in range(50):
             transactions.append({
@@ -406,6 +554,7 @@ class TestE2EPerformance:
         response = requests.post(
             f"{BASE_URL}/api/fraud/predict",
             json=payload,
+            headers=self.headers,
             timeout=120
         )
         total_time = time.time() - start
@@ -417,15 +566,21 @@ class TestE2EPerformance:
 
 
 class TestE2EValidation:
-    """Testes de validação de entrada"""
+    """Testes de validação de entrada (com autenticação)"""
+    
+    @pytest.fixture(autouse=True)
+    def setup_auth(self):
+        """Setup de autenticação para todos os testes"""
+        self.headers = get_auth_headers()
     
     def test_invalid_payload_rejected(self):
-        """Testa rejeição de payload inválido"""
+        """Testa rejeição de payload inválido (autenticado)"""
         payload = {"invalid": "data"}
         
         response = requests.post(
             f"{BASE_URL}/api/fraud/predict",
             json=payload,
+            headers=self.headers,
             timeout=10
         )
         
@@ -435,12 +590,13 @@ class TestE2EValidation:
         print("Invalid Payload: correctly rejected")
     
     def test_empty_transactions_rejected(self):
-        """Testa rejeição de lista vazia"""
+        """Testa rejeição de lista vazia (autenticado)"""
         payload = {"transactions": []}
         
         response = requests.post(
             f"{BASE_URL}/api/fraud/predict",
             json=payload,
+            headers=self.headers,
             timeout=10
         )
         
@@ -448,7 +604,7 @@ class TestE2EValidation:
         print("Empty Transactions: correctly rejected")
     
     def test_negative_amount_handled(self):
-        """Testa tratamento de valor negativo"""
+        """Testa tratamento de valor negativo (autenticado)"""
         payload = {
             "transactions": [{
                 "transaction_id": "NEGATIVE_TEST",
@@ -461,6 +617,7 @@ class TestE2EValidation:
         response = requests.post(
             f"{BASE_URL}/api/fraud/predict",
             json=payload,
+            headers=self.headers,
             timeout=10
         )
         
@@ -468,10 +625,15 @@ class TestE2EValidation:
 
 
 class TestE2EIntegration:
-    """Testes de integração completa"""
+    """Testes de integração completa (com autenticação)"""
+    
+    @pytest.fixture(autouse=True)
+    def setup_auth(self):
+        """Setup de autenticação para todos os testes"""
+        self.headers = get_auth_headers()
     
     def test_full_flow_frontend_to_db(self):
-        """Testa fluxo completo: Frontend -> API -> ML -> DB"""
+        """Testa fluxo completo: Frontend -> API -> ML -> DB (autenticado)"""
         
         response = requests.get(FRONTEND_URL, timeout=10)
         assert response.status_code == 200
@@ -494,6 +656,7 @@ class TestE2EIntegration:
         response = requests.post(
             f"{BASE_URL}/api/fraud/predict",
             json=payload,
+            headers=self.headers,
             timeout=30
         )
         assert response.status_code == 200

@@ -252,12 +252,54 @@ limiter = Limiter(
     strategy="fixed-window"
 )
 
+ROLE_PERMISSIONS = {
+    "admin": ["*"],
+    "analyst": [
+        "fraud:view", "fraud:predict", "fraud:explain", "fraud:feedback",
+        "transactions:view", "transactions:search",
+        "alerts:view", "alerts:acknowledge", "alerts:update",
+        "reports:view", "reports:generate",
+        "dashboard:view", "metrics:view", "model:view",
+        "investigation:view", "audit:view",
+        "observability:view"
+    ],
+    "operator": [
+        "fraud:view", "fraud:predict",
+        "transactions:view",
+        "alerts:view",
+        "dashboard:view", "metrics:view",
+        "observability:view"
+    ],
+    "viewer": [
+        "dashboard:view", "metrics:view", 
+        "transactions:view", "alerts:view"
+    ],
+    "system": [
+        "fraud:predict", "fraud:batch",
+        "model:train", "model:view",
+        "observability:view"
+    ]
+}
+
+def check_permission(roles: List[str], required_permission: str) -> bool:
+    """Verifica se algum dos roles tem a permissão necessária"""
+    for role in roles:
+        perms = ROLE_PERMISSIONS.get(role, [])
+        if "*" in perms:
+            return True
+        if required_permission in perms:
+            return True
+        category = required_permission.split(":")[0] + ":*"
+        if category in perms:
+            return True
+    return False
+
 def require_auth(f):
     """Decorator para exigir autenticação JWT em endpoints sensíveis"""
     @wraps(f)
     def decorated(*args, **kwargs):
         if config.environment == "development" and os.getenv("SKIP_AUTH", "false").lower() == "true":
-            g.user = {"id": "dev_user", "role": "admin"}
+            g.user = {"id": "dev_user", "role": "admin", "roles": ["admin"]}
             return f(*args, **kwargs)
         
         auth_header = request.headers.get("Authorization", "")
@@ -279,6 +321,47 @@ def require_auth(f):
         
         return f(*args, **kwargs)
     return decorated
+
+def require_permission(permission: str):
+    """Decorator para exigir permissão RBAC específica"""
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            if config.environment == "development" and os.getenv("SKIP_AUTH", "false").lower() == "true":
+                g.user = {"id": "dev_user", "role": "admin", "roles": ["admin"]}
+                return f(*args, **kwargs)
+            
+            auth_header = request.headers.get("Authorization", "")
+            if not auth_header.startswith("Bearer "):
+                return jsonify({"success": False, "error": "Missing or invalid Authorization header"}), 401
+            
+            token = auth_header[7:]
+            try:
+                payload = pyjwt.decode(
+                    token, 
+                    config.security.jwt_secret, 
+                    algorithms=[config.security.jwt_algorithm]
+                )
+                g.user = payload
+            except pyjwt.ExpiredSignatureError:
+                return jsonify({"success": False, "error": "Token expired"}), 401
+            except pyjwt.InvalidTokenError as e:
+                return jsonify({"success": False, "error": f"Invalid token: {str(e)}"}), 401
+            
+            user_roles = payload.get("roles", [])
+            if not user_roles:
+                user_roles = [payload.get("role", "viewer")]
+            
+            if not check_permission(user_roles, permission):
+                return jsonify({
+                    "success": False, 
+                    "error": f"Insufficient permissions. Required: {permission}",
+                    "code": "FORBIDDEN"
+                }), 403
+            
+            return f(*args, **kwargs)
+        return decorated
+    return decorator
 
 fraud_engine = get_fraud_engine()
 
@@ -1091,6 +1174,7 @@ def refresh_token():
 
 @app.route("/api/fraud/predict", methods=["POST"])
 @limiter.limit("500 per minute")
+@require_auth
 def predict_fraud():
     """
     Prediz fraude para uma ou mais transações (rate limited: 500/min)
@@ -1242,6 +1326,7 @@ def predict_fraud():
 
 @app.route("/api/fraud/batch", methods=["POST"])
 @limiter.limit("100 per minute")
+@require_auth
 def predict_fraud_batch():
     """Processa lote grande de transações com otimização (rate limited: 100/min)"""
     if not request.json or "transactions" not in request.json:
@@ -1287,6 +1372,7 @@ def predict_fraud_batch():
 
 
 @app.route("/api/model/metrics", methods=["GET"])
+@require_auth
 def get_model_metrics():
     """Retorna métricas do modelo"""
     metrics = fraud_engine.get_performance_metrics()
@@ -1312,6 +1398,7 @@ def get_model_info():
 
 
 @app.route("/api/explainability/features", methods=["GET"])
+@require_permission("fraud:explain")
 def get_feature_importance():
     """
     Retorna importância global das features (compliance LGPD)
@@ -1342,6 +1429,7 @@ def get_feature_importance():
 
 
 @app.route("/api/explainability/explain", methods=["POST"])
+@require_permission("fraud:explain")
 @limiter.limit("100 per minute")
 def explain_transaction():
     """
@@ -1411,6 +1499,7 @@ def explain_transaction():
 
 
 @app.route("/api/model/train", methods=["POST"])
+@require_permission("model:train")
 @limiter.limit("10 per hour")
 def train_model():
     """Treina o modelo de detecção de fraude"""
@@ -1479,6 +1568,7 @@ def train_model():
 
 
 @app.route("/api/dashboard/summary", methods=["GET"])
+@require_auth
 def get_dashboard_summary():
     """Resumo do dashboard - combina KPIs e estatísticas"""
     kpis = metrics_collector.get_kpis()
@@ -1486,6 +1576,7 @@ def get_dashboard_summary():
 
 
 @app.route("/api/dashboard/hourly", methods=["GET"])
+@require_auth
 def get_dashboard_hourly():
     """Estatísticas por hora do dashboard"""
     timeseries = metrics_collector.get_timeseries()
@@ -1493,6 +1584,7 @@ def get_dashboard_hourly():
 
 
 @app.route("/api/dashboard/kpis", methods=["GET"])
+@require_auth
 def get_dashboard_kpis():
     """KPIs do dashboard - dados reais coletados pelo sistema"""
     kpis = metrics_collector.get_kpis()
@@ -1500,6 +1592,7 @@ def get_dashboard_kpis():
 
 
 @app.route("/api/dashboard/timeseries", methods=["GET"])
+@require_auth
 def get_dashboard_timeseries():
     """Série temporal - dados reais por hora"""
     timeseries = metrics_collector.get_timeseries()
@@ -1507,6 +1600,7 @@ def get_dashboard_timeseries():
 
 
 @app.route("/api/dashboard/channels", methods=["GET"])
+@require_auth
 def get_dashboard_channels():
     """Dados por canal - estatísticas reais"""
     channels = metrics_collector.get_channel_stats()
@@ -1514,6 +1608,7 @@ def get_dashboard_channels():
 
 
 @app.route("/api/dashboard/alerts", methods=["GET"])
+@require_auth
 def get_dashboard_alerts():
     """Alertas do sistema - baseados em condições reais"""
     alerts = metrics_collector.get_alerts()
@@ -1521,6 +1616,7 @@ def get_dashboard_alerts():
 
 
 @app.route("/api/dashboard/recent-alerts", methods=["GET"])
+@require_auth
 def get_dashboard_recent_alerts():
     """Alertas recentes do sistema"""
     alerts = metrics_collector.get_alerts()
@@ -1528,6 +1624,7 @@ def get_dashboard_recent_alerts():
 
 
 @app.route("/api/dashboard/model-status", methods=["GET"])
+@require_auth
 def get_dashboard_model_status():
     """Status dos modelos para o dashboard"""
     metrics = fraud_engine.get_performance_metrics()
@@ -1555,6 +1652,7 @@ def get_dashboard_model_status():
 
 
 @app.route("/api/dashboard/models", methods=["GET"])
+@require_auth
 def get_dashboard_models():
     """Status dos modelos"""
     metrics = fraud_engine.get_performance_metrics()
@@ -1582,6 +1680,7 @@ def get_dashboard_models():
 
 
 @app.route("/api/transactions", methods=["GET"])
+@require_permission("transactions:view")
 def get_transactions():
     """Lista de transações processadas com formato completo para dashboard"""
     limit = request.args.get("limit", 50, type=int)
@@ -1657,6 +1756,7 @@ def get_transactions():
 
 
 @app.route("/api/metrics/dashboard", methods=["GET"])
+@require_auth
 def get_metrics_dashboard():
     """Métricas detalhadas para o dashboard de monitoramento"""
     kpis = metrics_collector.get_kpis()
@@ -1870,6 +1970,7 @@ def update_settings():
 
 
 @app.route("/api/alerts", methods=["GET"])
+@require_permission("alerts:view")
 def get_alerts():
     """Lista todos os alertas do sistema com formato completo para dashboard"""
     alerts = metrics_collector.get_alerts()
@@ -1903,12 +2004,14 @@ def get_alerts():
 
 
 @app.route("/api/alerts/<int:alert_id>/acknowledge", methods=["POST"])
+@require_permission("alerts:acknowledge")
 def acknowledge_alert(alert_id: int):
     """Marca alerta como reconhecido"""
     return jsonify({"success": True, "message": "Alert acknowledged"})
 
 
 @app.route("/api/alerts/<int:alert_id>/status", methods=["PUT"])
+@require_permission("alerts:update")
 def update_alert_status(alert_id: int):
     """Atualiza status de um alerta"""
     if not request.json:
@@ -1928,6 +2031,7 @@ def update_alert_status(alert_id: int):
 
 
 @app.route("/api/audit", methods=["GET"])
+@require_permission("audit:view")
 def get_audit_logs():
     """Retorna logs de auditoria do sistema"""
     now = datetime.utcnow()
@@ -2018,6 +2122,7 @@ def update_calibration():
 
 
 @app.route("/api/datasets", methods=["GET"])
+@require_permission("model:view")
 def get_datasets():
     """Lista datasets disponíveis para treinamento"""
     datasets = [
@@ -2034,6 +2139,7 @@ def get_datasets():
 
 
 @app.route("/api/reports", methods=["GET"])
+@require_permission("reports:view")
 def get_reports():
     """Lista relatórios disponíveis"""
     reports = [
@@ -2056,6 +2162,7 @@ def get_reports():
 
 
 @app.route("/api/reports/generate", methods=["POST"])
+@require_permission("reports:generate")
 def generate_report():
     """Gera novo relatório"""
     if not request.json:
@@ -2076,6 +2183,7 @@ def generate_report():
 
 
 @app.route("/api/investigation/<transaction_id>", methods=["GET"])
+@require_permission("investigation:view")
 def get_investigation(transaction_id: str):
     """Retorna detalhes para investigação de uma transação"""
     return jsonify({
@@ -2098,6 +2206,7 @@ def get_investigation(transaction_id: str):
 
 
 @app.route("/api/feedback", methods=["POST"])
+@require_permission("fraud:feedback")
 def submit_feedback():
     """Submete feedback sobre uma predição"""
     if not request.json:
@@ -2114,6 +2223,7 @@ def submit_feedback():
 
 
 @app.route("/api/observability/metrics", methods=["GET"])
+@require_permission("observability:view")
 def get_observability_metrics():
     """
     Retorna todas as métricas do sistema (compliance BACEN)
@@ -2132,6 +2242,7 @@ def get_observability_metrics():
 
 
 @app.route("/api/observability/prometheus", methods=["GET"])
+@require_permission("observability:view")
 def get_prometheus_metrics():
     """
     Exporta métricas em formato Prometheus
@@ -2142,6 +2253,7 @@ def get_prometheus_metrics():
 
 
 @app.route("/api/observability/sla", methods=["GET"])
+@require_permission("observability:view")
 def get_sla_compliance():
     """
     Retorna status de compliance dos SLAs (BACEN)
@@ -2159,6 +2271,7 @@ def get_sla_compliance():
 
 
 @app.route("/api/observability/alerts", methods=["GET"])
+@require_permission("alerts:view")
 def get_observability_alerts():
     """Retorna alertas ativos e histórico"""
     active_only = request.args.get("active_only", "false").lower() == "true"
@@ -2180,6 +2293,7 @@ def get_observability_alerts():
 
 
 @app.route("/api/observability/alerts/<alert_id>/acknowledge", methods=["POST"])
+@require_permission("alerts:acknowledge")
 def acknowledge_observability_alert(alert_id):
     """Reconhece um alerta de observabilidade"""
     success = alert_manager.acknowledge_alert(alert_id)
@@ -2191,6 +2305,7 @@ def acknowledge_observability_alert(alert_id):
 
 
 @app.route("/api/observability/alerts/<alert_id>/resolve", methods=["POST"])
+@require_permission("alerts:update")
 def resolve_observability_alert(alert_id):
     """Resolve um alerta de observabilidade"""
     success = alert_manager.resolve_alert(alert_id)
