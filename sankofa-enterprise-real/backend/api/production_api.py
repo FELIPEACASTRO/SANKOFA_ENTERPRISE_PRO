@@ -1073,7 +1073,7 @@ def predict_fraud():
         
         transaction_store.add(txn_data)
         
-        risk_level_str = str(pred.risk_level.value) if hasattr(pred.risk_level, 'value') else str(pred.risk_level)
+        risk_level_str = str(pred.risk_level)
         pred_reasons = getattr(pred, 'reasons', []) or getattr(pred, 'explanation', []) or []
         pred_data = {
             "is_fraud": pred.is_fraud,
@@ -2153,7 +2153,7 @@ def register_health_checks():
     
     def check_cache():
         try:
-            return redis_cache_system.is_healthy()
+            return redis_cache_system.connection_manager._is_healthy
         except:
             return False
     health_checker.register_component("cache", check_cache)

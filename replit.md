@@ -4,9 +4,9 @@
 
 Sankofa Enterprise Pro is a production-ready fraud detection system designed for banking environments processing 300M+ requests/day. The system combines machine learning ensemble models (Random Forest, Gradient Boosting, CatBoost, GNN, Federated Learning), real-time transaction analysis, MLOps infrastructure, and regulatory compliance (BACEN, LGPD, PCI DSS) with a React-based dashboard interface.
 
-**Version:** 12.1  
-**Last Updated:** November 27, 2025  
-**Status:** Production Ready - All Roadmap Items Implemented
+**Version:** 12.2  
+**Last Updated:** November 28, 2025  
+**Status:** Production Ready - All Roadmap Items + Persistence + Integration Verified
 
 ## Quick Start
 
@@ -201,14 +201,17 @@ sankofa-enterprise-real/
 ├── backend/
 │   ├── api/production_api.py          # Main API (50+ endpoints)
 │   ├── ml_engine/                      # ML components
-│   │   ├── production_fraud_engine.py # ML engine (RF+GB+LR)
+│   │   ├── production_fraud_engine.py # ML engine (RF+GB+LR) + Ensemble v12.2
+│   │   ├── ensemble_integration.py    # CatBoost+GNN integration layer (NEW v12.2)
 │   │   ├── catboost_model.py          # CatBoost integration (NEW v12.1)
 │   │   ├── gnn_fraud_detector.py      # Graph Neural Networks (NEW v12.1)
 │   │   ├── federated_learning.py      # Federated Learning (NEW v12.1)
 │   │   └── explainability_engine.py   # SHAP + LGPD
 │   ├── security/                       # Security modules
 │   │   ├── cpf_tokenization.py        # CPF Vault (NEW v12.1)
-│   │   └── rbac_system.py             # RBAC (NEW v12.1)
+│   │   ├── cpf_persistence.py         # CPF PostgreSQL persistence (NEW v12.2)
+│   │   ├── rbac_system.py             # RBAC (NEW v12.1)
+│   │   └── rbac_persistence.py        # RBAC PostgreSQL persistence (NEW v12.2)
 │   ├── compliance/                     # Compliance modules
 │   │   └── bacen_reports.py           # BACEN Reports (NEW v12.1)
 │   ├── infrastructure/                 # Infrastructure
@@ -226,10 +229,15 @@ sankofa-enterprise-real/
 └── docs/                               # Complete documentation
 ```
 
-## Recent Changes (v12.1)
+## Recent Changes (v12.2)
 
 | Date | Change |
 |------|--------|
+| Nov 28, 2025 | **CRITICAL FIX**: Added PostgreSQL persistence for RBAC (6 tables) |
+| Nov 28, 2025 | **CRITICAL FIX**: Added PostgreSQL persistence for CPF tokenization (2 tables) |
+| Nov 28, 2025 | Fixed LSP errors in production_api.py (lines 1076, 2156) |
+| Nov 28, 2025 | Integrated CatBoost/GNN in production_fraud_engine.py predict_detailed() |
+| Nov 28, 2025 | Added rbac_persistence.py and cpf_persistence.py modules |
 | Nov 27, 2025 | Added CatBoost ML model integration |
 | Nov 27, 2025 | Added Graph Neural Networks (GNN) detector |
 | Nov 27, 2025 | Added Federated Learning framework |
@@ -237,5 +245,14 @@ sankofa-enterprise-real/
 | Nov 27, 2025 | Added RBAC system with 30+ permissions |
 | Nov 27, 2025 | Added automated BACEN reports generator |
 | Nov 27, 2025 | Added Redis Cluster configuration |
-| Nov 27, 2025 | Updated ROADMAP_STATUS.md to v12.1 |
-| Nov 27, 2025 | All roadmap items implemented |
+
+## New Tables (v12.2)
+
+| Table | Purpose |
+|-------|---------|
+| `rbac_roles` | Papéis do sistema com permissões JSON |
+| `rbac_user_roles` | Relacionamento usuário-papel |
+| `rbac_sessions` | Sessões de autenticação persistidas |
+| `rbac_permissions_override` | Overrides de permissão por usuário |
+| `cpf_tokens` | Tokens CPF criptografados (AES-256) |
+| `cpf_access_log` | Auditoria de acesso a CPFs (LGPD)

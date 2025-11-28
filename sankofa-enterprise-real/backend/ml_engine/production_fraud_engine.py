@@ -45,6 +45,23 @@ from sklearn.calibration import CalibratedClassifierCV
 from utils.structured_logging import get_structured_logger, log_execution_time
 from config.settings import get_config
 
+_integrated_ensemble_initialized = False
+_integrated_ensemble_instance = None
+
+def _get_lazy_integrated_ensemble():
+    """Lazy loading do IntegratedEnsemble para evitar falha de import"""
+    global _integrated_ensemble_initialized, _integrated_ensemble_instance
+    if not _integrated_ensemble_initialized:
+        _integrated_ensemble_initialized = True
+        try:
+            from ml_engine.ensemble_integration import get_integrated_ensemble
+            _integrated_ensemble_instance = get_integrated_ensemble()
+            logging.getLogger(__name__).info("IntegratedEnsemble loaded successfully")
+        except Exception as e:
+            logging.getLogger(__name__).warning(f"IntegratedEnsemble not available: {e}")
+            _integrated_ensemble_instance = None
+    return _integrated_ensemble_instance
+
 warnings.filterwarnings("ignore")
 
 logger = get_structured_logger("fraud_engine", "INFO")
@@ -641,15 +658,49 @@ class ProductionFraudEngine:
 
             # Criar predições
             predictions = []
+            lazy_ensemble = _get_lazy_integrated_ensemble()
+            
             for idx, proba in enumerate(y_proba):
-                is_fraud = proba >= self.threshold
+                base_proba = proba
+                final_proba = proba
+                ensemble_info = None
+                
+                # Integrar CatBoost/GNN se disponível
+                if lazy_ensemble is not None:
+                    try:
+                        row = X.iloc[idx]
+                        # Construir payload estruturado para ensemble
+                        txn_dict = {
+                            'transaction_id': f"TXN_{idx}",
+                            'customer_id': str(row.get('customer_id', row.get('cliente_cpf', ''))),
+                            'amount': float(row.get('amount', row.get('valor', 0))),
+                            'receiver_id': str(row.get('receiver_id', row.get('conta_recebedor', ''))),
+                            'device_id': str(row.get('device_id', '')),
+                            'ip_address': str(row.get('ip_address', '')),
+                        }
+                        # Adicionar todas as features como backup
+                        for col in row.index:
+                            if col not in txn_dict:
+                                txn_dict[col] = row[col]
+                        
+                        ensemble_result = lazy_ensemble.predict_combined(txn_dict, base_proba)
+                        final_proba = ensemble_result.fraud_probability
+                        ensemble_info = {
+                            'contributions': ensemble_result.model_contributions,
+                            'gnn_patterns': ensemble_result.gnn_suspicious_patterns,
+                        }
+                    except Exception as e:
+                        logger.warning(f"Ensemble integration failed for idx {idx}: {e}")
+                        final_proba = base_proba
+                
+                is_fraud = final_proba >= self.threshold
 
                 # Determinar risk level
-                if proba >= 0.95:
+                if final_proba >= 0.95:
                     risk_level = "CRITICAL"
-                elif proba >= 0.80:
+                elif final_proba >= 0.80:
                     risk_level = "HIGH"
-                elif proba >= 0.50:
+                elif final_proba >= 0.50:
                     risk_level = "MEDIUM"
                 else:
                     risk_level = "LOW"
@@ -657,19 +708,20 @@ class ProductionFraudEngine:
                 # Razões de detecção
                 reasons = []
                 if is_fraud:
-                    reasons.append(f"High fraud probability: {proba:.2%}")
+                    reasons.append(f"High fraud probability: {final_proba:.2%}")
                     if apply_rules:
-                        # Verificar quais regras matcharam
                         row = X.iloc[idx]
                         if "amount" in X.columns and "hour" in X.columns:
                             if row["amount"] >= 50000 and row["hour"] in [0, 1, 2, 3, 4, 23]:
                                 reasons.append("Extreme amount in suspicious hour")
+                    if ensemble_info and ensemble_info.get('gnn_patterns'):
+                        reasons.extend(ensemble_info['gnn_patterns'][:3])
 
                 prediction = FraudPrediction(
                     transaction_id=str(idx),
                     is_fraud=bool(is_fraud),
-                    fraud_probability=float(proba),
-                    risk_score=float(proba),
+                    fraud_probability=float(final_proba),
+                    risk_score=float(final_proba),
                     risk_level=risk_level,
                     confidence=float(self.metrics.f1_score) if self.metrics else 0.0,
                     processing_time_ms=round(avg_time, 2),
