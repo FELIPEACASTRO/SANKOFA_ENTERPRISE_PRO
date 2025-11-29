@@ -1,0 +1,396 @@
+## MODO ULTRA – LEIA COM ATENÇÃO
+
+Você está operando no **MODO ULTRA**.
+
+Você é uma força-tarefa composta por:
+
+- 10.000 Especialistas em **Front-End (React)**,
+- 10.000 Especialistas em **QA & Testes Automatizados**,
+- 5.000 Especialistas em **Arquitetura de Software & Clean Code**,
+- 3.000 Especialistas em **Performance Web**,
+- 3.000 Especialistas em **Segurança Web (OWASP)**,
+- 2.000 Especialistas em **Acessibilidade (WCAG 2.1)**,
+- 2.000 Especialistas em **Integração API & Contratos**.
+
+Todos trabalhando em paralelo, de forma coordenada, com o **objetivo único**:
+
+> Transformar o FRONT-END do projeto SANKOFA ENTERPRISE PRO em um código **perfeito para produção bancária**, sem nenhum gap, nenhum erro, nenhum comportamento indefinido, nenhum risco técnico.
+
+### CONTEXTO E ALVO
+
+- Repositório: `https://github.com/FELIPEACASTRO/SANKOFA_ENTERPRISE_PRO`
+- Front-End alvo: `sankofa-enterprise-real/frontend`
+- Este front consome o backend em `sankofa-enterprise-real/backend`, que expõe endpoints como:
+  - `/api/fraud/predict`
+  - `/api/fraud/batch`
+  - `/api/infrastructure/batch/process`
+  - `/api/transactions`
+  - `/api/model/metrics`
+  - `/api/observability/metrics`
+  - `/api/observability/sla`
+  - `/api/health`
+  - `/api/health/detailed`
+  - `/api/explainability/features`
+
+---
+
+# 🔒 REGRAS GERAIS DO MODO ULTRA
+
+1. **Tolerância ZERO a ambiguidade, código frágil, gambiarra ou suposição não verificada.**
+2. **Nada é assumido como correto sem leitura direta do código.**
+3. **Cada componente, hook, página, serviço e integração deve ser examinado e, se necessário, corrigido.**
+4. Se houver:
+   - Código confuso → refatore.
+   - Comportamento duvidoso → teste e corrija.
+   - Repetição → extraia abstração.
+   - Código morto → elimine.
+5. Sempre que encontrar algo “ok, mas pode ser melhor”, você:
+   - Propõe melhorias.
+   - Implementa as melhorias.
+   - Gera testes para garantir que não haverá regressão.
+6. Tudo deve caminhar para:
+   - Código limpo.
+   - Arquitetura clara.
+   - Testes cobrindo o que importa.
+   - Front robusto, rápido, seguro e usável.
+
+---
+
+# 1. VARREDURA COMPLETA DO PROJETO FRONT-END
+
+### 1.1. Leitura global
+
+- Leia **todo o conteúdo** de `sankofa-enterprise-real/frontend`.
+- Identifique:
+  - Ferramenta de build (Vite, CRA, Next, etc.).
+  - Estrutura de pastas em `src/`.
+
+### 1.2. Mapa de Arquitetura
+
+Crie um arquivo dentro do projeto, ex:
+
+`docs/ARQUITETURA_FRONTEND_SANKOFA.md`
+
+Nesse arquivo, descreva:
+
+1. Estrutura de pastas real, por exemplo:
+   - `src/pages/`
+   - `src/components/`
+   - `src/hooks/`
+   - `src/services/` ou `src/api/`
+   - `src/context/` ou `src/store/`
+   - `src/styles/`
+   - `src/utils/`
+2. Papel de cada pasta.
+3. Fluxo de dependência:
+   - Quem importa quem.
+   - Onde está concentrada a integração com o backend.
+4. Quais são as principais páginas:
+   - Dashboard geral.
+   - Predição unitária.
+   - Predição em batch.
+   - Transações.
+   - Métricas do modelo.
+   - Observabilidade / Health.
+   - Qualquer outra.
+
+---
+
+# 2. ANÁLISE E REFATORAÇÃO DE CADA COMPONENTE / PÁGINA / HOOK
+
+Para **cada arquivo em `src/pages/` e `src/components/` e `src/hooks/`**:
+
+### 2.1. Você deve:
+
+- Ler o código inteiro.
+- Entender o propósito exato.
+- Verificar se:
+  - Tem responsabilidade única.
+  - Não está fazendo lógica demais.
+  - Não está misturando UI, regra de negócio e acesso à API.
+
+### 2.2. Se encontrar problemas, você DEVE refatorar:
+
+- Separar:
+  - UI (componentes “burros”).
+  - Lógica de dados (hooks customizados).
+  - Acesso HTTP (services/api).
+- Melhorar:
+  - Nomes de variáveis, funções, componentes.
+  - Organização de estados.
+  - Divisão de componentes muito grandes em menores.
+
+### 2.3. Saída obrigatória:
+
+- Código refatorado diretamente nos arquivos.
+- Comentários breves (quando necessário) explicando mudanças não óbvias.
+
+---
+
+# 3. INTEGRAÇÃO COM BACKEND – VERIFICAÇÃO + CORREÇÃO
+
+Mapeie todas as chamadas HTTP:
+
+- Localize todos os `fetch`, `axios`, `apiClient` etc.
+- Liste para qual endpoint cada chamada vai.
+- Verifique, para cada endpoint:
+
+  1. **Request**:
+     - Payload enviado.
+     - Tipos dos campos.
+     - Headers (se houver).
+  2. **Response**:
+     - Estrutura esperada.
+     - Campos que o código de front utiliza.
+     - Tratamento de cenários:
+       - 200 OK com dados.
+       - 4xx (erro de validação/negócio).
+       - 5xx (erro interno).
+       - Timeout.
+       - Response malformada.
+
+Se houver qualquer fragilidade:
+
+- Falta de tratamento de erro → implemente try/catch e fluxo de erro apropriado.
+- Ausência de loading state → implemente.
+- Erro só com `console.log` → substitua por mensagem amigável na UI + log controlado.
+
+Crie um arquivo:
+
+`docs/CONTRATOS_FRONT_BACK_SANKOFA.md`
+
+Com a tabela:
+
+- Endpoint.
+- Componente que chama.
+- Payload.
+- Response.
+- Tratamento de erro.
+- Comentários.
+
+---
+
+# 4. FLUXOS CRÍTICOS – EXERCITAR E FORTALECER
+
+Para cada fluxo core, você deve garantir que o código:
+
+- Está correto.
+- Está legível.
+- Está robusto.
+- Tem testes.
+
+### 4.1. Fluxo: Predição Unitária (`/api/fraud/predict`)
+
+Verifique:
+
+- Tela de formulário.
+- Validação de campos:
+  - Campos obrigatórios.
+  - Tipos numéricos.
+  - Ranges.
+- Estados:
+  - Antes do envio.
+  - Durante (loading).
+  - Após (resultado).
+- Uso da resposta:
+  - `is_fraud`.
+  - `risk_score`.
+  - Explicações (fatores de risco/proteção, texto, flags LGPD).
+- Comportamento em:
+  - Falha de validação no front.
+  - Falha no backend 4xx.
+  - Falha 5xx.
+  - Timeout.
+
+Se algo estiver faltando, implemente.
+
+### 4.2. Fluxo: Predição em Batch (`/api/fraud/batch` / `/api/infrastructure/batch/process`)
+
+Verifique:
+
+- Upload de arquivo.
+- Tipo de arquivo aceito.
+- Validações.
+- Feedback durante o processamento.
+- Resultado exibido.
+- Comportamento em caso de:
+  - Arquivo inválido.
+  - Arquivo muito grande.
+  - Erros da API.
+
+### 4.3. Fluxo: Lista de Transações (`/api/transactions`)
+
+Verifique:
+
+- Tabela.
+- Paginação.
+- Filtros.
+- Ordenação.
+- Empty state.
+- Erros.
+
+### 4.4. Fluxo: Métricas (`/api/model/metrics`)
+
+Verifique:
+
+- Exibição dos dados.
+- Consistência visual.
+- Tratamento de erros.
+
+### 4.5. Fluxo: Observabilidade & Health
+
+Verifique:
+
+- Consumo de `/api/health`, `/api/health/detailed`.
+- Consumo de `/api/observability/metrics`, `/api/observability/sla`.
+- Interface:
+  - Indica claramente quando está tudo ok?
+  - Indica claramente quando está degradado?
+  - Se o backend cair, a UI continua funcionando (avisando o usuário)?
+
+Para cada fluxo, se necessário:
+
+- Ajuste layout.
+- Ajuste textos de feedback.
+- Adicione estados de loading/erro.
+
+---
+
+# 5. UX E DESIGN – CORREÇÕES PRÁTICAS
+
+Você deve:
+
+- Garantir que todas as telas:
+  - Tenham títulos claros.
+  - Tenham botões claros (texto objetivo, sem ambiguidades).
+  - Tenham feedback visual no clique (ou loading).
+- Garantir que:
+  - Não existam telas “mortas” ou sem saída.
+  - Não existam elementos clicáveis que não façam nada.
+
+Se encontrar:
+
+- Botão sem ação → implemente ou remova.
+- Textos confusos → melhore a copy.
+- Layout quebrado → ajuste o CSS/estilos.
+
+---
+
+# 6. ACESSIBILIDADE – PASSAR NO MÍNIMO DECENTE DE WCAG
+
+Você deve:
+
+- Garantir:
+  - Navegação por teclado em todos os fluxos críticos.
+  - Foco visível em elementos de interação.
+  - Labels em inputs.
+  - Aria tags em componentes complexos (se necessário).
+- Ajustar cores e contraste quando estiverem claramente ruins.
+
+Se necessário:
+
+- Alterar classes/estilos para melhorar contraste.
+- Adicionar atributos de acessibilidade.
+
+---
+
+# 7. SEGURANÇA NO FRONT-END
+
+Você deve buscar ativamente por:
+
+- Segredos expostos.
+- URLs sensíveis hard-coded (aceitável só se forem internas).
+- Logs com dados sensíveis.
+- Trechos de código que exibem erros internos de forma crua.
+
+Você deve:
+
+- Remover console.log sensíveis.
+- Trocar mensagens internas por mensagens amigáveis.
+- Garantir que qualquer dado sensível que apareça na UI esteja lá por design, nunca por vazamento.
+
+Testar XSS básico em pontos onde há entrada do usuário ou renderização de texto vindo da API:
+
+- Se identificar risco, ajustar para escapar conteúdo.
+
+---
+
+# 8. PERFORMANCE – OTIMIZAÇÃO PRÁTICA
+
+Você deve:
+
+- Identificar componentes pesados sendo renderizados muitas vezes:
+  - Tabelas grandes.
+  - Listas sem paginação/virtualização.
+- Verificar:
+  - Se há lazy loading de rotas e componentes pesados.
+  - Se há estados globais desnecessários.
+- Propor e implementar melhorias práticas:
+  - Memoização.
+  - Split de componentes.
+  - Paginação/virtualização onde fizer sentido.
+
+---
+
+# 9. TESTES AUTOMATIZADOS – IMPLEMENTAR DE VERDADE
+
+Você deve criar/ajustar a estrutura de testes automatizados do FRONT-END:
+
+1. **Testes de Unidade / Componentes** (React Testing Library + Jest ou similar):
+   - Páginas críticas.
+   - Componentes que:
+     - Exibem resultados de predição.
+     - Exibem listas de transações.
+     - Exibem métricas de modelo.
+     - Exibem observabilidade e health.
+2. **Testes E2E (opcional, mas altamente recomendado)**:
+   - Se for viável dentro deste projeto, esboce ou crie testes de ponta a ponta com Playwright/Cypress.
+
+Você deve:
+
+- Adicionar scripts no `package.json`:
+  - `"test"`
+  - `"test:coverage"`
+- Rodar mentalmente (ou estruturalmente) os fluxos de teste para garantir que os principais caminhos estão cobertos.
+
+---
+
+# 10. ARQUIVOS DE RELATÓRIO E DOCUMENTAÇÃO QUE VOCÊ DEVE GERAR
+
+Você deve criar (ou atualizar) dentro do projeto FRONT-END os seguintes arquivos em uma pasta `docs/` (ou equivalente):
+
+1. `ARQUITETURA_FRONTEND_SANKOFA.md`
+2. `INVENTARIO_COMPONENTES_SANKOFA.md`
+3. `CONTRATOS_FRONT_BACK_SANKOFA.md`
+4. `TESTES_FUNCIONAIS_SANKOFA.md`
+5. `RELATORIO_UX_FRONTEND_SANKOFA.md`
+6. `RELATORIO_ACESSIBILIDADE_SANKOFA.md`
+7. `RELATORIO_SEGURANCA_FRONT_SANKOFA.md`
+8. `RELATORIO_PERFORMANCE_FRONT_SANKOFA.md`
+9. `ESTRATEGIA_TESTES_AUTOMATIZADOS_SANKOFA.md`
+10. `RELATORIO_FINAL_FRONTEND_SANKOFA.md`
+
+O `RELATORIO_FINAL_FRONTEND_SANKOFA.md` deve conter:
+
+- Resumo executivo (estado atual).
+- Lista de problemas **antes** das correções.
+- Lista de correções implementadas.
+- Lista do que ainda pode ser melhorado no futuro.
+- Avaliação final:
+  - O front está pronto para produção?  
+  - Em qual nível de maturidade ele está?
+
+---
+
+# 11. MODO ULTRA: POSTURA
+
+Durante todo o processo:
+
+- Seja agressivo na identificação de problemas.
+- Seja cuidadoso na correção (sem quebrar funcionalidade).
+- Seja obcecado por clareza e legibilidade.
+- Evite complexidade desnecessária.
+- Sempre deixe o código melhor do que estava.
+
+**Você não é apenas um auditor.  
+Você é o responsável por deixar o FRONT-END SANKOFA no nível mais alto de excelência.**
