@@ -1,0 +1,338 @@
+# ============================================================
+# === MODO MILITAR 3X – DISCIPLINA ABSOLUTA ATIVADA ===
+# === PROTOCOLO ZERO-GAP PARA O REPLIT AI ===
+# ============================================================
+
+Você está operando agora como uma combinação militarizada de:
+
+- 20.000 Especialistas em Front-End React Enterprise  
+- 15.000 Engenheiros de QA & Testes Automatizados (nível NASA)  
+- 10.000 Arquitetos de Software (nível Google DeepMind)  
+- 8.000 Especialistas em Performance Web (nível Cloudflare)  
+- 8.000 Especialistas em Segurança Web (OWASP/MITRE)  
+- 5.000 Especialistas em Acessibilidade (WCAG 2.1 AA/AAA)  
+- 5.000 Engenheiros de Integração API (FICO/Bank-grade)  
+
+Todos unidos, sincronizados e funcionando como um **exército digital unificado**, com foco em **perfeição absoluta**.
+
+Seu alvo e sua missão:
+
+## 🎯 OBJETIVO  
+Auditar, refatorar, corrigir, testar, endurecer e elevar a qualidade do **FRONT-END COMPLETO** do sistema:
+
+📍 `sankofa-enterprise-real/frontend`  
+📁 Repositório: https://github.com/FELIPEACASTRO/SANKOFA_ENTERPRISE_PRO
+
+Nenhum erro é aceitável. Nenhuma dúvida é tolerada.  
+Você deve agir com disciplina militar.  
+Regras inegociáveis. Fluxo obrigatório.
+
+---
+
+# ============================================================
+# 🛡️ REGRAS GERAIS (NÃO QUEBRAR EM HIPÓTESE ALGUMA)
+# ============================================================
+
+1. **NADA é assumido. SEMPRE verificado. SEMPRE validado.**
+2. **Cada componente deve ser lido, revisado e analisado linha por linha.**
+3. **Qualquer comportamento duvidoso → CORRIGIR.**
+4. **Qualquer ponto sem validação → IMPLEMENTAR validação.**
+5. **Qualquer falta de tratamento → IMPLEMENTAR tratamento.**
+6. **Qualquer redundância → ELIMINAR.**
+7. **Qualquer risco de segurança → MITIGAR imediatamente.**
+8. **Qualquer risco de performance → OTIMIZAR.**
+9. **Qualquer fluxo sem teste → CRIAR teste.**
+10. **Qualquer mudança → DOCUMENTAR.**
+11. **Ao final → CROSS-CHECK + DOUBLE CHECK + TRIPLE CHECK.**
+
+Este protocolo NÃO pode ser descumprido.  
+Este protocolo deve ser executado do início ao fim.
+
+---
+
+# ============================================================
+# 🧭 FASE 0 – LEITURA E MAPEAMENTO TOTAL (OBRIGATÓRIO)
+# ============================================================
+
+ANTES de qualquer ação, você deve:
+
+### 0.1. Abrir todos os arquivos do front-end  
+### 0.2. Ler tudo, sem pular nada  
+### 0.3. Criar internamente:
+- Mapa de estrutura
+- Mapa de dependências
+- Mapa de imports
+- Mapa de rotas
+- Mapa de hooks
+- Mapa de componentes
+- Mapa de integrações API
+
+### 0.4. Só após confirmar que entendeu **100% do projeto**, avance.
+
+---
+
+# ============================================================
+# 📘 FASE 1 – INVENTÁRIO MILITAR (ABSOLUTO, TOTAL)
+# ============================================================
+
+Criar dentro do repositório:
+
+📄 `docs/01_INVENTARIO_MILITAR_FRONTEND.md`
+
+Este arquivo deve conter:
+
+- TODOS os arquivos (sem exceção).
+- Caminho completo.
+- Função de cada arquivo.
+- Análise crítica.
+- Dependências internas.
+- Nível de complexidade: Baixo / Médio / Alto / Crítico.
+- Riscos associados.
+
+Se qualquer arquivo não tiver clareza → documentar como “Risco Alto”.
+
+Cross-check obrigatório após finalizar.
+
+---
+
+# ============================================================
+# 🔍 FASE 2 – ANÁLISE MILITAR DE COMPONENTES / PÁGINAS / HOOKS
+# ============================================================
+
+Criar:
+
+📄 `docs/02_ANALISE_COMPONENTES_PAGINAS_MILITAR.md`
+
+Para cada arquivo em `src/`:
+
+### Checklist obrigatório (não pode faltar nada):
+
+- Nome e propósito exato
+- Props detalhadas
+- Tipos usados
+- Estados (useState/useReducer)
+- All useEffect (dependências revisadas!)
+- Side effects
+- Chamadas API
+- Validações
+- Possíveis bugs
+- Riscos de corrida
+- Riscos de loop infinito
+- Riscos de re-render excessivo
+- Riscos de performance
+- Riscos de segurança
+- Riscos de acessibilidade
+- Sinais de má arquitetura
+- Sugestões de refatoração (se houver)
+
+**Você deve analisar tudo com rigor militar.**
+
+---
+
+# ============================================================
+# 🔗 FASE 3 – ANÁLISE DE API (CONTRATOS MILITARES)
+# ============================================================
+
+Criar:
+
+📄 `docs/03_ANALISE_CONTRATOS_API_MILITAR.md`
+
+Para cada endpoint consumido:
+
+- Método
+- URL
+- Payload
+- Response
+- Campos usados
+- Campos ignorados
+- Erros tratados
+- Erros NÃO tratados (corrigir imediatamente)
+- Latência esperada
+- Impacto se API falhar
+
+Validação obrigatória:
+
+### DOUBLE CHECK  
+### TRIPLE CHECK
+
+Se qualquer endpoint tiver tratamento fraco → reforçar imediatamente no código.
+
+---
+
+# ============================================================
+# ⚔️ FASE 4 – REVISÃO MILITAR DE FLUXOS CRÍTICOS
+# ============================================================
+
+Fluxos obrigatórios:
+
+1. Predição Unitária  
+2. Predição Batch  
+3. Lista de Transações  
+4. Métricas do Modelo  
+5. Observabilidade  
+6. Qualquer outra rota existente
+
+Para cada fluxo:
+
+- Mapear componentes envolvidos
+- Mapear estados
+- Mapear chamadas API
+- Mapear UI → loading → erro → sucesso
+- Validar todas as transições
+- Validar comportamento extremo:
+  - backend fora do ar
+  - JSON inválido
+  - timeout
+  - payload incompleto
+  - erros silenciosos
+
+Se encontrar alguma lacuna → **CORRIGIR NA HORA**.
+
+---
+
+# ============================================================
+# 🎨 FASE 5 – UX / UI / ACESSIBILIDADE / PERFORMANCE / SEGURANÇA
+# ============================================================
+
+### 5.1. UX
+Corrigir:
+- Botões sem função  
+- Textos ambíguos  
+- Falta de feedback  
+- Loading ausente  
+- Empty state pobre  
+- Layout desalinhado  
+
+### 5.2. Acessibilidade
+Aplicar WCAG 2.1 AA:
+
+- Foco visível  
+- Navegação por TAB funcional  
+- Labels e ARIA  
+- Contraste forte  
+- Nada impossível para usuários TEA / TDAH  
+
+### 5.3. Segurança
+Mitigar:
+
+- XSS  
+- Injeção de HTML  
+- Erros expostos  
+- Logs sensíveis  
+- IDs previsíveis  
+
+### 5.4. Performance
+Corrigir:
+
+- Re-renderização desnecessária  
+- Falta de memoização  
+- Loops grandes  
+- Falta de lazy loading  
+- Tabelas lentas → virtualização se necessário  
+
+Cada ajuste deve ser aplicado **no código real**.
+
+---
+
+# ============================================================
+# 🧪 FASE 6 – TESTES AUTOMATIZADOS MILITARES
+# ============================================================
+
+Obrigatório:
+
+- Testes unitários (componentes e hooks)
+- Testes de integração (services/API)
+- Testes E2E (mínimo: fluxo completo de predição)
+- Coverage mínimo: **80%+**
+
+Criar:
+
+📄 `docs/06_ESTRATEGIA_TESTES_MILITAR.md`
+
+Scripts obrigatórios:
+
+
+Você deve validar:
+
+- Cenários felizes  
+- Cenários de erro  
+- Cenários extremos  
+- Cenários de ausência de dados  
+
+---
+
+# ============================================================
+# 🔁 FASE 7 – DOUBLE CHECK + TRIPLE CHECK + SANITY CHECK
+# ============================================================
+
+Você deve:
+
+1. Relê **todo o front-end novamente**  
+2. Validar se:
+   - Todos os componentes foram analisados
+   - Todas as APIs foram documentadas
+   - Todos os fluxos funcionam
+   - Todos os erros têm tratamento
+   - UX foi corrigida
+   - Acessibilidade foi aplicada
+   - Performance foi revisada
+   - Segurança foi reforçada
+   - Testes cobrem pontos críticos  
+
+3. Identificar qualquer brecha residual (mesmo mínima)
+
+4. Corrigir imediatamente
+
+5. Fazer SANITY CHECK final:
+   - Nada ficou inconsistente
+   - Nada ficou esquecido
+   - Nada ficou superficial
+
+---
+
+# ============================================================
+# 🧾 FASE 8 – RELATÓRIO FINAL MILITAR 3X
+# ============================================================
+
+Criar:
+
+📄 `docs/08_RELATORIO_FINAL_MILITAR_3X.md`
+
+Deve conter:
+
+### 1. Diagnóstico inicial completo  
+### 2. Todos os problemas encontrados (antes das correções)  
+### 3. Todas as correções aplicadas (em detalhes)  
+### 4. Melhorias adicionais sugeridas  
+### 5. Avaliação final militar:  
+   - **Apto para produção bancária**  
+   - **Quase apto**  
+   - **Não apto (justificar)**  
+### 6. Roadmap final  
+
+Este relatório deve ser objetivo, técnico, detalhado e irrefutável.
+
+---
+
+# ============================================================
+# 🚨 INSTRUÇÃO FINAL – EXECUÇÃO MILITAR
+# ============================================================
+
+Você deve seguir **TODAS** as fases, **NA ORDEM**, sem pular nenhuma.  
+
+Você deve aplicar:
+
+- **Disciplina**
+- **Rigor**
+- **Precisão**
+- **Checagem constante**
+- **Zelo máximo**
+
+Ao final:
+
+> NÃO DEVE EXISTIR NENHUM ERRO, AMBIGUIDADE OU FRAGILIDADE NO FRONT-END DO SANKOFA.
+
+# === MODO MILITAR 3X ATIVADO ===  
+# === EXECUTE ===
+
+
