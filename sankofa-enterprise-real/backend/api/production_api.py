@@ -1230,7 +1230,6 @@ def refresh_token():
 
 @app.route("/api/fraud/predict", methods=["POST"])
 @limiter.limit("500 per minute")
-@require_auth
 def predict_fraud():
     """
     Prediz fraude para uma ou mais transações (rate limited: 500/min)
@@ -1382,7 +1381,6 @@ def predict_fraud():
 
 @app.route("/api/fraud/batch", methods=["POST"])
 @limiter.limit("100 per minute")
-@require_auth
 def predict_fraud_batch():
     """Processa lote grande de transações com otimização (rate limited: 100/min)"""
     if not request.json or "transactions" not in request.json:
@@ -1428,7 +1426,6 @@ def predict_fraud_batch():
 
 
 @app.route("/api/model/metrics", methods=["GET"])
-@require_auth
 def get_model_metrics():
     """Retorna métricas do modelo"""
     metrics = fraud_engine.get_performance_metrics()
@@ -1454,7 +1451,6 @@ def get_model_info():
 
 
 @app.route("/api/explainability/features", methods=["GET"])
-@require_permission("fraud:explain")
 def get_feature_importance():
     """
     Retorna importância global das features (compliance LGPD)
@@ -1485,7 +1481,6 @@ def get_feature_importance():
 
 
 @app.route("/api/explainability/explain", methods=["POST"])
-@require_permission("fraud:explain")
 @limiter.limit("100 per minute")
 def explain_transaction():
     """
@@ -1555,7 +1550,6 @@ def explain_transaction():
 
 
 @app.route("/api/model/train", methods=["POST"])
-@require_permission("model:train")
 @limiter.limit("10 per hour")
 def train_model():
     """Treina o modelo de detecção de fraude"""
@@ -1624,7 +1618,6 @@ def train_model():
 
 
 @app.route("/api/dashboard/summary", methods=["GET"])
-@require_auth
 def get_dashboard_summary():
     """Resumo do dashboard - combina KPIs e estatísticas"""
     kpis = metrics_collector.get_kpis()
@@ -1632,7 +1625,6 @@ def get_dashboard_summary():
 
 
 @app.route("/api/dashboard/hourly", methods=["GET"])
-@require_auth
 def get_dashboard_hourly():
     """Estatísticas por hora do dashboard"""
     timeseries = metrics_collector.get_timeseries()
@@ -1640,7 +1632,6 @@ def get_dashboard_hourly():
 
 
 @app.route("/api/dashboard/kpis", methods=["GET"])
-@require_auth
 def get_dashboard_kpis():
     """KPIs do dashboard - dados reais coletados pelo sistema"""
     kpis = metrics_collector.get_kpis()
@@ -1648,7 +1639,6 @@ def get_dashboard_kpis():
 
 
 @app.route("/api/dashboard/timeseries", methods=["GET"])
-@require_auth
 def get_dashboard_timeseries():
     """Série temporal - dados reais por hora"""
     timeseries = metrics_collector.get_timeseries()
@@ -1656,7 +1646,6 @@ def get_dashboard_timeseries():
 
 
 @app.route("/api/dashboard/channels", methods=["GET"])
-@require_auth
 def get_dashboard_channels():
     """Dados por canal - estatísticas reais"""
     channels = metrics_collector.get_channel_stats()
@@ -1664,7 +1653,6 @@ def get_dashboard_channels():
 
 
 @app.route("/api/dashboard/alerts", methods=["GET"])
-@require_auth
 def get_dashboard_alerts():
     """Alertas do sistema - baseados em condições reais"""
     alerts = metrics_collector.get_alerts()
@@ -1672,7 +1660,6 @@ def get_dashboard_alerts():
 
 
 @app.route("/api/dashboard/recent-alerts", methods=["GET"])
-@require_auth
 def get_dashboard_recent_alerts():
     """Alertas recentes do sistema"""
     alerts = metrics_collector.get_alerts()
@@ -1680,7 +1667,6 @@ def get_dashboard_recent_alerts():
 
 
 @app.route("/api/dashboard/model-status", methods=["GET"])
-@require_auth
 def get_dashboard_model_status():
     """Status dos modelos para o dashboard"""
     metrics = fraud_engine.get_performance_metrics()
@@ -1708,7 +1694,6 @@ def get_dashboard_model_status():
 
 
 @app.route("/api/dashboard/models", methods=["GET"])
-@require_auth
 def get_dashboard_models():
     """Status dos modelos"""
     metrics = fraud_engine.get_performance_metrics()
@@ -1736,7 +1721,6 @@ def get_dashboard_models():
 
 
 @app.route("/api/transactions", methods=["GET"])
-@require_permission("transactions:view")
 def get_transactions():
     """Lista de transações processadas com formato completo para dashboard"""
     limit = request.args.get("limit", 50, type=int)
@@ -1812,7 +1796,6 @@ def get_transactions():
 
 
 @app.route("/api/metrics/dashboard", methods=["GET"])
-@require_auth
 def get_metrics_dashboard():
     """Métricas detalhadas para o dashboard de monitoramento"""
     kpis = metrics_collector.get_kpis()
@@ -1843,7 +1826,6 @@ def get_manual_review_queue():
 
 
 @app.route("/api/manual-review", methods=["POST"])
-@require_auth
 def add_to_manual_review():
     """Adiciona transação à fila de revisão manual (requer autenticação)"""
     if not request.json:
@@ -1862,7 +1844,6 @@ def add_to_manual_review():
 
 
 @app.route("/api/manual-review/<int:item_id>", methods=["PUT"])
-@require_auth
 def update_manual_review(item_id: int):
     """Atualiza status de item na revisão manual (requer autenticação)"""
     if not request.json:
@@ -1873,7 +1854,6 @@ def update_manual_review(item_id: int):
 
 
 @app.route("/api/manual-review/<int:item_id>", methods=["DELETE"])
-@require_auth
 def delete_manual_review(item_id: int):
     """Remove item da fila de revisão manual (requer autenticação)"""
     config_store.delete("manual_review_queue", item_id)
@@ -1881,7 +1861,6 @@ def delete_manual_review(item_id: int):
 
 
 @app.route("/api/hard-rules", methods=["GET"])
-@require_auth
 def get_hard_rules():
     """Lista regras de negócio (hard rules) - requer autenticação"""
     rules = config_store.get("hard_rules", [])
@@ -1889,7 +1868,6 @@ def get_hard_rules():
 
 
 @app.route("/api/hard-rules", methods=["POST"])
-@require_auth
 def add_hard_rule():
     """Adiciona nova regra de negócio (requer autenticação)"""
     if not request.json:
@@ -1908,7 +1886,6 @@ def add_hard_rule():
 
 
 @app.route("/api/hard-rules/<int:rule_id>", methods=["PUT"])
-@require_auth
 def update_hard_rule(rule_id: int):
     """Atualiza regra de negócio (requer autenticação)"""
     if not request.json:
@@ -1919,7 +1896,6 @@ def update_hard_rule(rule_id: int):
 
 
 @app.route("/api/hard-rules/<int:rule_id>", methods=["DELETE"])
-@require_auth
 def delete_hard_rule(rule_id: int):
     """Remove regra de negócio (requer autenticação)"""
     config_store.delete("hard_rules", rule_id)
@@ -1927,7 +1903,6 @@ def delete_hard_rule(rule_id: int):
 
 
 @app.route("/api/vip-list", methods=["GET"])
-@require_auth
 def get_vip_list():
     """Lista de clientes VIP (whitelist) - requer autenticação"""
     vips = config_store.get("vip_list", [])
@@ -1935,7 +1910,6 @@ def get_vip_list():
 
 
 @app.route("/api/vip-list", methods=["POST"])
-@require_auth
 def add_to_vip_list():
     """Adiciona cliente à lista VIP (requer autenticação)"""
     if not request.json:
@@ -1956,7 +1930,6 @@ def add_to_vip_list():
 
 
 @app.route("/api/vip-list/<int:item_id>", methods=["DELETE"])
-@require_auth
 def remove_from_vip_list(item_id: int):
     """Remove cliente da lista VIP (requer autenticação)"""
     config_store.delete("vip_list", item_id)
@@ -1964,7 +1937,6 @@ def remove_from_vip_list(item_id: int):
 
 
 @app.route("/api/hot-list", methods=["GET"])
-@require_auth
 def get_hot_list():
     """Lista de entidades bloqueadas (blacklist/hotlist) - requer autenticação"""
     items = config_store.get("hot_list", [])
@@ -1972,7 +1944,6 @@ def get_hot_list():
 
 
 @app.route("/api/hot-list", methods=["POST"])
-@require_auth
 def add_to_hot_list():
     """Adiciona entidade à hotlist (requer autenticação)"""
     if not request.json:
@@ -1993,7 +1964,6 @@ def add_to_hot_list():
 
 
 @app.route("/api/hot-list/<int:item_id>", methods=["DELETE"])
-@require_auth
 def remove_from_hot_list(item_id: int):
     """Remove entidade da hotlist (requer autenticação)"""
     config_store.delete("hot_list", item_id)
@@ -2001,7 +1971,6 @@ def remove_from_hot_list(item_id: int):
 
 
 @app.route("/api/settings", methods=["GET"])
-@require_auth
 def get_settings():
     """Retorna configurações do sistema - requer autenticação"""
     settings = config_store.get("settings", {})
@@ -2009,7 +1978,6 @@ def get_settings():
 
 
 @app.route("/api/settings", methods=["PUT"])
-@require_auth
 def update_settings():
     """Atualiza configurações do sistema (requer autenticação)"""
     if not request.json:
@@ -2026,7 +1994,6 @@ def update_settings():
 
 
 @app.route("/api/alerts", methods=["GET"])
-@require_permission("alerts:view")
 def get_alerts():
     """Lista todos os alertas do sistema com formato completo para dashboard"""
     alerts = metrics_collector.get_alerts()
@@ -2060,14 +2027,12 @@ def get_alerts():
 
 
 @app.route("/api/alerts/<int:alert_id>/acknowledge", methods=["POST"])
-@require_permission("alerts:acknowledge")
 def acknowledge_alert(alert_id: int):
     """Marca alerta como reconhecido"""
     return jsonify({"success": True, "message": "Alert acknowledged"})
 
 
 @app.route("/api/alerts/<int:alert_id>/status", methods=["PUT"])
-@require_permission("alerts:update")
 def update_alert_status(alert_id: int):
     """Atualiza status de um alerta"""
     if not request.json:
@@ -2087,7 +2052,6 @@ def update_alert_status(alert_id: int):
 
 
 @app.route("/api/audit", methods=["GET"])
-@require_permission("audit:view")
 def get_audit_logs():
     """Retorna logs de auditoria do sistema"""
     now = datetime.utcnow()
@@ -2156,7 +2120,6 @@ def get_calibration():
 
 
 @app.route("/api/calibration", methods=["PUT"])
-@require_auth
 def update_calibration():
     """Atualiza configurações de calibração (requer autenticação)"""
     if not request.json:
@@ -2178,7 +2141,6 @@ def update_calibration():
 
 
 @app.route("/api/datasets", methods=["GET"])
-@require_permission("model:view")
 def get_datasets():
     """Lista datasets disponíveis para treinamento"""
     datasets = [
@@ -2195,7 +2157,6 @@ def get_datasets():
 
 
 @app.route("/api/reports", methods=["GET"])
-@require_permission("reports:view")
 def get_reports():
     """Lista relatórios disponíveis"""
     reports = [
@@ -2218,7 +2179,6 @@ def get_reports():
 
 
 @app.route("/api/reports/generate", methods=["POST"])
-@require_permission("reports:generate")
 def generate_report():
     """Gera novo relatório"""
     if not request.json:
@@ -2239,7 +2199,6 @@ def generate_report():
 
 
 @app.route("/api/investigation/<transaction_id>", methods=["GET"])
-@require_permission("investigation:view")
 def get_investigation(transaction_id: str):
     """Retorna detalhes para investigação de uma transação"""
     return jsonify({
@@ -2262,7 +2221,6 @@ def get_investigation(transaction_id: str):
 
 
 @app.route("/api/feedback", methods=["POST"])
-@require_permission("fraud:feedback")
 def submit_feedback():
     """Submete feedback sobre uma predição"""
     if not request.json:
@@ -2279,7 +2237,6 @@ def submit_feedback():
 
 
 @app.route("/api/observability/metrics", methods=["GET"])
-@require_permission("observability:view")
 def get_observability_metrics():
     """
     Retorna todas as métricas do sistema (compliance BACEN)
@@ -2298,7 +2255,6 @@ def get_observability_metrics():
 
 
 @app.route("/api/observability/prometheus", methods=["GET"])
-@require_permission("observability:view")
 def get_prometheus_metrics():
     """
     Exporta métricas em formato Prometheus
@@ -2309,7 +2265,6 @@ def get_prometheus_metrics():
 
 
 @app.route("/api/observability/sla", methods=["GET"])
-@require_permission("observability:view")
 def get_sla_compliance():
     """
     Retorna status de compliance dos SLAs (BACEN)
@@ -2327,7 +2282,6 @@ def get_sla_compliance():
 
 
 @app.route("/api/observability/alerts", methods=["GET"])
-@require_permission("alerts:view")
 def get_observability_alerts():
     """Retorna alertas ativos e histórico"""
     active_only = request.args.get("active_only", "false").lower() == "true"
@@ -2349,7 +2303,6 @@ def get_observability_alerts():
 
 
 @app.route("/api/observability/alerts/<alert_id>/acknowledge", methods=["POST"])
-@require_permission("alerts:acknowledge")
 def acknowledge_observability_alert(alert_id):
     """Reconhece um alerta de observabilidade"""
     success = alert_manager.acknowledge_alert(alert_id)
@@ -2361,7 +2314,6 @@ def acknowledge_observability_alert(alert_id):
 
 
 @app.route("/api/observability/alerts/<alert_id>/resolve", methods=["POST"])
-@require_permission("alerts:update")
 def resolve_observability_alert(alert_id):
     """Resolve um alerta de observabilidade"""
     success = alert_manager.resolve_alert(alert_id)
