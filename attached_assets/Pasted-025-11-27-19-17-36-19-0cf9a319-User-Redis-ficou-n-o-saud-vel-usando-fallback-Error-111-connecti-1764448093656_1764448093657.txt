@@ -1,0 +1,117 @@
+025-11-27 19:17:36.19
+0cf9a319
+User
+Redis ficou não saudável, usando fallback: Error 111 connecting to localhost:6379. Connection refused.
+2025-11-27 19:17:46.79
+0cf9a319
+System
+system: received signal terminated
+
+2025-11-27 19:17:56.37
+0cf9a319
+System
+starting up user application
+2025-11-27 19:17:56.37
+0cf9a319
+System
+metasidecar: loaded enterprise status from environment is_enterprise=false
+2025-11-27 19:17:56.37
+0cf9a319
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-11-27 19:18:02.16
+0cf9a319
+User
+Redis não disponível, usando fallback em memória: Error 111 connecting to localhost:6379. Connection refused.
+2025-11-27 19:18:02.16
+0cf9a319
+User
+Redis ficou não saudável, usando fallback: Error 111 connecting to localhost:6379. Connection refused.
+2025-11-27 19:18:02.27
+0cf9a319
+User
+⚠️ Auto-generated development secrets - NOT FOR PRODUCTION
+2025-11-27 19:18:03.23
+0cf9a319
+User
+{"timestamp": "2025-11-27T22:18:03.230120Z", "level": "INFO", "message": "PostgreSQL connection pool initialized", "logger": "production_api", "pool_min": 2, "pool_max": 20}
+2025-11-27 19:18:03.25
+0cf9a319
+User
+{"timestamp": "2025-11-27T22:18:03.258003Z", "level": "INFO", "message": "Production Fraud Engine initialized", "logger": "fraud_engine", "version": "1.0.0", "threshold": 0.35, "model_path": "models"}
+2025-11-27 19:18:03.25
+0cf9a319
+User
+{"timestamp": "2025-11-27T22:18:03.257772Z", "level": "INFO", "message": "Pre-trained model loaded successfully", "logger": "fraud_engine", "model_file": "models/fraud_engine_v1.0.0.joblib", "features": 30, "threshold": 0.35}
+2025-11-27 19:18:03.26
+0cf9a319
+User
+{"timestamp": "2025-11-27T22:18:03.263574Z", "level": "INFO", "message": "Production API initialized", "logger": "production_api", "environment": "development", "debug": false}
+2025-11-27 19:18:03.30
+0cf9a319
+User
+* Serving Flask app 'production_api'
+2025-11-27 19:18:03.30
+0cf9a319
+User
+API + Frontend running on port 5000
+2025-11-27 19:18:03.30
+0cf9a319
+User
+* Debug mode: off
+2025-11-27 19:18:03.30
+0cf9a319
+User
+Frontend dist: /home/runner/workspace/sankofa-enterprise-real/frontend/dist
+2025-11-27 19:18:03.30
+0cf9a319
+User
+=== Sankofa Enterprise Pro - Unified Server ===
+2025-11-27 19:18:03.30
+0cf9a319
+User
+Frontend exists: True
+2025-11-27 19:18:03.31
+0cf9a319
+User
+Press CTRL+C to quit
+2025-11-27 19:18:03.31
+0cf9a319
+User
+* Running on http://127.0.0.1:5000
+2025-11-27 19:18:03.31
+0cf9a319
+User
+* Running on all addresses (0.0.0.0)
+2025-11-27 19:18:03.31
+0cf9a319
+User
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+2025-11-27 19:18:03.31
+0cf9a319
+User
+* Running on http://169.254.8.1:5000
+2025-11-27 19:18:04.75
+0cf9a319
+User
+127.0.0.1 - - [27/Nov/2025 22:18:04] "GET / HTTP/1.1" 200 -
+2025-11-27 19:18:04.75
+0cf9a319
+User
+{"timestamp": "2025-11-27T22:18:04.750141Z", "level": "INFO", "message": "Request completed", "logger": "production_api", "request_id": "REQ_1764281884749", "method": "GET", "path": "/", "status_code": 200, "duration_ms": 0.21}
+2025-11-27 19:18:32.16
+0cf9a319
+User
+Redis ficou não saudável, usando fallback: Error 111 connecting to localhost:6379. Connection refused.
+2025-11-27 19:19:02.17
+0cf9a319
+User
+Redis ficou não saudável, usando fallback: Error 111 connecting to localhost:6379. Connection refused.
+2025-11-27 19:19:32.17
+0cf9a319
+User
+Redis ficou não saudável, usando fallback: Error 111 connecting to localhost:6379. Connection refused.
+2025-11-27 19:20:02.20
+0cf9a319
+User
+Redis ficou não saudável, usando fallback: Error 111 connecting to localhost:6379. Connection refused.

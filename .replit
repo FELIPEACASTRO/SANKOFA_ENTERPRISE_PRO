@@ -42,10 +42,6 @@ externalPort = 3001
 localPort = 38265
 externalPort = 3000
 
-[[ports]]
-localPort = 44133
-externalPort = 3002
-
 [deployment]
 deploymentTarget = "autoscale"
 run = ["python", "sankofa-enterprise-real/backend/api/production_api.py"]
