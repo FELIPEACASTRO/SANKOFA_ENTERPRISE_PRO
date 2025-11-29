@@ -402,7 +402,7 @@ export function Calibration() {
       const result = await response.json();
       
       if (result.success) {
-        setConfig(result.config);
+        setConfig(initialConfig);
         setHasChanges(false);
         setLastApplied(new Date());
         
