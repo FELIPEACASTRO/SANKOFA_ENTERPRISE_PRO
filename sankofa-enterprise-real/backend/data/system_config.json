@@ -20,6 +20,14 @@
       "condition": "is_first_transaction and amount > 5000",
       "action": "step_up",
       "enabled": true
+    },
+    {
+      "name": "Bloqueio Alto Valor",
+      "condition": null,
+      "action": "BLOCK",
+      "enabled": true,
+      "created_at": "2025-11-29T21:00:23.165588Z",
+      "id": 4
     }
   ],
   "vip_list": [
@@ -29,6 +37,13 @@
       "type": "cpf",
       "reason": "VIP Customer",
       "added_at": "2025-11-27T11:49:38.499098"
+    },
+    {
+      "identifier": null,
+      "type": "cpf",
+      "reason": "Cliente premium",
+      "added_at": "2025-11-29T21:00:23.281358Z",
+      "id": 2
     }
   ],
   "hot_list": [
@@ -38,6 +53,13 @@
       "type": "cpf",
       "reason": "Fraud confirmed",
       "added_at": "2025-11-27T11:49:38.499105"
+    },
+    {
+      "identifier": null,
+      "type": "cpf",
+      "reason": "Hist\u00f3rico de fraudes",
+      "added_at": "2025-11-29T21:00:23.375510Z",
+      "id": 2
     }
   ],
   "manual_review_queue": [
@@ -63,7 +85,9 @@
     "review_threshold": 0.6,
     "max_transaction_value": 100000,
     "enable_step_up": true,
-    "enable_manual_review": true
+    "enable_manual_review": true,
+    "system_name": "Sankofa Enterprise Pro",
+    "version": "11.0"
   },
   "investigations": [
     {

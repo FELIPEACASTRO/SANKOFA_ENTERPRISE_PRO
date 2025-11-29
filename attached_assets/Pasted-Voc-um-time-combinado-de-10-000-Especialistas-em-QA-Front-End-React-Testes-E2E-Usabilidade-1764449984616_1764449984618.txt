@@ -1,0 +1,368 @@
+Você é um time combinado de **10.000 Especialistas em QA, Front-End (React), Testes E2E, Usabilidade, Acessibilidade, Segurança Web e Integração API**.
+
+Seu objetivo é:  
+**TESTAR EXAUSTIVAMENTE o FRONT-END da solução SANKOFA_ENTERPRISE_PRO** + a forma como ele conversa com o backend, garantindo que **TUDO, absolutamente TUDO que depende do front** está funcionando de forma correta, robusta, rápida, segura e confiável.
+
+---
+
+## 0. Contexto da Solução
+
+Repositório: `FELIPEACASTRO/SANKOFA_ENTERPRISE_PRO`  
+Frontend: `sankofa-enterprise-real/frontend` (React)  
+Backend: `sankofa-enterprise-real/backend` (Python APIs)  
+Arquitetura declarada: Clean Architecture, ML Engine, Observabilidade, Explicabilidade LGPD.
+
+**Antes de começar os testes:**
+
+1. Leia atentamente:
+   - `README.md` na raiz.
+   - Documentação em `sankofa-enterprise-real/docs/`, especialmente:
+     - `DOCUMENTACAO_FUNCIONAL.md`
+     - `ARQUITETURA_TECNICA.md`
+     - `MANUAL_USUARIO.md`
+     - `RELATORIO_QA.md` (se existir).
+2. Faça um resumo interno contendo:
+   - Todas as páginas do Dashboard.
+   - Todos os fluxos de negócio que o FRONT-END precisa suportar:
+     - Predição unitária.
+     - Predição em lote.
+     - Visualização de transações.
+     - Métricas de modelo.
+     - Observabilidade e health.
+3. Liste todos os endpoints do backend que o FRONT-END utiliza (por exemplo):
+   - `/api/fraud/predict`
+   - `/api/fraud/batch`
+   - `/api/infrastructure/batch/process`
+   - `/api/transactions`
+   - `/api/model/metrics`
+   - `/api/observability/metrics`
+   - `/api/observability/sla`
+   - `/api/health`
+   - `/api/health/detailed`
+   - `/api/explainability/features`
+
+Esse mapeamento deve ser usado como “contrato” durante os testes.
+
+---
+
+## 1. Mapa Completo de Telas e Rotas do Front-End
+
+1. Suba o backend e o frontend conforme instruções do repositório.
+2. Acesse o Dashboard do Sankofa (por exemplo, `http://localhost:5000`).
+3. Identifique TODAS as rotas / páginas do front (pelo menos as 9 páginas em `src/pages`):
+   - Nome da página.
+   - URL/rota.
+   - Objetivo da tela.
+   - APIs que cada tela consome.
+4. Construa um **fluxograma de navegação**:
+   - De onde o usuário vem e pra onde pode ir em cada página (menus, botões, links).
+   - Fluxos principais (ex: “Dashboard → Predição Unitária → Ver detalhes da transação”).
+
+Valide se esse mapa está coerente com a documentação funcional.
+
+---
+
+## 2. Testes Funcionais – Fluxos Críticos de Negócio
+
+Para cada fluxo abaixo:
+
+- Teste cenários de **sucesso**, **erro**, **limites** e **uso incorreto pelo usuário**.
+- Valide tanto o comportamento da UI quanto as chamadas de API realizadas.
+
+### 2.1. Predição Unitária de Fraude
+
+Objetivo: garantir que o formulário de predição unitária está 100% correto e robusto.
+
+1. Identifique a tela onde o usuário preenche uma transação e solicita predição (provavelmente ligada a `/api/fraud/predict`).
+2. Liste todos os campos exibidos na UI e mapeie com os campos esperados pelo backend.
+3. Testes:
+
+**Cenário feliz (dados totalmente válidos):**
+- Preencha todos os campos conforme os tipos e ranges esperados.
+- Submeta.
+- Verifique:
+  - Se há estado de loading (spinner, botão desabilitado).
+  - Se a UI consome corretamente a resposta:
+    - `is_fraud`
+    - `risk_score`
+    - `explanation_text`
+    - `top_risk_factors`
+    - `top_protective_factors`
+    - `lgpd_compliant`
+  - Se a apresentação visual é clara (cores, ícones, textos).
+
+**Campos obrigatórios ausentes:**
+- Não preencher um ou mais campos obrigatórios.
+- Verificar se:
+  - Existe validação no front (sem chamada à API) ou se o backend devolve erro de validação.
+  - Cada campo mostra uma mensagem de erro específica e clara.
+  - O foco volta para o campo com erro (quando apropriado).
+
+**Tipos incorretos / valores fora de faixa:**
+- Inserir texto em campos numéricos.
+- Inserir números negativos onde não faz sentido.
+- Inserir valores absurdamente grandes.
+- Confirmar mensagens de erro UX-friendly e ausência de crash.
+
+**API indisponível / erro 500:**
+- Derrubar temporariamente o backend ou simular erro.
+- Submeter o formulário.
+- Verificar:
+  - Mensagem genérica de falha técnica (sem stacktrace).
+  - Nenhum travamento da tela.
+  - Possibilidade de re-tentar.
+
+**Timeout de resposta:**
+- Simular resposta lenta.
+- Verificar:
+  - Comportamento de loading prolongado.
+  - Se há timeout configurado.
+  - Mensagem clara em caso de timeout.
+
+---
+
+### 2.2. Predição em Batch (Lote)
+
+Objetivo: garantir que o usuário consegue enviar e monitorar lotes de transações.
+
+1. Identificar a tela responsável por upload/processamento de lotes (ligada a `/api/fraud/batch` / `/api/infrastructure/batch/process`).
+2. Testes:
+
+**Upload válido:**
+- Enviar arquivo válido (CSV/JSON conforme padrão do backend).
+- Verificar:
+  - Validação prévia (tamanho, extensão, estrutura básica).
+  - Visualização de quantidade de registros (se implementado).
+  - Execução da chamada de API.
+  - Exibição de resultado:
+    - Quantidade de transações processadas.
+    - Quantidade de fraude/não-fraude.
+    - Tempo de processamento.
+
+**Upload inválido:**
+- Enviar arquivo vazio.
+- Enviar tipo de arquivo não suportado (ex: `.txt`, `.png`).
+- Arquivo com colunas erradas.
+- Validar:
+  - Mensagem de erro específica.
+  - Nenhum crash.
+
+**Lote grande:**
+- Enviar lote volumoso (dentro dos limites do backend).
+- Avaliar:
+  - UX durante o processamento (progress bar, indicador visual).
+  - Se a UI continua responsiva.
+  - Se a resposta é exibida adequadamente mesmo com grande volume.
+
+**Erro de backend (500 / validação) e timeout:**
+- Simular erros do backend.
+- Testar mensagens e comportamento da UI em cada caso.
+
+---
+
+### 2.3. Lista de Transações
+
+Objetivo: validar que o usuário consegue consultar transações de forma eficiente e confiável.
+
+1. Acessar a tela que consome `/api/transactions`.
+2. Testes:
+
+**Cenário com dados:**
+- Verificar:
+  - Colunas exibidas (id, valor, status de fraude, score, data).
+  - Paginação (tamanho da página, avançar/voltar).
+  - Ordenação por colunas importantes.
+  - Filtros (por status, data, valor se existirem).
+
+**Cenário sem dados:**
+- Simular ambiente sem transações.
+- Confirmar existência de “empty state” amigável (mensagem explicando que não há dados e, se possível, como gerar).
+
+**Erros na API:**
+- Simular 500 / 4xx.
+- Verificar:
+  - Mensagens de erro entendíveis.
+  - UI não quebra (tabela não explode com erros de JS).
+
+---
+
+### 2.4. Métricas do Modelo
+
+Objetivo: garantir que o front apresenta corretamente as métricas obtidas em `/api/model/metrics`.
+
+1. Identificar a tela de métricas de modelo.
+2. Testes:
+
+**Cenário com métricas disponíveis:**
+- Validar:
+  - Exibição de recall, precisão e demais métricas.
+  - Coerência visual (cards, gráficos).
+  - Textos explicativos (ex: “métricas calculadas em dataset de validação X”).
+
+**Cenário sem métricas / erro no endpoint:**
+- Simular ausência de métricas ou erro de backend.
+- Verificar mensagens amigáveis (ex: “métricas indisponíveis no momento”).
+
+---
+
+### 2.5. Observabilidade & Health
+
+Objetivo: garantir que o front reflete fielmente a saúde do sistema e SLA.
+
+1. Encontrar a(s) tela(s) ligada(s) a:
+   - `/api/health`
+   - `/api/health/detailed`
+   - `/api/observability/metrics`
+   - `/api/observability/sla`
+2. Testes:
+
+**Sistema saudável:**
+- Backend funcionando normalmente.
+- Verificar:
+  - Status exibido (OK/Healthy).
+  - Valores de latência, throughput, erro.
+  - SLA atual.
+
+**Sistema degradado / parcial:**
+- Simular falhas parciais (ex: derrubar uma parte do backend).
+- Validar:
+  - Como a UI representa esse estado (alertas, cores).
+  - Se os dados e mensagens são compreensíveis.
+
+**Atualização de dados:**
+- Se houver refresh manual, testar repetidas vezes.
+- Se houver polling, observar comportamento contínuo.
+- Garantir que não haja memory leaks ou travamentos na UI ao longo do tempo.
+
+---
+
+## 3. Testes de UX, Usabilidade e Fluxos do Usuário
+
+1. Avaliar clareza da navegação:
+   - Menus identificáveis.
+   - Nome das páginas condizente com o conteúdo.
+   - Sem passos confusos nos fluxos principais.
+
+2. Para cada fluxo de negócio:
+   - Verificar se o usuário sempre sabe:
+     - Onde está.
+     - O que acabou de acontecer.
+     - Qual é o próximo passo.
+
+3. Mensagens:
+   - Conferir que todas as mensagens (erro, aviso, sucesso) são:
+     - Legíveis.
+     - Em linguagem de negócio (não técnica).
+     - Objetivas.
+
+---
+
+## 4. Testes de Acessibilidade
+
+1. Navegação por teclado:
+   - Navegar pelo Dashboard usando apenas Tab, Shift+Tab, Enter e Espaço.
+   - Verificar:
+     - Ordem lógica do foco.
+     - Foco visível sempre.
+
+2. Leitura de tela:
+   - Validar se elementos importantes têm:
+     - `aria-label`, `aria-describedby` ou equivalentes quando necessário.
+   - Em especial para:
+     - Botões de ação crítica (executar batch, aprovar/rejeitar, etc.).
+     - Cards de status e métricas de risco.
+
+3. Contraste:
+   - Verificar se textos importantes e indicadores de risco possuem contraste adequado em relação ao background.
+
+---
+
+## 5. Testes de Performance do Front-End
+
+1. Medir:
+   - Tempo para a tela principal do Dashboard ficar interativa (First Interactive).
+   - Tamanho dos bundles JS.
+2. Checar:
+   - Se há uso adequado de lazy loading (carga condicional de páginas/pedaços pesados).
+   - Se componentes como tabelas grandes utilizam virtualização ou paginação eficiente.
+
+3. Avaliar o comportamento em:
+   - Rede rápida (cabo).
+   - Rede limitada (simular 3G/4G).
+   - Diferentes navegadores (Chrome, Edge, Firefox) se possível.
+
+---
+
+## 6. Testes de Segurança no Front-End
+
+1. Verificar se:
+   - Não existem segredos (tokens, chaves) hard-coded no front.
+   - Nenhum endpoint sensível é montado com dados inseguros do usuário.
+
+2. Testes básicos de XSS:
+   - Where aplicável (ex: filtros/textos que voltam da API e são renderizados).
+   - Inserir strings com HTML/script e confirmar que são escapadas (não executadas).
+
+3. Logs:
+   - Abrir DevTools.
+   - Navegar por todo o Dashboard.
+   - Confirmar:
+     - Ausência de logs com payloads sensíveis.
+     - Ausência de erros silenciosos de JS.
+
+---
+
+## 7. Automação de Testes (Unitários e E2E)
+
+1. A partir de todos os cenários acima:
+   - Definir um subconjunto mínimo para automação:
+     - Predição unitária (cenário feliz + erro de validação).
+     - Predição em batch (feliz + erro).
+     - Lista de transações (filtro + paginação).
+     - Métricas de modelo (exibição básica).
+     - Observabilidade (health OK + health falha).
+
+2. Implementar:
+   - **Testes unitários/de integração de UI** com React Testing Library:
+     - Renderização de páginas.
+     - Mock de chamadas de API.
+     - Asserções de elementos, mensagens, botões etc.
+   - **Testes E2E** com Cypress ou Playwright:
+     - Simular uso real do sistema, clicando na UI e verificando resultados.
+
+3. Garantir que:
+   - Esses testes possam ser executados via pipeline (CI/CD).
+   - Qualquer regressão no front ou no contrato de API seja capturada.
+
+---
+
+## 8. Relatório Final de QA
+
+No final da bateria de testes:
+
+1. Produza um **Relatório de QA completo**, contendo:
+   - Todas as telas testadas.
+   - Todos os fluxos testados.
+   - Lista de cenários (feliz, erro, limite) por fluxo.
+   - Todos os defeitos encontrados, com:
+     - Passos para reproduzir.
+     - Print/registro.
+     - Impacto (baixa / média / alta / crítica).
+2. Classifique o estado atual do FRONT-END Sankofa em:
+   - Pronto para produção.
+   - Quase pronto (listando gaps a resolver).
+   - Não pronto (listando ações prioritárias).
+
+3. Gere também uma **lista priorizada de melhorias** para:
+   - UX.
+   - Acessibilidade.
+   - Performance.
+   - Segurança.
+   - Automação de testes.
+
+Trate essa lista como um ROADMAP de evolução do Front-End.
+
+---
+
+Sua análise deve ser absolutamente rigorosa, sem assumir que algo está “ok” só porque está documentado.  
+Para cada conclusão, se apoie em evidências observáveis na interface e no comportamento com o backend.
