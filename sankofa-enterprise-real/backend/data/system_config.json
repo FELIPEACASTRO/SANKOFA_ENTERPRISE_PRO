@@ -48,6 +48,13 @@
       "added_at": "2025-11-27T11:52:28.343598Z",
       "status": "pending",
       "id": 1
+    },
+    {
+      "transaction_id": "TXN-20251129-000003",
+      "reason": "Enviado para revis\u00e3o",
+      "added_at": "2025-11-29T20:45:54.072056Z",
+      "status": "pending",
+      "id": 2
     }
   ],
   "settings": {
@@ -57,5 +64,15 @@
     "max_transaction_value": 100000,
     "enable_step_up": true,
     "enable_manual_review": true
-  }
+  },
+  "investigations": [
+    {
+      "id": "INV-20251129-3644",
+      "transaction_id": "TXN-20251129-000005",
+      "priority": "high",
+      "status": "active",
+      "created_at": "2025-11-29T20:45:12.042206Z",
+      "assigned_to": "analyst"
+    }
+  ]
 }

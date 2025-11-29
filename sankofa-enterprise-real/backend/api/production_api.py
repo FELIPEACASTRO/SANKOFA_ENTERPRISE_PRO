@@ -1795,6 +1795,104 @@ def get_transactions():
     })
 
 
+@app.route("/api/transactions/<transaction_id>/approve", methods=["POST"])
+def approve_transaction(transaction_id):
+    """Aprova uma transação manualmente"""
+    logger.info(f"Transaction approved: {transaction_id}", extra={"action": "TRANSACTION_APPROVED", "transaction_id": transaction_id})
+    return jsonify({
+        "success": True,
+        "message": f"Transação {transaction_id} aprovada com sucesso",
+        "data": {"transaction_id": transaction_id, "new_status": "APROVADA"}
+    })
+
+
+@app.route("/api/transactions/<transaction_id>/reject", methods=["POST"])
+def reject_transaction(transaction_id):
+    """Rejeita uma transação manualmente"""
+    reason = request.json.get("reason", "Rejeitado por analista") if request.json else "Rejeitado por analista"
+    logger.info(f"Transaction rejected: {transaction_id}", extra={"action": "TRANSACTION_REJECTED", "transaction_id": transaction_id, "reason": reason})
+    return jsonify({
+        "success": True,
+        "message": f"Transação {transaction_id} rejeitada",
+        "data": {"transaction_id": transaction_id, "new_status": "REJEITADA", "reason": reason}
+    })
+
+
+@app.route("/api/transactions/<transaction_id>/review", methods=["POST"])
+def send_to_review(transaction_id):
+    """Envia transação para revisão manual"""
+    reason = "Enviado para revisão"
+    if request.is_json and request.json:
+        reason = request.json.get("reason", reason)
+    
+    item = {
+        "transaction_id": transaction_id,
+        "reason": reason,
+        "added_at": datetime.utcnow().isoformat() + "Z",
+        "status": "pending"
+    }
+    config_store.add("manual_review_queue", item)
+    logger.info(f"Transaction sent to review: {transaction_id}", extra={"action": "TRANSACTION_SENT_TO_REVIEW", "transaction_id": transaction_id})
+    return jsonify({
+        "success": True,
+        "message": f"Transação {transaction_id} enviada para revisão",
+        "data": {"transaction_id": transaction_id, "new_status": "EM_REVISAO"}
+    })
+
+
+@app.route("/api/transactions/<transaction_id>/flag", methods=["POST"])
+def flag_transaction(transaction_id):
+    """Marca transação como suspeita"""
+    alert_id = f"ALERT_{len(metrics_collector._alerts)+1:06d}"
+    alert = {
+        "id": alert_id,
+        "type": "fraud_flagged",
+        "severity": "high",
+        "transaction_id": transaction_id,
+        "message": f"Transação {transaction_id} marcada como suspeita",
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "status": "active"
+    }
+    metrics_collector._alerts.append(alert)
+    logger.info(f"Transaction flagged: {transaction_id}", extra={"action": "TRANSACTION_FLAGGED", "transaction_id": transaction_id, "alert_id": alert_id})
+    return jsonify({
+        "success": True,
+        "message": f"Transação {transaction_id} marcada como suspeita",
+        "data": {"transaction_id": transaction_id, "flagged": True, "alert_id": alert_id}
+    })
+
+
+@app.route("/api/investigations", methods=["POST"])
+def create_investigation():
+    """Cria nova investigação para uma transação"""
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    transaction_id = request.json.get("transaction_id")
+    priority = request.json.get("priority", "medium")
+    
+    investigation = {
+        "id": f"INV-{datetime.utcnow().strftime('%Y%m%d')}-{np.random.randint(1000, 9999)}",
+        "transaction_id": transaction_id,
+        "priority": priority,
+        "status": "active",
+        "created_at": datetime.utcnow().isoformat() + "Z",
+        "assigned_to": "analyst"
+    }
+    
+    investigations = config_store.get("investigations", [])
+    investigations.append(investigation)
+    config_store.set("investigations", investigations)
+    
+    logger.info(f"Investigation created: {investigation['id']}", extra={"action": "INVESTIGATION_CREATED", "investigation_id": investigation["id"], "transaction_id": transaction_id})
+    
+    return jsonify({
+        "success": True,
+        "message": f"Investigação criada para transação {transaction_id}",
+        "data": investigation
+    })
+
+
 @app.route("/api/metrics/dashboard", methods=["GET"])
 def get_metrics_dashboard():
     """Métricas detalhadas para o dashboard de monitoramento"""

@@ -6,7 +6,15 @@ import {
   Eye,
   MoreHorizontal,
   Calendar,
-  RefreshCw
+  RefreshCw,
+  X,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Flag,
+  FileText,
+  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.jsx';
 import { Input, FormField } from '@/components/ui/Input.jsx';
@@ -24,6 +32,10 @@ export function Transactions() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalTransactions, setTotalTransactions] = useState(0);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showActionsMenu, setShowActionsMenu] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     loadTransactions();
@@ -94,6 +106,76 @@ export function Transactions() {
 
   const handleRefresh = () => {
     loadTransactions();
+  };
+
+  const handleViewDetails = (transaction) => {
+    setSelectedTransaction(transaction);
+    setShowDetailsModal(true);
+    setShowActionsMenu(null);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetailsModal(false);
+    setSelectedTransaction(null);
+  };
+
+  const handleToggleActionsMenu = (transactionId) => {
+    setShowActionsMenu(showActionsMenu === transactionId ? null : transactionId);
+  };
+
+  const handleAction = async (action, transaction) => {
+    setActionLoading(true);
+    setShowActionsMenu(null);
+    
+    try {
+      let endpoint = '';
+      let body = {};
+      
+      switch (action) {
+        case 'approve':
+          endpoint = `/api/transactions/${transaction.id}/approve`;
+          body = { status: 'APROVADA' };
+          break;
+        case 'reject':
+          endpoint = `/api/transactions/${transaction.id}/reject`;
+          body = { status: 'REJEITADA' };
+          break;
+        case 'review':
+          endpoint = `/api/transactions/${transaction.id}/review`;
+          body = { status: 'EM_REVISAO' };
+          break;
+        case 'flag':
+          endpoint = `/api/transactions/${transaction.id}/flag`;
+          body = { flagged: true };
+          break;
+        case 'investigate':
+          endpoint = '/api/investigations';
+          body = { transaction_id: transaction.id, priority: 'high' };
+          break;
+        default:
+          return;
+      }
+      
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        loadTransactions();
+        alert(`Ação "${action}" executada com sucesso!`);
+      } else {
+        alert(`Erro: ${data.error || 'Falha na operação'}`);
+      }
+    } catch (error) {
+      console.error('Erro na ação:', error);
+      alert('Erro ao executar ação. Tente novamente.');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const formatCurrency = (value) => {
@@ -282,13 +364,74 @@ export function Transactions() {
                       <RiskScoreBadge score={transaction.fraud_score} size="sm" />
                     </td>
                     <td className="p-4">
-                      <div className="flex items-center space-x-1">
-                        <Button variant="ghost" size="sm" aria-label="Ver detalhes">
+                      <div className="flex items-center space-x-1 relative">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          aria-label="Ver detalhes"
+                          onClick={() => handleViewDetails(transaction)}
+                          title="Ver detalhes"
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" aria-label="Mais opções">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        <div className="relative">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            aria-label="Mais opções"
+                            onClick={() => handleToggleActionsMenu(transaction.id)}
+                            title="Mais opções"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                          {showActionsMenu === transaction.id && (
+                            <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-[var(--color-border)] rounded-lg shadow-lg z-50">
+                              <div className="py-1">
+                                <button
+                                  onClick={() => handleAction('approve', transaction)}
+                                  className="w-full px-4 py-2 text-left text-sm hover:bg-[var(--neutral-50)] flex items-center space-x-2"
+                                  disabled={actionLoading}
+                                >
+                                  <CheckCircle className="h-4 w-4 text-green-500" />
+                                  <span>Aprovar</span>
+                                </button>
+                                <button
+                                  onClick={() => handleAction('reject', transaction)}
+                                  className="w-full px-4 py-2 text-left text-sm hover:bg-[var(--neutral-50)] flex items-center space-x-2"
+                                  disabled={actionLoading}
+                                >
+                                  <XCircle className="h-4 w-4 text-red-500" />
+                                  <span>Rejeitar</span>
+                                </button>
+                                <button
+                                  onClick={() => handleAction('review', transaction)}
+                                  className="w-full px-4 py-2 text-left text-sm hover:bg-[var(--neutral-50)] flex items-center space-x-2"
+                                  disabled={actionLoading}
+                                >
+                                  <Clock className="h-4 w-4 text-yellow-500" />
+                                  <span>Enviar p/ Revisão</span>
+                                </button>
+                                <hr className="my-1 border-[var(--color-border)]" />
+                                <button
+                                  onClick={() => handleAction('flag', transaction)}
+                                  className="w-full px-4 py-2 text-left text-sm hover:bg-[var(--neutral-50)] flex items-center space-x-2"
+                                  disabled={actionLoading}
+                                >
+                                  <Flag className="h-4 w-4 text-orange-500" />
+                                  <span>Marcar como Suspeito</span>
+                                </button>
+                                <button
+                                  onClick={() => handleAction('investigate', transaction)}
+                                  className="w-full px-4 py-2 text-left text-sm hover:bg-[var(--neutral-50)] flex items-center space-x-2"
+                                  disabled={actionLoading}
+                                >
+                                  <Shield className="h-4 w-4 text-blue-500" />
+                                  <span>Abrir Investigação</span>
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -306,6 +449,144 @@ export function Transactions() {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal de Detalhes */}
+      {showDetailsModal && selectedTransaction && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={handleCloseDetails}>
+          <div 
+            className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-6 border-b border-[var(--color-border)]">
+              <div>
+                <h2 className="text-xl font-semibold">Detalhes da Transação</h2>
+                <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+                  {selectedTransaction.id}
+                </p>
+              </div>
+              <Button variant="ghost" size="sm" onClick={handleCloseDetails}>
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              {/* Status e Score */}
+              <div className="flex items-center justify-between">
+                <TransactionStatusBadge status={selectedTransaction.status} />
+                <RiskScoreBadge score={selectedTransaction.fraud_score} />
+              </div>
+              
+              {/* Informações Principais */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-sm text-[var(--color-text-secondary)]">Valor</p>
+                  <p className="text-xl font-mono font-semibold">{formatCurrency(selectedTransaction.valor)}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-[var(--color-text-secondary)]">Tipo</p>
+                  <Badge variant="default">{selectedTransaction.tipo}</Badge>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-[var(--color-text-secondary)]">Canal</p>
+                  <p className="font-medium">{selectedTransaction.canal?.toUpperCase()}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-[var(--color-text-secondary)]">Data/Hora</p>
+                  <p className="font-medium">{selectedTransaction.data_hora}</p>
+                </div>
+              </div>
+              
+              {/* Dados do Cliente */}
+              <div className="border-t border-[var(--color-border)] pt-4">
+                <h3 className="font-semibold mb-3 flex items-center space-x-2">
+                  <FileText className="h-4 w-4" />
+                  <span>Dados do Cliente</span>
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-sm text-[var(--color-text-secondary)]">CPF</p>
+                    <p className="font-mono">{selectedTransaction.cpf}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-[var(--color-text-secondary)]">Localização</p>
+                    <p>{selectedTransaction.localizacao}</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Análise de Risco */}
+              <div className="border-t border-[var(--color-border)] pt-4">
+                <h3 className="font-semibold mb-3 flex items-center space-x-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>Análise de Risco</span>
+                </h3>
+                <div className="bg-[var(--neutral-50)] rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm">Score de Fraude</span>
+                    <span className="font-mono font-semibold">{(selectedTransaction.fraud_score * 100).toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full bg-[var(--neutral-200)] rounded-full h-2">
+                    <div 
+                      className={`h-2 rounded-full ${
+                        selectedTransaction.fraud_score > 0.7 ? 'bg-red-500' :
+                        selectedTransaction.fraud_score > 0.4 ? 'bg-yellow-500' : 'bg-green-500'
+                      }`}
+                      style={{ width: `${selectedTransaction.fraud_score * 100}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-[var(--color-text-secondary)] mt-2">
+                    {selectedTransaction.fraud_score > 0.7 
+                      ? 'Alto risco - Requer análise manual'
+                      : selectedTransaction.fraud_score > 0.4 
+                      ? 'Risco moderado - Monitorar'
+                      : 'Baixo risco - Aprovação automática'}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Ações */}
+              <div className="border-t border-[var(--color-border)] pt-4 flex flex-wrap gap-2">
+                <Button 
+                  variant="primary" 
+                  size="sm"
+                  onClick={() => { handleAction('approve', selectedTransaction); handleCloseDetails(); }}
+                  disabled={actionLoading}
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Aprovar
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  size="sm"
+                  onClick={() => { handleAction('reject', selectedTransaction); handleCloseDetails(); }}
+                  disabled={actionLoading}
+                >
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Rejeitar
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  size="sm"
+                  onClick={() => { handleAction('review', selectedTransaction); handleCloseDetails(); }}
+                  disabled={actionLoading}
+                >
+                  <Clock className="h-4 w-4 mr-2" />
+                  Enviar p/ Revisão
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  size="sm"
+                  onClick={() => { handleAction('investigate', selectedTransaction); handleCloseDetails(); }}
+                  disabled={actionLoading}
+                >
+                  <Shield className="h-4 w-4 mr-2" />
+                  Investigar
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (
