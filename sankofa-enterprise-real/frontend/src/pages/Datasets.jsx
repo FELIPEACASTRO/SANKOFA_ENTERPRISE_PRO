@@ -220,7 +220,7 @@ export function Datasets() {
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
                           className="bg-blue-500 h-2 rounded-full" 
-                          style={{ width: `${(datasetsByUsage.filter(d => d.has_fraud_labels).length / datasetsByUsage.length) * 100}%` }}
+                          style={{ width: `${datasetsByUsage.length > 0 ? (datasetsByUsage.filter(d => d.has_fraud_labels).length / datasetsByUsage.length) * 100 : 0}%` }}
                         ></div>
                       </div>
                     </div>
@@ -228,12 +228,12 @@ export function Datasets() {
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span>Qualidade Média</span>
-                        <span>{(datasetsByUsage.reduce((acc, d) => acc + (d.quality_score || 0), 0) / datasetsByUsage.length * 100).toFixed(1)}%</span>
+                        <span>{datasetsByUsage.length > 0 ? (datasetsByUsage.reduce((acc, d) => acc + (d.quality_score || 0), 0) / datasetsByUsage.length * 100).toFixed(1) : '0.0'}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
                           className="bg-green-500 h-2 rounded-full" 
-                          style={{ width: `${datasetsByUsage.reduce((acc, d) => acc + (d.quality_score || 0), 0) / datasetsByUsage.length * 100}%` }}
+                          style={{ width: `${datasetsByUsage.length > 0 ? datasetsByUsage.reduce((acc, d) => acc + (d.quality_score || 0), 0) / datasetsByUsage.length * 100 : 0}%` }}
                         ></div>
                       </div>
                     </div>
