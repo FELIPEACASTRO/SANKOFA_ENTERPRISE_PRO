@@ -12,7 +12,7 @@ import time
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify, g
+from flask import Flask, request, jsonify, g, send_from_directory
 from flask_cors import CORS
 from typing import Dict, Any, List, Optional
 import json
@@ -884,9 +884,27 @@ def handle_exception(error):
     )
 
 
+STATIC_FOLDER = Path(__file__).parent.parent / "static"
+
 @app.route("/", methods=["GET"])
-def root():
-    """Rota raiz com informações da API"""
+def serve_frontend():
+    """Serve React frontend"""
+    return send_from_directory(STATIC_FOLDER, "index.html")
+
+@app.route("/<path:path>", methods=["GET"])
+def serve_static(path):
+    """Serve static files from React build"""
+    if path.startswith("api/"):
+        return jsonify({"error": {"code": "NOT_FOUND", "message": "Endpoint not found", "available_endpoints": ["/api/health", "/api/status", "/api/fraud/predict", "/api/dashboard/kpis"]}, "success": False}), 404
+    
+    file_path = STATIC_FOLDER / path
+    if file_path.exists():
+        return send_from_directory(STATIC_FOLDER, path)
+    return send_from_directory(STATIC_FOLDER, "index.html")
+
+@app.route("/api/info", methods=["GET"])
+def api_info():
+    """API information endpoint"""
     return jsonify({
         "name": "Sankofa Enterprise Pro - Fraud Detection API",
         "version": fraud_engine.VERSION,
@@ -2538,11 +2556,13 @@ def get_task_status(task_id):
 
 
 if __name__ == "__main__":
+    port = int(os.getenv("PORT", 5000))
+    
     logger.info(
         "Starting Sankofa Enterprise Pro - Production API",
         version=fraud_engine.VERSION,
         environment=config.environment,
-        port=8000,
+        port=port,
     )
 
     if not fraud_engine.is_trained:
@@ -2553,4 +2573,4 @@ if __name__ == "__main__":
     else:
         logger.info("Fraud engine ready", metrics=fraud_engine.get_performance_metrics())
 
-    app.run(host="0.0.0.0", port=8000, debug=config.debug, threaded=True)
+    app.run(host="0.0.0.0", port=port, debug=config.debug, threaded=True)
