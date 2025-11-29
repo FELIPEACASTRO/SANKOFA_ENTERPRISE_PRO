@@ -36,10 +36,21 @@ export function Transactions() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showActionsMenu, setShowActionsMenu] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [periodFilter, setPeriodFilter] = useState('24h');
+  const [showPeriodMenu, setShowPeriodMenu] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+
+  const periodOptions = [
+    { value: '1h', label: 'Última hora' },
+    { value: '24h', label: 'Últimas 24h' },
+    { value: '7d', label: 'Últimos 7 dias' },
+    { value: '30d', label: 'Últimos 30 dias' },
+    { value: 'all', label: 'Todo o período' }
+  ];
 
   useEffect(() => {
     loadTransactions();
-  }, [currentPage, searchQuery, statusFilter, typeFilter]);
+  }, [currentPage, searchQuery, statusFilter, typeFilter, periodFilter]);
 
   const loadTransactions = async () => {
     try {
@@ -49,7 +60,8 @@ export function Transactions() {
         limit: 50,
         ...(searchQuery && { search: searchQuery }),
         ...(statusFilter !== 'TODOS' && { status: statusFilter }),
-        ...(typeFilter !== 'TODOS' && { type: typeFilter })
+        ...(typeFilter !== 'TODOS' && { type: typeFilter }),
+        ...(periodFilter !== 'all' && { period: periodFilter })
       });
 
       const response = await fetch(`/api/transactions?${params}`);
@@ -106,6 +118,48 @@ export function Transactions() {
 
   const handleRefresh = () => {
     loadTransactions();
+  };
+
+  const handleExport = async () => {
+    setExportLoading(true);
+    try {
+      const csvContent = [
+        ['ID', 'Valor', 'Tipo', 'Canal', 'Localização', 'CPF', 'Data/Hora', 'Status', 'Score de Risco'].join(';'),
+        ...filteredTransactions.map(t => [
+          t.id,
+          t.valor,
+          t.tipo,
+          t.canal,
+          t.localizacao,
+          t.cpf,
+          t.data_hora,
+          t.status,
+          t.fraud_score
+        ].join(';'))
+      ].join('\n');
+      
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `transacoes_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      alert('Arquivo exportado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao exportar:', error);
+      alert('Erro ao exportar arquivo.');
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  const handlePeriodSelect = (value) => {
+    setPeriodFilter(value);
+    setShowPeriodMenu(false);
   };
 
   const handleViewDetails = (transaction) => {
@@ -212,9 +266,14 @@ export function Transactions() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="secondary" size="sm">
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            onClick={handleExport}
+            disabled={exportLoading || filteredTransactions.length === 0}
+          >
             <Download className="h-4 w-4 mr-2" />
-            Exportar
+            {exportLoading ? 'Exportando...' : 'Exportar'}
           </Button>
           <Button variant="secondary" size="sm" onClick={handleRefresh}>
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -275,10 +334,31 @@ export function Transactions() {
             </FormField>
 
             <FormField label="Período">
-              <Button variant="secondary" className="w-full justify-start">
-                <Calendar className="h-4 w-4 mr-2" />
-                Últimas 24h
-              </Button>
+              <div className="relative">
+                <Button 
+                  variant="secondary" 
+                  className="w-full justify-start"
+                  onClick={() => setShowPeriodMenu(!showPeriodMenu)}
+                >
+                  <Calendar className="h-4 w-4 mr-2" />
+                  {periodOptions.find(p => p.value === periodFilter)?.label || 'Selecionar'}
+                </Button>
+                {showPeriodMenu && (
+                  <div className="absolute top-full left-0 mt-1 w-full bg-white border border-[var(--color-border)] rounded-lg shadow-lg z-50">
+                    {periodOptions.map(option => (
+                      <button
+                        key={option.value}
+                        onClick={() => handlePeriodSelect(option.value)}
+                        className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--neutral-50)] first:rounded-t-lg last:rounded-b-lg ${
+                          periodFilter === option.value ? 'bg-[var(--neutral-100)] font-medium' : ''
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </FormField>
           </div>
         </CardContent>
