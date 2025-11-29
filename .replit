@@ -44,8 +44,8 @@ externalPort = 3000
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["python", "sankofa-enterprise-real/backend/api/production_api.py"]
-build = ["sh", "-c", "cd sankofa-enterprise-real/frontend && npm install && npm run build"]
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--workers=4", "--timeout=120", "--chdir=sankofa-enterprise-real/backend", "api.production_api:app"]
+build = ["bash", "-c", "cd sankofa-enterprise-real/frontend && npm run build"]
 
 [userenv]
 
