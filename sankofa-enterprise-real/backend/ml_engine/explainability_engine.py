@@ -244,6 +244,70 @@ class ExplainabilityEngine:
             logger.error(f"Explanation generation failed: {e}")
             return self._create_fallback_explanation(transaction_id, fraud_probability)
     
+    def get_fast_explanation(
+        self,
+        X: np.ndarray,
+        transaction_id: str,
+        fraud_probability: float,
+        top_k: int = 5
+    ) -> PredictionExplanation:
+        """
+        Gera explicação RÁPIDA usando feature importance (sem SHAP)
+        
+        Performance: < 5ms (vs ~2500ms com SHAP)
+        Adequado para transações PIX com SLA de 50ms
+        
+        Args:
+            X: Features da transação (1D ou 2D array)
+            transaction_id: ID da transação
+            fraud_probability: Probabilidade de fraude
+            top_k: Número de fatores principais a retornar
+            
+        Returns:
+            PredictionExplanation com todos os detalhes (usando fallback rápido)
+        """
+        X = np.atleast_2d(X)
+        
+        try:
+            contributions = self._get_fallback_contributions(X)
+            
+            risk_level = self._get_risk_level(fraud_probability)
+            
+            sorted_contribs = sorted(
+                contributions,
+                key=lambda x: abs(x.contribution),
+                reverse=True
+            )
+            
+            risk_factors = [
+                self._contribution_to_dict(c)
+                for c in sorted_contribs if c.contribution > 0
+            ][:top_k]
+            
+            protective_factors = [
+                self._contribution_to_dict(c)
+                for c in sorted_contribs if c.contribution < 0
+            ][:top_k]
+            
+            explanation_text = self._generate_explanation_text(
+                fraud_probability, risk_level, risk_factors, protective_factors
+            )
+            
+            return PredictionExplanation(
+                transaction_id=transaction_id,
+                fraud_probability=fraud_probability,
+                risk_level=risk_level,
+                top_risk_factors=risk_factors,
+                top_protective_factors=protective_factors,
+                feature_contributions=[asdict(c) for c in sorted_contribs],
+                explanation_text=explanation_text,
+                compliance_ready=True
+            )
+            
+        except Exception as e:
+            logger.error(f"Fast explanation generation failed: {e}")
+            return self._create_fallback_explanation(transaction_id, fraud_probability)
+    
     def _get_shap_contributions(self, X: np.ndarray) -> List[FeatureContribution]:
         """Obtém contribuições usando SHAP values"""
         import shap

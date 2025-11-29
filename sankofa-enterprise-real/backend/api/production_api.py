@@ -1235,8 +1235,14 @@ def predict_fraud():
     Prediz fraude para uma ou mais transações (rate limited: 500/min)
     
     Parâmetros opcionais no body:
-    - include_explanation: bool (default: True) - Inclui explicação LGPD-compliant
+    - include_explanation: bool (default: False para PIX, True para outros) - Inclui explicação LGPD-compliant
     - include_compliance_report: bool (default: False) - Inclui relatório de compliance completo
+    - fast_mode: bool (default: True) - Usa fallback rápido em vez de SHAP (< 50ms)
+    
+    Performance:
+    - Sem explicação (PIX default): < 30ms
+    - Com explicação rápida (fast_mode=True): < 50ms  
+    - Com explicação SHAP (fast_mode=False): ~2500ms (NÃO RECOMENDADO para tempo real)
     """
     if not request.json:
         raise ValidationError(
@@ -1244,8 +1250,11 @@ def predict_fraud():
         )
 
     transactions_data = request.json.get("transactions")
-    include_explanation = request.json.get("include_explanation", True)
+    channel = transactions_data[0].get("channel", "PIX") if transactions_data else "PIX"
+    is_pix = channel.upper() == "PIX"
+    include_explanation = request.json.get("include_explanation", not is_pix)
     include_compliance = request.json.get("include_compliance_report", False)
+    fast_mode = request.json.get("fast_mode", True)
     
     if not transactions_data:
         raise ValidationError("transactions field is required", context={"body": request.json})
@@ -1260,7 +1269,7 @@ def predict_fraud():
     except Exception as e:
         raise ValidationError(f"Invalid transaction data: {str(e)}", context={"error": str(e)})
 
-    logger.info("Starting fraud predictions", request_id=g.request_id, num_transactions=len(df))
+    logger.info("Starting fraud predictions", request_id=g.request_id, num_transactions=len(df), fast_mode=fast_mode)
 
     if not fraud_engine.is_trained:
         logger.warning("Fraud engine not trained, using demo mode")
@@ -1280,11 +1289,18 @@ def predict_fraud():
             if X_features is not None and len(X_features) > 0:
                 for i, pred in enumerate(predictions):
                     txn_id = f"TXN{int(time.time()*1000)}{i:03d}"
-                    explanation = explainability_engine.explain_prediction(
-                        X_features[i:i+1] if i < len(X_features) else X_features[-1:],
-                        transaction_id=txn_id,
-                        fraud_probability=pred.risk_score
-                    )
+                    if fast_mode:
+                        explanation = explainability_engine.get_fast_explanation(
+                            X_features[i:i+1] if i < len(X_features) else X_features[-1:],
+                            transaction_id=txn_id,
+                            fraud_probability=pred.risk_score
+                        )
+                    else:
+                        explanation = explainability_engine.explain_prediction(
+                            X_features[i:i+1] if i < len(X_features) else X_features[-1:],
+                            transaction_id=txn_id,
+                            fraud_probability=pred.risk_score
+                        )
                     explanations.append(explanation)
         except Exception as e:
             logger.warning(f"Could not generate explanations: {e}")
