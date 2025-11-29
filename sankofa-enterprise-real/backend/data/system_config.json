@@ -74,5 +74,62 @@
       "created_at": "2025-11-29T20:45:12.042206Z",
       "assigned_to": "analyst"
     }
-  ]
+  ],
+  "calibration_config": {
+    "ruleBasedEngine": {
+      "enabled": true,
+      "threshold": 0.8,
+      "weight": 0.15,
+      "maxAmount": 50000
+    },
+    "blacklistLookup": {
+      "enabled": true,
+      "threshold": 1.0,
+      "weight": 0.2,
+      "cacheTimeout": 300
+    },
+    "velocityChecks": {
+      "enabled": true,
+      "threshold": 0.7,
+      "weight": 0.12,
+      "timeWindow": 3600
+    },
+    "geolocationValidation": {
+      "enabled": true,
+      "threshold": 0.6,
+      "weight": 0.1,
+      "maxDistance": 1000
+    },
+    "randomForest": {
+      "enabled": true,
+      "threshold": 0.75,
+      "weight": 0.18,
+      "nEstimators": 100
+    },
+    "xgboost": {
+      "enabled": true,
+      "threshold": 0.8,
+      "weight": 0.22,
+      "learningRate": 0.1
+    },
+    "neuralNetwork": {
+      "enabled": true,
+      "threshold": 0.85,
+      "weight": 0.25,
+      "hiddenLayers": 4
+    },
+    "gnn": {
+      "enabled": true,
+      "threshold": 0.9,
+      "weight": 0.3,
+      "graphDepth": 3
+    },
+    "global": {
+      "ensembleMethod": "weighted_average",
+      "globalThreshold": 0.7,
+      "confidenceLevel": 0.95,
+      "processingTimeout": 5000,
+      "maxParallelThreads": 8
+    }
+  }
 }

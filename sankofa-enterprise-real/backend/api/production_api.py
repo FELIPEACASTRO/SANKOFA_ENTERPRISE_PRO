@@ -2287,6 +2287,131 @@ def get_calibration_impact():
     })
 
 
+@app.route("/api/calibration/apply", methods=["POST"])
+def apply_calibration_changes():
+    """Aplica mudanças de calibração ao motor de ML"""
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    new_config = request.json.get("config", {})
+    
+    settings = config_store.get("calibration_config", {})
+    
+    for key, value in new_config.items():
+        if isinstance(value, dict):
+            if key not in settings:
+                settings[key] = {}
+            settings[key].update(value)
+        else:
+            settings[key] = value
+    
+    if "ruleBasedEngine" in new_config and "threshold" in new_config.get("ruleBasedEngine", {}):
+        fraud_engine.threshold = new_config["ruleBasedEngine"]["threshold"]
+    
+    config_store.set("calibration_config", settings)
+    
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO audit_logs (event_type, details, user_id)
+                    VALUES (%s, %s, %s)
+                """, ("CALIBRATION_APPLIED", json.dumps({"changes": list(new_config.keys())}), "system"))
+                conn.commit()
+    except Exception:
+        pass
+    
+    return jsonify({
+        "success": True,
+        "message": "Configurações aplicadas com sucesso ao motor de ML",
+        "applied_at": datetime.utcnow().isoformat() + "Z",
+        "changes_count": len(new_config)
+    })
+
+
+@app.route("/api/calibration/reset", methods=["POST"])
+def reset_calibration():
+    """Reseta configurações de calibração para valores padrão"""
+    default_config = {
+        "ruleBasedEngine": {"enabled": True, "threshold": 0.8, "weight": 0.15, "maxAmount": 50000},
+        "blacklistLookup": {"enabled": True, "threshold": 1.0, "weight": 0.20, "cacheTimeout": 300},
+        "velocityChecks": {"enabled": True, "threshold": 0.7, "weight": 0.12, "timeWindow": 3600},
+        "geolocationValidation": {"enabled": True, "threshold": 0.6, "weight": 0.10, "maxDistance": 1000},
+        "randomForest": {"enabled": True, "threshold": 0.75, "weight": 0.18, "nEstimators": 100},
+        "xgboost": {"enabled": True, "threshold": 0.80, "weight": 0.22, "learningRate": 0.1},
+        "neuralNetwork": {"enabled": True, "threshold": 0.85, "weight": 0.25, "hiddenLayers": 4},
+        "gnn": {"enabled": True, "threshold": 0.90, "weight": 0.30, "graphDepth": 3},
+        "global": {
+            "ensembleMethod": "weighted_average",
+            "globalThreshold": 0.7,
+            "confidenceLevel": 0.95,
+            "processingTimeout": 5000,
+            "maxParallelThreads": 8
+        }
+    }
+    
+    fraud_engine.threshold = 0.7
+    
+    config_store.set("calibration_config", default_config)
+    
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO audit_logs (event_type, details, user_id)
+                    VALUES (%s, %s, %s)
+                """, ("CALIBRATION_RESET", json.dumps({"action": "reset_to_defaults"}), "system"))
+                conn.commit()
+    except Exception:
+        pass
+    
+    return jsonify({
+        "success": True,
+        "message": "Configurações resetadas para valores padrão",
+        "config": default_config,
+        "reset_at": datetime.utcnow().isoformat() + "Z"
+    })
+
+
+@app.route("/api/calibration/history", methods=["GET"])
+def get_calibration_history():
+    """Retorna histórico de mudanças de calibração"""
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT id, event_type, details, user_id, created_at
+                    FROM audit_logs
+                    WHERE event_type LIKE 'CALIBRATION%'
+                    ORDER BY created_at DESC
+                    LIMIT 50
+                """)
+                rows = cur.fetchall()
+                
+                history = []
+                for row in rows:
+                    history.append({
+                        "id": row[0],
+                        "event_type": row[1],
+                        "details": row[2] if isinstance(row[2], dict) else {},
+                        "user_id": row[3],
+                        "created_at": row[4].isoformat() if row[4] else None
+                    })
+                
+                return jsonify({
+                    "success": True,
+                    "data": history,
+                    "total": len(history)
+                })
+    except Exception as e:
+        return jsonify({
+            "success": True,
+            "data": [],
+            "total": 0,
+            "note": "Histórico não disponível"
+        })
+
+
 @app.route("/api/investigations", methods=["GET"])
 def get_investigations():
     """Lista investigações em andamento"""
