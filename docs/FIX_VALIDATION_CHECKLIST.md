@@ -21,11 +21,17 @@ Desenvolvedor: [Seu nome]
 **Objetivo:** Validar que o bug específico foi corrigido.
 
 ```bash
-# Comando
-pytest tests/unit/test_FILE.py::test_NOME -v
+# Comando genérico
+cd sankofa-enterprise-real/backend
+python -m pytest tests/test_ARQUIVO.py::TestCLASSE::test_NOME -v
+
+# Exemplos reais:
+python -m pytest tests/test_domain.py::TestBusinessRules::test_high_amount_night_transaction_rule -v
+python -m pytest tests/test_e2e.py::TestE2EAuthentication::test_login_success -v
+python -m pytest tests/test_resilience.py::TestMLModelResilience::test_model_handles_invalid_data -v
 
 # Esperado
-PASSED tests/unit/test_FILE.py::test_NOME [100%]
+PASSED tests/test_ARQUIVO.py::TestCLASSE::test_NOME [100%]
 
 # Resultado
 □ ✅ PASSOU → Continuar para Nível 2
@@ -46,17 +52,22 @@ Tempo:           ___ ms
 **Objetivo:** Garantir que correção não quebrou outros testes do mesmo módulo.
 
 ```bash
-# Exemplo 1: ML Engine
-pytest tests/unit/test_ml_engine_unit.py -v
+cd sankofa-enterprise-real/backend
 
-# Exemplo 2: API
-pytest tests/unit/test_api_layer_unit.py -v
+# Para bugs de ML Engine:
+python -m pytest tests/test_domain.py tests/test_improvements.py -v
 
-# Exemplo 3: Banco de dados
-pytest tests/unit/test_database_unit.py -v
+# Para bugs de API:
+python -m pytest tests/test_e2e.py -v
+
+# Para bugs de Resiliência:
+python -m pytest tests/test_resilience.py -v
+
+# Para bugs de QA/Security:
+python -m pytest tests/test_qa_comprehensive.py -v
 
 # Esperado
-Resultado: NNN passed in X.XXs
+Resultado: NN passed in X.XXs
 
 # Critério
 □ ✅ TODOS PASSARAM → Continuar para Nível 3
@@ -80,33 +91,34 @@ Tempo Total:     ___ min
 **Objetivo:** Validar que funções críticas ainda funcionam (teste de fumaça).
 
 ```bash
-# Executar TODOS os smoke tests
-pytest tests/functional/test_smoke.py -v
+cd sankofa-enterprise-real/backend
 
-# Esperado
-10 passed in 0.35s
+# Smoke tests: Infraestrutura E2E
+python -m pytest tests/test_e2e.py::TestE2EInfrastructure -v
 
-# Testes Críticos
-□ test_smoke_01_backend_starts
-□ test_smoke_02_database_accessible
-□ test_smoke_03_ml_model_loaded
-□ test_smoke_04_authentication_works
-□ test_smoke_05_prediction_endpoint_responds
-□ test_smoke_06_frontend_available
-□ test_smoke_07_api_health_check
-□ test_smoke_08_database_connection_pool
-□ test_smoke_09_cache_operational
-□ test_smoke_10_logs_working
+# Esperado: 4 tests
+□ test_frontend_available
+□ test_backend_health
+□ test_database_connection
+□ test_database_tables_exist
+
+# Smoke tests: ML Pipeline
+python -m pytest tests/test_e2e.py::TestE2EMLPipeline -v
+
+# Esperado: 3 tests
+□ test_model_loaded
+□ test_prediction_consistency
+□ test_feature_engineering_e2e
 
 # Resultado
-□ ✅ 10/10 PASSARAM → CORREÇÃO VALIDADA ✅
+□ ✅ 7/7 PASSARAM → CORREÇÃO VALIDADA ✅
 □ ❌ ALGUM FALHOU → REGRESSÃO CRÍTICA!
 ```
 
 **Documentação:**
 ```
-Smoke Tests:     test_smoke.py
-Status:          [ ] PASSOU 10/10  [ ] FALHOU
+Smoke Tests:     TestE2EInfrastructure + TestE2EMLPipeline
+Status:          [ ] PASSOU 7/7  [ ] FALHOU
 Falhas:          ________________________
 Tempo:           ___ sec
 ```
@@ -118,9 +130,20 @@ Tempo:           ___ sec
 | Nível | O quê | Tempo | Critério |
 |-------|-------|-------|----------|
 | **1** | Teste falho original | 5 min | ✅ 1/1 |
-| **2** | Suite do módulo | 10 min | ✅ NN/NN |
-| **3** | Smoke tests | 5 min | ✅ 10/10 |
+| **2** | Suite relacionada | 10 min | ✅ NN/NN |
+| **3** | Smoke tests (7 testes) | 5 min | ✅ 7/7 |
 | **TOTAL** | **Validação Completa** | **20 min** | **Sem regressões** |
+
+---
+
+## 🔄 Comando Único: Suite Completa (185 testes)
+
+```bash
+cd sankofa-enterprise-real/backend
+python -m pytest tests/ -v
+
+# Esperado: 185 passed in ~30s
+```
 
 ---
 

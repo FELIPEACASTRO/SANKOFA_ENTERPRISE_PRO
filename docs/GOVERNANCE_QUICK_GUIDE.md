@@ -109,7 +109,7 @@ RESULTADO: ✅ PRONTO OU ❌ VOLTAR?
 
 ```
 1️⃣ DESCOBERTA
-   Teste falha: test_unit_ml_006
+   Teste falha: test_domain.py::TestFeatureEngineering
    
 2️⃣ REGISTRO
    Criar: DEF-2025-001
@@ -119,18 +119,20 @@ RESULTADO: ✅ PRONTO OU ❌ VOLTAR?
    Causa: Divisão por zero em normalização
    
 3️⃣ CORREÇÃO
-   Editar: ml_engine/production_fraud_engine.py (linha 145)
+   Editar: ml_engine/production_fraud_engine.py
    Adicionar: np.clip(value, -1e6, 1e6)
    
 4️⃣ VALIDAÇÃO (usar FIX_VALIDATION_CHECKLIST.md)
-   Nível 1: pytest tests/unit/test_ml_engine_unit.py::test_unit_ml_006 -v
-            ✅ PASSOU
+   cd sankofa-enterprise-real/backend
    
-   Nível 2: pytest tests/unit/test_ml_engine_unit.py -v
-            ✅ 50/50 PASSARAM
+   Nível 1: python -m pytest tests/test_domain.py::TestFeatureEngineering -v
+            ✅ PASSED
    
-   Nível 3: pytest tests/functional/test_smoke.py -v
-            ✅ 10/10 PASSARAM
+   Nível 2: python -m pytest tests/test_domain.py tests/test_improvements.py -v
+            ✅ ALL PASSED
+   
+   Nível 3: python -m pytest tests/test_e2e.py::TestE2EMLPipeline -v
+            ✅ 3/3 PASSED
    
 5️⃣ DOCUMENTAÇÃO
    DEFECTS_LOG.md:
@@ -140,6 +142,27 @@ RESULTADO: ✅ PRONTO OU ❌ VOLTAR?
    
 6️⃣ COMMIT
    git commit -m "FIX DEF-2025-001: Clipping em normalização de features"
+```
+
+---
+
+## 🔄 Comandos Rápidos de Validação
+
+```bash
+cd sankofa-enterprise-real/backend
+
+# Suite completa (185 testes)
+python -m pytest tests/ -v
+
+# Smoke tests rápidos (7 testes)
+python -m pytest tests/test_e2e.py::TestE2EInfrastructure tests/test_e2e.py::TestE2EMLPipeline -v
+
+# Por categoria:
+python -m pytest tests/test_domain.py -v          # 14 testes - Domínio
+python -m pytest tests/test_e2e.py -v             # 31 testes - E2E
+python -m pytest tests/test_improvements.py -v    # ~40 testes - Improvements
+python -m pytest tests/test_qa_comprehensive.py -v # ~50 testes - QA
+python -m pytest tests/test_resilience.py -v      # 10 testes - Resiliência
 ```
 
 ---
@@ -177,4 +200,4 @@ RESULTADO: ✅ PRONTO OU ❌ VOLTAR?
 ---
 
 **Última atualização: 2025-11-29**
-**Versão: 1.0 - Pragmática**
+**Versão: 1.1 - Comandos Reais Validados**

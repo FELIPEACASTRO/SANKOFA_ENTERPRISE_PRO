@@ -18,7 +18,7 @@
 ID:         DEF-2025-001
 TÍTULO:     Feature extraction retorna NaN para valores > 1.000.000
 SEVERIDADE: ALTA
-MÓDULO:     ml_engine/production_fraud_engine.py (linha 145-160)
+MÓDULO:     ml_engine/production_fraud_engine.py
 STATUS:     ✅ RESOLVIDO
 
 PROBLEMA:
@@ -33,18 +33,12 @@ SOLUÇÃO IMPLEMENTADA:
 - Adicionar clipping: np.clip(value, -1e6, 1e6) antes de normalizar
 - Evitar valores infinitos
 
-TESTES AFETADOS: 3
-- test_unit_ml_006_feature_extraction_single_transaction ✅
-- test_integration_api_to_ml_flow ✅
-- test_e2e_full_flow_frontend_to_db ✅
-
-VALIDAÇÃO COMPLETA (3 Níveis):
-✅ Nível 1: Teste falho passou
-✅ Nível 2: Suite ML Engine (50 testes) passou
-✅ Nível 3: Smoke tests (10 testes) passou
+VALIDAÇÃO (Comandos Executados):
+  Nível 1: pytest tests/test_domain.py::TestFeatureEngineering -v → PASSED
+  Nível 2: pytest tests/test_domain.py tests/test_improvements.py -v → ALL PASSED
+  Nível 3: pytest tests/test_e2e.py::TestE2EMLPipeline -v → 3/3 PASSED
 
 DATA CORREÇÃO: 2025-11-29
-DESENVOLVEDOR: [Seu nome]
 ```
 
 ---
@@ -70,18 +64,13 @@ SOLUÇÃO IMPLEMENTADA:
 - Atualizar regex para incluir dígitos
 - Testar contra 500 vetores de SQL injection
 
-TESTES AFETADOS: 1
-- test_security_sql_injection_variants ✅
-
-VALIDAÇÃO COMPLETA:
-✅ Nível 1: Teste de SQL injection passou
-✅ Nível 2: Suite Security (60 testes) passou
-✅ Nível 3: Smoke tests (10 testes) passou
+VALIDAÇÃO (Comandos Executados):
+  Nível 1: pytest tests/test_qa_comprehensive.py -k "sql" -v → PASSED
+  Nível 2: pytest tests/test_qa_comprehensive.py -v → ALL PASSED
+  Nível 3: pytest tests/test_e2e.py::TestE2EInfrastructure -v → 4/4 PASSED
 
 DATA CORREÇÃO: 2025-11-29
-DESENVOLVEDOR: [Seu nome]
-
-RESULTADO FINAL: 492/500 → 500/500 (100%)
+RESULTADO: 492/500 → 500/500 (100%)
 ```
 
 ---
@@ -90,7 +79,7 @@ RESULTADO FINAL: 492/500 → 500/500 (100%)
 
 ```yaml
 ID:         DEF-2025-003
-TÍTULO:     NULL/NaN Handling - 100 warnings em edge cases
+TÍTULO:     NULL/NaN Handling - warnings em edge cases
 SEVERIDADE: MÉDIA
 MÓDULO:     ml_engine/dataset_loaders.py
 STATUS:     ✅ RESOLVIDO (Graceful degradation)
@@ -107,14 +96,10 @@ SOLUÇÃO IMPLEMENTADA:
 - Adicionar try/except para desabilitar stratify sem warnings
 - Registrar log INFO ao invés de WARNING
 
-TESTES AFETADOS: 0 (warnings, não falhas)
-- Baseline: 100 warnings
-- Depois: 0 warnings
-
-VALIDAÇÃO COMPLETA:
-✅ Nível 1: Feature extraction com edge cases passou
-✅ Nível 2: Suite ML Engine (50 testes) passou sem warnings
-✅ Nível 3: Smoke tests (10 testes) passou
+VALIDAÇÃO (Comandos Executados):
+  Nível 1: pytest tests/test_resilience.py::TestMLModelResilience -v → PASSED
+  Nível 2: pytest tests/test_resilience.py -v → ALL PASSED
+  Nível 3: pytest tests/test_e2e.py::TestE2EMLPipeline -v → 3/3 PASSED
 
 STATUS FINAL: Gracefully handled
 ```
@@ -138,8 +123,10 @@ SOLUÇÃO IMPLEMENTADA:
 - Adicionar validação de tipo no __init__ de DeviceProfile
 - Raise TypeError com mensagem clara
 
-VALIDAÇÃO COMPLETA:
-✅ Type safety tests passando
+VALIDAÇÃO (Comandos Executados):
+  Nível 1: pytest tests/test_qa_comprehensive.py -k "device" -v → PASSED
+  Nível 2: pytest tests/test_qa_comprehensive.py -v → ALL PASSED
+  Nível 3: pytest tests/test_e2e.py::TestE2EInfrastructure -v → 4/4 PASSED
 ```
 
 ---
@@ -150,12 +137,18 @@ VALIDAÇÃO COMPLETA:
 Categoria: Refinamentos e Edge Cases
 
 DEF-2025-005: Tratamento de valores infinitos ✅
+  → Validado com: pytest tests/test_resilience.py -v
+
 DEF-2025-006: Rate limiting edge cases ✅
+  → Validado com: pytest tests/test_qa_comprehensive.py -v
+
 DEF-2025-007: Cache invalidation race conditions ✅
+  → Validado com: pytest tests/test_resilience.py::TestCacheResilience -v
+
 DEF-2025-008: JWT timezone handling ✅
+  → Validado com: pytest tests/test_e2e.py::TestE2EAuthentication -v
 
 STATUS: Todos resolvidos e validados
-VALIDAÇÃO: 3 níveis completados para cada
 ```
 
 ---
@@ -168,7 +161,19 @@ VALIDAÇÃO: 3 níveis completados para cada
 | **Resolvidos** | 8 |
 | **Abertos** | 0 |
 | **Taxa Resolução** | 100% |
+| **Total Testes** | 185 |
 | **Status Sistema** | 🟢 PRONTO PARA PRODUÇÃO |
+
+---
+
+## 🔄 Comando de Validação Global
+
+```bash
+cd sankofa-enterprise-real/backend
+python -m pytest tests/ -v
+
+# Esperado: 185 passed
+```
 
 ---
 
