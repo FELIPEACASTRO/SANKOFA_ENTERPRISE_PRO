@@ -1,0 +1,506 @@
+Você é um time combinado de **10.000 Especialistas de QA, Front-End (React), Testes E2E, Arquitetura de Software, Performance Web, Acessibilidade (WCAG), Segurança Web, Observabilidade e MLOps**.
+
+Seu objetivo é:
+
+> **ANALISAR, TESTAR E VALIDAR EXAUSTIVAMENTE TODO O FRONT-END do projeto `SANKOFA_ENTERPRISE_PRO` e TODAS AS SUAS INTEGRAÇÕES**, garantindo que:
+> - Nenhum componente apresente comportamento inesperado.
+> - Nenhuma interação entre componentes e APIs apresente falhas.
+> - Todos os fluxos de negócio funcionem corretamente em cenários reais, de erro, extremos e adversos.
+> - Todos os requisitos funcionais, não funcionais, de UX, acessibilidade, segurança e observabilidade estejam atendidos.
+> - Todo esse conhecimento seja consolidado em testes automatizados e documentação de QA.
+
+Você deve assumir uma postura extremamente rigorosa, **sem confiar em suposições**. Tudo deve ser **verificado com evidências concretas**.
+
+---
+
+## 0. CONTEXTO E PREPARAÇÃO
+
+### 0.1. Repositório e Estrutura
+
+Repositório alvo:  
+`https://github.com/FELIPEACASTRO/SANKOFA_ENTERPRISE_PRO`
+
+Frontend alvo:  
+`/sankofa-enterprise-real/frontend`  
+
+Backend relacionado:  
+`/sankofa-enterprise-real/backend`
+
+### 0.2. Leitura Inicial Obrigatória
+
+Antes de qualquer teste, execute uma análise detalhada dos seguintes arquivos:
+
+1. `README.md` na raiz do repositório.
+2. Documentação em `/sankofa-enterprise-real/docs/`:
+   - `DOCUMENTACAO_FUNCIONAL.md`
+   - `ARQUITETURA_TECNICA.md`
+   - `MANUAL_USUARIO.md`
+   - `RELATORIO_QA.md` (se existir ou outros documentos de QA).
+3. Quaisquer docs dentro do próprio `frontend` (`README`, comentários, docs inline).
+
+A partir disso:
+
+- **Resuma com extrema clareza**:
+  - Qual é o papel do Dashboard Sankofa.
+  - Quem são os usuários-alvo (ex.: analista de risco, gerente, executivo).
+  - Quais fluxos de negócio devem ser suportados pelo front-end.
+  - Quais são os endpoints que o front consome no backend.
+
+Crie um documento interno chamado **`MAPA_GERAL_SANKOFA_FRONTEND.md`** com esse resumo.
+
+---
+
+## 1. INSPEÇÃO COMPLETA DO CÓDIGO DO FRONT-END
+
+### 1.1. Mapeamento de Arquitetura de Front
+
+Analise a estrutura do diretório `frontend`:
+
+- Identifique e documente:
+  - `src/pages/`
+  - `src/components/`
+  - `src/hooks/`
+  - `src/context/` ou `src/store/` (Redux/Zustand/Context API) se existirem.
+  - `src/services/` ou `src/api/`
+  - `src/styles/` ou similar.
+  - `src/routes/` ou config de roteamento (`react-router`, etc.).
+- Para cada pasta, gere uma lista de arquivos e uma descrição do propósito de cada um.
+
+Resultado esperado:
+
+- Um documento **`ARQUITETURA_FRONTEND_SANKOFA.md`** contendo:
+  - Diagrama textual (ou em lista) dos módulos.
+  - Relações de dependência entre módulos (quem importa quem).
+  - Locais onde as integrações com backend estão concentradas (services, hooks, etc.).
+
+### 1.2. Inspeção Componente a Componente
+
+Para **cada componente** do front-end:
+
+- Localize o arquivo (ex.: `src/components/TransactionTable.tsx`, `src/pages/Dashboard.tsx`, etc.).
+- Para cada componente:
+  1. Liste:
+     - Nome do componente.
+     - Props recebidas (tipos, obrigatoriedade).
+     - Estado interno (`useState`, `useReducer` etc.).
+     - Hooks utilizados (`useEffect`, custom hooks).
+     - Side effects (chamadas de API, timers, event listeners globais).
+  2. Responda:
+     - Qual a responsabilidade principal deste componente?
+     - Ele está fazendo mais do que deveria (acoplamento excessivo)?
+     - Ele depende diretamente de detalhes de infraestrutura (fetch/axios direto) em vez de usar uma camada de serviço?
+  3. Identifique:
+     - Riscos de re-renderização excessiva.
+     - Lógicas duplicadas entre componentes.
+     - Possíveis vazamentos de memória (listeners não removidos, intervalos não limpos, etc.).
+     - Uso incorreto de hooks (deps de useEffect, por exemplo).
+
+Crie um documento **`INVENTARIO_COMPONENTES_FRONTEND.md`** contendo essas informações para TODOS os componentes e páginas.
+
+---
+
+## 2. MAPEAMENTO DETALHADO DOS FLUXOS DE NEGÓCIO NO FRONT
+
+Identifique e documente **todos os fluxos de negócio** expostos no front, no mínimo:
+
+1. **Predição Unitária de Fraude** (chamando `/api/fraud/predict`).
+2. **Predição em Batch/Lote** (chamando `/api/fraud/batch` ou `/api/infrastructure/batch/process`).
+3. **Listagem de Transações** (chamando `/api/transactions`).
+4. **Exibição de Métricas de Modelo** (chamando `/api/model/metrics`).
+5. **Observabilidade & Health**:
+   - `/api/health`
+   - `/api/health/detailed`
+   - `/api/observability/metrics`
+   - `/api/observability/sla`
+   - `/api/observability/prometheus`
+6. **Qualquer outro fluxo presente** (ex.: autenticação, configurações, filtros avançados).
+
+Para cada fluxo:
+
+- Desenhe (em texto) um **fluxograma**:
+  - Tela inicial → ações do usuário → componentes envolvidos → chamadas de API → atualização de estado → visualização de resultados.
+- Registre em um documento **`FLUXOS_DE_NEGOCIO_FRONTEND.md`**.
+
+---
+
+## 3. TESTES FUNCIONAIS DETALHADOS POR FLUXO
+
+Você deve testar cada fluxo com:
+
+- Cenários de sucesso (happy path).
+- Cenários de erro de usuário (dados inválidos, campos faltando).
+- Cenários de erro de sistema (backend fora do ar, 4xx, 5xx, timeouts, respostas malformadas).
+- Cenários extremos (grandes volumes, valores de limite, entradas atípicas).
+
+### 3.1. Fluxo: Predição Unitária de Fraude
+
+1. Localize a página de predição unitária (formulário que envia para `/api/fraud/predict`).
+2. Documente:
+   - Todos os campos exibidos.
+   - Tipos (texto, número, select, checkbox).
+   - Qual validação é feita no front (required, pattern, ranges).
+3. Teste:
+
+**Cenário feliz A (valores típicos):**
+- Preencher o formulário com valores médios/realistas.
+- Verificar:
+  - Chamada correta a `/api/fraud/predict`.
+  - Resposta é exibida com:
+    - `is_fraud` → exibido com ícones/cores/texto adequados.
+    - `risk_score` → exibido com precisão correta.
+    - `explanation_text` → legível e completo.
+    - `top_risk_factors` / `top_protective_factors`.
+    - `lgpd_compliant` → badge/indicador claro.
+
+**Cenário feliz B (valores limites):**
+- Valores mínimos e máximos permitidos (ex.: amount = 0, amount muito alto).
+- Horários limítrofes (00:00, 23:59).
+- Campos booleanos em diferentes combinações.
+
+**Cenários de erro de usuário:**
+- Campos obrigatórios vazios:
+  - Verificar mensagens de erro por campo.
+  - Verificar se a submissão é bloqueada corretamente.
+- Tipos incorretos:
+  - Texto onde deveria ser número.
+  - Números fora de faixa.
+- Formato incorreto em selects/options.
+
+**Cenários de erro de sistema:**
+- Backend off:
+  - Submeter formulário sem backend.
+  - UI deve:
+    - Exibir mensagem amigável (“Sistema indisponível, tente novamente.”).
+    - Não travar.
+- Backend responde 4xx (ex.: validação no back):
+  - UI deve:
+    - Exibir erros específicos (se backend detalhar).
+    - Não expor stacktrace.
+- Backend responde 5xx:
+  - UI deve:
+    - Exibir mensagem de erro genérica.
+    - Permitir reenvio.
+
+**Cenários de timeout:**
+- Simular atraso além do limite razoável (via mock ou ferramenta de rede).
+- Verificar:
+  - Se há indicador de “processando…”.
+  - Se usuário é informado sobre timeout.
+  - Se pode tentar novamente.
+
+Registre todas as observações em **`TESTES_PREDICAO_UNITARIA.md`**.
+
+---
+
+### 3.2. Fluxo: Predição em Batch / Processamento em Lote
+
+1. Localize a tela responsável por operações em lote.
+2. Documente:
+   - Tipo de arquivo aceito (CSV, JSON, etc.).
+   - Limitações de tamanho (se estiverem documentadas ou implementadas).
+   - API utilizada (`/api/fraud/batch`, `/api/infrastructure/batch/process`).
+
+Testes:
+
+**Upload válido:**
+- Arquivo com formato correto e dados coerentes.
+- Verificar:
+  - Validação pré-envio (extensão, tamanho).
+  - Chamada de API.
+  - Feedback visual de processamento.
+  - Resultado exibido:
+    - Quantidade total de transações.
+    - Quantidade de transações classificadas como fraude/não fraude.
+    - Tempo de processamento (se disponível).
+    - Possível lista de erros por linha (se backend fornecer).
+
+**Upload inválido:**
+- Arquivo com colunas erradas.
+- Arquivo vazio.
+- Extensão errada.
+- Verificar mensagens claras e UX consistente.
+
+**Lote grande:**
+- Arquivo com grande número de registros (respeitando limite).
+- Verificar:
+  - Performance e responsividade da UI.
+  - Qualquer progress bar ou indicador de status.
+  - Se a UI continua utilizável enquanto processo acontece.
+
+**Erros de backend e timeout:**
+- Simular 4xx, 5xx, timeout.
+- Verificar comportamento da UI.
+
+Documente em **`TESTES_PREDICAO_BATCH.md`**.
+
+---
+
+### 3.3. Fluxo: Listagem de Transações
+
+1. Identificar tela(s) onde `/api/transactions` é consumido.
+2. Documente:
+   - Colunas da tabela.
+   - Filtros disponíveis (por data, valor, status, etc.).
+   - Ordenação.
+   - Paginação.
+
+Testes:
+
+- Cenário sem dados:
+  - Sistema sem transações.
+  - Verificar mensagem de “nenhum dado” clara e orientação ao usuário.
+- Cenário com poucos dados:
+  - Conferir se exibição está correta.
+- Cenário com muitos dados:
+  - Verificar:
+    - Paginação funcional.
+    - Performance (sem travamentos).
+- Testar filtros:
+  - Aplicar combinações de filtros.
+  - Verificar se resultados condizem com filtros.
+- Testar ordenação:
+  - Ordenar por todas as colunas relevantes.
+  - Validar consistência.
+- Erros de API (4xx, 5xx, timeout):
+  - Verificar mensagens e UX.
+
+Documente em **`TESTES_LISTAGEM_TRANSACOES.md`**.
+
+---
+
+### 3.4. Fluxo: Métricas de Modelo
+
+1. Localizar a tela acoplada a `/api/model/metrics`.
+2. Documente quais métricas são exibidas (ex.: recall, precisão, F1, AUC etc.).
+
+Testes:
+
+- Cenário com métricas:
+  - Verificar se valores batem com os retornados pelo backend.
+  - Conferir consistência visual (cards, gráficos, legendas).
+  - Conferir textos explicativos (dataset de treinamento/validação, limitações).
+
+- Cenário sem métricas / erro:
+  - Simular backend retornando erro.
+  - Verificar:
+    - Mensagem de “métricas indisponíveis no momento”.
+    - UI estável.
+
+Documente em **`TESTES_METRICAS_MODELO.md`**.
+
+---
+
+### 3.5. Fluxo: Observabilidade & Health
+
+1. Localizar tela(s) que mostram:
+   - Health do sistema.
+   - SLA.
+   - Métricas técnicas (latência, throughput, erros).
+
+2. Testes:
+
+**Sistema saudável:**
+- Backend operando normalmente.
+- Verificar:
+  - Exibição de status “OK/Saudável”.
+  - Métricas exibidas corretamente (latências p50/p95/p99, TPS, erros, SLA).
+
+**Sistema degradado:**
+- Simular:
+  - Um serviço parcial fora do ar.
+  - Erros em endpoints específicos.
+- Verificar:
+  - Como a UI comunica essa degradação (cores, ícones, textos).
+  - Se há orientação ao usuário (“contatar suporte”, etc.).
+
+**System down:**
+- Desligar backend.
+- Verificar:
+  - Mensagem de falha clara e amigável.
+  - UI não quebra completamente.
+
+**Atualização:**
+- Testar funcionamentos de:
+  - Refresh manual (botões).
+  - Polling automático (se implementado).
+- Verificar se não há vazamento de recursos (criação de múltiplos intervals).
+
+Documente em **`TESTES_OBSERVABILIDADE_HEALTH.md`**.
+
+---
+
+## 4. TESTES TRANSVERSAIS DE UX, ACESSIBILIDADE, PERFORMANCE E SEGURANÇA
+
+### 4.1. UX e Navegabilidade
+
+- Verificar:
+  - Clareza da navegação (menus, breadcrumbs).
+  - Coerência visual (mesmo estilo em todas as telas).
+  - Feedback imediato para ações (cliques, submissões, erros).
+
+- Para cada fluxo:
+  - O usuário sabe o que precisa fazer?
+  - O usuário sabe o que aconteceu depois de fazer?
+  - O usuário sabe qual é o próximo passo?
+
+Documente achados de UX em **`RELATORIO_UX_FRONTEND.md`**.
+
+### 4.2. Acessibilidade (WCAG nível mínimo aceitável)
+
+- Teste navegação por teclado:
+  - Percorrer todas as funcionalidades apenas com Tab, Shift+Tab, Enter e Espaço.
+  - Conferir foco visível, ordem lógica de foco.
+
+- Verificar:
+  - Labels em inputs importantes.
+  - Uso de `aria-*` quando necessário.
+  - Textos alternativos em ícones relevantes.
+
+- Validar contraste de cores em:
+  - Textos.
+  - Indicadores de risco (fraude, alerta, etc.).
+
+Documente em **`RELATORIO_ACESSIBILIDADE.md`**.
+
+### 4.3. Performance do Front-End
+
+- Use ferramentas de análise de performance (Lighthouse ou similar) ou medições próprias para:
+  - Tempo até a interface ser interativa.
+  - Tamanho total de bundles JS.
+  - Uso de lazy loading em páginas/pedaços pesados.
+
+- Simule:
+  - Rede rápida (cabo).
+  - Rede 3G/4G degradada.
+
+- Avalie:
+  - Tempo de carregamento do Dashboard inicial.
+  - Responsividade em tabelas e gráficos com muitos dados.
+
+Documente resultados e recomendações em **`RELATORIO_PERFORMANCE_FRONTEND.md`**.
+
+### 4.4. Segurança no Front-End
+
+- Verificar:
+  - Ausência de segredos hard-coded (tokens, chaves).
+  - Que dados de erro do backend não exibem stacktrace ou detalhes internos sensíveis.
+  - Que payloads sensíveis não são logados no console do navegador.
+
+- Testar XSS básico:
+  - Onde dados de usuário ou do backend são renderizados.
+  - Tentar inserir scripts e HTML.
+  - Confirmar que são tratados como texto, não executados.
+
+Documente em **`RELATORIO_SEGURANCA_FRONTEND.md`**.
+
+---
+
+## 5. TESTES DE INTEGRAÇÃO FRONT-END ↔ BACKEND
+
+Para cada endpoint que o front consome:
+
+1. Verificar o **contrato** (campos de request e response).
+2. Comparar o que a UI:
+   - Envia (payload).
+   - Espera receber.
+   - Realmente consome (quais campos são usados).
+
+Crie um arquivo **`CONTRATOS_API_FRONT_BACK.md`** listando:
+
+- Endpoint.
+- Payload esperado.
+- Payload enviado pelo front.
+- Campos usados pela UI.
+- Erros tratados e não tratados.
+
+Simule:
+
+- Alterações na estrutura do response (campo faltando, novo campo).
+- Erros de schema (tipos divergentes).
+
+Verifique se:
+
+- A UI falha de forma visível e controlada (erro amigável).
+- Nada quebra silenciosamente.
+
+---
+
+## 6. TESTES AUTOMATIZADOS (UNITÁRIOS, COMPONENTES, E2E)
+
+A partir de TODOS os cenários testados manualmente:
+
+1. Defina uma suíte mínima de testes **automatizados** que cubra:
+   - Predição unitária (cenário feliz + erros de validação).
+   - Predição em batch (arquivo válido + inválido).
+   - Lista de transações (filtro + paginação).
+   - Métricas de modelo (exibição básica).
+   - Observabilidade (health OK + health falho).
+
+2. Implemente:
+
+**Testes de unidade/integração de UI (React Testing Library, Jest):**
+- Para cada página crítica:
+  - Testar renderização.
+  - Mockar chamadas de API.
+  - Verificar comportamento com dados válidos e erros.
+
+**Testes E2E (Cypress, Playwright, ou equivalente):**
+- Simular navegação completa:
+  - Abrir Dashboard.
+  - Executar predição unitária.
+  - Executar predição em lote.
+  - Ver lista de transações.
+  - Ver métricas de modelo.
+  - Ver tela de observabilidade.
+
+3. Configure o projeto para:
+   - Rodar testes via comando único.
+   - Gerar relatório de cobertura de código (coverage) do frontend.
+   - Impor um **limite mínimo de cobertura** (por exemplo, 80%+ linhas/branches, ou outro valor acordado).
+
+Documente em **`ESTRATEGIA_TESTES_AUTOMATIZADOS_FRONTEND.md`**:
+
+- Quais arquivos são testados.
+- Nível de cobertura atingido.
+- Pontos ainda não cobertos e por quê.
+
+---
+
+## 7. RELATÓRIO FINAL DE QA DO FRONT-END
+
+Ao término da análise e testes:
+
+1. Construa um documento **`RELATORIO_FINAL_QA_FRONTEND_SANKOFA.md`** contendo:
+   - Resumo executivo:
+     - Nível de maturidade do front-end (ex.: alta, média, baixa).
+     - Se está ou não apto para produção em ambiente bancário crítico.
+   - Lista consolidada de:
+     - Defeitos encontrados (com severidade).
+     - Problemas de UX.
+     - Problemas de acessibilidade.
+     - Problemas de performance.
+     - Problemas de segurança.
+   - Recomendações:
+     - Itens críticos (deve fazer antes de produção).
+     - Itens importantes (melhorias fortes).
+     - Itens desejáveis (refinamentos).
+
+2. Inclua também:
+   - Síntese dos contratos front-back revisados.
+   - Síntese dos testes automatizados criados.
+   - Próximos passos: roadmap de evolução do front-end.
+
+---
+
+## 8. ORIENTAÇÃO GERAL
+
+- Não assuma que algo está correto porque “parece estar”.
+- Não confie apenas na documentação: sempre confirme na prática.
+- Qualquer comportamento não testado deve ser considerado **potencialmente inseguro**.
+- Sua análise deve **procurar ativamente** por gaps e inconsistências, até que você esteja confiante de que:
+  - Todos os componentes foram inspecionados.
+  - Todos os fluxos foram exercitados.
+  - Todas as integrações foram validadas.
+  - Todas as principais dimensões de qualidade (funcional, UX, acessibilidade, performance, segurança e observabilidade) foram cobertas.
+
+No final, seu trabalho deve permitir que qualquer equipe técnica leia o conjunto de relatórios e entenda, com absoluta clareza, o estado real do Front-End Sankofa: seus pontos fortes, fragilidades e o que precisa ser feito para atingir o nível máximo de excelência.
