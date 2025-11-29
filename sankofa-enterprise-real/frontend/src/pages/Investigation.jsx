@@ -47,11 +47,22 @@ export function Investigation() {
     try {
       setLoading(true);
       const response = await fetch('/api/investigations');
-      const data = await response.json();
+      const result = await response.json();
       
-      if (data.investigations) {
-        setInvestigations(data.investigations);
-        calculateStats(data.investigations);
+      const investigationsData = result.data || result.investigations || [];
+      setInvestigations(investigationsData);
+      
+      if (result.summary) {
+        setStats({
+          active: result.summary.active || 0,
+          investigating: result.summary.pending || 0,
+          resolved: result.summary.resolved || 0,
+          resolutionRate: result.summary.total > 0 
+            ? Math.round((result.summary.resolved / result.summary.total) * 100) 
+            : 0
+        });
+      } else {
+        calculateStats(investigationsData);
       }
     } catch (error) {
       console.error('Erro ao carregar investigações:', error);
