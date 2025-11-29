@@ -1256,6 +1256,12 @@ def predict_fraud():
     include_compliance = request.json.get("include_compliance_report", False)
     fast_mode = request.json.get("fast_mode", True)
     
+    if is_pix:
+        fast_mode = True
+        include_explanation = request.json.get("include_explanation", False)
+    
+    skip_db_write = is_pix and fast_mode
+    
     if not transactions_data:
         raise ValidationError("transactions field is required", context={"body": request.json})
 
@@ -1329,7 +1335,19 @@ def predict_fraud():
             "reasons": pred_reasons if isinstance(pred_reasons, list) else [pred_reasons],
             "model_version": fraud_engine.VERSION
         }
-        db_persistence.save_transaction(txn_data, pred_data)
+        
+        if skip_db_write:
+            try:
+                async_task_queue.submit(
+                    db_persistence.save_transaction,
+                    txn_data.copy(), pred_data.copy(),
+                    priority=TaskPriority.LOW
+                )
+            except Exception as e:
+                logger.warning(f"Failed to submit DB write for PIX transaction: {e}")
+                db_persistence.save_transaction(txn_data, pred_data)
+        else:
+            db_persistence.save_transaction(txn_data, pred_data)
         
         metrics_collector.record_transaction(
             transactions_data[i],
