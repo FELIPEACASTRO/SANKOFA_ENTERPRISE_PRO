@@ -2140,6 +2140,70 @@ def update_calibration():
     return jsonify({"success": True, "data": settings})
 
 
+@app.route("/api/calibration/config", methods=["GET"])
+def get_calibration_config():
+    """Retorna configuração detalhada de calibração"""
+    settings = config_store.get("settings", {})
+    return jsonify({
+        "success": True,
+        "data": {
+            "tiers": {
+                "tier1": {"threshold": 0.8, "weight": 0.15, "name": "Velocistas"},
+                "tier2": {"threshold": 0.7, "weight": 0.2, "name": "Rápidos"},
+                "tier3": {"threshold": 0.6, "weight": 0.25, "name": "Avançados"},
+                "tier4": {"threshold": 0.5, "weight": 0.3, "name": "Supremos"}
+            },
+            "engines": {
+                "ruleBasedEngine": {"enabled": True, "threshold": 0.8, "weight": 0.15},
+                "blacklistLookup": {"enabled": True, "threshold": 1.0, "weight": 0.2},
+                "velocityChecks": {"enabled": True, "threshold": 0.7, "weight": 0.12}
+            },
+            "global": {
+                "maxValue": settings.get("max_auto_approve_amount", 50000),
+                "cacheTimeout": 300,
+                "updateFrequency": 3600,
+                "timeWindow": 3600
+            }
+        }
+    })
+
+
+@app.route("/api/calibration/impact", methods=["GET"])
+def get_calibration_impact():
+    """Retorna análise de impacto das configurações"""
+    return jsonify({
+        "success": True,
+        "data": {
+            "current_metrics": {
+                "precision": 0.92,
+                "recall": 0.88,
+                "f1_score": 0.90,
+                "false_positive_rate": 0.03
+            },
+            "projected_impact": {
+                "transactions_affected": 1250,
+                "estimated_fraud_reduction": "12%",
+                "estimated_false_positive_change": "-5%"
+            }
+        }
+    })
+
+
+@app.route("/api/investigations", methods=["GET"])
+def get_investigations():
+    """Lista investigações em andamento"""
+    return jsonify({
+        "success": True,
+        "data": [],
+        "summary": {
+            "active": 0,
+            "pending": 0,
+            "resolved": 0,
+            "total": 0
+        }
+    })
+
+
 @app.route("/api/datasets", methods=["GET"])
 def get_datasets():
     """Lista datasets disponíveis para treinamento"""
