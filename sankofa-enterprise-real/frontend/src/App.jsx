@@ -17,6 +17,7 @@ import HotList from './pages/HotList';
 import Metrics from './pages/Metrics';
 import { Audit } from './pages/Audit';
 import { Settings } from './pages/Settings';
+import { FeedbackAnalyst } from './pages/FeedbackAnalyst';
 import './App.css';
 
 function AppContent() {
@@ -40,6 +41,7 @@ function AppContent() {
         <Route path="/hot-list" element={<HotList />} />
         <Route path="/audit" element={<Audit />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/feedback-analyst" element={<FeedbackAnalyst />} />
         <Route path="*" element={<div className="p-8 text-center">Página não encontrada</div>} />
       </Routes>
     </Layout>

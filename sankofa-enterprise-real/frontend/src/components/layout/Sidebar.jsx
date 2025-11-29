@@ -14,7 +14,8 @@ import {
   Database,
   UserCheck,
   UserX,
-  Eye
+  Eye,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.jsx';
 import { cn } from '@/lib/utils';
@@ -69,6 +70,13 @@ const navigationItems = [
     href: '/metrics',
     description: 'Contadores e métricas em tempo real',
     badge: 'LIVE'
+  },
+  {
+    title: 'Feedback Analista',
+    icon: MessageSquare,
+    href: '/feedback-analyst',
+    description: 'Feedback para melhoria do modelo',
+    badge: 'ML'
   },
   {
     title: 'Alertas',

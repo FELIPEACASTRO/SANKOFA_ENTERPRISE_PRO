@@ -26,32 +26,41 @@ const ManualReview = () => {
     loadReviews();
   }, []);
 
+  const [error, setError] = useState(null);
+
   const loadReviews = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch('/api/manual-review');
-      if (response.ok) {
-        const data = await response.json();
-        setReviews(data.reviews || []);
+      
+      if (response.status === 204) {
+        setReviews([]);
+        return;
       }
-    } catch (error) {
-      console.error('Erro ao carregar revisões:', error);
-      // Mock data para demonstração
-      setReviews([
-        {
-          transaction_id: 'TXN_001',
-          valor: 15000,
-          cpf: '123.456.789-01',
-          tipoTransacao: 'PIX',
-          canal: 'mobile',
-          localizacao: 'São Paulo',
-          fraud_score: 0.85,
-          risk_level: 'ALTO',
-          status: 'PENDENTE',
-          flagged_at: new Date().toISOString(),
-          explanation: 'Transação de alto valor em horário atípico'
+      
+      if (response.ok) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const text = await response.text();
+          if (text) {
+            const data = JSON.parse(text);
+            setReviews(data.reviews || []);
+          } else {
+            setReviews([]);
+          }
+        } else {
+          setReviews([]);
         }
-      ]);
+      } else {
+        const errorText = await response.text().catch(() => '');
+        setError(`Falha ao carregar revisões (${response.status}). ${errorText || 'Tente novamente.'}`);
+        setReviews([]);
+      }
+    } catch (err) {
+      console.error('Erro ao carregar revisões:', err);
+      setError('Erro de conexão. Verifique sua rede e tente novamente.');
+      setReviews([]);
     } finally {
       setLoading(false);
     }
@@ -101,11 +110,21 @@ const ManualReview = () => {
             Sistema de revisão manual para transações flagadas pelo auto-learning
           </p>
         </div>
-        <Button onClick={loadReviews} variant="outline">
-          <RefreshCw className="w-4 h-4 mr-2" />
+        <Button onClick={loadReviews} variant="outline" disabled={loading}>
+          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Atualizar
         </Button>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2">
+          <AlertTriangle className="h-5 w-5 text-red-600" />
+          <span className="text-red-800">{error}</span>
+          <Button onClick={loadReviews} variant="outline" size="sm" className="ml-auto">
+            Tentar Novamente
+          </Button>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

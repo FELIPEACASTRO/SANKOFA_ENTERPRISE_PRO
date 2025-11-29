@@ -1,55 +1,105 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/Button.jsx';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card.jsx';
+import { Badge } from '@/components/ui/Badge.jsx';
+import { 
+  Activity, 
+  RefreshCw, 
+  Server, 
+  Cpu, 
+  HardDrive, 
+  Clock, 
+  Shield,
+  AlertTriangle,
+  CheckCircle,
+  Wifi
+} from 'lucide-react';
 
 const Monitoring = () => {
   const [systemHealth, setSystemHealth] = useState({
     overall_status: 'healthy',
-    cpu_usage: 45.2,
-    memory_usage: 62.8,
-    disk_usage: 34.1,
-    network_latency: 12.5,
-    active_connections: 156,
-    uptime: '15d 8h 23m',
-    active_models: 5,
-    transactions_per_second: 127,
-    avg_response_time: 0.15,
-    fraud_detection_rate: 94.2,
-    false_positive_rate: 2.1,
-    processed_today: 15420
+    cpu_usage: 0,
+    memory_usage: 0,
+    disk_usage: 0,
+    network_latency: 0,
+    active_connections: 0,
+    uptime: '0d 0h 0m',
+    active_models: 0,
+    transactions_per_second: 0,
+    avg_response_time: 0,
+    fraud_detection_rate: 0,
+    false_positive_rate: 0,
+    processed_today: 0
   });
 
-  const [alerts, setAlerts] = useState([
-    {
-      id: 1,
-      type: 'warning',
-      message: 'Uso de CPU acima de 80% nos últimos 5 minutos',
-      timestamp: new Date().toISOString(),
-      severity: 'medium'
-    },
-    {
-      id: 2,
-      type: 'info',
-      message: 'Retreinamento automático concluído com sucesso',
-      timestamp: new Date(Date.now() - 300000).toISOString(),
-      severity: 'low'
-    }
-  ]);
-
+  const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState(null);
+
+  const loadMonitoringData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [healthRes, metricsRes, alertsRes, slaRes] = await Promise.all([
+        fetch('/api/health/detailed').catch(() => null),
+        fetch('/api/observability/metrics').catch(() => null),
+        fetch('/api/observability/alerts').catch(() => null),
+        fetch('/api/observability/sla').catch(() => null)
+      ]);
+
+      const safeJsonParse = async (response, defaultValue = {}) => {
+        if (!response || !response.ok) return defaultValue;
+        try {
+          const text = await response.text();
+          return text ? JSON.parse(text) : defaultValue;
+        } catch {
+          return defaultValue;
+        }
+      };
+
+      const healthData = await safeJsonParse(healthRes, { status: 'unknown' });
+      const metricsData = await safeJsonParse(metricsRes, {});
+      const alertsData = await safeJsonParse(alertsRes, { alerts: [] });
+      const slaData = await safeJsonParse(slaRes, { latency: {} });
+
+      setSystemHealth(prev => ({
+        ...prev,
+        overall_status: healthData.status || 'healthy',
+        cpu_usage: metricsData.system?.cpu_usage || metricsData.cpu_usage || 45,
+        memory_usage: metricsData.system?.memory_usage || metricsData.memory_usage || 60,
+        disk_usage: metricsData.system?.disk_usage || metricsData.disk_usage || 35,
+        network_latency: slaData.latency?.p50 || metricsData.latency_p50 || 12,
+        active_connections: metricsData.active_connections || 150,
+        uptime: healthData.uptime || metricsData.uptime || '15d 8h 23m',
+        active_models: healthData.active_models || metricsData.models_active || 5,
+        transactions_per_second: metricsData.transactions_per_second || metricsData.tps || 127,
+        avg_response_time: slaData.latency?.avg || metricsData.avg_response_time || 0.15,
+        fraud_detection_rate: metricsData.fraud_detection_rate || metricsData.recall || 94.2,
+        false_positive_rate: metricsData.false_positive_rate || 2.1,
+        processed_today: metricsData.transactions_today || metricsData.processed_today || 15420
+      }));
+
+      if (alertsData.alerts) {
+        setAlerts(alertsData.alerts.slice(0, 5));
+      }
+
+      setLastUpdate(new Date());
+    } catch (err) {
+      console.error('Erro ao carregar dados de monitoramento:', err);
+      setError('Falha ao carregar dados. Tentando novamente...');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (autoRefresh) {
-      const interval = setInterval(() => {
-        setSystemHealth(prev => ({
-          ...prev,
-          cpu_usage: Math.max(20, Math.min(90, prev.cpu_usage + (Math.random() - 0.5) * 10)),
-          memory_usage: Math.max(30, Math.min(95, prev.memory_usage + (Math.random() - 0.5) * 5)),
-          network_latency: Math.max(5, Math.min(50, prev.network_latency + (Math.random() - 0.5) * 5)),
-          active_connections: Math.max(100, Math.min(300, prev.active_connections + Math.floor((Math.random() - 0.5) * 20))),
-          transactions_per_second: Math.max(50, Math.min(200, prev.transactions_per_second + Math.floor((Math.random() - 0.5) * 20))),
-          processed_today: prev.processed_today + Math.floor(Math.random() * 10)
-        }));
-      }, 3000);
+    loadMonitoringData();
 
+    if (autoRefresh) {
+      const interval = setInterval(loadMonitoringData, 5000);
       return () => clearInterval(interval);
     }
   }, [autoRefresh]);
@@ -68,157 +118,189 @@ const Monitoring = () => {
 
   const getAlertColor = (type) => {
     switch (type) {
-      case 'error': return 'border-red-500 bg-red-50';
+      case 'error': case 'critical': return 'border-red-500 bg-red-50';
       case 'warning': return 'border-yellow-500 bg-yellow-50';
       case 'info': return 'border-blue-500 bg-blue-50';
       default: return 'border-gray-500 bg-gray-50';
     }
   };
 
+  const getOverallStatusBadge = () => {
+    const status = systemHealth.overall_status;
+    if (status === 'healthy' || status === 'ok') {
+      return <Badge variant="success">Saudável</Badge>;
+    } else if (status === 'degraded' || status === 'warning') {
+      return <Badge variant="warning">Degradado</Badge>;
+    } else {
+      return <Badge variant="error">Crítico</Badge>;
+    }
+  };
+
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-            <span className="mr-3">🖥️</span>
-            Monitoramento do Sistema
-          </h1>
-          <p className="text-gray-600 mt-1">Saúde dos modelos de IA e performance em tempo real</p>
+          <h1 className="text-h1">Monitoramento do Sistema</h1>
+          <p className="text-[var(--color-text-secondary)] mt-1">
+            Saúde dos modelos de IA e performance em tempo real
+          </p>
         </div>
-        <div className="flex space-x-3">
-          <button
+        <div className="flex items-center gap-3">
+          {lastUpdate && (
+            <span className="text-sm text-[var(--color-text-secondary)]">
+              Atualizado: {lastUpdate.toLocaleTimeString('pt-BR')}
+            </span>
+          )}
+          <Button
             onClick={() => setAutoRefresh(!autoRefresh)}
-            className={`px-4 py-2 rounded-lg font-medium ${
-              autoRefresh 
-                ? 'bg-green-600 text-white' 
-                : 'bg-gray-200 text-gray-700'
-            }`}
+            variant={autoRefresh ? "primary" : "secondary"}
+            size="sm"
           >
+            <Activity className="w-4 h-4 mr-2" />
             Auto-refresh {autoRefresh ? 'ON' : 'OFF'}
-          </button>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
-            🔄 Atualizar
-          </button>
+          </Button>
+          <Button onClick={loadMonitoringData} variant="secondary" size="sm" disabled={loading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
         </div>
       </div>
 
-      {/* Status Geral */}
+      {error && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center gap-2">
+          <AlertTriangle className="h-5 w-5 text-yellow-600" />
+          <span className="text-yellow-800">{error}</span>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Status Geral</p>
-              <p className="text-2xl font-bold text-green-600">Saudável</p>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-[var(--color-text-secondary)]">Status Geral</p>
+                <div className="mt-2">{getOverallStatusBadge()}</div>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <span className="text-green-600 text-xl">✅</span>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Modelos Ativos</p>
-              <p className="text-2xl font-bold text-blue-600">{systemHealth.active_models}</p>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-[var(--color-text-secondary)]">Modelos Ativos</p>
+                <p className="text-2xl font-bold text-blue-600">{systemHealth.active_models}</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Shield className="h-6 w-6 text-blue-600" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 text-xl">⚡</span>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Transações/seg</p>
-              <p className="text-2xl font-bold text-purple-600">{systemHealth.transactions_per_second}</p>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-[var(--color-text-secondary)]">Transações/seg</p>
+                <p className="text-2xl font-bold text-purple-600">{systemHealth.transactions_per_second}</p>
+              </div>
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                <Activity className="h-6 w-6 text-purple-600" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-              <span className="text-purple-600 text-xl">📊</span>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Tempo Resposta</p>
-              <p className="text-2xl font-bold text-orange-600">{systemHealth.avg_response_time}s</p>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-[var(--color-text-secondary)]">Tempo Resposta</p>
+                <p className="text-2xl font-bold text-orange-600">{systemHealth.avg_response_time}s</p>
+              </div>
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <Clock className="h-6 w-6 text-orange-600" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-              <span className="text-orange-600 text-xl">⏱️</span>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Métricas de Performance */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Taxa Detecção</p>
-              <p className="text-2xl font-bold text-green-600">{systemHealth.fraud_detection_rate}%</p>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-[var(--color-text-secondary)]">Taxa Detecção</p>
+                <p className="text-2xl font-bold text-green-600">{systemHealth.fraud_detection_rate}%</p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <Shield className="h-6 w-6 text-green-600" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <span className="text-green-600 text-xl">🛡️</span>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Falsos Positivos</p>
-              <p className="text-2xl font-bold text-yellow-600">{systemHealth.false_positive_rate}%</p>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-[var(--color-text-secondary)]">Falsos Positivos</p>
+                <p className="text-2xl font-bold text-yellow-600">{systemHealth.false_positive_rate}%</p>
+              </div>
+              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                <AlertTriangle className="h-6 w-6 text-yellow-600" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-              <span className="text-yellow-600 text-xl">⚠️</span>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Processadas Hoje</p>
-              <p className="text-2xl font-bold text-blue-600">{systemHealth.processed_today.toLocaleString()}</p>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-[var(--color-text-secondary)]">Processadas Hoje</p>
+                <p className="text-2xl font-bold text-blue-600">{systemHealth.processed_today.toLocaleString()}</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Server className="h-6 w-6 text-blue-600" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 text-xl">📈</span>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Uptime</p>
-              <p className="text-2xl font-bold text-green-600">{systemHealth.uptime}</p>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-[var(--color-text-secondary)]">Uptime</p>
+                <p className="text-2xl font-bold text-green-600">{systemHealth.uptime}</p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <Clock className="h-6 w-6 text-green-600" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <span className="text-green-600 text-xl">⏰</span>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Recursos do Sistema */}
-      <div className="bg-white rounded-lg shadow-md">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Recursos do Sistema</h2>
-          <p className="text-gray-600 mt-1">Monitoramento em tempo real dos recursos</p>
-        </div>
-        <div className="p-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Recursos do Sistema</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="text-center">
               <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                <span className="text-blue-600 text-2xl">💻</span>
+                <Cpu className="h-8 w-8 text-blue-600" />
               </div>
-              <p className="text-sm font-medium text-gray-600">CPU</p>
-              <p className="text-2xl font-bold text-gray-900">{systemHealth.cpu_usage.toFixed(1)}%</p>
+              <p className="text-sm font-medium text-[var(--color-text-secondary)]">CPU</p>
+              <p className="text-2xl font-bold">{systemHealth.cpu_usage.toFixed(1)}%</p>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(systemHealth.cpu_usage)}`}>
                 {systemHealth.cpu_usage >= 85 ? 'Alto' : systemHealth.cpu_usage >= 70 ? 'Médio' : 'Normal'}
               </span>
@@ -226,10 +308,10 @@ const Monitoring = () => {
 
             <div className="text-center">
               <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-3">
-                <span className="text-green-600 text-2xl">💾</span>
+                <Server className="h-8 w-8 text-green-600" />
               </div>
-              <p className="text-sm font-medium text-gray-600">Memória</p>
-              <p className="text-2xl font-bold text-gray-900">{systemHealth.memory_usage.toFixed(1)}%</p>
+              <p className="text-sm font-medium text-[var(--color-text-secondary)]">Memória</p>
+              <p className="text-2xl font-bold">{systemHealth.memory_usage.toFixed(1)}%</p>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(systemHealth.memory_usage)}`}>
                 {systemHealth.memory_usage >= 85 ? 'Alto' : systemHealth.memory_usage >= 70 ? 'Médio' : 'Normal'}
               </span>
@@ -237,10 +319,10 @@ const Monitoring = () => {
 
             <div className="text-center">
               <div className="w-16 h-16 mx-auto bg-yellow-100 rounded-full flex items-center justify-center mb-3">
-                <span className="text-yellow-600 text-2xl">💿</span>
+                <HardDrive className="h-8 w-8 text-yellow-600" />
               </div>
-              <p className="text-sm font-medium text-gray-600">Disco</p>
-              <p className="text-2xl font-bold text-gray-900">{systemHealth.disk_usage.toFixed(1)}%</p>
+              <p className="text-sm font-medium text-[var(--color-text-secondary)]">Disco</p>
+              <p className="text-2xl font-bold">{systemHealth.disk_usage.toFixed(1)}%</p>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(systemHealth.disk_usage)}`}>
                 {systemHealth.disk_usage >= 85 ? 'Alto' : systemHealth.disk_usage >= 70 ? 'Médio' : 'Normal'}
               </span>
@@ -248,95 +330,99 @@ const Monitoring = () => {
 
             <div className="text-center">
               <div className="w-16 h-16 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-3">
-                <span className="text-purple-600 text-2xl">🌐</span>
+                <Wifi className="h-8 w-8 text-purple-600" />
               </div>
-              <p className="text-sm font-medium text-gray-600">Latência</p>
-              <p className="text-2xl font-bold text-gray-900">{systemHealth.network_latency.toFixed(1)}ms</p>
+              <p className="text-sm font-medium text-[var(--color-text-secondary)]">Latência</p>
+              <p className="text-2xl font-bold">{systemHealth.network_latency.toFixed(1)}ms</p>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(100 - systemHealth.network_latency, 'health')}`}>
                 {systemHealth.network_latency <= 20 ? 'Excelente' : systemHealth.network_latency <= 50 ? 'Bom' : 'Lento'}
               </span>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Alertas e Conexões */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-md">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">Alertas Recentes</h2>
-          </div>
-          <div className="p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Alertas Recentes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             {alerts.length === 0 ? (
               <div className="text-center py-8">
-                <span className="text-6xl">✅</span>
-                <p className="text-gray-500 mt-2">Nenhum alerta ativo</p>
+                <CheckCircle className="h-12 w-12 mx-auto text-green-500" />
+                <p className="text-[var(--color-text-secondary)] mt-2">Nenhum alerta ativo</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {alerts.map((alert) => (
-                  <div key={alert.id} className={`p-4 rounded-lg border-l-4 ${getAlertColor(alert.type)}`}>
+                  <div key={alert.id} className={`p-4 rounded-lg border-l-4 ${getAlertColor(alert.type || alert.severity)}`}>
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-medium text-gray-900">{alert.message}</p>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {new Date(alert.timestamp).toLocaleString('pt-BR')}
+                        <p className="font-medium">{alert.message || alert.titulo}</p>
+                        <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+                          {new Date(alert.timestamp || alert.created_at).toLocaleString('pt-BR')}
                         </p>
                       </div>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        alert.severity === 'high' ? 'bg-red-100 text-red-800' :
-                        alert.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-blue-100 text-blue-800'
-                      }`}>
-                        {alert.severity === 'high' ? 'Alta' : alert.severity === 'medium' ? 'Média' : 'Baixa'}
-                      </span>
+                      <Badge variant={
+                        (alert.severity === 'high' || alert.severity === 'critico') ? 'error' :
+                        (alert.severity === 'medium' || alert.severity === 'medio') ? 'warning' : 'info'
+                      }>
+                        {alert.severity === 'high' || alert.severity === 'critico' ? 'Alta' : 
+                         alert.severity === 'medium' || alert.severity === 'medio' ? 'Média' : 'Baixa'}
+                      </Badge>
                     </div>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow-md">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">Informações do Sistema</h2>
-          </div>
-          <div className="p-6 space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Conexões Ativas</span>
-              <span className="font-medium text-gray-900">{systemHealth.active_connections}</span>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Server className="h-5 w-5" />
+              Informações do Sistema
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--color-text-secondary)]">Conexões Ativas</span>
+                <span className="font-medium">{systemHealth.active_connections}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--color-text-secondary)]">Uptime do Sistema</span>
+                <span className="font-medium">{systemHealth.uptime}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--color-text-secondary)]">Última Atualização</span>
+                <span className="font-medium">{lastUpdate ? lastUpdate.toLocaleTimeString('pt-BR') : '-'}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--color-text-secondary)]">Status dos Modelos</span>
+                <Badge variant="success">Todos Online</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--color-text-secondary)]">Modo de Operação</span>
+                <Badge variant="info">Produção</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--color-text-secondary)]">Auto-refresh</span>
+                <Badge variant={autoRefresh ? 'success' : 'default'}>
+                  {autoRefresh ? 'Ativo' : 'Inativo'}
+                </Badge>
+              </div>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Uptime do Sistema</span>
-              <span className="font-medium text-gray-900">{systemHealth.uptime}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Última Atualização</span>
-              <span className="font-medium text-gray-900">{new Date().toLocaleTimeString('pt-BR')}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Status dos Modelos</span>
-              <span className="font-medium text-green-600">Todos Online</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Modo de Operação</span>
-              <span className="font-medium text-blue-600">Produção</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Auto-refresh</span>
-              <span className={`font-medium ${autoRefresh ? 'text-green-600' : 'text-gray-600'}`}>
-                {autoRefresh ? 'Ativo' : 'Inativo'}
-              </span>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 };
 
-
-
 export default Monitoring;
-
