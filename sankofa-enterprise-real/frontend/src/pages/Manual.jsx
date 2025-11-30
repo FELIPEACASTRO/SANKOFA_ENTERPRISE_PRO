@@ -154,7 +154,7 @@ export function Manual() {
             <div className="space-y-4">
               <div>
                 <h3 className="font-bold mb-2">Aonde Encontrar?</h3>
-                <p className="text-sm text-gray-700">Menu > Transações</p>
+                <p className="text-sm text-gray-700">Menu → Transações</p>
               </div>
 
               <div>
@@ -223,7 +223,7 @@ export function Manual() {
                 <strong>Para que serve?</strong> Entender POR QUE uma transação foi bloqueada. Você vira um "detetive" armado com dados.
               </p>
               <p className="text-sm text-gray-700">
-                <strong>Aonde encontrar?</strong> Menu > Investigação (ou clique "Ver Detalhes" em Transações)
+                <strong>Aonde encontrar?</strong> Menu → Investigação (ou clique "Ver Detalhes" em Transações)
               </p>
 
               <div>
@@ -465,9 +465,9 @@ export function Manual() {
               <div>
                 <h3 className="font-bold mb-2">Como Usar</h3>
                 <div className="bg-gray-50 p-3 rounded text-sm text-gray-700 space-y-2">
-                  <p><strong>Adicionar VIP:</strong> Menu > Lista VIP > Adicionar CPF + Motivo</p>
+                  <p><strong>Adicionar VIP:</strong> Menu → Lista VIP → Adicionar CPF + Motivo</p>
                   <p><strong>Remover VIP:</strong> Encontre e clique "Remover"</p>
-                  <p><strong>Adicionar HOT:</strong> Menu > Lista HOT > Adicionar CPF + Motivo</p>
+                  <p><strong>Adicionar HOT:</strong> Menu → Lista HOT → Adicionar CPF + Motivo</p>
                   <p><strong>Remover HOT:</strong> ANTES revise por que foi adicionado, depois remove</p>
                 </div>
               </div>
