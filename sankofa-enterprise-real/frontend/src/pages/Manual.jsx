@@ -2514,6 +2514,856 @@ export function Manual() {
             </div>
           </div>
 
+          {/* SECAO 5: COMBINACOES COMPLETAS COM JSONS */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Grid className="h-6 w-6 text-indigo-500" /> 5. Tabelas de Combinacoes Completas
+            </h3>
+            
+            <p className="text-gray-700 mb-6">
+              Esta secao mostra TODAS as combinacoes possiveis de variaveis que afetam a decisao do sistema.
+              Para cada combinacao, voce vera o JSON de entrada, o processamento e o JSON de saida.
+            </p>
+
+            {/* TABELA 5.1: COMBINACOES DE CANAL */}
+            <div className="mb-6">
+              <h4 className="font-bold text-lg mb-3 flex items-center gap-2 text-blue-800">
+                <CreditCard className="h-5 w-5" /> 5.1 Combinacoes por CANAL (PIX vs Credito vs Debito)
+              </h4>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse bg-white rounded-lg overflow-hidden shadow">
+                  <thead className="bg-blue-600 text-white">
+                    <tr>
+                      <th className="p-3 text-left">Canal</th>
+                      <th className="p-3 text-left">SLA</th>
+                      <th className="p-3 text-left">Peso Base</th>
+                      <th className="p-3 text-left">Regras Especiais</th>
+                      <th className="p-3 text-left">Risco Inerente</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-gray-200">
+                      <td className="p-3 font-bold text-green-600">PIX</td>
+                      <td className="p-3"><span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">{'<'}50ms</span></td>
+                      <td className="p-3">+15 pontos</td>
+                      <td className="p-3 text-sm">Fast mode obrigatorio, cache agressivo, sem explicacao por default</td>
+                      <td className="p-3"><span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">MEDIO-ALTO</span></td>
+                    </tr>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <td className="p-3 font-bold text-purple-600">CARTAO CREDITO</td>
+                      <td className="p-3"><span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">{'<'}2000ms</span></td>
+                      <td className="p-3">+10 pontos</td>
+                      <td className="p-3 text-sm">Verificacao CVV, limite de credito, historico de compras</td>
+                      <td className="p-3"><span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">ALTO</span></td>
+                    </tr>
+                    <tr className="border-b border-gray-200">
+                      <td className="p-3 font-bold text-blue-600">CARTAO DEBITO</td>
+                      <td className="p-3"><span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">{'<'}2000ms</span></td>
+                      <td className="p-3">+5 pontos</td>
+                      <td className="p-3 text-sm">Verificacao de saldo, limite diario, POS validation</td>
+                      <td className="p-3"><span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">MEDIO</span></td>
+                    </tr>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <td className="p-3 font-bold text-gray-600">TED</td>
+                      <td className="p-3"><span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">{'<'}5000ms</span></td>
+                      <td className="p-3">+3 pontos</td>
+                      <td className="p-3 text-sm">Horario bancario, valor maximo, confirmacao dupla</td>
+                      <td className="p-3"><span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">BAIXO</span></td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="p-3 font-bold text-gray-600">BOLETO</td>
+                      <td className="p-3"><span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">{'<'}5000ms</span></td>
+                      <td className="p-3">+2 pontos</td>
+                      <td className="p-3 text-sm">Validacao de codigo de barras, vencimento, beneficiario</td>
+                      <td className="p-3"><span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">BAIXO</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* TABELA 5.2: COMBINACOES DE INTERFACE */}
+            <div className="mb-6">
+              <h4 className="font-bold text-lg mb-3 flex items-center gap-2 text-green-800">
+                <Monitor className="h-5 w-5" /> 5.2 Combinacoes por INTERFACE (WEB vs POS vs APP)
+              </h4>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse bg-white rounded-lg overflow-hidden shadow">
+                  <thead className="bg-green-600 text-white">
+                    <tr>
+                      <th className="p-3 text-left">Interface</th>
+                      <th className="p-3 text-left">Peso Risco</th>
+                      <th className="p-3 text-left">Verificacoes</th>
+                      <th className="p-3 text-left">Pontos Fracos</th>
+                      <th className="p-3 text-left">Mitigacao</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-gray-200">
+                      <td className="p-3 font-bold">WEB (Browser)</td>
+                      <td className="p-3"><span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">+20</span></td>
+                      <td className="p-3 text-sm">User-agent, cookies, fingerprint JS</td>
+                      <td className="p-3 text-sm text-red-600">VPNs, proxies, extensoes maliciosas</td>
+                      <td className="p-3 text-sm">Behavioral biometrics, CAPTCHA</td>
+                    </tr>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <td className="p-3 font-bold">POS (Maquininha)</td>
+                      <td className="p-3"><span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">+12</span></td>
+                      <td className="p-3 text-sm">Serial do terminal, merchant ID, geo</td>
+                      <td className="p-3 text-sm text-orange-600">Maquininha clonada, visor quebrado</td>
+                      <td className="p-3 text-sm">Validacao EMV, PIN obrigatorio</td>
+                    </tr>
+                    <tr className="border-b border-gray-200">
+                      <td className="p-3 font-bold">APP (Mobile)</td>
+                      <td className="p-3"><span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">+5</span></td>
+                      <td className="p-3 text-sm">Device ID, biometria, push token</td>
+                      <td className="p-3 text-sm text-yellow-600">Root/jailbreak, emuladores</td>
+                      <td className="p-3 text-sm">Attestation API, root detection</td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="p-3 font-bold">API (Sistema)</td>
+                      <td className="p-3"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">+8</span></td>
+                      <td className="p-3 text-sm">API key, certificate, IP whitelist</td>
+                      <td className="p-3 text-sm text-blue-600">Chave vazada, man-in-middle</td>
+                      <td className="p-3 text-sm">mTLS, rate limiting, rotation</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* TABELA 5.3: COMBINACOES DE IP */}
+            <div className="mb-6">
+              <h4 className="font-bold text-lg mb-3 flex items-center gap-2 text-purple-800">
+                <Globe className="h-5 w-5" /> 5.3 Combinacoes por IP (Conhecido vs Diferente vs Suspeito vs Internacional)
+              </h4>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse bg-white rounded-lg overflow-hidden shadow">
+                  <thead className="bg-purple-600 text-white">
+                    <tr>
+                      <th className="p-3 text-left">Tipo IP</th>
+                      <th className="p-3 text-left">Impacto Score</th>
+                      <th className="p-3 text-left">Exemplos</th>
+                      <th className="p-3 text-left">Acao do Sistema</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-gray-200">
+                      <td className="p-3 font-bold text-green-600">IP Conhecido</td>
+                      <td className="p-3"><span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">-10 pontos</span></td>
+                      <td className="p-3 text-sm">Mesmo IP das ultimas 10 transacoes</td>
+                      <td className="p-3 text-sm text-green-600">Bonus de confianca</td>
+                    </tr>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <td className="p-3 font-bold text-yellow-600">IP Diferente</td>
+                      <td className="p-3"><span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">+15 pontos</span></td>
+                      <td className="p-3 text-sm">IP nunca visto, mas mesmo ISP/regiao</td>
+                      <td className="p-3 text-sm text-yellow-600">Verificacao adicional</td>
+                    </tr>
+                    <tr className="border-b border-gray-200">
+                      <td className="p-3 font-bold text-orange-600">IP Suspeito</td>
+                      <td className="p-3"><span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold">+35 pontos</span></td>
+                      <td className="p-3 text-sm">VPN, Tor, proxy anonimo, datacenter</td>
+                      <td className="p-3 text-sm text-orange-600">Alerta + revisao manual</td>
+                    </tr>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <td className="p-3 font-bold text-red-600">IP Internacional</td>
+                      <td className="p-3"><span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">+45 pontos</span></td>
+                      <td className="p-3 text-sm">Pais diferente, timezone impossivel</td>
+                      <td className="p-3 text-sm text-red-600">Bloqueio preventivo</td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="p-3 font-bold text-red-800">IP na HOT List</td>
+                      <td className="p-3"><span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">+100 pontos</span></td>
+                      <td className="p-3 text-sm">IP ja usado em fraude confirmada</td>
+                      <td className="p-3 text-sm text-red-800">BLOQUEIO IMEDIATO</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* TABELA 5.4: COMBINACOES DE DISPOSITIVO */}
+            <div className="mb-6">
+              <h4 className="font-bold text-lg mb-3 flex items-center gap-2 text-orange-800">
+                <Smartphone className="h-5 w-5" /> 5.4 Combinacoes por DISPOSITIVO (Conhecido vs Desconhecido vs Suspeito)
+              </h4>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse bg-white rounded-lg overflow-hidden shadow">
+                  <thead className="bg-orange-600 text-white">
+                    <tr>
+                      <th className="p-3 text-left">Tipo Device</th>
+                      <th className="p-3 text-left">Impacto Score</th>
+                      <th className="p-3 text-left">Sinais</th>
+                      <th className="p-3 text-left">Acao do Sistema</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-gray-200">
+                      <td className="p-3 font-bold text-green-600">Device Conhecido</td>
+                      <td className="p-3"><span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">-15 pontos</span></td>
+                      <td className="p-3 text-sm">Mesmo device_id das ultimas transacoes, biometria OK</td>
+                      <td className="p-3 text-sm text-green-600">Fast track approval</td>
+                    </tr>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <td className="p-3 font-bold text-yellow-600">Device Novo</td>
+                      <td className="p-3"><span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">+20 pontos</span></td>
+                      <td className="p-3 text-sm">Primeira vez que cliente usa este device</td>
+                      <td className="p-3 text-sm text-yellow-600">SMS/push de confirmacao</td>
+                    </tr>
+                    <tr className="border-b border-gray-200">
+                      <td className="p-3 font-bold text-orange-600">Device Emulador</td>
+                      <td className="p-3"><span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold">+40 pontos</span></td>
+                      <td className="p-3 text-sm">Bluestacks, Nox, sinais de virtualizacao</td>
+                      <td className="p-3 text-sm text-orange-600">Bloqueio + investigacao</td>
+                    </tr>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <td className="p-3 font-bold text-red-600">Device Root/JB</td>
+                      <td className="p-3"><span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">+30 pontos</span></td>
+                      <td className="p-3 text-sm">Root Android, jailbreak iOS detectado</td>
+                      <td className="p-3 text-sm text-red-600">Revisao obrigatoria</td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="p-3 font-bold text-red-800">Device na HOT List</td>
+                      <td className="p-3"><span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">+100 pontos</span></td>
+                      <td className="p-3 text-sm">Device ja usado em fraude confirmada</td>
+                      <td className="p-3 text-sm text-red-800">BLOQUEIO IMEDIATO</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* TABELA 5.5: COMBINACOES DE HISTORICO */}
+            <div className="mb-6">
+              <h4 className="font-bold text-lg mb-3 flex items-center gap-2 text-red-800">
+                <History className="h-5 w-5" /> 5.5 Combinacoes por HISTORICO DO CLIENTE
+              </h4>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse bg-white rounded-lg overflow-hidden shadow">
+                  <thead className="bg-red-600 text-white">
+                    <tr>
+                      <th className="p-3 text-left">Tipo Historico</th>
+                      <th className="p-3 text-left">Impacto Score</th>
+                      <th className="p-3 text-left">Indicadores</th>
+                      <th className="p-3 text-left">Tratamento</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-gray-200">
+                      <td className="p-3 font-bold text-green-600">Historico Normal</td>
+                      <td className="p-3"><span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">-20 pontos</span></td>
+                      <td className="p-3 text-sm">Padroes consistentes, nenhuma fraude anterior, conta antiga</td>
+                      <td className="p-3 text-sm text-green-600">Cliente confiavel</td>
+                    </tr>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <td className="p-3 font-bold text-blue-600">Cliente VIP</td>
+                      <td className="p-3"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">-50 pontos</span></td>
+                      <td className="p-3 text-sm">Na VIP List, verificado manualmente, alto patrimonio</td>
+                      <td className="p-3 text-sm text-blue-600">Aprovacao automatica</td>
+                    </tr>
+                    <tr className="border-b border-gray-200">
+                      <td className="p-3 font-bold text-yellow-600">Historico Inconsistente</td>
+                      <td className="p-3"><span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">+25 pontos</span></td>
+                      <td className="p-3 text-sm">Padroes variados, algumas disputas, conta recente</td>
+                      <td className="p-3 text-sm text-yellow-600">Monitoramento ativo</td>
+                    </tr>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <td className="p-3 font-bold text-orange-600">Conta Nova (menos 30d)</td>
+                      <td className="p-3"><span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold">+30 pontos</span></td>
+                      <td className="p-3 text-sm">Conta criada recentemente, pouco historico</td>
+                      <td className="p-3 text-sm text-orange-600">Limites reduzidos</td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="p-3 font-bold text-red-800">Historico Fraudulento</td>
+                      <td className="p-3"><span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">+100 pontos</span></td>
+                      <td className="p-3 text-sm">Fraude anterior confirmada, chargebacks, na HOT List</td>
+                      <td className="p-3 text-sm text-red-800">BLOQUEIO TOTAL</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          {/* SECAO 6: EXEMPLOS COMBINADOS COM JSON COMPLETO */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Code className="h-6 w-6 text-blue-500" /> 6. Exemplos Combinados Completos (JSON Entrada + Saida)
+            </h3>
+            
+            <p className="text-gray-700 mb-6">
+              Cada exemplo abaixo mostra o JSON COMPLETO de entrada, o que acontece no motor, e o JSON COMPLETO de saida.
+              Use estes exemplos como referencia para entender qualquer cenario que encontrar.
+            </p>
+
+            {/* EXEMPLO 6.1: PIX + Device Desconhecido + IP Novo + Valor Alto */}
+            <div className="border-2 border-red-300 rounded-xl mb-6 overflow-hidden">
+              <div className="bg-red-600 text-white p-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-lg font-bold">6.1 PIX + Dispositivo Desconhecido + IP Novo + Valor Alto</h4>
+                  <span className="bg-white/20 px-3 py-1 rounded-full text-sm">Score: 89 | BLOQUEAR</span>
+                </div>
+              </div>
+              <div className="p-4 bg-white">
+                <div className="grid lg:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                      <ArrowRight className="h-4 w-4 text-blue-500" /> JSON de ENTRADA:
+                    </h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-green-400 text-xs font-mono whitespace-pre">{`{
+  "transactions": [{
+    "transaction_id": "TXN-PIX-HIGH-001",
+    "customer_id": "CPF***234***",
+    "amount": 25000.00,
+    "channel": "PIX",
+    "hour": 2,
+    "merchant_id": "UNKNOWN-RECEIVER",
+    "merchant_category": "transferencia_pf",
+    "device_id": "DEV-NEVER-SEEN-999",
+    "ip_address": "45.***.***.128",
+    "latitude": -23.5505,
+    "longitude": -46.6333,
+    "is_new_device": true,
+    "is_new_recipient": true,
+    "velocity_score": 0.72,
+    "avg_amount_30d": 1200.00,
+    "transaction_count_24h": 0
+  }],
+  "include_explanation": true,
+  "fast_mode": true
+}`}</pre>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                      <ArrowLeft className="h-4 w-4 text-green-500" /> JSON de SAIDA:
+                    </h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-red-400 text-xs font-mono whitespace-pre">{`{
+  "success": true,
+  "data": {
+    "predictions": [{
+      "transaction_id": "TXN-PIX-HIGH-001",
+      "is_fraud": true,
+      "fraud_probability": 0.89,
+      "risk_score": 89.0,
+      "risk_level": "HIGH",
+      "confidence": 0.94,
+      "processing_time_ms": 42.1,
+      "model_version": "1.0.0",
+      "detection_reason": [
+        "Valor 20.8x maior que media",
+        "Dispositivo NUNCA visto antes",
+        "IP em faixa de VPN suspeita",
+        "Transacao as 02h (madrugada)",
+        "Destinatario desconhecido",
+        "Velocidade de tentativas alta"
+      ],
+      "timestamp": "2025-11-30T02:15:33.456Z",
+      "explanation": {
+        "risk_level": "HIGH",
+        "explanation_text": "Transacao bloqueada 
+por multiplos indicadores de alto risco.",
+        "top_risk_factors": [
+          {"factor": "amount_deviation", 
+           "impact": 0.42, 
+           "description": "Valor muito acima"},
+          {"factor": "new_device", 
+           "impact": 0.28, 
+           "description": "Device novo"},
+          {"factor": "suspicious_hour", 
+           "impact": 0.19, 
+           "description": "Madrugada"}
+        ],
+        "lgpd_compliant": true
+      }
+    }],
+    "summary": {
+      "total": 1,
+      "frauds_detected": 1,
+      "avg_risk_score": 0.89
+    }
+  }
+}`}</pre>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-red-50 rounded-lg p-4">
+                  <h5 className="font-bold text-red-800 mb-2">O Que Aconteceu no Motor:</h5>
+                  <div className="grid md:grid-cols-3 gap-4 text-sm">
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-gray-700 mb-1">1. Cache</div>
+                      <p className="text-gray-600">Cache MISS - transacao nova, precisa processar</p>
+                    </div>
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-gray-700 mb-1">2. PostgreSQL</div>
+                      <p className="text-gray-600">Buscou historico: media R$1.200, ultima txn ha 3 dias, 0 fraudes</p>
+                    </div>
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-gray-700 mb-1">3. Ensemble ML</div>
+                      <p className="text-gray-600">RF: 0.91 | GB: 0.88 | LR: 0.85 = Media: 0.89</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* EXEMPLO 6.2: Credito + Maquininha + Merchant Suspeito */}
+            <div className="border-2 border-orange-300 rounded-xl mb-6 overflow-hidden">
+              <div className="bg-orange-600 text-white p-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-lg font-bold">6.2 Credito + Maquininha (POS) + Merchant Suspeito</h4>
+                  <span className="bg-white/20 px-3 py-1 rounded-full text-sm">Score: 72 | BLOQUEAR</span>
+                </div>
+              </div>
+              <div className="p-4 bg-white">
+                <div className="grid lg:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                      <ArrowRight className="h-4 w-4 text-blue-500" /> JSON de ENTRADA:
+                    </h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-green-400 text-xs font-mono whitespace-pre">{`{
+  "transactions": [{
+    "transaction_id": "TXN-CC-POS-002",
+    "customer_id": "CPF***567***",
+    "amount": 4999.99,
+    "channel": "CARTAO",
+    "card_type": "CREDIT",
+    "hour": 15,
+    "merchant_id": "MERC-SUSPECT-123",
+    "merchant_category": "eletronicos",
+    "merchant_risk_level": "HIGH",
+    "device_id": "POS-TERM-456",
+    "terminal_type": "POS",
+    "ip_address": null,
+    "latitude": -22.9068,
+    "longitude": -43.1729,
+    "is_new_device": false,
+    "is_new_recipient": true,
+    "velocity_score": 0.45,
+    "avg_amount_30d": 890.00,
+    "transaction_count_24h": 2
+  }],
+  "include_explanation": true
+}`}</pre>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                      <ArrowLeft className="h-4 w-4 text-green-500" /> JSON de SAIDA:
+                    </h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-orange-400 text-xs font-mono whitespace-pre">{`{
+  "success": true,
+  "data": {
+    "predictions": [{
+      "transaction_id": "TXN-CC-POS-002",
+      "is_fraud": true,
+      "fraud_probability": 0.72,
+      "risk_score": 72.0,
+      "risk_level": "HIGH",
+      "confidence": 0.88,
+      "processing_time_ms": 156.3,
+      "model_version": "1.0.0",
+      "detection_reason": [
+        "Merchant com historico de fraude",
+        "Valor 5.6x maior que media",
+        "Valor R$ 4999,99 (evitando limite)",
+        "Categoria alto risco: eletronicos",
+        "POS em regiao diferente do habitual"
+      ],
+      "timestamp": "2025-11-30T15:22:18.789Z",
+      "explanation": {
+        "risk_level": "HIGH",
+        "top_risk_factors": [
+          {"factor": "merchant_risk", 
+           "impact": 0.35, 
+           "description": "Loja suspeita"},
+          {"factor": "amount_pattern", 
+           "impact": 0.22, 
+           "description": "Valor quebrado"},
+          {"factor": "category_risk", 
+           "impact": 0.15, 
+           "description": "Eletronicos"}
+        ],
+        "lgpd_compliant": true
+      }
+    }]
+  }
+}`}</pre>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-orange-50 rounded-lg p-4">
+                  <h5 className="font-bold text-orange-800 mb-2">O Que Aconteceu no Motor:</h5>
+                  <div className="grid md:grid-cols-3 gap-4 text-sm">
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-gray-700 mb-1">1. Merchant Check</div>
+                      <p className="text-gray-600">MERC-SUSPECT-123 tem 5 chargebacks nos ultimos 30 dias</p>
+                    </div>
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-gray-700 mb-1">2. Pattern Detection</div>
+                      <p className="text-gray-600">R$ 4999,99 = tecnica comum para evitar limite de R$ 5000</p>
+                    </div>
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-gray-700 mb-1">3. Hard Rules</div>
+                      <p className="text-gray-600">Regra ativada: merchant_risk + high_value + eletronicos</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* EXEMPLO 6.3: Debito + WEB + 3 Tentativas Rapidas */}
+            <div className="border-2 border-yellow-300 rounded-xl mb-6 overflow-hidden">
+              <div className="bg-yellow-500 text-white p-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-lg font-bold">6.3 Debito + WEB + 3 Tentativas Rapidas</h4>
+                  <span className="bg-white/20 px-3 py-1 rounded-full text-sm">Score: 58 | REVISAR</span>
+                </div>
+              </div>
+              <div className="p-4 bg-white">
+                <div className="grid lg:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                      <ArrowRight className="h-4 w-4 text-blue-500" /> JSON de ENTRADA:
+                    </h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-green-400 text-xs font-mono whitespace-pre">{`{
+  "transactions": [{
+    "transaction_id": "TXN-DEB-WEB-003",
+    "customer_id": "CPF***890***",
+    "amount": 1500.00,
+    "channel": "CARTAO",
+    "card_type": "DEBIT",
+    "hour": 19,
+    "merchant_id": "MERC-LOJA-789",
+    "merchant_category": "vestuario",
+    "device_id": "DEV-BROWSER-ABC",
+    "ip_address": "189.***.***.55",
+    "latitude": -23.5505,
+    "longitude": -46.6333,
+    "is_new_device": true,
+    "is_new_recipient": false,
+    "velocity_score": 0.68,
+    "avg_amount_30d": 650.00,
+    "transaction_count_24h": 3,
+    "failed_attempts_1h": 2,
+    "user_agent": "Mozilla/5.0..."
+  }],
+  "include_explanation": true
+}`}</pre>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                      <ArrowLeft className="h-4 w-4 text-green-500" /> JSON de SAIDA:
+                    </h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-yellow-400 text-xs font-mono whitespace-pre">{`{
+  "success": true,
+  "data": {
+    "predictions": [{
+      "transaction_id": "TXN-DEB-WEB-003",
+      "is_fraud": false,
+      "fraud_probability": 0.58,
+      "risk_score": 58.0,
+      "risk_level": "MEDIUM",
+      "confidence": 0.82,
+      "processing_time_ms": 89.7,
+      "model_version": "1.0.0",
+      "detection_reason": [
+        "Dispositivo novo detectado",
+        "Valor 2.3x maior que media",
+        "2 tentativas falhas recentes",
+        "Velocidade de transacoes alta"
+      ],
+      "timestamp": "2025-11-30T19:45:22.123Z",
+      "review_recommended": true,
+      "explanation": {
+        "risk_level": "MEDIUM",
+        "explanation_text": "Transacao com 
+indicadores mistos - revisao sugerida.",
+        "top_risk_factors": [
+          {"factor": "new_device", 
+           "impact": 0.22},
+          {"factor": "failed_attempts", 
+           "impact": 0.18},
+          {"factor": "velocity", 
+           "impact": 0.15}
+        ],
+        "top_protective_factors": [
+          {"factor": "known_merchant", 
+           "impact": -0.12},
+          {"factor": "known_ip_range", 
+           "impact": -0.08}
+        ],
+        "lgpd_compliant": true
+      }
+    }]
+  }
+}`}</pre>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-yellow-50 rounded-lg p-4">
+                  <h5 className="font-bold text-yellow-800 mb-2">O Que Aconteceu no Motor:</h5>
+                  <div className="grid md:grid-cols-3 gap-4 text-sm">
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-gray-700 mb-1">1. Velocity Check</div>
+                      <p className="text-gray-600">3 txns em 24h + 2 falhas = padrao de teste de cartao?</p>
+                    </div>
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-gray-700 mb-1">2. Balanceamento</div>
+                      <p className="text-gray-600">Fatores negativos (device novo) vs positivos (merchant ok)</p>
+                    </div>
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-gray-700 mb-1">3. Decisao</div>
+                      <p className="text-gray-600">Score 58 = zona cinza, enviar para analista</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* EXEMPLO 6.4: PIX Recorrente + Mesmo Device + Novo IP */}
+            <div className="border-2 border-green-300 rounded-xl mb-6 overflow-hidden">
+              <div className="bg-green-600 text-white p-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-lg font-bold">6.4 PIX Recorrente + Mesmo Device + Novo IP (Viagem)</h4>
+                  <span className="bg-white/20 px-3 py-1 rounded-full text-sm">Score: 22 | APROVAR</span>
+                </div>
+              </div>
+              <div className="p-4 bg-white">
+                <div className="grid lg:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                      <ArrowRight className="h-4 w-4 text-blue-500" /> JSON de ENTRADA:
+                    </h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-green-400 text-xs font-mono whitespace-pre">{`{
+  "transactions": [{
+    "transaction_id": "TXN-PIX-TRAVEL-004",
+    "customer_id": "CPF***111***",
+    "amount": 850.00,
+    "channel": "PIX",
+    "hour": 12,
+    "merchant_id": "PIX-FAMILIA-001",
+    "merchant_category": "transferencia_pf",
+    "device_id": "DEV-KNOWN-IPHONE",
+    "ip_address": "201.***.***.99",
+    "latitude": -25.4284,
+    "longitude": -49.2733,
+    "is_new_device": false,
+    "is_new_recipient": false,
+    "velocity_score": 0.15,
+    "avg_amount_30d": 920.00,
+    "transaction_count_24h": 1,
+    "location_city": "Curitiba",
+    "usual_city": "Sao Paulo"
+  }],
+  "include_explanation": true,
+  "fast_mode": true
+}`}</pre>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                      <ArrowLeft className="h-4 w-4 text-green-500" /> JSON de SAIDA:
+                    </h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-green-400 text-xs font-mono whitespace-pre">{`{
+  "success": true,
+  "data": {
+    "predictions": [{
+      "transaction_id": "TXN-PIX-TRAVEL-004",
+      "is_fraud": false,
+      "fraud_probability": 0.22,
+      "risk_score": 22.0,
+      "risk_level": "LOW",
+      "confidence": 0.91,
+      "processing_time_ms": 31.2,
+      "model_version": "1.0.0",
+      "detection_reason": [
+        "Cliente recorrente",
+        "Dispositivo conhecido",
+        "Valor dentro do padrao",
+        "Destinatario ja recebeu 15x antes",
+        "Padrao de viagem detectado"
+      ],
+      "timestamp": "2025-11-30T12:30:45.678Z",
+      "explanation": {
+        "risk_level": "LOW",
+        "explanation_text": "Transacao aprovada.
+Padrao consistente com viagem.",
+        "top_protective_factors": [
+          {"factor": "known_device", 
+           "impact": -0.25, 
+           "description": "Device confiavel"},
+          {"factor": "known_recipient", 
+           "impact": -0.20, 
+           "description": "Destino habitual"},
+          {"factor": "amount_normal", 
+           "impact": -0.15, 
+           "description": "Valor tipico"}
+        ],
+        "top_risk_factors": [
+          {"factor": "new_location", 
+           "impact": 0.12, 
+           "description": "Cidade diferente"}
+        ],
+        "lgpd_compliant": true
+      }
+    }],
+    "summary": {
+      "total": 1,
+      "frauds_detected": 0,
+      "avg_risk_score": 0.22
+    }
+  }
+}`}</pre>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4">
+                  <h5 className="font-bold text-green-800 mb-2">O Que Aconteceu no Motor:</h5>
+                  <div className="grid md:grid-cols-3 gap-4 text-sm">
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-gray-700 mb-1">1. Device Trust</div>
+                      <p className="text-gray-600">iPhone do cliente usado ha 2 anos, biometria OK</p>
+                    </div>
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-gray-700 mb-1">2. Travel Pattern</div>
+                      <p className="text-gray-600">SP para Curitiba = 400km, tempo compativel com aviao</p>
+                    </div>
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-gray-700 mb-1">3. Recipient History</div>
+                      <p className="text-gray-600">PIX para "mae" - 15 transferencias anteriores</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* EXEMPLO 6.5: Credito Internacional + GeoLocation Divergente */}
+            <div className="border-2 border-red-300 rounded-xl mb-6 overflow-hidden">
+              <div className="bg-red-700 text-white p-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-lg font-bold">6.5 Credito Internacional + GeoLocation Divergente (Teletransporte)</h4>
+                  <span className="bg-white/20 px-3 py-1 rounded-full text-sm">Score: 97 | BLOQUEAR</span>
+                </div>
+              </div>
+              <div className="p-4 bg-white">
+                <div className="grid lg:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                      <ArrowRight className="h-4 w-4 text-blue-500" /> JSON de ENTRADA:
+                    </h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-green-400 text-xs font-mono whitespace-pre">{`{
+  "transactions": [{
+    "transaction_id": "TXN-CC-INTL-005",
+    "customer_id": "CPF***333***",
+    "amount": 8500.00,
+    "currency": "USD",
+    "amount_brl": 42500.00,
+    "channel": "CARTAO",
+    "card_type": "CREDIT",
+    "hour": 4,
+    "merchant_id": "MERC-INTL-AMAZON-US",
+    "merchant_category": "ecommerce",
+    "merchant_country": "US",
+    "device_id": "DEV-UNKNOWN-XYZ",
+    "ip_address": "104.***.***.55",
+    "ip_country": "US",
+    "latitude": 37.7749,
+    "longitude": -122.4194,
+    "last_transaction_city": "Sao Paulo",
+    "last_transaction_time": "2025-11-30T03:55:00Z",
+    "is_new_device": true,
+    "is_new_recipient": true,
+    "velocity_score": 0.88
+  }],
+  "include_explanation": true
+}`}</pre>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                      <ArrowLeft className="h-4 w-4 text-green-500" /> JSON de SAIDA:
+                    </h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-red-400 text-xs font-mono whitespace-pre">{`{
+  "success": true,
+  "data": {
+    "predictions": [{
+      "transaction_id": "TXN-CC-INTL-005",
+      "is_fraud": true,
+      "fraud_probability": 0.97,
+      "risk_score": 97.0,
+      "risk_level": "CRITICAL",
+      "confidence": 0.98,
+      "processing_time_ms": 234.5,
+      "model_version": "1.0.0",
+      "detection_reason": [
+        "IMPOSSIBILIDADE FISICA DETECTADA",
+        "SP -> San Francisco em 9 minutos",
+        "Distancia: 10.500km impossivel",
+        "Dispositivo completamente novo",
+        "IP de outro pais",
+        "Valor R$ 42.500 muito alto",
+        "Transacao as 04h (madrugada)"
+      ],
+      "timestamp": "2025-11-30T04:04:12.999Z",
+      "alert_level": "CRITICAL",
+      "security_action": "BLOCK_AND_NOTIFY",
+      "explanation": {
+        "risk_level": "CRITICAL",
+        "explanation_text": "Transacao bloqueada.
+Impossibilidade fisica detectada.",
+        "top_risk_factors": [
+          {"factor": "geo_impossibility", 
+           "impact": 0.50, 
+           "description": "Teletransporte"},
+          {"factor": "international", 
+           "impact": 0.25, 
+           "description": "Pais diferente"},
+          {"factor": "high_amount", 
+           "impact": 0.15, 
+           "description": "Valor extremo"}
+        ],
+        "lgpd_compliant": true
+      }
+    }]
+  }
+}`}</pre>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-red-50 rounded-lg p-4">
+                  <h5 className="font-bold text-red-800 mb-2">O Que Aconteceu no Motor:</h5>
+                  <div className="grid md:grid-cols-3 gap-4 text-sm">
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-red-700 mb-1">1. Geo Check</div>
+                      <p className="text-gray-600">SP 03:55 → SF 04:04 = 9min para 10.500km = IMPOSSIVEL</p>
+                    </div>
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-red-700 mb-1">2. Hard Rule</div>
+                      <p className="text-gray-600">Regra "TELETRANSPORTE" ativada = bloqueio automatico</p>
+                    </div>
+                    <div className="bg-white rounded p-3">
+                      <div className="font-bold text-red-700 mb-1">3. Alerta</div>
+                      <p className="text-gray-600">Notificacao enviada para equipe de seguranca</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* RESUMO VISUAL */}
           <div className="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-xl p-6">
             <h3 className="text-xl font-bold text-indigo-900 mb-4 flex items-center gap-2">
