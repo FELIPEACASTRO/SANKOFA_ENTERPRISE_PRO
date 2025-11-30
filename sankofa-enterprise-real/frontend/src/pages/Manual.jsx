@@ -1644,7 +1644,7 @@ export function Manual() {
                 <strong>14:32:03</strong> - Os 3 modelos de IA analisam. Random Forest: 85%, Gradient Boosting: 88%, CatBoost: 86%. 
                 Media ponderada: Score 87/100.
                 <br/><br/>
-                <strong>14:32:04</strong> - Score 87 > 70, portanto BLOQUEAR automaticamente. 
+                <strong>14:32:04</strong> - Score 87 {'>'} 70, portanto BLOQUEAR automaticamente. 
                 Joao recebe SMS: "Sua transacao esta em analise de seguranca."
                 <br/><br/>
                 <strong>14:35:00</strong> - Carlos, analista, ve o alerta na fila. Abre a investigacao, 

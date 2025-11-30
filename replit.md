@@ -80,45 +80,40 @@ Clean Architecture with Domain, Application, Infrastructure, and Presentation la
 
 ## Recent Changes (November 30, 2025)
 
-### Manual Ultra-Didático Completo (v1.0)
-O Manual foi completamente reescrito para ser extremamente didático e detalhado:
+### Manual ULTRA-DIDÁTICO Completo (v2.0) - 1.736 linhas
+O Manual foi COMPLETAMENTE REESCRITO seguindo prompt ultra-extremo com:
 
-1. **9 Abas de Navegação**:
-   - Início: Visão geral, equipe de especialistas, como funciona
-   - Dia a Dia: Jornada completa de um analista (06:00-14:00)
-   - Features de IA: 40+ características explicadas em 8 categorias
-   - DataSets: Kaggle (284k tx), Produção (4.4k tx), Feedback
-   - Transfer Learning: 4 fases de aprendizado da IA
-   - Todas as Telas: Mapa das 16 páginas do sistema
-   - Compliance: LGPD, BACEN, PCI DSS com artigos
-   - Cenários Reais: Fraudes reais com passo a passo
-   - Glossário: 23 termos técnicos explicados
+**METODOLOGIAS APLICADAS:**
+- Metodologia "Use a Cabeça" (Head First): linguagem conversacional
+- Dual Coding: texto + ASCII + emojis + ícones visuais
+- Storytelling Learning: histórias com personas reais
+- Problem-Based Learning: cada tela resolve um problema real
+- Visual Thinking: estrutura hierárquica clara
+- Repetição com Variação: conceitos reforçados em contextos diferentes
 
-2. **40+ Features de IA Documentadas**:
-   - Dados da Transação (5): amount, channel, transaction_hour, etc
-   - Velocidade e Frequência (5): velocity_1h, velocity_24h, etc
-   - Comportamento do Cliente (5): avg_transaction_amount, etc
-   - Destinatário (5): recipient_is_new, recipient_risk_score, etc
-   - Dispositivo e Localização (5): device_is_new, ip_is_vpn, etc
-   - Padrões Temporais (5): is_night_transaction, usual_hour_deviation
-   - Análise de Rede (5): shared_device_count, network_fraud_rate
-   - Features Derivadas por IA (5): anomaly_score, fraud_probability
+**9 SEÇÕES COMPLETAS:**
+1. **Bem-vindo ao Sistema**: Visão geral, personas, fluxo em 6 passos
+2. **Mapa Visual das Telas**: Organizado por módulos (Operações, Análise, Configuração, Listas, ML, Observabilidade, Compliance, Sistema)
+3. **Manual de CADA TELA** (16 telas com padrão):
+   - Nome e Caminho no Menu
+   - Ilustração ASCII da tela
+   - Objetivo claro
+   - Quando usar (4+ situações)
+   - Elementos principais detalhados
+   - História de uso (mini-cenário)
+   - Cuidados importantes
+4. **40+ Features de ML** em 8 categorias:
+   - Dados da Transação (5), Velocidade (5), Comportamento (5)
+   - Destinatário (5), Dispositivo (5), Temporal (5)
+   - Análise de Rede (5), Features Derivadas (5)
+5. **3 DataSets Explicados**: Kaggle, Produção, Feedback
+6. **Transfer Learning (4 Fases)** com métricas
+7. **Fluxo Ponta a Ponta**: Diagrama ASCII completo + história
+8. **Dicas e Boas Práticas**: 8 boas práticas + 8 cuidados
+9. **FAQ Didático**: 10 perguntas frequentes
 
-3. **3 DataSets Explicados**:
-   - Kaggle: 284.807 transações, pré-treinamento inicial
-   - Produção: 4.467 transações brasileiras, fine-tuning
-   - Feedback: ~50 feedbacks/dia, aprendizado contínuo
-
-4. **Transfer Learning (4 Fases)**:
-   - Fase 1: Pré-Treinamento (Kaggle, 2h)
-   - Fase 2: Adaptação de Domínio (Brasil, 30min)
-   - Fase 3: Ensemble Voting (3 modelos, tempo real)
-   - Fase 4: Aprendizado Contínuo (feedback humano)
-
-5. **3 Modelos de ML Detalhados**:
-   - Random Forest: 30% peso, 100 árvores
-   - Gradient Boosting: 35% peso, 100 estimadores
-   - CatBoost: 35% peso, 500 iterações
+**16 TELAS DOCUMENTADAS:**
+Dashboard, Transações, Alertas, Investigação, Revisão Manual, Calibração, Monitoramento, Métricas, Hard Rules, VIP List, HOT List, Feedback, Relatórios, Auditoria, DataSets, Configurações
 
 ### Cache Optimization Complete
 1. **SimpleCache Class**: Implemented in `postgres_store.py`
