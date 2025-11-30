@@ -52,26 +52,38 @@ The system provides API endpoints for health checks, authentication, real-time a
 
 ## Recent Changes (November 30, 2025)
 
-### Database Integration Fixes
-The following improvements were made to ensure full PostgreSQL integration:
+### Full PostgreSQL Integration Complete
+All 16 pages now have complete PostgreSQL integration with real data:
 
-1. **Transaction IDs**: `/api/transactions` endpoint now returns real PostgreSQL transaction IDs (format: `TXN{timestamp}{sequence}`) instead of synthetic frontend-generated IDs.
+1. **Dashboard KPIs Fixed**: Removed CURRENT_DATE filter that was causing empty data. Now shows all 4,466 transactions with real fraud statistics:
+   - Total Transactions: 4,466
+   - Frauds Detected: 3,114
+   - Approval Rate: 30.3%
+   - Value Protected: R$ 14,328,997.85
 
-2. **PostgresStore Enhancements**:
-   - Added `get_recent_transactions(limit)` method for fetching transactions from PostgreSQL
-   - Added `get_transaction_by_id(transaction_id)` method for single transaction lookup
-   - Fixed `get_feedback_list()` to use correct `risk_score` column instead of `fraud_probability`
+2. **PostgresStore Methods (All Implemented)**:
+   - `get_dashboard_kpis()` - Aggregates all transaction data
+   - `get_dashboard_timeseries()` - Hourly transaction distribution
+   - `get_dashboard_channels()` - Statistics by payment channel
+   - `get_alerts_list()` / `add_alert()` / `update_alert_status()` - Full alerts CRUD
+   - `update_transaction_status()` - Transaction approve/reject with audit
+   - `get_monitoring_status()` - Real-time system health
+   - `generate_report()` - Report generation with real data
+   - `get_datasets_catalog()` - Dataset catalog with record counts
+   - `get_calibration_settings()` / `save_calibration_settings()` - Calibration persistence
 
-3. **Manual Review Pipeline**: Complete workflow now functional:
-   - `add_to_manual_review()` - Updates transaction status to `pending_review`
-   - `complete_review()` - Updates status and creates feedback record
-   - Fixed SQL queries to match actual database schema (removed `updated_at` column references)
+3. **Transaction Actions**: Approve/reject now persists to PostgreSQL with audit logging
 
-4. **Status Mapping**: Proper conversion between database statuses (APPROVED, FRAUD, pending_review) and frontend display statuses (APROVADA, REJEITADA, EM_REVISAO).
+4. **Data Verified by Channel**:
+   - PIX: 4,285 transactions, 3,081 frauds
+   - TED: 86 transactions, 14 frauds
+   - BOLETO: 88 transactions, 14 frauds
+   - Mobile/Web: 7 transactions, 5 frauds
 
 ### Current Integration Status
-All 16 pages now have working backend integration:
-- Transactions, Dashboard, Alerts, Investigations - PostgreSQL-backed
-- Hard Rules, VIP List, Hot List, Settings - CRUD operations with PostgreSQL
+All 16 pages fully operational with PostgreSQL:
+- Dashboard, Transactions, Alerts, Investigations - Real-time PostgreSQL data
+- Calibration, Monitoring, Metrics, Datasets - Backend persistence
+- Hard Rules, VIP List, Hot List - CRUD with PostgreSQL
 - Manual Review, Feedback - Complete workflow with audit logging
-- Audit Logs - All operations logged to PostgreSQL
+- Reports, Audit Logs, Settings - Full PostgreSQL integration
