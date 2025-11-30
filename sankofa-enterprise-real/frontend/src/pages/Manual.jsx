@@ -1,592 +1,730 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
+import { ChevronDown, ChevronUp, BookOpen, Users, Target, Shield, AlertTriangle, Clock, Zap, Eye, Brain, Settings, FileText, BarChart3, Database, Bell, Lock, Star, CheckCircle, XCircle, TrendingUp, Phone, Building } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card.jsx';
+import { 
+  PersonaCard, 
+  ScenarioTimeline, 
+  FlowDiagram, 
+  RiskThermometer, 
+  TransactionCard, 
+  KPICard, 
+  AlertBox, 
+  Checklist,
+  ScreenPreview 
+} from '@/components/manual/ManualComponents.jsx';
+
+// Dados das Personas Brasileiras
+const personas = {
+  anaPaula: {
+    name: 'Ana Paula Oliveira',
+    role: 'Líder de Prevenção a Fraudes',
+    avatar: 'AP',
+    department: 'Banco Digital Nexus',
+    experience: '8 anos em prevenção a fraudes',
+    quote: 'Cada fraude bloqueada é um cliente que continua confiando em nós.',
+    color: 'blue'
+  },
+  carlosRoberto: {
+    name: 'Carlos Roberto Silva',
+    role: 'Analista de Fraudes Sênior',
+    avatar: 'CR',
+    department: 'Operações de Risco',
+    experience: '5 anos analisando transações',
+    quote: 'O segredo é entender o padrão normal do cliente antes de julgar.',
+    color: 'green'
+  },
+  marinaFernandes: {
+    name: 'Marina Fernandes',
+    role: 'Compliance Officer',
+    avatar: 'MF',
+    department: 'Jurídico e Compliance',
+    experience: '10 anos em regulação bancária',
+    quote: 'LGPD e BACEN não são obstáculos, são nossos aliados.',
+    color: 'purple'
+  }
+};
+
+// Cenários Reais Brasileiros
+const scenarios = {
+  golpePix: {
+    title: '🚨 Golpe do PIX Falso - Caso Real',
+    icon: AlertTriangle,
+    steps: [
+      { time: '14:32', badge: 'PIX', type: 'action', title: 'Transação Recebida', description: 'PIX de R$ 4.850,00 para conta nova. CPF: ***.***. 789-01' },
+      { time: '14:32', badge: 'ALERTA', type: 'alert', title: 'Sankofa Detecta Anomalia', description: 'Score 87/100. Motivos: horário atípico, destinatário novo, valor 3x acima da média' },
+      { time: '14:33', badge: 'BLOQUEIO', type: 'alert', title: 'Transação Bloqueada', description: 'Sistema bloqueia automaticamente. Cliente notificado por SMS.' },
+      { time: '14:35', type: 'action', title: 'Analista Investiga', description: 'Carlos Roberto abre investigação. Verifica histórico do cliente.' },
+      { time: '14:40', type: 'success', title: 'Fraude Confirmada', description: 'Cliente confirma: "Não fiz essa transferência!" Conta destino era de laranja.' }
+    ],
+    outcome: 'R$ 4.850,00 salvos. Cliente protegido. Conta laranja reportada ao BACEN.',
+    outcomeType: 'success'
+  },
+  falsoPositivo: {
+    title: '✅ Falso Positivo Resolvido - Viagem de Negócios',
+    icon: CheckCircle,
+    steps: [
+      { time: '23:15', badge: 'PIX', type: 'action', title: 'PIX Noturno Detectado', description: 'R$ 12.000,00 de São Paulo para Salvador. Score: 72/100' },
+      { time: '23:15', badge: 'ALERTA', type: 'alert', title: 'Bloqueio Preventivo', description: 'Horário noturno + valor alto + destino incomum' },
+      { time: '23:20', type: 'action', title: 'Cliente Liga Reclamando', description: '"Estou em Salvador a trabalho, preciso pagar o hotel!"' },
+      { time: '23:22', type: 'action', title: 'Analista Valida', description: 'Ana Paula confirma viagem no sistema da empresa. Cliente real.' },
+      { time: '23:25', type: 'success', title: 'Transação Liberada', description: 'PIX aprovado manualmente. Feedback inserido no sistema.' }
+    ],
+    outcome: 'Cliente satisfeito. Modelo aprende: viagens a trabalho são legítimas.',
+    outcomeType: 'success'
+  }
+};
+
+function ManualSection({ id, title, icon: Icon, children, defaultOpen = false }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  
+  return (
+    <Card className="overflow-hidden">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full text-left">
+        <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-3">
+              {Icon && <Icon className="h-6 w-6 text-blue-600" />}
+              {title}
+            </CardTitle>
+            {isOpen ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
+          </div>
+        </CardHeader>
+      </button>
+      {isOpen && <CardContent className="pt-0">{children}</CardContent>}
+    </Card>
+  );
+}
 
 export function Manual() {
-  const [expandedSections, setExpandedSections] = useState({
-    intro: true,
-    dashboard: false,
-    transactions: false,
-  });
-
-  const toggleSection = (id) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
-
   return (
     <div className="space-y-6 pb-12">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 rounded-lg p-8 text-white shadow-lg">
-        <div className="flex items-center gap-3 mb-4">
-          <BookOpen className="h-10 w-10" />
-          <h1 className="text-4xl font-bold">📘 Manual do Sankofa v1.0</h1>
+      {/* Header Principal */}
+      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 rounded-2xl p-8 text-white shadow-xl">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="bg-white/20 p-3 rounded-xl">
+            <BookOpen className="h-10 w-10" />
+          </div>
+          <div>
+            <h1 className="text-4xl font-bold">Manual do Sankofa v1.0</h1>
+            <p className="text-lg text-blue-100">Sistema de Detecção de Fraudes Bancárias</p>
+          </div>
         </div>
-        <p className="text-lg opacity-95 mb-2">
-          Guia Completo e Profissional para Entender e Usar o Sistema de Detecção de Fraudes
+        <p className="text-blue-100 max-w-2xl">
+          Guia completo e visual para analistas de fraude. Aprenda a proteger milhões 
+          de reais com exemplos reais, cenários práticos e dicas de especialistas.
         </p>
-        <div className="text-sm opacity-80 mt-4">
-          ✅ Última atualização: 30 de Novembro de 2025
+        <div className="flex items-center gap-6 mt-6 text-sm">
+          <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> Atualizado: 30/11/2025</span>
+          <span className="flex items-center gap-2"><Users className="h-4 w-4" /> Para: Analistas de Fraude</span>
+          <span className="flex items-center gap-2"><Shield className="h-4 w-4" /> Compliance: LGPD/BACEN</span>
         </div>
       </div>
 
-      {/* Seção Introdução */}
-      <Card>
-        <button onClick={() => toggleSection('intro')} className="w-full">
-          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-            <div className="flex items-center justify-between">
-              <CardTitle>🎯 Bem-vindo ao Manual do Sankofa</CardTitle>
-              {expandedSections.intro ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-            </div>
-          </CardHeader>
-        </button>
-        {expandedSections.intro && (
-          <CardContent>
-            <div className="space-y-6">
-              <div>
-                <h3 className="font-bold text-lg mb-2">O que é o Sankofa?</h3>
-                <p className="text-sm text-gray-700 mb-3">
-                  Sankofa significa "voltar para buscar" em um provérbio africano. É exatamente o que fazemos: analisamos padrões históricos de fraude para proteger suas transações AGORA.
-                </p>
-                <p className="text-sm text-gray-700 mb-3">
-                  🚀 Detecta fraudes bancárias em milissegundos usando Inteligência Artificial
-                </p>
-                <p className="text-sm text-gray-700">
-                  Processa: PIX • CARTÃO • TED • BOLETO
-                </p>
-              </div>
+      {/* Conheça Nossa Equipe */}
+      <ManualSection id="personas" title="👥 Conheça Nossa Equipe de Especialistas" icon={Users} defaultOpen={true}>
+        <p className="text-gray-600 mb-6">
+          Acompanhe as histórias de Ana Paula, Carlos e Marina ao longo deste manual. 
+          Eles vão mostrar como usar cada funcionalidade na prática do dia a dia.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <PersonaCard {...personas.anaPaula} />
+          <PersonaCard {...personas.carlosRoberto} />
+          <PersonaCard {...personas.marinaFernandes} />
+        </div>
+      </ManualSection>
 
-              <div>
-                <h3 className="font-bold text-lg mb-2">Como Funciona?</h3>
-                <div className="bg-blue-50 p-4 rounded text-xs font-mono text-gray-700 space-y-1">
-                  <p>Transação Chega</p>
-                  <p>       ↓</p>
-                  <p>Sankofa Analisa 40+ características</p>
-                  <p>       ↓</p>
-                  <p>Resultado: FRAUDE? ou LEGÍTIMA?</p>
-                </div>
+      {/* Como o Sankofa Funciona */}
+      <ManualSection id="como-funciona" title="🧠 Como o Sankofa Detecta Fraudes" icon={Brain}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Fluxo de Análise em Tempo Real</h3>
+            <FlowDiagram 
+              nodes={[
+                { label: 'Transação Recebida', type: 'start', icon: Zap },
+                { label: 'Análise de 40+ Características', type: 'process' },
+                { label: 'Score de Risco (0-100)', type: 'decision' },
+                { label: 'Score < 30: Aprovar', type: 'success' },
+                { label: 'Score > 70: Bloquear', type: 'danger' },
+                { label: 'Score 30-70: Revisão Manual', type: 'end' }
+              ]}
+            />
+          </div>
+          
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">O Que Analisamos?</h3>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-blue-50 rounded-lg p-4">
+                <Clock className="h-6 w-6 text-blue-600 mb-2" />
+                <p className="font-semibold text-gray-900">Horário</p>
+                <p className="text-sm text-gray-600">PIX às 3h da manhã? Suspeito!</p>
               </div>
-
-              <div>
-                <h3 className="font-bold text-lg mb-2">🗺️ As 4 Áreas Principais</h3>
-                <div className="bg-gray-50 p-4 rounded space-y-2 text-sm">
-                  <p><strong>📊 Análise em Tempo Real:</strong> Dashboard, Transações, Alertas</p>
-                  <p><strong>🔍 Investigação:</strong> Investigação, Revisão Manual, Feedback</p>
-                  <p><strong>⚙️ Configuração:</strong> Calibragem, Regras Duras, Listas VIP/HOT</p>
-                  <p><strong>📈 Observabilidade:</strong> Métricas, Monitoramento, Relatórios, Auditoria</p>
-                </div>
+              <div className="bg-green-50 rounded-lg p-4">
+                <TrendingUp className="h-6 w-6 text-green-600 mb-2" />
+                <p className="font-semibold text-gray-900">Valor</p>
+                <p className="text-sm text-gray-600">Acima da média do cliente?</p>
+              </div>
+              <div className="bg-purple-50 rounded-lg p-4">
+                <Target className="h-6 w-6 text-purple-600 mb-2" />
+                <p className="font-semibold text-gray-900">Destinatário</p>
+                <p className="text-sm text-gray-600">Conta nova nunca vista?</p>
+              </div>
+              <div className="bg-orange-50 rounded-lg p-4">
+                <Building className="h-6 w-6 text-orange-600 mb-2" />
+                <p className="font-semibold text-gray-900">Localização</p>
+                <p className="text-sm text-gray-600">SP para AC em 5 min?</p>
               </div>
             </div>
-          </CardContent>
-        )}
-      </Card>
+            
+            <AlertBox type="tip" title="Dica da Ana Paula">
+              "O Sankofa não olha apenas um fator isolado. Ele combina TODOS os fatores 
+              para calcular o score. Um PIX noturno pode ser normal se o cliente sempre 
+              faz isso. O contexto é tudo!"
+            </AlertBox>
+          </div>
+        </div>
+      </ManualSection>
+
+      {/* Cenário 1: Golpe do PIX */}
+      <ManualSection id="cenario-golpe" title="🚨 Caso Real: Golpe do PIX Detectado" icon={AlertTriangle}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <ScenarioTimeline {...scenarios.golpePix} />
+          </div>
+          
+          <div className="space-y-4">
+            <h4 className="font-bold text-gray-900">Transação Bloqueada</h4>
+            <TransactionCard 
+              id="PIX-2024-11-30-143201"
+              cpf="***.***. 789-01"
+              amount="R$ 4.850,00"
+              channel="PIX"
+              time="30/11/2025 14:32"
+              status="blocked"
+              score={87}
+              location="São Paulo, SP → Recife, PE"
+            />
+            
+            <AlertBox type="success" title="Resultado">
+              Cliente protegido! O dinheiro permaneceu na conta. 
+              Conta laranja foi reportada ao BACEN e incluída na HOT List.
+            </AlertBox>
+          </div>
+        </div>
+      </ManualSection>
+
+      {/* Cenário 2: Falso Positivo */}
+      <ManualSection id="cenario-fp" title="✅ Caso Real: Falso Positivo Resolvido" icon={CheckCircle}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <ScenarioTimeline {...scenarios.falsoPositivo} />
+          </div>
+          
+          <div className="space-y-4">
+            <h4 className="font-bold text-gray-900">Transação Liberada</h4>
+            <TransactionCard 
+              id="PIX-2024-11-30-231501"
+              cpf="***.***. 456-78"
+              amount="R$ 12.000,00"
+              channel="PIX"
+              time="30/11/2025 23:15"
+              status="approved"
+              score={72}
+              location="São Paulo, SP → Salvador, BA"
+            />
+            
+            <AlertBox type="info" title="Aprendizado">
+              O feedback da Ana Paula treinou o modelo. Agora o Sankofa 
+              sabe que viagens de negócios geram PIX noturnos legítimos.
+            </AlertBox>
+          </div>
+        </div>
+      </ManualSection>
 
       {/* Dashboard */}
-      <Card>
-        <button onClick={() => toggleSection('dashboard')} className="w-full">
-          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-            <div className="flex items-center justify-between">
-              <CardTitle>📊 Dashboard - Painel de Controle</CardTitle>
-              {expandedSections.dashboard ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-            </div>
-          </CardHeader>
-        </button>
-        {expandedSections.dashboard && (
-          <CardContent>
+      <ManualSection id="dashboard" title="📊 Dashboard - Sua Central de Comando" icon={BarChart3}>
+        <div className="space-y-6">
+          <p className="text-gray-600">
+            O Dashboard é como a cabine de um piloto: você vê TUDO em uma tela. 
+            KPIs, gráficos, alertas e status dos modelos de IA.
+          </p>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <KPICard title="Transações Hoje" value="4.467" change="+12%" changeType="up" icon={Zap} color="blue" />
+            <KPICard title="Fraudes Bloqueadas" value="3.115" change="+8%" changeType="up" icon={Shield} color="red" />
+            <KPICard title="Valor Protegido" value="R$ 14.3M" change="+15%" changeType="up" icon={TrendingUp} color="green" />
+            <KPICard title="Latência Média" value="37ms" change="-5ms" changeType="up" icon={Clock} color="purple" />
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ScreenPreview 
+              title="Dashboard"
+              description="Visão geral do sistema em tempo real"
+              elements={[
+                { label: 'Gráfico de Fraudes/Hora', type: 'chart' },
+                { label: 'KPIs Principais', type: 'kpi' },
+                { label: 'Alertas Recentes', type: 'table' },
+                { label: 'Status dos Modelos', type: 'kpi' }
+              ]}
+            />
+            
             <div className="space-y-4">
-              <div>
-                <h3 className="font-bold mb-2">Aonde Encontrar?</h3>
-                <p className="text-sm text-gray-700">Menu principal (primeiro item)</p>
-              </div>
-
-              <div>
-                <h3 className="font-bold mb-2">Para Que Serve?</h3>
-                <p className="text-sm text-gray-700">
-                  É como o painel de bordo de um avião. Você vê TUDO em uma tela: quantas fraudes entraram, qual foi a hora de pico, se há anomalia, se os algoritmos estão OK.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-bold mb-2">O Que Você Vê?</h3>
-                <ul className="text-sm text-gray-700 space-y-2">
-                  <li><strong>🔢 KPIs:</strong> Total de Transações, Fraudes Detectadas, Taxa de Fraude, Valor Protegido</li>
-                  <li><strong>📈 Série Temporal:</strong> Gráfico mostrando evolução de fraudes ao longo do dia</li>
-                  <li><strong>🍰 Distribuição por Canal:</strong> PIX, TED, BOLETO (mostra qual teve mais fraude)</li>
-                  <li><strong>🚨 Alertas Recentes:</strong> Últimas fraudes críticas</li>
-                  <li><strong>🤖 Status dos Modelos:</strong> Se Random Forest, Gradient Boosting e CatBoost estão online</li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-bold mb-2">Quando Usar?</h3>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li>✅ Começo do turno: saber o cenário da noite</li>
-                  <li>✅ Operações críticas: verificar SLA em tempo real</li>
-                  <li>✅ Antes de tomar decisões: validar contexto do sistema</li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-bold mb-2">Dica de Ouro 💡</h3>
-                <p className="text-sm text-gray-700 bg-blue-50 p-3 rounded">
-                  O Dashboard atualiza a cada 30 segundos automaticamente. Ideal para deixar em um monitor durante todo o turno!
-                </p>
-              </div>
+              <h4 className="font-bold text-gray-900">Rotina do Carlos Roberto</h4>
+              <Checklist 
+                title="Início do Turno (08:00)"
+                items={[
+                  { text: 'Verificar alertas críticos (vermelhos)', done: true },
+                  { text: 'Checar KPIs vs. dia anterior', done: true },
+                  { text: 'Validar status dos 3 modelos de IA', done: true },
+                  { text: 'Revisar fila de análise manual', done: false }
+                ]}
+              />
+              
+              <AlertBox type="tip" title="Dica do Carlos">
+                "Deixo o Dashboard aberto em um monitor o dia todo. 
+                A cada 30 segundos ele atualiza automaticamente. 
+                Se algo estranho acontece, eu vejo na hora!"
+              </AlertBox>
             </div>
-          </CardContent>
-        )}
-      </Card>
+          </div>
+        </div>
+      </ManualSection>
 
       {/* Transações */}
-      <Card>
-        <button onClick={() => toggleSection('transactions')} className="w-full">
-          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-            <div className="flex items-center justify-between">
-              <CardTitle>💳 Transações - Busque Qualquer Operação</CardTitle>
-              {expandedSections.transactions ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-            </div>
-          </CardHeader>
-        </button>
-        {expandedSections.transactions && (
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-bold mb-2">Aonde Encontrar?</h3>
-                <p className="text-sm text-gray-700">Menu → Transações</p>
-              </div>
-
-              <div>
-                <h3 className="font-bold mb-2">Para Que Serve?</h3>
-                <p className="text-sm text-gray-700">
-                  Encontrar uma transação específica que um cliente reclamou, ou buscar padrões. É seu "banco de dados visual".
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-bold mb-2">Quando Usar?</h3>
-                <ul className="text-sm text-gray-700 space-y-2">
-                  <li><strong>Cenário 1:</strong> Cliente ligou reclamando → Busca por CPF + data/hora</li>
-                  <li><strong>Cenário 2:</strong> Quer estudar fraudes → Filtra por Status=Fraude, Canal=Cartão</li>
-                  <li><strong>Cenário 3:</strong> Validar decisão → Busca pelo ID da transação</li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-bold mb-2">Elementos Principais</h3>
-                <div className="bg-gray-50 p-3 rounded text-sm space-y-2 text-gray-700">
-                  <p><strong>🔎 Busca por CPF:</strong> Digite os dígitos do CPF (mascarado automaticamente)</p>
-                  <p><strong>📅 Filtro de Data:</strong> Últimas 24h, 7 dias, 30 dias, todo período</p>
-                  <p><strong>⚡ Filtro de Canal:</strong> PIX, Cartão, TED, Boleto</p>
-                  <p><strong>📊 Filtro de Status:</strong> Todas, Legítimas ✅, Suspeitas ⚠️, Fraudes ❌</p>
-                  <p><strong>📋 Tabela:</strong> ID, CPF, Valor, Data, Canal, Status, Score (0-100)</p>
+      <ManualSection id="transacoes" title="💳 Transações - Busque Qualquer Operação" icon={FileText}>
+        <div className="space-y-6">
+          <div className="bg-gray-50 rounded-xl p-6">
+            <h4 className="font-bold text-gray-900 mb-4">Situação Hipotética: Cliente Ligou Reclamando</h4>
+            <div className="bg-white rounded-lg p-4 border border-gray-200 mb-4">
+              <div className="flex items-start gap-3">
+                <Phone className="h-6 w-6 text-blue-500 mt-1" />
+                <div>
+                  <p className="font-semibold">Chamada recebida às 15:45</p>
+                  <p className="text-gray-600 italic">
+                    "Alô, meu nome é José Roberto, CPF final 789-01. Fiz um PIX de R$ 2.500 
+                    às 14h para minha filha e foi bloqueado! Preciso resolver URGENTE!"
+                  </p>
                 </div>
               </div>
-
-              <div>
-                <h3 className="font-bold mb-2">Como Usar</h3>
-                <ol className="text-sm text-gray-700 space-y-1">
-                  <li>1. Filtre o que procura (CPF, data, canal, status)</li>
-                  <li>2. Clique "Buscar"</li>
-                  <li>3. Revise os resultados</li>
-                  <li>4. Se precisa entender uma, clique "Ver Detalhes" → vai para Investigação</li>
-                  <li>5. Se quer levar dados para fora, clique "Exportar"</li>
-                </ol>
+            </div>
+            
+            <h4 className="font-bold text-gray-900 mb-3">Como Resolver:</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
+                <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">Passo 1</span>
+                <p className="font-semibold mt-2">Abra Transações</p>
+                <p className="text-sm text-gray-600">Menu → Transações</p>
               </div>
-
-              <div className="bg-blue-50 p-3 rounded">
-                <p className="text-sm font-bold text-blue-900">💡 Dica:</p>
-                <p className="text-sm text-blue-800">
-                  Combine filtros! Exemplo: "PIX + Últimas 24h + Fraudes" = mostra todas as fraudes de PIX de hoje. Excelente para entender padrões!
-                </p>
+              <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
+                <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">Passo 2</span>
+                <p className="font-semibold mt-2">Filtre por CPF</p>
+                <p className="text-sm text-gray-600">Digite "***.***. 789-01" + Data de hoje</p>
+              </div>
+              <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
+                <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">Passo 3</span>
+                <p className="font-semibold mt-2">Clique em "Ver Detalhes"</p>
+                <p className="text-sm text-gray-600">Abre a investigação completa</p>
               </div>
             </div>
-          </CardContent>
-        )}
-      </Card>
-
-      {/* Investigação */}
-      <Card>
-        <button onClick={() => toggleSection('investigation')} className="w-full">
-          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-            <div className="flex items-center justify-between">
-              <CardTitle>🔍 Investigação - Análise Profunda</CardTitle>
-              {expandedSections.investigation ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-            </div>
-          </CardHeader>
-        </button>
-        {expandedSections.investigation && (
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-sm text-gray-700">
-                <strong>Para que serve?</strong> Entender POR QUE uma transação foi bloqueada. Você vira um "detetive" armado com dados.
-              </p>
-              <p className="text-sm text-gray-700">
-                <strong>Aonde encontrar?</strong> Menu → Investigação (ou clique "Ver Detalhes" em Transações)
-              </p>
-
-              <div>
-                <h3 className="font-bold mb-2">Seções Principais</h3>
-                <div className="bg-gray-50 p-3 rounded space-y-2 text-sm text-gray-700">
-                  <p><strong>1. Dados da Transação:</strong> CPF, valor, hora, localização, canal</p>
-                  <p><strong>2. Explicabilidade (LGPD):</strong> Motivos de suspeita com peso de cada um</p>
-                  <p><strong>3. Score e Confiança:</strong> 0-100 score, % de confiança do modelo</p>
-                  <p><strong>4. Histórico do Cliente:</strong> Padrão normal, comportamento típico</p>
-                  <p><strong>5. Ações:</strong> Confirmar Fraude, Discordo, Deixar Feedback</p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-bold text-gray-900 mb-3">Filtros Disponíveis</h4>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <span className="text-2xl">🔍</span>
+                  <div>
+                    <p className="font-semibold">CPF</p>
+                    <p className="text-sm text-gray-600">Busca por cliente específico (mascarado)</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <span className="text-2xl">📅</span>
+                  <div>
+                    <p className="font-semibold">Período</p>
+                    <p className="text-sm text-gray-600">Últimas 24h, 7 dias, 30 dias ou personalizado</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <span className="text-2xl">⚡</span>
+                  <div>
+                    <p className="font-semibold">Canal</p>
+                    <p className="text-sm text-gray-600">PIX, TED, Cartão, Boleto</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <span className="text-2xl">🚦</span>
+                  <div>
+                    <p className="font-semibold">Status</p>
+                    <p className="text-sm text-gray-600">Aprovadas ✅, Bloqueadas ❌, Em Análise ⏳</p>
+                  </div>
                 </div>
               </div>
-
-              <div className="bg-blue-50 p-3 rounded">
-                <p className="text-sm font-bold text-blue-900">💡 Dica de Ouro:</p>
-                <p className="text-sm text-blue-800">
-                  A Explicabilidade é uma VANTAGEM competitiva. Use para ganhar confiança dos clientes explicando por que foi bloqueado!
-                </p>
-              </div>
             </div>
-          </CardContent>
-        )}
-      </Card>
+            
+            <div>
+              <h4 className="font-bold text-gray-900 mb-3">Exemplo de Resultado</h4>
+              <TransactionCard 
+                id="PIX-2024-11-30-140023"
+                cpf="***.***. 789-01"
+                amount="R$ 2.500,00"
+                channel="PIX"
+                time="30/11/2025 14:00"
+                status="blocked"
+                score={65}
+                location="São Paulo, SP → Campinas, SP"
+              />
+              
+              <AlertBox type="warning" title="Por que foi bloqueado?" className="mt-4">
+                Score 65: Destinatário novo (primeira vez) + Valor acima da média do cliente.
+                Clique em "Ver Detalhes" para ver todos os motivos.
+              </AlertBox>
+            </div>
+          </div>
+        </div>
+      </ManualSection>
 
       {/* Revisão Manual */}
-      <Card>
-        <button onClick={() => toggleSection('review')} className="w-full">
-          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-            <div className="flex items-center justify-between">
-              <CardTitle>👁️ Revisão Manual - Human-in-the-Loop</CardTitle>
-              {expandedSections.review ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-            </div>
-          </CardHeader>
-        </button>
-        {expandedSections.review && (
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-sm text-gray-700">
-                <strong>Para que serve?</strong> O Sankofa tem decisões INCERTAS (score ~ 50%). Aqui você, como especialista, revisa essas transações e valida.
-              </p>
-
-              <div>
-                <h3 className="font-bold mb-2">Como Funciona</h3>
-                <div className="bg-gray-50 p-3 rounded text-sm text-gray-700">
-                  <p>Casos claros → Sankofa bloqueia/aprova</p>
-                  <p>Casos duvidosos (score 40-60) → VAI PARA VOCÊ revisar</p>
-                  <p>Você valida → "É fraude" ou "É legítima"</p>
-                  <p>Resultado → Modelo aprende com seu feedback!</p>
+      <ManualSection id="revisao" title="👁️ Revisão Manual - Sua Decisão Importa" icon={Eye}>
+        <div className="space-y-6">
+          <AlertBox type="info" title="O que é Human-in-the-Loop?">
+            Quando o Sankofa tem dúvida (score entre 40-60), a transação vem para VOCÊ decidir. 
+            Sua experiência humana complementa a inteligência artificial!
+          </AlertBox>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-200">
+              <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Clock className="h-5 w-5 text-yellow-600" />
+                Fila de Revisão Atual
+              </h4>
+              
+              <div className="space-y-3">
+                <div className="bg-white rounded-lg p-4 border border-yellow-300">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-500">PIX-2024-11-30-154532</span>
+                    <RiskThermometer score={52} label="Score" />
+                  </div>
+                  <p className="font-semibold">R$ 8.900,00 para conta nova</p>
+                  <p className="text-sm text-gray-600">Motivo: Valor 4x acima da média</p>
+                  <div className="flex gap-2 mt-3">
+                    <button className="flex-1 bg-green-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-green-600">
+                      ✅ Legítima
+                    </button>
+                    <button className="flex-1 bg-red-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-red-600">
+                      ❌ Fraude
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-500">TED-2024-11-30-161245</span>
+                    <RiskThermometer score={48} label="Score" />
+                  </div>
+                  <p className="font-semibold">R$ 15.000,00 horário comercial</p>
+                  <p className="text-sm text-gray-600">Motivo: Novo destinatário</p>
+                  <div className="flex gap-2 mt-3">
+                    <button className="flex-1 bg-green-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-green-600">
+                      ✅ Legítima
+                    </button>
+                    <button className="flex-1 bg-red-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-red-600">
+                      ❌ Fraude
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <div>
-                <h3 className="font-bold mb-2">Botões Disponíveis</h3>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li><strong>✅ Legítima:</strong> Isso é transação normal, modelo errou</li>
-                  <li><strong>❌ Fraude:</strong> Realmente é fraude, modelo acertou</li>
-                  <li><strong>💬 Comentário:</strong> Deixar contexto (ex: "cliente confirmou ao telefone")</li>
-                </ul>
-              </div>
-
-              <div className="bg-green-50 p-3 rounded">
-                <p className="text-sm font-bold text-green-900">✨ Por que é importante?</p>
-                <p className="text-sm text-green-800">
-                  Cada validação que você faz TREINA o modelo. Mais feedback = modelo mais inteligente!
-                </p>
-              </div>
             </div>
-          </CardContent>
-        )}
-      </Card>
+            
+            <div>
+              <h4 className="font-bold text-gray-900 mb-4">Por Que Sua Decisão Importa?</h4>
+              
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <div className="bg-blue-100 p-2 rounded-lg h-fit">
+                    <Brain className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Treina o Modelo</p>
+                    <p className="text-sm text-gray-600">
+                      Cada decisão sua ensina o Sankofa. Em 30 dias, 
+                      ele aprende seus padrões e fica mais preciso.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <div className="bg-green-100 p-2 rounded-lg h-fit">
+                    <Users className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Protege Clientes</p>
+                    <p className="text-sm text-gray-600">
+                      Você impede que clientes legítimos sejam bloqueados 
+                      injustamente. Experiência do cliente melhora!
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <div className="bg-purple-100 p-2 rounded-lg h-fit">
+                    <Shield className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Captura Fraudes Novas</p>
+                    <p className="text-sm text-gray-600">
+                      Fraudadores inventam golpes novos. Você detecta 
+                      padrões que o modelo ainda não conhece.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <AlertBox type="tip" title="Meta da Ana Paula" className="mt-4">
+                "Minha equipe revisa 100 transações por dia. Em 6 meses, 
+                reduzimos falsos positivos de 15% para 3%. O modelo aprendeu conosco!"
+              </AlertBox>
+            </div>
+          </div>
+        </div>
+      </ManualSection>
 
       {/* Calibragem */}
-      <Card>
-        <button onClick={() => toggleSection('calibration')} className="w-full">
-          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-            <div className="flex items-center justify-between">
-              <CardTitle>⚙️ Calibragem - Ajuste de Sensibilidade</CardTitle>
-              {expandedSections.calibration ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-            </div>
-          </CardHeader>
-        </button>
-        {expandedSections.calibration && (
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-sm text-gray-700">
-                <strong>Para que serve?</strong> Você controla o quanto "rigoroso" ou "permissivo" o Sankofa é.
-              </p>
-
-              <div>
-                <h3 className="font-bold mb-2">Escala de Calibragem (0-100)</h3>
-                <div className="bg-gray-50 p-3 rounded space-y-2 text-sm">
-                  <p>0-25: Extremamente permissivo (quase nada bloqueia)</p>
-                  <p>25-50: Permissivo (RECOMENDADO: 40-50)</p>
-                  <p>50-75: Rigoroso</p>
-                  <p>75-100: Extremamente rigoroso (bloqueia quase tudo)</p>
+      <ManualSection id="calibragem" title="⚙️ Calibragem - Ajuste a Sensibilidade" icon={Settings}>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-bold text-gray-900 mb-4">Termômetro de Sensibilidade</h4>
+              <div className="bg-gradient-to-b from-red-100 via-yellow-100 to-green-100 rounded-xl p-6 border">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 text-center">
+                      <span className="text-2xl font-bold text-red-600">100</span>
+                      <p className="text-xs text-red-600">Máximo</p>
+                    </div>
+                    <div className="flex-1 h-8 bg-red-400 rounded-lg flex items-center px-3">
+                      <span className="text-white text-sm">Bloqueia quase TUDO</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 text-center">
+                      <span className="text-2xl font-bold text-orange-600">70</span>
+                    </div>
+                    <div className="flex-1 h-8 bg-orange-400 rounded-lg flex items-center px-3">
+                      <span className="text-white text-sm">Muito rigoroso</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 text-center">
+                      <span className="text-2xl font-bold text-yellow-600">45</span>
+                      <p className="text-xs text-yellow-600">⭐ Atual</p>
+                    </div>
+                    <div className="flex-1 h-10 bg-yellow-400 rounded-lg flex items-center px-3 border-4 border-yellow-600">
+                      <span className="text-gray-900 text-sm font-bold">RECOMENDADO (Balanço ideal)</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 text-center">
+                      <span className="text-2xl font-bold text-lime-600">30</span>
+                    </div>
+                    <div className="flex-1 h-8 bg-lime-400 rounded-lg flex items-center px-3">
+                      <span className="text-gray-900 text-sm">Permissivo</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 text-center">
+                      <span className="text-2xl font-bold text-green-600">0</span>
+                      <p className="text-xs text-green-600">Mínimo</p>
+                    </div>
+                    <div className="flex-1 h-8 bg-green-400 rounded-lg flex items-center px-3">
+                      <span className="text-white text-sm">Aprova quase TUDO</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              <div>
-                <h3 className="font-bold mb-2">Quando Mexer?</h3>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li><strong>Clientes reclamando?</strong> DIMINUA (45 → 35)</li>
-                  <li><strong>Fraudes passando?</strong> AUMENTE (45 → 55)</li>
-                  <li><strong>Otimizar performance?</strong> Veja gráfico histórico</li>
-                </ul>
-              </div>
-
-              <div className="bg-yellow-50 p-3 rounded">
-                <p className="text-sm font-bold text-yellow-900">⚠️ Estratégia Recomendada:</p>
-                <p className="text-sm text-yellow-800">
-                  Mudanças PEQUENAS (5 pontos), espere 1 dia de monitoramento, depois ajusta novamente. Assim evita grandes erros!
-                </p>
+            </div>
+            
+            <div>
+              <h4 className="font-bold text-gray-900 mb-4">Quando Ajustar?</h4>
+              
+              <div className="space-y-4">
+                <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                  <p className="font-bold text-red-800 flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5" />
+                    Clientes Reclamando Muito?
+                  </p>
+                  <p className="text-sm text-red-700 mt-1">
+                    "Meu PIX foi bloqueado injustamente!"
+                  </p>
+                  <p className="text-sm font-semibold mt-2">
+                    → DIMINUA o threshold (45 → 35)
+                  </p>
+                </div>
+                
+                <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                  <p className="font-bold text-orange-800 flex items-center gap-2">
+                    <XCircle className="h-5 w-5" />
+                    Fraudes Passando?
+                  </p>
+                  <p className="text-sm text-orange-700 mt-1">
+                    "Tivemos 3 fraudes confirmadas ontem que passaram!"
+                  </p>
+                  <p className="text-sm font-semibold mt-2">
+                    → AUMENTE o threshold (45 → 55)
+                  </p>
+                </div>
+                
+                <AlertBox type="warning" title="Regra de Ouro da Marina">
+                  "Nunca mude mais de 10 pontos por vez. Mude, espere 24 horas, 
+                  analise os resultados, depois ajuste novamente se necessário."
+                </AlertBox>
               </div>
             </div>
-          </CardContent>
-        )}
-      </Card>
+          </div>
+        </div>
+      </ManualSection>
+
+      {/* Regras Duras e Listas */}
+      <ManualSection id="regras" title="🔒 Regras Duras, VIP e HOT Lists" icon={Lock}>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-gray-900 text-white rounded-xl p-6">
+              <Lock className="h-8 w-8 mb-3" />
+              <h4 className="text-xl font-bold mb-2">Hard Rules</h4>
+              <p className="text-gray-300 text-sm mb-4">
+                Regras automáticas que SEMPRE disparam, independente do score.
+              </p>
+              <div className="bg-gray-800 rounded-lg p-3 text-sm font-mono">
+                SE valor &gt; R$ 100.000<br/>
+                E horário = 23h-05h<br/>
+                ENTÃO = BLOQUEAR
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6">
+              <Star className="h-8 w-8 mb-3" />
+              <h4 className="text-xl font-bold mb-2">VIP List ✨</h4>
+              <p className="text-green-100 text-sm mb-4">
+                Clientes de TOTAL confiança. Transações aprovadas automaticamente.
+              </p>
+              <div className="bg-green-700 rounded-lg p-3 text-sm">
+                <p className="font-semibold">Exemplo:</p>
+                <p>Diretor Geral da empresa</p>
+                <p>CPF: ***.***. 111-00</p>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-red-500 to-red-600 text-white rounded-xl p-6">
+              <XCircle className="h-8 w-8 mb-3" />
+              <h4 className="text-xl font-bold mb-2">HOT List 🔥</h4>
+              <p className="text-red-100 text-sm mb-4">
+                Contas BLOQUEADAS permanentemente. Fraude confirmada.
+              </p>
+              <div className="bg-red-700 rounded-lg p-3 text-sm">
+                <p className="font-semibold">Exemplo:</p>
+                <p>Conta laranja detectada</p>
+                <p>CPF: ***.***. 999-99</p>
+              </div>
+            </div>
+          </div>
+          
+          <AlertBox type="danger" title="⚠️ Cuidado!">
+            Adicionar alguém na VIP ou HOT List é uma decisão PERMANENTE. 
+            Sempre documente o motivo e tenha aprovação do gestor.
+          </AlertBox>
+        </div>
+      </ManualSection>
 
       {/* Alertas */}
-      <Card>
-        <button onClick={() => toggleSection('alerts')} className="w-full">
-          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-            <div className="flex items-center justify-between">
-              <CardTitle>🚨 Alertas - Notificações Críticas</CardTitle>
-              {expandedSections.alerts ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+      <ManualSection id="alertas" title="🚨 Alertas - Ações Urgentes" icon={Bell}>
+        <div className="space-y-4">
+          <p className="text-gray-600">
+            Alertas são notificações que exigem sua atenção IMEDIATA. 
+            Aparecem quando algo fora do normal acontece.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-red-50 border-2 border-red-500 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-4 h-4 rounded-full bg-red-500 animate-pulse" />
+                <span className="font-bold text-red-700">CRÍTICO</span>
+              </div>
+              <p className="font-semibold text-gray-900">Spike de Fraudes</p>
+              <p className="text-sm text-gray-600">+250% de fraudes vs. média horária</p>
+              <p className="text-xs text-red-600 mt-2">Ação: URGENTE - Investigar agora!</p>
             </div>
-          </CardHeader>
-        </button>
-        {expandedSections.alerts && (
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-sm text-gray-700">
-                <strong>Para que serve?</strong> Quando algo FORA DO NORMAL acontece, você recebe um ALERTA. É como uma sirene: algo merece atenção AGORA.
-              </p>
-
-              <div>
-                <h3 className="font-bold mb-2">Níveis de Severidade</h3>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li><strong>🔴 CRÍTICO:</strong> Ação urgente necessária</li>
-                  <li><strong>🟠 AVISO:</strong> Atenção recomendada</li>
-                  <li><strong>🟡 INFORMAÇÃO:</strong> Para conhecimento</li>
-                </ul>
+            
+            <div className="bg-orange-50 border-2 border-orange-500 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-4 h-4 rounded-full bg-orange-500" />
+                <span className="font-bold text-orange-700">AVISO</span>
               </div>
-
-              <div>
-                <h3 className="font-bold mb-2">Exemplos de Alertas</h3>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li>🔴 "Spike de fraudes de cartão: +250% vs média"</li>
-                  <li>🟠 "Modelo offline há 15 minutos"</li>
-                  <li>🟡 "Recalibração automática recomendada"</li>
-                </ul>
-              </div>
-
-              <div className="bg-red-50 p-3 rounded">
-                <p className="text-sm font-bold text-red-900">⚠️ Cuidado:</p>
-                <p className="text-sm text-red-800">
-                  Não ignore alertas vermelhos! Podem indicar ataque em progresso ou sistema falhando. Se não pode resolver, chame seu gerente!
-                </p>
-              </div>
+              <p className="font-semibold text-gray-900">Modelo Offline</p>
+              <p className="text-sm text-gray-600">CatBoost não respondendo há 5 min</p>
+              <p className="text-xs text-orange-600 mt-2">Ação: Verificar em 15 minutos</p>
             </div>
-          </CardContent>
-        )}
-      </Card>
-
-      {/* Regras Duras */}
-      <Card>
-        <button onClick={() => toggleSection('hardrules')} className="w-full">
-          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-            <div className="flex items-center justify-between">
-              <CardTitle>🔒 Regras Duras - Bloqueio Automático</CardTitle>
-              {expandedSections.hardrules ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            
+            <div className="bg-yellow-50 border-2 border-yellow-500 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-4 h-4 rounded-full bg-yellow-500" />
+                <span className="font-bold text-yellow-700">INFO</span>
+              </div>
+              <p className="font-semibold text-gray-900">Recalibração Sugerida</p>
+              <p className="text-sm text-gray-600">Taxa de falso positivo subiu para 8%</p>
+              <p className="text-xs text-yellow-600 mt-2">Ação: Analisar quando possível</p>
             </div>
-          </CardHeader>
-        </button>
-        {expandedSections.hardrules && (
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-sm text-gray-700">
-                <strong>Para que serve?</strong> Hard Rules são decisões AUTOMÁTICAS: "SE [condição], ENTÃO [ação]"
-              </p>
-
-              <div>
-                <h3 className="font-bold mb-2">Exemplos</h3>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• "SE CPF na lista negra ENTÃO BLOQUEIO"</li>
-                  <li>• "SE valor &gt; R$ 100k E horário 23h-5h ENTÃO ALERTA"</li>
-                  <li>• "SE IP do Exterior ENTÃO INVESTIGAR"</li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-bold mb-2">Ações Possíveis</h3>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li><strong>BLOQUEIO:</strong> Nega a transação permanentemente</li>
-                  <li><strong>ALERTA:</strong> Notifica, deixa passar para análise</li>
-                  <li><strong>INVESTIGAÇÃO:</strong> Trata como suspeita</li>
-                  <li><strong>PERMITIR:</strong> Aprova automaticamente</li>
-                </ul>
-              </div>
-
-              <div className="bg-blue-50 p-3 rounded">
-                <p className="text-sm font-bold text-blue-900">💡 Dica:</p>
-                <p className="text-sm text-blue-800">
-                  Crie regras baseada em PADRÕES OBSERVADOS. Sempre analise Transações primeiro, confirme padrão, depois cria regra!
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        )}
-      </Card>
-
-      {/* Listas VIP e HOT */}
-      <Card>
-        <button onClick={() => toggleSection('lists')} className="w-full">
-          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-            <div className="flex items-center justify-between">
-              <CardTitle>✨ Listas VIP e HOT - Whitelist e Blacklist</CardTitle>
-              {expandedSections.lists ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-            </div>
-          </CardHeader>
-        </button>
-        {expandedSections.lists && (
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-bold mb-2">📝 VIP (Whitelist)</h3>
-                <p className="text-sm text-gray-700">
-                  Clientes que CONFIO 100%. Deixa passar automático. Exemplos: Diretores, clientes top tier, contas internas.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-bold mb-2">📝 HOT (Blacklist)</h3>
-                <p className="text-sm text-gray-700">
-                  Contas que SÃO PROBLEMÁTICAS. Bloqueia TUDO. Exemplos: Fraude confirmada, documentos clonados, contas comprometidas.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-bold mb-2">Como Usar</h3>
-                <div className="bg-gray-50 p-3 rounded text-sm text-gray-700 space-y-2">
-                  <p><strong>Adicionar VIP:</strong> Menu → Lista VIP → Adicionar CPF + Motivo</p>
-                  <p><strong>Remover VIP:</strong> Encontre e clique "Remover"</p>
-                  <p><strong>Adicionar HOT:</strong> Menu → Lista HOT → Adicionar CPF + Motivo</p>
-                  <p><strong>Remover HOT:</strong> ANTES revise por que foi adicionado, depois remove</p>
-                </div>
-              </div>
-
-              <div className="bg-blue-50 p-3 rounded">
-                <p className="text-sm font-bold text-blue-900">💡 Dica:</p>
-                <p className="text-sm text-blue-800">
-                  Revise regularmente! VIP que se torna fraudadora = problema. HOT removida rápido = cliente sofre.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        )}
-      </Card>
+          </div>
+        </div>
+      </ManualSection>
 
       {/* Outras Telas */}
-      <Card>
-        <button onClick={() => toggleSection('outros')} className="w-full">
-          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-            <div className="flex items-center justify-between">
-              <CardTitle>📚 Outras Telas Importantes</CardTitle>
-              {expandedSections.outros ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-            </div>
-          </CardHeader>
-        </button>
-        {expandedSections.outros && (
-          <CardContent>
-            <div className="space-y-3 text-sm text-gray-700">
-              <div>
-                <p className="font-bold">💬 Feedback Analista</p>
-                <p>Deixe feedback para o modelo aprender. Quando discorda de uma decisão, marca "Legítima" ou "Fraude".</p>
+      <ManualSection id="outras" title="📚 Outras Funcionalidades" icon={Database}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            { icon: BarChart3, title: 'Métricas', desc: 'Contadores em tempo real: TPS, latência, taxas' },
+            { icon: Eye, title: 'Monitoramento', desc: 'Saúde dos 3 modelos de IA e data drift' },
+            { icon: FileText, title: 'Relatórios', desc: 'Gere PDFs para gerência e compliance' },
+            { icon: Database, title: 'Datasets', desc: 'Catálogo de dados para análises' },
+            { icon: Target, title: 'Investigação', desc: 'Análise profunda com explicabilidade LGPD' },
+            { icon: Users, title: 'Feedback', desc: 'Treine o modelo com suas decisões' }
+          ].map((item, i) => (
+            <div key={i} className="bg-gray-50 rounded-xl p-4 flex items-start gap-3">
+              <div className="bg-blue-100 p-2 rounded-lg">
+                <item.icon className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <p className="font-bold">📊 Monitoramento &amp; Métricas</p>
-                <p>Saúde do sistema em tempo real: TPS (tx/segundo), Latência, Taxa de Fraude, Status dos modelos de IA.</p>
-              </div>
-              <div>
-                <p className="font-bold">📋 Relatórios</p>
-                <p>Gera análises para gerência/compliance: Performance, Fraudes por período, Fraudes por canal.</p>
-              </div>
-              <div>
-                <p className="font-bold">📚 Datasets</p>
-                <p>Catálogo de dados disponíveis para análise e criação de relatórios customizados.</p>
-              </div>
-              <div>
-                <p className="font-bold">📜 Auditoria</p>
-                <p>Registro LGPD de TUDO: quem acessou dados, quem fez ações, quando. Necessário para compliance.</p>
-              </div>
-              <div>
-                <p className="font-bold">⚙️ Configurações</p>
-                <p>Preferências pessoais: tema, notificações, trocar senha, permissões.</p>
+                <p className="font-bold text-gray-900">{item.title}</p>
+                <p className="text-sm text-gray-600">{item.desc}</p>
               </div>
             </div>
-          </CardContent>
-        )}
-      </Card>
-
-      {/* Rotina Diária */}
-      <Card>
-        <button onClick={() => toggleSection('rotina')} className="w-full">
-          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-            <div className="flex items-center justify-between">
-              <CardTitle>⏰ Sua Rotina Diária Recomendada</CardTitle>
-              {expandedSections.rotina ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-            </div>
-          </CardHeader>
-        </button>
-        {expandedSections.rotina && (
-          <CardContent>
-            <div className="space-y-4 text-sm">
-              <div className="bg-blue-50 p-3 rounded">
-                <p className="font-bold text-blue-900">🌅 Início do Turno (5 minutos)</p>
-                <ul className="text-blue-800 mt-2 space-y-1">
-                  <li>1. Abra Alertas (há algo vermelho/laranja?)</li>
-                  <li>2. Abra Dashboard (veja KPIs e gráficos)</li>
-                  <li>3. Veja status dos modelos (todos online?)</li>
-                </ul>
-              </div>
-
-              <div className="bg-green-50 p-3 rounded">
-                <p className="font-bold text-green-900">💼 Durante o Turno (6 horas)</p>
-                <ul className="text-green-800 mt-2 space-y-1">
-                  <li>• Responda reclamações de clientes</li>
-                  <li>• Valide decisões (Revisão Manual)</li>
-                  <li>• Monitore alertas</li>
-                  <li>• Deixe feedback (Feedback Analista)</li>
-                </ul>
-              </div>
-
-              <div className="bg-yellow-50 p-3 rounded">
-                <p className="font-bold text-yellow-900">🌆 Encerramento (10 minutos)</p>
-                <ul className="text-yellow-800 mt-2 space-y-1">
-                  <li>1. Revise todos os alertas abertos</li>
-                  <li>2. Resolva ou passe para colega</li>
-                  <li>3. Gere relatório do dia</li>
-                  <li>4. Documente ações importantes</li>
-                  <li>5. Passe informações ao próximo turno</li>
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-        )}
-      </Card>
+          ))}
+        </div>
+      </ManualSection>
 
       {/* Footer */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100">
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200">
         <CardContent className="pt-6">
-          <div className="text-center space-y-3">
-            <p className="text-sm font-medium text-gray-900">
-              📞 Dúvidas não respondidas neste manual?
+          <div className="text-center space-y-4">
+            <div className="flex items-center justify-center gap-2">
+              <Shield className="h-6 w-6 text-blue-600" />
+              <span className="text-lg font-bold text-gray-900">Sankofa Enterprise Pro v1.0</span>
+            </div>
+            <p className="text-sm text-gray-600 max-w-lg mx-auto">
+              Este manual foi criado para ajudar analistas de fraude a proteger 
+              milhões de reais todos os dias. Dúvidas? Fale com seu gestor.
             </p>
-            <p className="text-xs text-gray-600">
-              Fale com seu gerente ou time de suporte imediatamente.
-            </p>
-            <p className="text-xs text-blue-700 font-semibold">
-              🔐 Lembre-se: Todos os dados aqui são confidenciais e monitorados por auditoria LGPD (Art. 20).
-            </p>
-            <p className="text-xs text-gray-500 pt-3 border-t border-blue-200">
-              Sankofa Enterprise Pro v1.0 | Manual Didático Completo | 30 de Novembro de 2025
+            <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
+              <span>📜 LGPD Compliant</span>
+              <span>🏦 BACEN Approved</span>
+              <span>🔐 PCI DSS Ready</span>
+            </div>
+            <p className="text-xs text-gray-400">
+              Última atualização: 30 de Novembro de 2025
             </p>
           </div>
         </CardContent>
