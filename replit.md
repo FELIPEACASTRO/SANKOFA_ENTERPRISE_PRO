@@ -117,12 +117,25 @@ O Manual foi COMPLETAMENTE REESCRITO e AMPLIADO com novas seções técnicas:
 **16 TELAS DOCUMENTADAS:**
 Dashboard, Transações, Alertas, Investigação, Revisão Manual, Calibração, Monitoramento, Métricas, Hard Rules, VIP List, HOT List, Feedback, Relatórios, Auditoria, DataSets, Configurações
 
-**NOVA SEÇÃO: Jornada da Requisição (v3.0)**
+**NOVA SEÇÃO: Jornada da Requisição (v4.0) - EXPANDIDA**
 Documentação técnica completa do fluxo de processamento:
 1. **JSON de ENTRADA** - Todos os 14 campos explicados com peso na decisão
 2. **Diagrama ASCII da Jornada** - 10 passos do fluxo completo (37ms total)
 3. **JSON de SAÍDA** - 11 campos de resposta explicados
-4. **Exemplos Completos**:
+4. **Exemplos Completos** - 3 cenários detalhados + 6 resumidos
+5. **NOVO: 5 Tabelas de Combinações Completas**:
+   - Canal (PIX/Crédito/Débito/TED/Boleto) com SLA e peso
+   - Interface (WEB/POS/APP/API) com verificações e mitigações
+   - IP (Conhecido/Diferente/Suspeito/Internacional/HOT List)
+   - Dispositivo (Conhecido/Novo/Emulador/Root/HOT List)
+   - Histórico (Normal/VIP/Inconsistente/Novo/Fraudulento)
+6. **NOVO: 5 Exemplos Combinados com JSON Completo**:
+   - PIX + Device novo + IP suspeito (Score 89 BLOQUEAR)
+   - Crédito + POS + Merchant suspeito (Score 72 BLOQUEAR)
+   - Débito + WEB + 3 tentativas (Score 58 REVISAR)
+   - PIX recorrente + viagem (Score 22 APROVAR)
+   - Crédito internacional + teletransporte (Score 97 BLOQUEAR)
+7. **Exemplos anteriores**:
    - FRAUDE: Cartão + Web + IP diferente + dispositivo desconhecido
    - SUSPEITA: PIX + dispositivo novo + IP conhecido
    - APROVADO: Cliente recorrente + dispositivo conhecido
