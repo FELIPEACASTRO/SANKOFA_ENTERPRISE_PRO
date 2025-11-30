@@ -15,7 +15,8 @@ import {
   UserCheck,
   UserX,
   Eye,
-  MessageSquare
+  MessageSquare,
+  BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.jsx';
 import { cn } from '@/lib/utils';
@@ -121,6 +122,13 @@ const navigationItems = [
     icon: Settings,
     href: '/settings',
     description: 'Configurações do sistema'
+  },
+  {
+    title: 'Manual',
+    icon: BookOpen,
+    href: '/manual',
+    description: 'Guia completo do sistema',
+    badge: '?'
   }
 ];
 

@@ -1,0 +1,352 @@
+🧠 PROMPT EXTREMAMENTE DETALHADO PARA O REPLIT
+Criar item de menu “Manual” com explicação completa de TODAS as telas, usando metodologias de aprendizado (sem exercícios)
+
+Quero que você atue como um time de especialistas em UX, documentação técnica, pedagogia, neurociência do aprendizado e desenvolvimento de software, aplicando TODAS as metodologias educacionais que vamos citar abaixo, porém SEM inserir exercícios, quizzes ou tarefas para o usuário executar.
+
+🎯 OBJETIVO PRINCIPAL
+
+Criar um novo item de menu chamado “Manual” (ou “Manual do Sistema”) na aplicação.
+
+Esse item deve abrir uma tela de Manual que contém, de forma estática, uma documentação clara, didática e completa de TODAS as telas / páginas da aplicação.
+
+O objetivo dessa tela é permitir que qualquer usuário final entenda:
+
+O que existe em cada tela
+
+Para que serve cada tela
+
+Quando usar cada tela
+
+Quais são os principais campos, botões e fluxos de ação
+
+Tudo deve ser escrito em português brasileiro, em linguagem clara, amigável e profissional, sem jargões desnecessários.
+
+🏗️ 1. ANÁLISE DO PROJETO
+
+Analise todo o código do projeto (frontend e, se necessário, backend) para:
+
+Identificar todas as rotas, páginas, componentes principais, menus e submenus.
+
+Mapear cada tela funcional disponível para o usuário (ex: Dashboard, Cadastro de Clientes, Configurações, Relatórios, etc.).
+
+Para cada tela encontrada:
+
+Identifique:
+
+Nome da tela
+
+Rota/URL
+
+Seção ou módulo a que pertence
+
+Ações principais disponíveis
+
+Campos relevantes
+
+Fluxos importantes (ex: “Cadastro”, “Consulta”, “Edição”, “Exclusão”, “Exportação”, etc.)
+
+🧭 2. CRIAÇÃO DO ITEM DE MENU “MANUAL”
+
+Adicione um novo item de menu chamado exatamente:
+
+Manual
+ou
+
+Manual do Sistema (escolha o mais adequado ao padrão visual atual do projeto, mas mantenha “Manual” no rótulo).
+
+Esse item deve ficar:
+
+No menu principal da aplicação (header, sidebar ou onde for mais coerente com a arquitetura atual).
+
+Ao clicar nesse item:
+
+O usuário deve ser direcionado para uma tela específica do tipo:
+
+/manual
+
+ou rota equivalente, seguindo o padrão do projeto.
+
+📄 3. ESTRUTURA DA TELA “MANUAL”
+
+A tela do Manual deve ser única e conter toda a documentação estática das telas do sistema.
+
+3.1. Estrutura sugerida
+
+Na tela de Manual, organize o conteúdo em seções, por exemplo:
+
+Introdução ao Sistema
+
+Visão Geral das Áreas / Módulos
+
+Manual por Tela
+
+3.1. Dashboard
+
+3.2. Tela de Cadastro de X
+
+3.3. Tela de Consulta de Y
+
+3.4. Tela de Relatórios
+
+3.5. Tela de Configurações
+
+... (uma subseção para cada tela real do sistema)
+
+Dicas de Uso e Boas Práticas
+
+FAQ Rápido (perguntas frequentes) – apenas explicativo, sem exercícios.
+
+🧠 4. METODOLOGIAS DE APRENDIZADO APLICADAS (SEM EXERCÍCIOS)
+
+Você deve aplicar, na redação e na organização do Manual, os princípios das seguintes metodologias de aprendizado, sem incluir exercícios, tarefas, quizzes ou listas de “faça você mesmo”:
+
+4.1. Metodologia “Use a Cabeça” (Head First)
+
+Utilize:
+
+Linguagem conversacional, próxima do usuário.
+
+Metáforas simples para explicar telas mais complexas.
+
+Pequenas histórias ou mini cenários (storytelling) para explicar quando e por que usar cada tela.
+
+Repetição com variação: os conceitos importantes podem reaparecer em diferentes contextos (ex: falar de “Consulta” no resumo, na tela específica e em dicas, sempre com pequenas variações de explicação).
+
+Evite:
+
+Qualquer tipo de “exercício” do tipo “tente fazer isso agora”.
+
+O tom deve ser:
+
+Didático, leve, mas profissional.
+
+4.2. Dual Coding Theory (Texto + Visual)
+
+Estruture o Manual usando texto + elementos visuais (dentro das possibilidades da tecnologia da aplicação):
+
+Títulos, subtítulos, ícones, bullets, tabelas, blocos de destaque.
+
+Se possível, inserir:
+
+Ícones ao lado dos nomes das telas.
+
+Destaques visuais para avisos importantes (ex: caixas de alerta, notas).
+
+Utilize:
+
+Hierarquia visual clara (H1, H2, H3, listas).
+
+Objetivo:
+
+Ajudar o usuário a “ver” a estrutura mental do sistema apenas batendo o olho na tela.
+
+4.3. Storytelling Learning (Histórias e Cenários)
+
+Para cada tela importante, faça uma breve explicação usando cenários reais. Exemplos:
+
+“Imagine que você precisa conferir rapidamente como está o desempenho de hoje. A tela Dashboard é o seu painel de controle: nela você encontra…”
+
+“Quando precisar cadastrar um novo cliente, a tela Cadastro de Clientes é o ponto de partida. Ela permite que você…”
+
+Use sempre cenários do mundo real que façam sentido para o contexto do sistema.
+Importante: conte a história, mas não transforme isso em exercício. É apenas narrativo.
+
+4.4. Problem-Based Learning (PBL) – sem pedir para o usuário resolver
+
+Para cada tela, responda na documentação:
+
+“Que problema esta tela resolve para o usuário?”
+
+“Em que situações do dia a dia essa tela é utilizada?”
+
+Mas faça isso de forma explicativa, por exemplo:
+
+“Esta tela foi criada para resolver o problema de…”
+
+“No dia a dia, você usará esta tela quando…”
+
+“Sempre que você precisar fazer X, esta é a tela ideal…”
+
+Não peça ao usuário para realizar ações, apenas explique.
+
+4.5. Visual Thinking
+
+Use o conteúdo em formato que facilite a visualização mental da tela:
+
+Para cada tela, tentar manter uma estrutura padrão do tipo:
+
+Nome da Tela
+
+Onde encontrar no menu
+
+Função principal da tela
+
+Principais seções da tela
+
+Ex: Cabeçalho, Filtros, Grid de resultados, Área de detalhes, Botões de ação
+
+Principais campos e o que significam
+
+Ações que o usuário pode realizar
+
+Cuidados e avisos importantes
+
+Use listas, bullets, blocos destacados para isso.
+
+4.6. Retrieval / Repetição Inteligente (sem testes)
+
+Reforce os conceitos mais importantes de forma natural ao longo do Manual.
+
+Exemplo: o conceito de “filtro de pesquisa”, “botão salvar”, “fluxo de aprovação”.
+
+Não crie perguntas para o usuário responder.
+
+A repetição deve ser explicativa, não interrogativa.
+
+4.7. Outras Diretrizes Metodológicas
+
+Sem exercícios:
+
+Não crie listas do tipo:
+
+“Agora tente fazer…”
+
+“Faça este passo a passo você mesmo…”
+
+Sem provas, sem simulados, sem tarefas interativas.
+
+O Manual deve ser 100% explicativo, descritivo e orientativo, mas não interativo do ponto de vista pedagógico.
+
+✍️ 5. ESTILO DO TEXTO DO MANUAL
+
+Linguagem:
+
+Português brasileiro.
+
+Tom amigável, claro, direto, profissional.
+
+Evitar termos muito técnicos sem explicação.
+
+Sempre que usar termo técnico, adicionar explicação simples.
+
+Ordem do Conteúdo:
+
+Começar com uma visão geral da solução.
+
+Depois, explicar cada módulo.
+
+Depois, detalhar cada tela dentro do módulo.
+
+Para cada tela, incluir (no mínimo):
+
+Nome exato da tela
+
+Caminho no menu (ex: “Menu > Cadastros > Clientes”)
+
+Objetivo da tela:
+
+“Esta tela serve para…”
+
+Quando usar:
+
+“Use esta tela quando você precisar…”
+
+Principais elementos:
+
+Campos importantes e o que significam.
+
+Botões principais (ex: Salvar, Cancelar, Exportar, etc.).
+
+Fluxo geral:
+
+Descrever o fluxo esperado em texto (sem virar exercício).
+
+Alertas:
+
+Quais ações têm impacto maior (ex: exclusão de dados, aprovação, envio, etc.).
+
+🧪 6. IMPLEMENTAÇÃO TÉCNICA ESPERADA
+
+Criar a Tela Manual:
+
+Criar um novo componente / página (ex: ManualPage, ManualView, etc.), conforme o padrão do projeto.
+
+Todo o conteúdo deve ser estático, mas o código deve ser limpo e organizado, permitindo fácil manutenção.
+
+Se possível, estruturar o conteúdo em um objeto/estrutura de dados (ex: JSON, array de seções) para facilitar futuras edições.
+
+Integração com o Menu:
+
+Adicionar o item “Manual” ao menu principal.
+
+Garantir que a navegação até a tela funcione perfeitamente.
+
+Navegação Interna na Tela Manual:
+
+Se a aplicação for Single Page Application (SPA), considerar:
+
+Índice clicável no topo (sumário com âncoras para cada tela).
+
+Botão “Voltar ao topo” ao final de cada seção.
+
+Facilitar a vida do usuário para encontrar rapidamente a tela que ele quer entender.
+
+✅ 7. QUALIDADE, REVIEW E DOUBLE CHECK
+
+Quero que você faça um DOUBLE CHECK extremamente rigoroso em tudo:
+
+Verifique se:
+
+Todas as telas existentes no sistema estão mencionadas no Manual.
+
+Os nomes das telas no Manual batem com os nomes dos menus/rotas reais.
+
+As funcionalidades descritas correspondem ao que o código realmente faz.
+
+Se possível:
+
+Rode a aplicação.
+
+Navegue pelas telas.
+
+Confirme se o comportamento observado condiz com o que está escrito no Manual.
+
+Garanta que:
+
+Não haja informações desatualizadas.
+
+Não haja tela importante sem documentação.
+
+O Manual não tenha contradições internas.
+
+Organize o código de forma:
+
+Limpa
+
+Legível
+
+Fácil de dar manutenção e ampliar (para quando forem criadas novas telas).
+
+📦 8. ENTREGA FINAL ESPERADA
+
+Ao final, entregue:
+
+O código completo da nova tela “Manual”, integrado ao menu.
+
+A documentação estática dentro da tela, cobrindo todas as telas reais do sistema.
+
+Uma breve descrição das alterações feitas:
+
+Arquivos criados
+
+Arquivos alterados
+
+Como acessar o Manual na aplicação em execução
+
+Lembrando sempre:
+
+Manual 100% explicativo
+
+Aplicar metodologias de aprendizado (Use a Cabeça, Dual Coding, Storytelling, PBL, Visual Thinking, etc.)
+
+Sem qualquer tipo de exercício, quiz ou tarefa prática para o usuário.
