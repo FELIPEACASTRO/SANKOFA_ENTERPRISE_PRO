@@ -35,18 +35,26 @@ export function AppBar({ onMenuToggle, className }) {
         </Button>
 
         {/* Logo */}
-        <div className="flex items-center space-x-2">
-          <img 
-            src="/sankofa-logo.png" 
-            alt="Sankofa Análise Risco" 
-            className="h-8 w-8 object-contain"
-          />
+        <div className="flex items-center space-x-3">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl blur-sm"></div>
+            <img 
+              src="/sankofa-logo.png" 
+              alt="Sankofa Enterprise Pro" 
+              className="relative h-12 w-12 object-contain drop-shadow-lg"
+            />
+          </div>
           <div className="hidden sm:block">
-            <h1 className="text-h3 font-semibold text-[var(--color-text-primary)]">
-              Sankofa
-            </h1>
-            <p className="text-micro text-[var(--color-text-secondary)]">
-              Análise de Risco
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Sankofa
+              </h1>
+              <span className="px-2 py-0.5 text-[10px] font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full uppercase tracking-wide">
+                Enterprise
+              </span>
+            </div>
+            <p className="text-xs text-[var(--color-text-secondary)] font-medium">
+              Sistema de Detecção de Fraudes Bancárias
             </p>
           </div>
         </div>
