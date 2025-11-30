@@ -48,8 +48,8 @@ externalPort = 3002
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind=0.0.0.0:5000", "--workers=4", "--timeout=120", "--chdir=sankofa-enterprise-real/backend", "api.production_api:app"]
-build = ["bash", "build.sh"]
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--workers=2", "--timeout=120", "--preload", "--max-requests=1000", "--max-requests-jitter=50", "api.production_api:app"]
+build = ["bash", "-c", "cd sankofa-enterprise-real/frontend && npm run build && cp -r dist/* ../backend/static/"]
 
 [userenv]
 

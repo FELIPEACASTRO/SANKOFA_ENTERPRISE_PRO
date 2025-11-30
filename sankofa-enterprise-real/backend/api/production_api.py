@@ -755,7 +755,19 @@ metrics_collector = MetricsCollector()
 transaction_store = TransactionStore()
 config_store = ConfigStore()
 
-from services.postgres_store import postgres_store
+try:
+    from api.services.postgres_store import postgres_store
+    POSTGRES_STORE_AVAILABLE = True
+    logger.info("PostgreSQL store loaded successfully")
+except ImportError as e:
+    try:
+        from services.postgres_store import postgres_store
+        POSTGRES_STORE_AVAILABLE = True
+        logger.info("PostgreSQL store loaded from services module")
+    except ImportError as e2:
+        logger.warning(f"PostgreSQL store not available: {e2}. Using fallback.")
+        postgres_store = None
+        POSTGRES_STORE_AVAILABLE = False
 
 logger.info("Production API initialized", environment=config.environment, debug=config.debug)
 
