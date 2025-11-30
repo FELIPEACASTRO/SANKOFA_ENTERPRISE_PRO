@@ -259,6 +259,7 @@ export function Manual() {
   
   const tabs = [
     { id: 'inicio', label: 'Início', icon: BookOpen },
+    { id: 'dia-a-dia', label: 'Dia a Dia do Analista', icon: Calendar },
     { id: 'telas', label: 'Todas as Telas', icon: Grid },
     { id: 'cenarios', label: 'Cenários Reais', icon: Target },
     { id: 'troubleshooting', label: 'Problemas', icon: AlertTriangle },
@@ -540,6 +541,606 @@ export function Manual() {
                 <KeyboardShortcut keys={['Ctrl', 'H']} description="Ver histórico do cliente" />
                 <KeyboardShortcut keys={['Ctrl', 'E']} description="Ver explicabilidade da IA" />
                 <KeyboardShortcut keys={['F5']} description="Atualizar dados" />
+              </div>
+            </div>
+          </ManualSection>
+        </>
+      )}
+
+      {activeTab === 'dia-a-dia' && (
+        <>
+          {/* Introdução ao Dia a Dia */}
+          <ManualSection id="intro-dia" title="👨‍💼 Um Dia na Vida de Carlos Roberto - Analista Sênior" icon={Users} defaultOpen={true}>
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold">
+                    CR
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold">Carlos Roberto Silva</h3>
+                    <p className="text-green-100">Analista de Fraudes Sênior | Turno Diurno (06:00 - 14:00)</p>
+                    <p className="text-green-200 text-sm mt-1">5 anos de experiência | Especialista em PIX e Cartões</p>
+                  </div>
+                </div>
+              </div>
+              
+              <AlertBox type="info" title="Sobre Este Guia">
+                Acompanhe um dia completo de trabalho do Carlos Roberto. Você verá TODAS as situações 
+                onde um Analista Sênior precisa atuar, desde o momento que chega até o fim do turno.
+              </AlertBox>
+              
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-blue-50 rounded-lg p-4 text-center">
+                  <div className="text-3xl font-bold text-blue-600">~150</div>
+                  <div className="text-sm text-gray-600">Transações analisadas/dia</div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4 text-center">
+                  <div className="text-3xl font-bold text-green-600">~25</div>
+                  <div className="text-sm text-gray-600">Alertas críticos/dia</div>
+                </div>
+                <div className="bg-orange-50 rounded-lg p-4 text-center">
+                  <div className="text-3xl font-bold text-orange-600">~5</div>
+                  <div className="text-sm text-gray-600">Fraudes confirmadas/dia</div>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-4 text-center">
+                  <div className="text-3xl font-bold text-purple-600">~10</div>
+                  <div className="text-sm text-gray-600">Ligações para clientes/dia</div>
+                </div>
+              </div>
+            </div>
+          </ManualSection>
+
+          {/* 06:00 - Início do Turno */}
+          <ManualSection id="turno-0600" title="⏰ 06:00 - Início do Turno" icon={Clock}>
+            <div className="space-y-6">
+              <div className="bg-gray-900 text-white rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-bold">06:00</div>
+                  <span className="text-lg">Carlos chega e assume o turno</span>
+                </div>
+                <p className="text-gray-300">
+                  O turno noturno (Rodrigo) está finalizando. Carlos precisa fazer a passagem de turno 
+                  e entender o que aconteceu durante a madrugada.
+                </p>
+              </div>
+              
+              <StepByStep 
+                title="Rotina de Início de Turno"
+                steps={[
+                  { action: 'Fazer Login no Sistema', details: 'Abrir o Sankofa, inserir CPF e senha. Sistema registra horário de entrada.', tip: 'Sempre use autenticação de 2 fatores (SMS ou app).' },
+                  { action: 'Ler o Log de Passagem de Turno', details: 'Rodrigo deixou anotações no sistema: "2 fraudes confirmadas às 03:00, conta laranja identificada."', tip: 'Tela: Auditoria > Log de Turno' },
+                  { action: 'Verificar Dashboard Imediatamente', details: 'Olhar KPIs do turno noturno. Algum spike? Algum modelo offline? Alertas pendentes?', tip: 'Foco nos números vermelhos primeiro.' },
+                  { action: 'Checar Fila de Revisão Manual', details: 'Quantas transações estão esperando análise? SLA está sendo cumprido?', tip: 'Idealmente a fila deve ter < 20 itens no início do turno.' },
+                  { action: 'Confirmar Status dos Modelos de IA', details: 'Os 3 modelos (RF, GB, CB) devem estar "Online" e "Healthy".', tip: 'Se algum estiver offline, verificar com TI imediatamente.' }
+                ]}
+              />
+              
+              <div className="bg-yellow-50 rounded-xl p-6 border border-yellow-200">
+                <h4 className="font-bold text-yellow-800 mb-3">📝 Exemplo de Log de Passagem de Turno</h4>
+                <div className="bg-white rounded-lg p-4 font-mono text-sm">
+                  <p><span className="text-gray-500">30/11/2025 05:55</span> - Rodrigo Mendes</p>
+                  <p className="mt-2">Resumo do turno noturno (22:00 - 06:00):</p>
+                  <ul className="mt-2 space-y-1 text-gray-700">
+                    <li>• Total transações: 1.245</li>
+                    <li>• Bloqueios automáticos: 89</li>
+                    <li>• Análises manuais: 23</li>
+                    <li>• <span className="text-red-600 font-bold">Fraudes confirmadas: 2</span> (PIX R$ 3.200 e R$ 8.900)</li>
+                    <li>• <span className="text-orange-600">Conta laranja identificada:</span> CPF ***.***. 555-66</li>
+                    <li>• Modelo CatBoost reiniciado às 04:30 (instabilidade)</li>
+                    <li>• Pendências para turno diurno: 5 transações na fila</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </ManualSection>
+
+          {/* 06:30 - Primeira Análise */}
+          <ManualSection id="turno-0630" title="⏰ 06:30 - Limpando a Fila de Revisão" icon={Eye}>
+            <div className="space-y-6">
+              <div className="bg-gray-900 text-white rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-blue-500 px-3 py-1 rounded-full text-sm font-bold">06:30</div>
+                  <span className="text-lg">Carlos começa a analisar transações pendentes</span>
+                </div>
+                <p className="text-gray-300">
+                  Existem 5 transações do turno noturno esperando análise. Carlos precisa resolver 
+                  antes que o volume do dia aumente.
+                </p>
+              </div>
+              
+              <h4 className="font-bold text-gray-900">Transações na Fila</h4>
+              <div className="space-y-4">
+                <div className="bg-orange-50 border-2 border-orange-300 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-bold text-gray-900">Transação #1 - PIX Madrugada</span>
+                    <span className="bg-orange-500 text-white px-2 py-1 rounded text-sm">Score: 58</span>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    <div><span className="text-gray-500">Valor:</span> R$ 2.340,00</div>
+                    <div><span className="text-gray-500">Horário:</span> 03:45</div>
+                    <div><span className="text-gray-500">Canal:</span> PIX</div>
+                    <div><span className="text-gray-500">Destino:</span> Conhecido (irmão)</div>
+                  </div>
+                  <div className="mt-3 p-3 bg-white rounded-lg">
+                    <p className="text-sm text-gray-600"><strong>Motivo do score:</strong> Horário atípico (+30), mas destinatário é familiar conhecido (-15), valor dentro do padrão (-5).</p>
+                    <p className="text-sm text-green-700 font-semibold mt-2">✓ Decisão de Carlos: LEGÍTIMA - Cliente costuma trabalhar à noite</p>
+                  </div>
+                </div>
+                
+                <div className="bg-red-50 border-2 border-red-300 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-bold text-gray-900">Transação #2 - TED Alto Valor</span>
+                    <span className="bg-red-500 text-white px-2 py-1 rounded text-sm">Score: 74</span>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    <div><span className="text-gray-500">Valor:</span> R$ 45.000,00</div>
+                    <div><span className="text-gray-500">Horário:</span> 02:15</div>
+                    <div><span className="text-gray-500">Canal:</span> TED</div>
+                    <div><span className="text-gray-500">Destino:</span> CPF novo</div>
+                  </div>
+                  <div className="mt-3 p-3 bg-white rounded-lg">
+                    <p className="text-sm text-gray-600"><strong>Motivo do score:</strong> Valor muito alto (+25), madrugada (+20), destinatário novo (+20), device habitual (-10).</p>
+                    <p className="text-sm text-orange-700 font-semibold mt-2">⏳ Decisão de Carlos: PRECISA CONTATO - Ligar para cliente às 08:00</p>
+                  </div>
+                </div>
+              </div>
+              
+              <AlertBox type="tip" title="Dica do Carlos">
+                "Eu sempre resolvo os casos mais simples primeiro (score 40-55). Isso limpa a fila 
+                rapidamente e me deixa tempo para investigar os casos complexos com calma."
+              </AlertBox>
+            </div>
+          </ManualSection>
+
+          {/* 08:00 - Pico de Transações */}
+          <ManualSection id="turno-0800" title="⏰ 08:00 - Pico Matinal de Transações" icon={TrendingUp}>
+            <div className="space-y-6">
+              <div className="bg-gray-900 text-white rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-red-500 px-3 py-1 rounded-full text-sm font-bold">08:00</div>
+                  <span className="text-lg">Volume de transações aumenta 300%!</span>
+                </div>
+                <p className="text-gray-300">
+                  O Brasil acorda e começa a fazer PIX. O volume salta de 50 tx/min para 200 tx/min. 
+                  Mais transações = mais alertas.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-4">O Que Carlos Monitora Agora</h4>
+                  <Checklist 
+                    items={[
+                      { text: 'Dashboard: Volume subindo normalmente?', done: true },
+                      { text: 'Latência: Ainda abaixo de 50ms?', done: true },
+                      { text: 'Fila: Crescendo muito rápido?', done: false },
+                      { text: 'Alertas críticos: Algum novo vermelho?', done: false },
+                      { text: 'Modelos: Todos online e respondendo?', done: true }
+                    ]}
+                  />
+                </div>
+                
+                <div className="bg-blue-50 rounded-xl p-6">
+                  <h4 className="font-bold text-gray-900 mb-3">📞 Ligação para Cliente (TED de R$ 45k)</h4>
+                  <div className="bg-white rounded-lg p-4 text-sm">
+                    <p className="text-gray-500 mb-2">08:05 - Carlos liga para o cliente</p>
+                    <div className="space-y-2 italic text-gray-700">
+                      <p><strong>Carlos:</strong> "Bom dia, Sr. Marcelo. Aqui é Carlos do Banco Nexus, setor de segurança. Tudo bem?"</p>
+                      <p><strong>Cliente:</strong> "Bom dia! Sim, tudo bem."</p>
+                      <p><strong>Carlos:</strong> "Detectamos uma TED de R$ 45.000 às 2h da manhã. O senhor confirma essa operação?"</p>
+                      <p><strong>Cliente:</strong> "Sim! Comprei um carro usado ontem. O vendedor pediu transferência urgente."</p>
+                      <p><strong>Carlos:</strong> "Perfeito! Pode me confirmar o nome do destinatário?"</p>
+                      <p><strong>Cliente:</strong> "José Carlos... da Revenda Carros Sul."</p>
+                      <p><strong>Carlos:</strong> "Confirmado! Vou liberar a transação agora. Desculpe qualquer inconveniente."</p>
+                    </div>
+                    <div className="mt-4 p-2 bg-green-100 rounded text-green-800 text-sm">
+                      ✓ Transação liberada | Feedback registrado: "Compra de veículo confirmada por telefone"
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ManualSection>
+
+          {/* 09:30 - Alerta Crítico */}
+          <ManualSection id="turno-0930" title="🚨 09:30 - ALERTA CRÍTICO: Spike de Fraudes!" icon={AlertTriangle} priority="critical">
+            <div className="space-y-6">
+              <div className="bg-red-600 text-white rounded-xl p-6 animate-pulse">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-white text-red-600 px-3 py-1 rounded-full text-sm font-bold">09:30</div>
+                  <span className="text-lg font-bold">⚠️ ALERTA: +450% de bloqueios nos últimos 15 minutos!</span>
+                </div>
+                <p>
+                  O sistema detectou um aumento anormal de transações suspeitas. Pode ser um ataque coordenado!
+                </p>
+              </div>
+              
+              <StepByStep 
+                title="Protocolo de Resposta a Incidente"
+                steps={[
+                  { action: 'PAUSAR outras atividades', details: 'Carlos para tudo que está fazendo. Incidente crítico tem prioridade máxima.', tip: 'Avise colegas que você está em incidente.' },
+                  { action: 'Abrir Dashboard de Métricas', details: 'Verificar: de onde vêm as transações? Mesmo IP? Mesmo device? Mesmo padrão?', tip: 'Tela: Métricas > Tempo Real' },
+                  { action: 'Identificar Padrão', details: 'Carlos vê: 45 transações com mesmo device_id, todos para contas diferentes, valor ~R$ 1.000.', tip: 'Isso é um ataque automatizado (bot)!' },
+                  { action: 'Criar Hard Rule de Emergência', details: 'Bloquear temporariamente o device_id suspeito.', tip: 'Precisa de aprovação da Ana Paula (líder).' },
+                  { action: 'Notificar Gerência', details: 'Ligar para Patrícia Lima (Gerente) e reportar o incidente.', tip: 'Use o canal de emergência no Teams.' },
+                  { action: 'Documentar Tudo', details: 'Registrar no sistema: horário, IPs, devices, ações tomadas.', tip: 'Tela: Auditoria > Novo Incidente' }
+                ]}
+              />
+              
+              <div className="bg-gray-900 text-white rounded-xl p-6">
+                <h4 className="font-bold mb-4">📊 Análise do Carlos no Dashboard</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div className="bg-red-900 rounded-lg p-3">
+                    <div className="text-2xl font-bold text-red-400">45</div>
+                    <div className="text-xs text-gray-400">Transações suspeitas</div>
+                  </div>
+                  <div className="bg-red-900 rounded-lg p-3">
+                    <div className="text-2xl font-bold text-red-400">1</div>
+                    <div className="text-xs text-gray-400">Device ID comum</div>
+                  </div>
+                  <div className="bg-red-900 rounded-lg p-3">
+                    <div className="text-2xl font-bold text-red-400">38</div>
+                    <div className="text-xs text-gray-400">Contas destino únicas</div>
+                  </div>
+                  <div className="bg-red-900 rounded-lg p-3">
+                    <div className="text-2xl font-bold text-red-400">R$ 42k</div>
+                    <div className="text-xs text-gray-400">Valor total bloqueado</div>
+                  </div>
+                </div>
+              </div>
+              
+              <AlertBox type="success" title="Resultado do Incidente">
+                Carlos identificou e bloqueou um ataque de bot em 8 minutos. 
+                R$ 42.000 foram salvos. O device foi adicionado à HOT List permanentemente.
+              </AlertBox>
+            </div>
+          </ManualSection>
+
+          {/* 10:30 - Investigação Profunda */}
+          <ManualSection id="turno-1030" title="🔍 10:30 - Investigação Profunda de Fraude" icon={Search}>
+            <div className="space-y-6">
+              <div className="bg-gray-900 text-white rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-purple-500 px-3 py-1 rounded-full text-sm font-bold">10:30</div>
+                  <span className="text-lg">Carlos investiga uma rede de contas laranjas</span>
+                </div>
+                <p className="text-gray-300">
+                  Durante a análise do ataque, Carlos notou que várias contas destino tinham padrão suspeito. 
+                  Hora de investigar a fundo.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-4">Telas Utilizadas na Investigação</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
+                      <Target className="h-6 w-6 text-purple-600" />
+                      <div>
+                        <p className="font-semibold">1. Investigação</p>
+                        <p className="text-sm text-gray-600">Ver timeline completa da transação, todas as features, explicabilidade da IA.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                      <Users className="h-6 w-6 text-blue-600" />
+                      <div>
+                        <p className="font-semibold">2. Transações</p>
+                        <p className="text-sm text-gray-600">Buscar todas as transações relacionadas ao CPF/conta suspeita.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
+                      <Activity className="h-6 w-6 text-orange-600" />
+                      <div>
+                        <p className="font-semibold">3. Métricas</p>
+                        <p className="text-sm text-gray-600">Ver padrões de rede: quais contas se conectam?</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg">
+                      <XCircle className="h-6 w-6 text-red-600" />
+                      <div>
+                        <p className="font-semibold">4. HOT List</p>
+                        <p className="text-sm text-gray-600">Adicionar contas confirmadas como fraudulentas.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h4 className="font-bold text-gray-900 mb-4">🕵️ Descobertas da Investigação</h4>
+                  <div className="space-y-3">
+                    <div className="bg-white rounded-lg p-3 border-l-4 border-red-500">
+                      <p className="font-semibold text-gray-900">5 contas laranja identificadas</p>
+                      <p className="text-sm text-gray-600">Todas abertas nos últimos 30 dias, sem histórico.</p>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 border-l-4 border-orange-500">
+                      <p className="font-semibold text-gray-900">Padrão: recebem e sacam no mesmo dia</p>
+                      <p className="text-sm text-gray-600">PIX entra → saque em 2h → conta volta a ficar zerada.</p>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 border-l-4 border-purple-500">
+                      <p className="font-semibold text-gray-900">Mesmo endereço de IP em 3 contas</p>
+                      <p className="text-sm text-gray-600">Provável: mesma pessoa controlando múltiplas contas.</p>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 border-l-4 border-blue-500">
+                      <p className="font-semibold text-gray-900">Conexão com fraude de ontem</p>
+                      <p className="text-sm text-gray-600">Uma das contas recebeu PIX de vítima identificada pelo Rodrigo.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <AlertBox type="danger" title="Ação Tomada">
+                Carlos adiciona as 5 contas à HOT List e gera relatório STR para o BACEN. 
+                Marina (Compliance) é notificada para validar o relatório antes do envio.
+              </AlertBox>
+            </div>
+          </ManualSection>
+
+          {/* 12:00 - Almoço e Métricas */}
+          <ManualSection id="turno-1200" title="🍽️ 12:00 - Intervalo e Revisão de Métricas" icon={BarChart3}>
+            <div className="space-y-6">
+              <div className="bg-gray-900 text-white rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-green-500 px-3 py-1 rounded-full text-sm font-bold">12:00</div>
+                  <span className="text-lg">Carlos faz pausa para almoço</span>
+                </div>
+                <p className="text-gray-300">
+                  Antes de sair, Carlos verifica se há pendências críticas e delega para os colegas.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-4">Checklist Pré-Almoço</h4>
+                  <Checklist 
+                    items={[
+                      { text: 'Fila de revisão: menos de 10 itens?', done: true },
+                      { text: 'Alertas críticos: todos resolvidos?', done: true },
+                      { text: 'Colega assumiu monitoramento?', done: true },
+                      { text: 'Log de atividades atualizado?', done: true },
+                      { text: 'Celular de emergência ligado?', done: true }
+                    ]}
+                  />
+                </div>
+                
+                <div className="bg-blue-50 rounded-xl p-6">
+                  <h4 className="font-bold text-gray-900 mb-4">📊 Métricas do Turno Até Agora</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white rounded-lg p-3 text-center">
+                      <div className="text-2xl font-bold text-blue-600">2.847</div>
+                      <div className="text-xs text-gray-600">Transações processadas</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 text-center">
+                      <div className="text-2xl font-bold text-green-600">67</div>
+                      <div className="text-xs text-gray-600">Análises manuais</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 text-center">
+                      <div className="text-2xl font-bold text-red-600">3</div>
+                      <div className="text-xs text-gray-600">Fraudes confirmadas</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 text-center">
+                      <div className="text-2xl font-bold text-purple-600">R$ 89k</div>
+                      <div className="text-xs text-gray-600">Valor protegido</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ManualSection>
+
+          {/* 13:00 - Feedback e Treinamento do Modelo */}
+          <ManualSection id="turno-1300" title="🧠 13:00 - Feedback para Treinar a IA" icon={Brain}>
+            <div className="space-y-6">
+              <div className="bg-gray-900 text-white rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-purple-500 px-3 py-1 rounded-full text-sm font-bold">13:00</div>
+                  <span className="text-lg">Carlos registra feedbacks das análises do dia</span>
+                </div>
+                <p className="text-gray-300">
+                  Todo dia, Carlos dedica 30 minutos para registrar feedbacks detalhados. 
+                  Isso treina os modelos de IA para serem mais precisos.
+                </p>
+              </div>
+              
+              <AlertBox type="info" title="Por Que Feedback é Importante?">
+                Cada feedback que você registra ensina a IA a tomar melhores decisões. 
+                Em 30 dias, o modelo "aprende" seus padrões e fica mais preciso.
+                Quanto mais detalhado o feedback, melhor o aprendizado!
+              </AlertBox>
+              
+              <h4 className="font-bold text-gray-900">Exemplos de Feedback do Carlos</h4>
+              <div className="space-y-4">
+                <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold text-green-800">Transação #PIX-2024-11-30-081523</span>
+                    <span className="bg-green-500 text-white px-2 py-1 rounded text-sm">LEGÍTIMA</span>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2"><strong>Decisão original da IA:</strong> Score 58 - Bloqueio</p>
+                  <p className="text-sm text-gray-700 mb-2"><strong>Decisão do Carlos:</strong> Liberar</p>
+                  <div className="bg-white rounded-lg p-3 mt-2">
+                    <p className="text-sm text-gray-600"><strong>Feedback detalhado:</strong></p>
+                    <p className="text-sm text-gray-700 mt-1">
+                      "Cliente trabalha como motorista de aplicativo. PIX de madrugada é padrão normal 
+                      para ele (recebe corridas). Destinatário é a mãe dele, transferência recorrente. 
+                      Modelo deve aprender: profissionais noturnos têm padrão diferente."
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold text-red-800">Transação #PIX-2024-11-30-093012</span>
+                    <span className="bg-red-500 text-white px-2 py-1 rounded text-sm">FRAUDE</span>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2"><strong>Decisão original da IA:</strong> Score 72 - Bloqueio</p>
+                  <p className="text-sm text-gray-700 mb-2"><strong>Decisão do Carlos:</strong> Confirmar fraude</p>
+                  <div className="bg-white rounded-lg p-3 mt-2">
+                    <p className="text-sm text-gray-600"><strong>Feedback detalhado:</strong></p>
+                    <p className="text-sm text-gray-700 mt-1">
+                      "Golpe do WhatsApp clássico. Fraudador se passou por filho pedindo R$ 4.850 urgente. 
+                      Padrão: valor quebrado (não redondo), urgência na mensagem, conta destino nova. 
+                      Cliente confirmou por telefone que não fez a transação. Conta destino é laranja."
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ManualSection>
+
+          {/* 13:45 - Passagem de Turno */}
+          <ManualSection id="turno-1345" title="🔄 13:45 - Preparação para Passagem de Turno" icon={RefreshCw}>
+            <div className="space-y-6">
+              <div className="bg-gray-900 text-white rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-orange-500 px-3 py-1 rounded-full text-sm font-bold">13:45</div>
+                  <span className="text-lg">Carlos prepara o log de passagem para Ana Paula</span>
+                </div>
+                <p className="text-gray-300">
+                  O turno de Carlos termina às 14:00. Ele precisa documentar tudo que aconteceu 
+                  para que Ana Paula (turno vespertino) continue o trabalho.
+                </p>
+              </div>
+              
+              <StepByStep 
+                title="Rotina de Fim de Turno"
+                steps={[
+                  { action: 'Finalizar Análises em Andamento', details: 'Não deixar transações "em análise" - decidir ou delegar.', tip: 'Transações abandonadas afetam SLA.' },
+                  { action: 'Escrever Log de Passagem', details: 'Documentar: incidentes, fraudes confirmadas, pendências, observações.', tip: 'Seja detalhado - você não estará lá para explicar.' },
+                  { action: 'Atualizar Relatório Diário', details: 'Preencher métricas do turno: transações, análises, fraudes, tempo médio.', tip: 'Tela: Relatórios > Diário > Meu Turno' },
+                  { action: 'Verificar Alertas Pendentes', details: 'Há algo crítico que precisa de atenção imediata da Ana Paula?', tip: 'Marcar como "Prioritário" se sim.' },
+                  { action: 'Fazer Handoff Verbal', details: 'Conversar 5 minutos com Ana Paula sobre pontos importantes.', tip: 'Destaque o incidente do bot às 09:30!' }
+                ]}
+              />
+              
+              <div className="bg-yellow-50 rounded-xl p-6 border border-yellow-200">
+                <h4 className="font-bold text-yellow-800 mb-3">📝 Log de Passagem do Carlos</h4>
+                <div className="bg-white rounded-lg p-4 font-mono text-sm">
+                  <p><span className="text-gray-500">30/11/2025 13:50</span> - Carlos Roberto Silva</p>
+                  <p className="mt-2 font-bold">Resumo do turno diurno (06:00 - 14:00):</p>
+                  <ul className="mt-2 space-y-1 text-gray-700">
+                    <li>• Total transações: 4.523</li>
+                    <li>• Bloqueios automáticos: 312</li>
+                    <li>• Análises manuais: 89</li>
+                    <li>• <span className="text-red-600 font-bold">Fraudes confirmadas: 4</span></li>
+                    <li className="ml-4">- PIX R$ 4.850 (golpe WhatsApp)</li>
+                    <li className="ml-4">- Ataque de bot: 45 transações bloqueadas (R$ 42k)</li>
+                    <li className="ml-4">- Rede de 5 contas laranja identificada</li>
+                    <li>• <span className="text-green-600">Valor total protegido: R$ 138.500</span></li>
+                    <li>• STR enviado ao BACEN (aguardando validação Marina)</li>
+                    <li>• Hard Rule criada: device_id XPTO bloqueado</li>
+                    <li>• <span className="text-orange-600 font-bold">ATENÇÃO:</span> Monitorar se bot tenta novo device</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </ManualSection>
+
+          {/* Resumo do Dia */}
+          <ManualSection id="resumo-dia" title="📊 Resumo: Todos os Momentos de Atuação" icon={List} priority="high">
+            <div className="space-y-6">
+              <AlertBox type="info" title="Quando o Analista Sênior PRECISA Atuar">
+                Este é o resumo de TODAS as situações onde Carlos precisou intervir durante o dia.
+              </AlertBox>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="p-3 text-left">Horário</th>
+                      <th className="p-3 text-left">Situação</th>
+                      <th className="p-3 text-left">Tela Usada</th>
+                      <th className="p-3 text-left">Ação Tomada</th>
+                      <th className="p-3 text-left">Prioridade</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    <tr className="bg-white">
+                      <td className="p-3 font-mono">06:00</td>
+                      <td className="p-3">Início de turno - passagem</td>
+                      <td className="p-3">Dashboard, Auditoria</td>
+                      <td className="p-3">Ler log do turno anterior</td>
+                      <td className="p-3"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">Rotina</span></td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="p-3 font-mono">06:30</td>
+                      <td className="p-3">Transações pendentes na fila</td>
+                      <td className="p-3">Revisão Manual</td>
+                      <td className="p-3">Analisar e decidir (5 itens)</td>
+                      <td className="p-3"><span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">Média</span></td>
+                    </tr>
+                    <tr className="bg-white">
+                      <td className="p-3 font-mono">08:00</td>
+                      <td className="p-3">Pico de transações matinal</td>
+                      <td className="p-3">Dashboard, Métricas</td>
+                      <td className="p-3">Monitorar volume e latência</td>
+                      <td className="p-3"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">Rotina</span></td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="p-3 font-mono">08:05</td>
+                      <td className="p-3">Cliente questiona bloqueio</td>
+                      <td className="p-3">Transações, Investigação</td>
+                      <td className="p-3">Ligar para cliente, liberar TED</td>
+                      <td className="p-3"><span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">Média</span></td>
+                    </tr>
+                    <tr className="bg-red-50">
+                      <td className="p-3 font-mono">09:30</td>
+                      <td className="p-3 font-bold text-red-700">INCIDENTE: Ataque de bot</td>
+                      <td className="p-3">Dashboard, Hard Rules, HOT List</td>
+                      <td className="p-3">Bloquear device, escalar gerência</td>
+                      <td className="p-3"><span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">CRÍTICA</span></td>
+                    </tr>
+                    <tr className="bg-white">
+                      <td className="p-3 font-mono">10:30</td>
+                      <td className="p-3">Investigação de rede de fraude</td>
+                      <td className="p-3">Investigação, HOT List, Relatórios</td>
+                      <td className="p-3">Mapear contas laranjas, STR BACEN</td>
+                      <td className="p-3"><span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Alta</span></td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="p-3 font-mono">11:00</td>
+                      <td className="p-3">Análise de transação score 65</td>
+                      <td className="p-3">Revisão Manual</td>
+                      <td className="p-3">Verificar histórico, aprovar</td>
+                      <td className="p-3"><span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">Média</span></td>
+                    </tr>
+                    <tr className="bg-white">
+                      <td className="p-3 font-mono">12:00</td>
+                      <td className="p-3">Intervalo - delegação</td>
+                      <td className="p-3">Dashboard</td>
+                      <td className="p-3">Verificar fila, delegar para colega</td>
+                      <td className="p-3"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">Rotina</span></td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="p-3 font-mono">13:00</td>
+                      <td className="p-3">Registro de feedbacks</td>
+                      <td className="p-3">Feedback Analista</td>
+                      <td className="p-3">Treinar modelo com decisões</td>
+                      <td className="p-3"><span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs">Importante</span></td>
+                    </tr>
+                    <tr className="bg-white">
+                      <td className="p-3 font-mono">13:45</td>
+                      <td className="p-3">Passagem de turno</td>
+                      <td className="p-3">Auditoria, Relatórios</td>
+                      <td className="p-3">Documentar dia, handoff verbal</td>
+                      <td className="p-3"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">Rotina</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div className="bg-blue-50 rounded-xl p-6 text-center">
+                  <div className="text-4xl font-bold text-blue-600">16</div>
+                  <div className="text-gray-600 mt-2">Telas do sistema utilizadas</div>
+                </div>
+                <div className="bg-green-50 rounded-xl p-6 text-center">
+                  <div className="text-4xl font-bold text-green-600">89</div>
+                  <div className="text-gray-600 mt-2">Decisões tomadas</div>
+                </div>
+                <div className="bg-purple-50 rounded-xl p-6 text-center">
+                  <div className="text-4xl font-bold text-purple-600">R$ 138k</div>
+                  <div className="text-gray-600 mt-2">Valor protegido</div>
+                </div>
               </div>
             </div>
           </ManualSection>
