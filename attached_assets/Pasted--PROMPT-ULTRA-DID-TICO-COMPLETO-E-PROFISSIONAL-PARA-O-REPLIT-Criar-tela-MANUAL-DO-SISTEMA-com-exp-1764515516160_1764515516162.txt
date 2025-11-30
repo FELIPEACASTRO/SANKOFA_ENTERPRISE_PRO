@@ -1,0 +1,323 @@
+🧠 PROMPT ULTRA-DIDÁTICO, COMPLETO E PROFISSIONAL PARA O REPLIT
+Criar tela MANUAL DO SISTEMA com explicações visuais, exemplos reais e descrições completas de todas as telas
+🎯 OBJETIVO PRINCIPAL
+
+Desejo que você analise todo o projeto (frontend e backend se necessário) e crie um novo item de menu chamado “Manual”, contendo uma tela completa, ilustrada, didática, clara e 100% estática, com:
+
+Explicações de todas as telas do sistema
+
+Exemplos reais do dia a dia
+
+Imagens e ilustrações (SVG, emojis, ícones, diagramas simples)
+
+Metáforas para entendimento
+
+Descrições extremamente detalhadas
+
+Uso de todas as metodologias citadas
+
+Sem exercícios (somente conteúdo explicativo)
+
+Tudo deve estar em português do Brasil, com a grafia correta e validada, usando comunicação clara, acessível, amigável e profissional.
+
+🧩 1. ANALISAR TODO O PROJETO DO INÍCIO AO FIM
+
+Antes de escrever qualquer linha da tela “Manual”:
+
+Analise:
+
+Todas as rotas
+
+Todos os componentes
+
+Todos os menus e submenus
+
+Todas as páginas reais que o usuário pode acessar
+
+Gere um mapa completo do sistema:
+
+Nome exato de cada tela
+
+Qual módulo pertence
+
+O que o usuário faz nela
+
+Quais são seus elementos principais (botões, formulários, grids, tabelas, filtros, etc.)
+
+Quais são os fluxos importantes que acontecem ali
+
+Esse mapeamento será usado para gerar a documentação didática.
+
+🧭 2. CRIAR ITEM DE MENU “MANUAL”
+
+Adicionar no menu principal (sidebar ou topbar) um item:
+
+📘 Manual
+
+Ao clicar, abrir a rota:
+
+/manual
+
+
+Essa rota exibirá a tela de manual.
+
+📄 3. ESTRUTURA DA TELA “MANUAL”
+
+A tela deve conter, no mínimo, as seções abaixo, organizadas em layout profissional:
+
+🟦 (A) INTRODUÇÃO DO SISTEMA – com imagens e metáforas visuais
+
+Exemplo de como explicar visualmente:
+
+Ícone de foguete 🚀 representando desempenho
+
+Ícone de pasta 📁 para módulos
+
+Ícone de engrenagem ⚙️ para configurações
+
+Ícone de lupa 🔍 para buscas
+
+Ícone de gráfico 📊 para relatórios
+
+Texto exemplo:
+
+Bem-vindo ao Manual do Sistema!
+
+Aqui você encontrará uma explicação clara e visual de todas as telas da aplicação.
+Nosso objetivo é fazer com que você entenda para que serve cada página, como ela funciona e quando utilizá-la no seu dia a dia de trabalho.
+
+Imagine este manual como um mapa da cidade, onde cada tela é um bairro com suas funções específicas. Assim, você sabe exatamente onde ir quando precisar realizar uma tarefa.
+
+🟩 (B) SUMÁRIO VISUAL INTERATIVO (com ícones)
+
+Exemplo:
+
+📊 Dashboard  
+📚 Cadastros  
+🔍 Consultas  
+🧾 Relatórios  
+⚙️ Configurações  
+🛠️ Administração  
+📨 Notificações  
+📘 Manual  
+
+
+Cada item é um link de âncora dentro do manual.
+
+🟧 (C) DOCUMENTAÇÃO POR TELA COM IMAGENS E EXEMPLOS REAIS
+
+Para cada tela do sistema, gere uma subseção com esta estrutura obrigatória:
+
+📌 1. Nome da Tela
+
+Exemplo: Tela de Cadastro de Clientes
+
+🖼️ 2. Ilustração simples da tela
+
+Utilize:
+
+caixas representando formulário
+
+ícones
+
+emojis
+
+diagramas ASCII ou blocos visuais
+
+Exemplo:
+
+ -------------------------------------
+| 📝 Cadastro de Clientes             |
+|-------------------------------------|
+| 👤 Nome completo: [_______________] |
+| 📱 Telefone:       [_______________] |
+| ✉️  E-mail:        [_______________] |
+|-------------------------------------|
+| 💾 Salvar      ❌ Cancelar          |
+ -------------------------------------
+
+🎯 3. Objetivo da Tela (explicação clara e humana)
+
+Exemplo:
+
+Esta tela serve para cadastrar novos clientes no sistema.
+
+Pense nela como o momento em que você abre uma ficha para um novo cliente em uma loja física.
+Aqui você registra todos os dados necessários para que o cliente passe a existir no sistema.
+
+📅 4. Quando usar essa tela? (exemplos do dia a dia)
+
+Exemplos reais:
+
+“Você está atendendo um novo cliente e precisa incluí-lo na base.”
+
+“Um cliente ligou e pediu para atualizar o telefone.”
+
+“É necessário corrigir um e-mail informado errado.”
+
+🔍 5. Principais elementos da tela (com ícones e descrições claras)
+
+Exemplo:
+
+👤 Nome Completo
+O nome do cliente conforme documento oficial.
+
+📱 Telefone
+Um número válido para contato. Pode ser celular ou fixo.
+
+📧 E-mail
+Usado para envio de notificações e comunicados importantes.
+
+💾 Botão SALVAR
+Grava as informações no banco de dados.
+
+❌ Botão CANCELAR
+Volta para a tela anterior sem salvar nada.
+
+🔄 6. Fluxo de Uso (explicado como uma história de 10 segundos)
+
+Exemplo:
+
+“Ana, atendente da loja, recebe um cliente novo chamado Carlos.
+Ela abre o sistema, vai para Menu > Cadastros > Clientes, preenche os campos e clica em Salvar.
+Pronto: Carlos agora está registrado.”
+
+⚠️ 7. Cuidados importantes
+
+Não deixe campos obrigatórios vazios.
+
+Verifique dados sensíveis antes de salvar.
+
+Para evitar erros futuros, sempre confirme telefone e e-mail.
+
+🎨 Toda tela deve ser feita neste formato.
+
+Esse padrão cria clareza, consistência e acessibilidade.
+
+Repita isso para:
+
+Dashboard
+
+Relatórios
+
+Consultas
+
+Configurações
+
+Administração
+
+Notificações
+
+Qualquer outra tela existente
+
+🧠 4. UTILIZE TODAS AS METODOLOGIAS DE APRENDIZAGEM ABAIXO
+
+Essas metodologias devem ser aplicadas no conteúdo, mas sem exercícios:
+
+✔️ Metodologia Use a Cabeça
+
+Linguagem leve
+
+Histórias e metáforas
+
+Humor moderado
+
+Explicações que criam “Aha moments”
+
+✔️ Dual Coding (texto + imagem)
+
+Diagramas ASCII
+
+Ícones
+
+Emojis
+
+Tabelas
+
+Quadros visuais
+
+Setas, blocos e ilustrações simples
+
+✔️ Storytelling Learning
+
+Pequenas histórias reais de uso
+
+Situações do dia a dia
+
+Personagens fictícios opcionais (Ana, Carlos, equipe de suporte etc.)
+
+✔️ Problem-Based Learning (PBL)
+
+Explique:
+
+“Que problema esta tela resolve?”
+
+Exemplo:
+
+“Para evitar erros cadastrais e garantir que o cliente seja encontrado corretamente nas consultas, esta tela existe para organizar todos os dados básicos do cliente.”
+
+✔️ Visual Thinking
+
+Listas altamente visuais
+
+Seções bem separadas
+
+Conteúdo com blocos estruturados
+
+Mapeamento mental intuitivo
+
+✔️ Repetição com Variação
+
+Explicar conceitos importantes várias vezes, mas:
+
+com novas palavras
+
+novos exemplos
+
+em novos contextos
+
+🧱 5. ESTILO DO TEXTO (OBRIGATÓRIO)
+
+Português brasileiro formal, porém leve
+
+Nenhuma abreviação que gere dúvida
+
+Frases curtas
+
+Parágrafos pequenos
+
+Evitar gírias
+
+Explicações acessíveis para qualquer nível de usuário
+
+Exemplos sempre da realidade brasileira
+
+🧪 6. QUALIDADE E DOUBLE CHECK
+
+Antes de entregar, verifique:
+
+Toda tela real está documentada?
+
+Há consistência visual e textual?
+
+O manual realmente explica TUDO que o usuário precisa?
+
+Nenhum elemento foi omitido?
+
+Nenhum exercício ou desafio foi incluído?
+
+Todas as imagens ASCII estão coerentes com a aparência real?
+
+Linguagem está clara, sem erros gramaticais?
+
+📦 7. ENTREGA FINAL ESPERADA DO REPLIT
+
+Código da tela /manual totalmente funcional
+
+Menu atualizado com o item “Manual”
+
+Conteúdo estático completo, cobrindo 100% das telas
+
+Design limpo, organizado e bonito
+
+Documentação altamente didática e com exemplos reais
