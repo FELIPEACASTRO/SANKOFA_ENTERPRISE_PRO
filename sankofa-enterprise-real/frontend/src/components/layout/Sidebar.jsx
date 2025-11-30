@@ -227,7 +227,7 @@ export function Sidebar({ isOpen, onToggle, currentPath = '/', className }) {
           {!collapsed && (
             <div className="border-t border-[var(--color-border)] p-4">
               <div className="text-xs text-[var(--color-text-secondary)]">
-                <div className="font-medium">Sankofa v11.0</div>
+                <div className="font-medium">Sankofa v1.0</div>
                 <div>Sistema de Análise de Risco</div>
               </div>
             </div>
