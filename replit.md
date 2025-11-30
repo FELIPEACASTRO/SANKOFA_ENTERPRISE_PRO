@@ -80,8 +80,8 @@ Clean Architecture with Domain, Application, Infrastructure, and Presentation la
 
 ## Recent Changes (November 30, 2025)
 
-### Manual ULTRA-DIDÁTICO Completo (v2.0) - 1.736 linhas
-O Manual foi COMPLETAMENTE REESCRITO seguindo prompt ultra-extremo com:
+### Manual ULTRA-DIDÁTICO Completo (v3.0) - 2.538 linhas
+O Manual foi COMPLETAMENTE REESCRITO e AMPLIADO com nova seção técnica:
 
 **METODOLOGIAS APLICADAS:**
 - Metodologia "Use a Cabeça" (Head First): linguagem conversacional
@@ -114,6 +114,17 @@ O Manual foi COMPLETAMENTE REESCRITO seguindo prompt ultra-extremo com:
 
 **16 TELAS DOCUMENTADAS:**
 Dashboard, Transações, Alertas, Investigação, Revisão Manual, Calibração, Monitoramento, Métricas, Hard Rules, VIP List, HOT List, Feedback, Relatórios, Auditoria, DataSets, Configurações
+
+**NOVA SEÇÃO: Jornada da Requisição (v3.0)**
+Documentação técnica completa do fluxo de processamento:
+1. **JSON de ENTRADA** - Todos os 14 campos explicados com peso na decisão
+2. **Diagrama ASCII da Jornada** - 10 passos do fluxo completo (37ms total)
+3. **JSON de SAÍDA** - 11 campos de resposta explicados
+4. **Exemplos Completos**:
+   - FRAUDE: Cartão + Web + IP diferente + dispositivo desconhecido
+   - SUSPEITA: PIX + dispositivo novo + IP conhecido
+   - APROVADO: Cliente recorrente + dispositivo conhecido
+   - 6 cenários adicionais (PIX alto valor, HOT List, VIP List, etc.)
 
 ### Cache Optimization Complete
 1. **SimpleCache Class**: Implemented in `postgres_store.py`
