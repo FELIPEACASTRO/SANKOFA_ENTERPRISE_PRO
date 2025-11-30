@@ -80,6 +80,46 @@ Clean Architecture with Domain, Application, Infrastructure, and Presentation la
 
 ## Recent Changes (November 30, 2025)
 
+### Manual Ultra-Didático Completo (v1.0)
+O Manual foi completamente reescrito para ser extremamente didático e detalhado:
+
+1. **9 Abas de Navegação**:
+   - Início: Visão geral, equipe de especialistas, como funciona
+   - Dia a Dia: Jornada completa de um analista (06:00-14:00)
+   - Features de IA: 40+ características explicadas em 8 categorias
+   - DataSets: Kaggle (284k tx), Produção (4.4k tx), Feedback
+   - Transfer Learning: 4 fases de aprendizado da IA
+   - Todas as Telas: Mapa das 16 páginas do sistema
+   - Compliance: LGPD, BACEN, PCI DSS com artigos
+   - Cenários Reais: Fraudes reais com passo a passo
+   - Glossário: 23 termos técnicos explicados
+
+2. **40+ Features de IA Documentadas**:
+   - Dados da Transação (5): amount, channel, transaction_hour, etc
+   - Velocidade e Frequência (5): velocity_1h, velocity_24h, etc
+   - Comportamento do Cliente (5): avg_transaction_amount, etc
+   - Destinatário (5): recipient_is_new, recipient_risk_score, etc
+   - Dispositivo e Localização (5): device_is_new, ip_is_vpn, etc
+   - Padrões Temporais (5): is_night_transaction, usual_hour_deviation
+   - Análise de Rede (5): shared_device_count, network_fraud_rate
+   - Features Derivadas por IA (5): anomaly_score, fraud_probability
+
+3. **3 DataSets Explicados**:
+   - Kaggle: 284.807 transações, pré-treinamento inicial
+   - Produção: 4.467 transações brasileiras, fine-tuning
+   - Feedback: ~50 feedbacks/dia, aprendizado contínuo
+
+4. **Transfer Learning (4 Fases)**:
+   - Fase 1: Pré-Treinamento (Kaggle, 2h)
+   - Fase 2: Adaptação de Domínio (Brasil, 30min)
+   - Fase 3: Ensemble Voting (3 modelos, tempo real)
+   - Fase 4: Aprendizado Contínuo (feedback humano)
+
+5. **3 Modelos de ML Detalhados**:
+   - Random Forest: 30% peso, 100 árvores
+   - Gradient Boosting: 35% peso, 100 estimadores
+   - CatBoost: 35% peso, 500 iterações
+
 ### Cache Optimization Complete
 1. **SimpleCache Class**: Implemented in `postgres_store.py`
    - TTL: 30 seconds
