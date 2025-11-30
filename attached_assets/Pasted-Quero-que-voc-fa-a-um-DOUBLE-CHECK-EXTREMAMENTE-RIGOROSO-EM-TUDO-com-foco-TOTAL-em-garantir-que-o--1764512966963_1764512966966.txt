@@ -1,0 +1,58 @@
+Quero que você faça um DOUBLE CHECK EXTREMAMENTE RIGOROSO EM TUDO, com foco TOTAL em garantir que o sistema está realmente integrado e funcionando EM TEMPO REAL, SEM MOCK, e PRONTO PARA PRODUÇÃO.
+
+Escopo obrigatório de análise:
+
+1) FRONT-END  
+2) BACK-END  
+3) BANCO DE DADOS POSTGRESQL  
+4) REDIS (cache / filas / sessão / o que estiver sendo usado)
+
+Tarefas que você DEVE executar e validar:
+
+1. Análise de Integração Real (SEM MOCK)
+   - Verifique se o FRONT-END está chamando o BACK-END de forma real (requisições HTTP/REST/GraphQL, etc.), sem uso de mocks, stubs ou simulações.
+   - Confirme que o BACK-END está acessando o POSTGRES e o REDIS de forma REAL, com conexões ativas e operações de leitura/escrita realmente acontecendo.
+   - Certifique-se de que NÃO há nenhuma camada de mock ativa ou configuração de ambiente de testes que esteja simulando integrações.
+
+2. Funcionamento em Tempo Real (Real-Time)
+   - Verifique se os fluxos críticos do sistema (ex.: envio de dados, consulta, atualização, fluxo de fraude, etc.) estão:
+     - Saindo do FRONT-END
+     - Chegando no BACK-END
+     - Gravando / lendo corretamente no POSTGRES
+     - Publicando / lendo corretamente no REDIS (quando aplicável)
+   - Confirme se as respostas estão retornando em tempo adequado (baixa latência) e se o comportamento é consistente.
+   - Se houver filas, streams ou eventos, valide se estão fluindo em tempo real, sem atrasos anormais.
+
+3. Conectividade e Configuração
+   - Validar todas as strings de conexão, URLs, portas e credenciais usadas para:
+     - FRONT-END → BACK-END
+     - BACK-END → POSTGRES
+     - BACK-END → REDIS
+   - Apontar qualquer configuração incorreta, ambígua ou frágil (ex.: variáveis de ambiente faltando, hardcode de credenciais, endpoints inconsistentes).
+
+4. Fluxos de Ponta a Ponta (End-to-End)
+   - Escolher e testar os principais fluxos de negócio de ponta a ponta:
+     - Ação do usuário no FRONT-END → requisição no BACK-END → operações no POSTGRES e/ou REDIS → resposta retornando para o usuário no FRONT-END.
+   - Para cada fluxo testado, responda:
+     - O que foi testado (descrição do fluxo)
+     - Resultado observado
+     - Se houve algum erro, exceção, timeout ou comportamento inesperado.
+
+5. Validação de Pronto para Produção
+   - Com base em tudo que foi analisado, responda de forma clara e objetiva:
+     - O sistema está realmente integrado (FRONT-END + BACK-END + POSTGRES + REDIS)?
+     - Tudo está funcionando em TEMPO REAL, sem mocks e sem simulações?
+     - Há algum GAP, risco, falha ou ponto frágil que impeça considerar a solução PRONTA PARA PRODUÇÃO?
+   - Se NÃO estiver pronto para produção, liste exatamente:
+     - Quais são os problemas
+     - Em quais partes (arquivo, endpoint, componente, tabela, key do Redis, etc.)
+     - O que precisa ser corrigido ou melhorado para ficar realmente pronto.
+
+Estilo de resposta:
+- Seja direto, técnico e imparcial.
+- Não suavize problemas: se houver falha ou risco, deixe MUITO claro.
+- Organize a resposta em seções (Integração, Real-Time, Postgres, Redis, E2E, Pronto para Produção).
+- Deixe explícito, no final, um veredito:  
+  ✅ PRONTO PARA PRODUÇÃO, SEM GAPS relevantes  
+  ou  
+  ❌ NÃO PRONTO PARA PRODUÇÃO, listando todos os gaps encontrados.
