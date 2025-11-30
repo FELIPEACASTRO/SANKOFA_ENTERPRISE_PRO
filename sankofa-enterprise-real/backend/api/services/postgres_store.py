@@ -5,10 +5,42 @@ Armazenamento persistente usando PostgreSQL em vez de arquivo JSON
 
 import os
 import json
+import time
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
+
+
+class SimpleCache:
+    """Cache simples em memória com TTL para reduzir latência"""
+    
+    def __init__(self, default_ttl: int = 30):
+        self._cache = {}
+        self._default_ttl = default_ttl
+    
+    def get(self, key: str):
+        if key in self._cache:
+            entry = self._cache[key]
+            if time.time() < entry['expires']:
+                return entry['value']
+            del self._cache[key]
+        return None
+    
+    def set(self, key: str, value, ttl: int = None):
+        self._cache[key] = {
+            'value': value,
+            'expires': time.time() + (ttl or self._default_ttl)
+        }
+    
+    def invalidate(self, key: str = None):
+        if key:
+            self._cache.pop(key, None)
+        else:
+            self._cache.clear()
+
+
+_dashboard_cache = SimpleCache(default_ttl=30)
 
 
 class PostgresStore:
@@ -552,11 +584,17 @@ class PostgresStore:
     
     def get_dashboard_kpis(self, date_from: str = None, date_to: str = None) -> Dict:
         """Retorna KPIs do dashboard baseados em dados reais do PostgreSQL
+        Com cache em memória (TTL 30s) para reduzir latência
         
         Args:
             date_from: Data inicial (default: últimos 30 dias)
             date_to: Data final (default: agora)
         """
+        cache_key = "dashboard_kpis"
+        cached = _dashboard_cache.get(cache_key)
+        if cached:
+            return cached
+        
         try:
             with self._get_connection() as conn:
                 with conn.cursor() as cur:
@@ -600,7 +638,7 @@ class PostgresStore:
                     if total_count > 0:
                         fraud_rate = (frauds_count / total_count) * 100
                     
-                    return {
+                    result = {
                         "transacoes_hoje": total_count,
                         "transacoes_variacao": 0.0,
                         "fraudes_detectadas": frauds_count,
@@ -616,6 +654,9 @@ class PostgresStore:
                         "transacoes_recentes": recent_count,
                         "ultima_atualizacao": str(total.get('latest_transaction', ''))
                     }
+                    
+                    _dashboard_cache.set(cache_key, result, ttl=30)
+                    return result
         except Exception as e:
             print(f"Error fetching dashboard KPIs: {e}")
             return {
@@ -628,7 +669,14 @@ class PostgresStore:
             }
     
     def get_dashboard_timeseries(self) -> List[Dict]:
-        """Retorna série temporal de transações por hora (todas as transações agrupadas por hora)"""
+        """Retorna série temporal de transações por hora (todas as transações agrupadas por hora)
+        Com cache em memória (TTL 30s) para reduzir latência
+        """
+        cache_key = "dashboard_timeseries"
+        cached = _dashboard_cache.get(cache_key)
+        if cached:
+            return cached
+            
         try:
             with self._get_connection() as conn:
                 with conn.cursor() as cur:
@@ -653,13 +701,22 @@ class PostgresStore:
                             "transactions": int(data.get('transactions', 0)),
                             "latency": round(float(data.get('avg_latency', 0)), 1)
                         })
+                    
+                    _dashboard_cache.set(cache_key, result, ttl=30)
                     return result
         except Exception as e:
             print(f"Error fetching dashboard timeseries: {e}")
             return [{"time": f"{h:02d}:00", "transactions": 0, "latency": 0} for h in range(24)]
     
     def get_dashboard_channels(self) -> List[Dict]:
-        """Retorna estatísticas por canal (todas as transações)"""
+        """Retorna estatísticas por canal (todas as transações)
+        Com cache em memória (TTL 30s) para reduzir latência
+        """
+        cache_key = "dashboard_channels"
+        cached = _dashboard_cache.get(cache_key)
+        if cached:
+            return cached
+            
         try:
             with self._get_connection() as conn:
                 with conn.cursor() as cur:
@@ -693,6 +750,8 @@ class PostgresStore:
                             {"name": "TED", "transactions": 0, "frauds": 0, "value": 0},
                             {"name": "DOC", "transactions": 0, "frauds": 0, "value": 0}
                         ]
+                    
+                    _dashboard_cache.set(cache_key, result, ttl=30)
                     return result
         except Exception as e:
             print(f"Error fetching dashboard channels: {e}")
