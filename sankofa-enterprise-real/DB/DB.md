@@ -1,5 +1,23 @@
 # Sankofa Enterprise Pro - Documentação Completa do Banco de Dados
 
+**Versão:** 1.0  
+**Última Atualização:** 30 de Novembro de 2025  
+**Status:** ✅ OPERACIONAL COM DADOS REAIS
+
+### Status Atual do Banco
+
+| Métrica | Valor |
+|---------|-------|
+| **Transações** | 4.466 registros |
+| **Fraudes Detectadas** | 3.114 (69,73%) |
+| **Audit Logs** | 38 registros |
+| **Hard Rules** | 2 registros |
+| **VIP List** | 1 registro |
+| **Hot List** | 1 registro |
+| **Users** | 5 registros |
+
+---
+
 ## Índice
 
 1. [Visão Geral](#visão-geral)

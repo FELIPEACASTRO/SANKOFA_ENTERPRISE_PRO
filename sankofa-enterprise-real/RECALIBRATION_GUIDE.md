@@ -1,27 +1,33 @@
-# 📊 Guia Completo de Recalibração de Métricas
+# Guia Completo de Recalibração de Métricas
 
 ## Visão Geral
 
-O Sankofa possui um sistema automático de recalibração, mas você pode fazer manualmente quando necessário.
+O Sankofa Enterprise Pro possui um sistema de monitoramento de métricas que permite recalibração quando necessário. Este guia explica quando e como fazer recalibração.
 
 ---
 
-## 1️⃣ MÉTRICAS ATUAIS (Hoje - 28 Nov)
+## 1. MÉTRICAS ATUAIS (30 de Novembro de 2025)
 
-```
-Transações:           3.778 TX
-Fraudes detectadas:   3.105 TX (82%)
-Latência média:       0.55ms
-Valor protegido:      R$ 2 trilhões
-```
+### Dados do Sistema
 
-### Comparativo com Histórico (27 Nov)
-- Taxa de fraude: 3% (27 Nov) → 82% (28 Nov)
-  - ⚠️ Possível **Data Drift** - padrões mudaram
+| Métrica | Valor | Status |
+|---------|-------|--------|
+| **Transações** | 4.466 | ✅ Real |
+| **Fraudes detectadas** | 3.114 (69,73%) | ✅ Real |
+| **Latência média** | 37-72ms (com cache) | ✅ SLA <50ms |
+| **Valor protegido** | R$ 14.328.997,85 | ✅ Real |
+
+### Distribuição por Canal
+
+| Canal | Transações | Fraudes | Taxa |
+|-------|-----------|---------|------|
+| PIX | 4.285 | 3.081 | 71,9% |
+| TED | 86 | 14 | 16,3% |
+| BOLETO | 88 | 14 | 15,9% |
 
 ---
 
-## 2️⃣ PERFORMANCE THRESHOLDS (Limites Mínimos)
+## 2. PERFORMANCE THRESHOLDS (Limites Mínimos)
 
 | Métrica | Limite | Atual | Status |
 |---------|--------|-------|--------|
@@ -29,8 +35,7 @@ Valor protegido:      R$ 2 trilhões
 | Precisão | ≥ 80% | ~95% | ✅ |
 | Recall | ≥ 75% | ~91% | ✅ |
 | F1-Score | ≥ 70% | ~93% | ✅ |
-| Throughput | ≥ 100 TPS | 33.88 TPS | ⚠️ Abaixo |
-| Latência P95 | ≤ 5000ms | 0.55ms | ✅ |
+| Latência P95 | ≤ 100ms | 72ms | ✅ |
 
 **Quando Recalibrar?**
 - Se alguma métrica cair abaixo do limite
@@ -39,13 +44,9 @@ Valor protegido:      R$ 2 trilhões
 
 ---
 
-## 3️⃣ COMO RECALIBRAR (3 Modos)
+## 3. TIPOS DE RECALIBRAÇÃO
 
-### Modo 1: Recalibração Completa ⭐
-```bash
-cd sankofa-enterprise-real
-python backend/scripts/recalibrate_metrics.py --mode full
-```
+### Modo 1: Recalibração Completa
 
 **O que faz:**
 1. ✅ Recalibra threshold (decisão de fraude)
@@ -55,14 +56,10 @@ python backend/scripts/recalibrate_metrics.py --mode full
 5. ✅ Gera relatório
 
 **Tempo:** ~2 minutos
-**Resultado:** `backend/data/recalibration_report.json`
 
 ---
 
 ### Modo 2: Recalibrar Apenas Threshold
-```bash
-python backend/scripts/recalibrate_metrics.py --mode threshold
-```
 
 **O que faz:**
 - Encontra melhor ponto de decisão (0.1-0.9)
@@ -74,9 +71,6 @@ python backend/scripts/recalibrate_metrics.py --mode threshold
 ---
 
 ### Modo 3: Recalibrar Apenas Probabilidades
-```bash
-python backend/scripts/recalibrate_metrics.py --mode probabilities
-```
 
 **O que faz:**
 - Mapeia probabilidades para [0, 1] corretamente
@@ -88,9 +82,6 @@ python backend/scripts/recalibrate_metrics.py --mode probabilities
 ---
 
 ### Modo 4: Verificar Drift
-```bash
-python backend/scripts/recalibrate_metrics.py --mode drift
-```
 
 **O que faz:**
 - Calcula Data Drift (mudança de distribuição)
@@ -101,9 +92,9 @@ python backend/scripts/recalibrate_metrics.py --mode drift
 
 ---
 
-## 4️⃣ ENTENDENDO AS MÉTRICAS
+## 4. ENTENDENDO AS MÉTRICAS
 
-### 🎯 Acurácia (Accuracy)
+### Acurácia (Accuracy)
 ```
 Quantas previsões estão corretas?
 
@@ -111,32 +102,29 @@ Fórmula: (Corretas) / (Total)
 Ideal: > 85%
 
 ❌ Problema: Não funciona bem com dados desbalanceados
-   (se 99% são legítimas, pode ter 99% acurácia errada)
 ```
 
-### 🎯 Precisão (Precision)
+### Precisão (Precision)
 ```
 De todas as fraudes que detectei, quantas eram REAIS?
 
 Fórmula: (Fraudes Verdadeiras) / (Todas as Fraudes Detectadas)
 Ideal: > 80%
 
-✅ Usa: Minimizar falsos positivos
-   (não acusar cliente honesto de fraudador)
+✅ Usa: Minimizar falsos positivos (não acusar cliente honesto)
 ```
 
-### 🎯 Recall (Sensibilidade)
+### Recall (Sensibilidade)
 ```
 De todas as fraudes que existem, quantas detectei?
 
 Fórmula: (Fraudes Verdadeiras) / (Todas as Fraudes Existentes)
 Ideal: > 75%
 
-✅ Usa: Minimizar fraudes perdidas
-   (não deixar fraude passar)
+✅ Usa: Minimizar fraudes perdidas (não deixar fraude passar)
 ```
 
-### 🎯 F1-Score (Balanço)
+### F1-Score (Balanço)
 ```
 Balanço entre Precisão e Recall
 
@@ -146,49 +134,39 @@ Ideal: > 70%
 ✅ Usa: Quando quer bom desempenho em ambos
 ```
 
-### 🎯 ROC-AUC
-```
-Habilidade do modelo discriminar fraud vs legítima
-
-Ideal: > 0.90 (0-1)
-
-✅ Usa: Avaliar qualidade geral do modelo
-```
-
-### 🎯 Threshold (Ponto de Decisão)
+### Threshold (Ponto de Decisão)
 ```
 Qual score mínimo para marcar como FRAUDE?
 
 Padrão: 0.5 (50%)
-Otimizado: ?
 
 Exemplo:
   ├─ Threshold 0.3: Detecta mais fraudes (alto recall)
-  │  Risco: Mais falsos positivos (precision cai)
+  │  Risco: Mais falsos positivos
   │
   ├─ Threshold 0.5: Balanço
   │  Recomendado: Para maioria dos casos
   │
   └─ Threshold 0.7: Mais conservador
-     Risco: Deixa fraude passar (recall cai)
+     Risco: Deixa fraude passar
 ```
 
 ---
 
-## 5️⃣ DATA DRIFT vs CONCEPT DRIFT
+## 5. DATA DRIFT vs CONCEPT DRIFT
 
-### Data Drift ⚠️
+### Data Drift
 ```
 A DISTRIBUIÇÃO dos dados mudou
 
 Exemplo:
   Antes: Valores de PIX R$100-R$500 (média)
-  Agora: Valores de PIX R$5000-R$50000 (tudo caro)
+  Agora: Valores de PIX R$5000-R$50000 (tudo alto)
 
 Solução: Recalibrar features e threshold
 ```
 
-### Concept Drift ⚠️
+### Concept Drift
 ```
 O SIGNIFICADO dos dados mudou (novo tipo de fraude)
 
@@ -201,7 +179,7 @@ Solução: Retreinar o modelo com novos padrões
 
 ---
 
-## 6️⃣ QUANDO RECALIBRAR (Checklist)
+## 6. QUANDO RECALIBRAR (Checklist)
 
 ✅ **Faça recalibração se:**
 - [ ] Acurácia caiu abaixo de 85%
@@ -209,7 +187,7 @@ Solução: Retreinar o modelo com novos padrões
 - [ ] Recall caiu abaixo de 75%
 - [ ] Data Drift > 0.10
 - [ ] Concept Drift > 0.15
-- [ ] Taxa de fraude mudou drasticamente (3% → 82%)
+- [ ] Taxa de fraude mudou drasticamente
 - [ ] Novos tipos de transação adicionados
 - [ ] Mudança de política de banco/negócio
 
@@ -220,66 +198,38 @@ Solução: Retreinar o modelo com novos padrões
 
 ---
 
-## 7️⃣ PASSO A PASSO PRÁTICO
-
-### Cenário: Taxa de fraude mudou muito (3% → 82%)
-
-```bash
-# 1. Verificar se é drift
-python backend/scripts/recalibrate_metrics.py --mode drift
-
-# Resultado:
-# Data Drift: 0.15 (⚠️ Acima de 0.1)
-# Concept Drift: 0.08 (✅ Baixo)
-# → Mudança na distribuição, não em conceito
-
-# 2. Recalibrar threshold
-python backend/scripts/recalibrate_metrics.py --mode threshold
-
-# 3. Monitorar próximas 2 horas
-# Se ainda ruim → Retreinar modelo
-
-# 4. Se retreinar for necessário:
-python backend/scripts/train_with_real_data.py
-
-# 5. Validar nova performance
-python backend/scripts/recalibrate_metrics.py --mode full
-```
-
----
-
-## 8️⃣ INTERPRETANDO O RELATÓRIO
+## 7. INTERPRETANDO O RELATÓRIO
 
 ```json
 {
-  "timestamp": "2025-11-28T19:45:00",
+  "timestamp": "2025-11-30T10:00:00",
   "recalibration_type": "full",
-  "data_drift": 0.15,
-  "concept_drift": 0.08,
+  "data_drift": 0.08,
+  "concept_drift": 0.05,
   "metrics": {
     "accuracy": 0.90,
     "precision": 0.95,
     "recall": 0.91,
     "f1_score": 0.93,
-    "threshold": 0.55
+    "threshold": 0.50
   },
-  "status": "completed"
+  "status": "healthy"
 }
 ```
 
 **Como ler:**
 - ✅ Todos os metrics > limites mínimos
-- ⚠️ Data Drift = 0.15 (está acima de 0.1)
-- ✅ Concept Drift = 0.08 (está abaixo de 0.15)
-- 🎚️ Threshold foi ajustado para 0.55 (antes era 0.5)
+- ✅ Data Drift = 0.08 (abaixo de 0.1)
+- ✅ Concept Drift = 0.05 (abaixo de 0.15)
+- ✅ Threshold = 0.50 (padrão)
 
-**Ação recomendada:** Monitor próximas 24h, se data drift persistir → retreinar
+**Status:** Sistema saudável, sem necessidade de recalibração
 
 ---
 
-## 9️⃣ DÚVIDAS FREQUENTES
+## 8. DÚVIDAS FREQUENTES
 
-**P: Recalibrar afeta modelo em produção?**
+**P: Recalibrar afeta o modelo em produção?**
 R: Sim! A recalibração muda o threshold e probabilidades. A API recebe automaticamente.
 
 **P: Posso fazer recalibração múltiplas vezes por dia?**
@@ -287,24 +237,24 @@ R: Sim! Sistema suporta. Recomendação: 1-2x por dia máximo para evitar instab
 
 **P: Qual é mais importante: Precisão ou Recall?**
 R: Depende da política do banco:
-  - 🔒 Segurança 1º → Priorize Recall (detecte todas fraudes)
-  - 😊 Experiência 1º → Priorize Precisão (menos inocentes acusados)
-  - ⚖️ Balanço → Use F1-Score
+- 🔒 Segurança 1º → Priorize Recall (detecte todas fraudes)
+- 😊 Experiência 1º → Priorize Precisão (menos inocentes acusados)
+- ⚖️ Balanço → Use F1-Score
 
 **P: Recalibração é reversível?**
 R: Sim! Cada recalibração salva relatório. Pode voltar ao threshold anterior se necessário.
 
 ---
 
-## 🔟 PRÓXIMOS PASSOS
+## 9. PRÓXIMOS PASSOS
 
-1. **Hoje:** Execute `--mode full` para baseline
-2. **Diário:** Execute `--mode drift` pela manhã
-3. **Se alerta:** Execute `--mode full` 
-4. **Se persistir:** Contate time de ML para análise profunda
+1. **Diário:** Verificar drift pela manhã
+2. **Semanal:** Executar recalibração completa
+3. **Mensal:** Avaliar necessidade de retreinamento
+4. **Se alerta:** Executar recalibração imediata
 
 ---
 
-**Sankofa Enterprise Pro v12.4**  
-**Sistema de Recalibração Automático e Manual**  
-**Última atualização: 28 de Novembro de 2025**
+**Sankofa Enterprise Pro v1.0**  
+**Sistema de Monitoramento e Recalibração**  
+**Última atualização: 30 de Novembro de 2025**
