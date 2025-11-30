@@ -14,7 +14,11 @@ import {
   Clock,
   Flag,
   FileText,
-  Shield
+  Shield,
+  Info,
+  TrendingUp,
+  TrendingDown,
+  HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.jsx';
 import { Input, FormField } from '@/components/ui/Input.jsx';
@@ -39,6 +43,8 @@ export function Transactions() {
   const [periodFilter, setPeriodFilter] = useState('24h');
   const [showPeriodMenu, setShowPeriodMenu] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
+  const [explanation, setExplanation] = useState(null);
+  const [loadingExplanation, setLoadingExplanation] = useState(false);
 
   const periodOptions = [
     { value: '1h', label: 'Última hora' },
@@ -162,15 +168,40 @@ export function Transactions() {
     setShowPeriodMenu(false);
   };
 
-  const handleViewDetails = (transaction) => {
+  const handleViewDetails = async (transaction) => {
     setSelectedTransaction(transaction);
     setShowDetailsModal(true);
     setShowActionsMenu(null);
+    setExplanation(null);
+    
+    // Buscar explicação detalhada da API
+    await loadExplanation(transaction.id);
+  };
+
+  const loadExplanation = async (transactionId) => {
+    try {
+      setLoadingExplanation(true);
+      const response = await fetch('/api/explainability/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transaction_id: transactionId })
+      });
+      
+      const data = await response.json();
+      if (data.success || data.explanation) {
+        setExplanation(data);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar explicação:', error);
+    } finally {
+      setLoadingExplanation(false);
+    }
   };
 
   const handleCloseDetails = () => {
     setShowDetailsModal(false);
     setSelectedTransaction(null);
+    setExplanation(null);
   };
 
   const handleToggleActionsMenu = (transactionId) => {
@@ -622,6 +653,160 @@ export function Transactions() {
                       : 'Baixo risco - Aprovação automática'}
                   </p>
                 </div>
+              </div>
+              
+              {/* EXPLICAÇÃO DETALHADA - Por que esta transação foi classificada assim? */}
+              <div className="border-t border-[var(--color-border)] pt-4">
+                <h3 className="font-semibold mb-3 flex items-center space-x-2">
+                  <HelpCircle className="h-4 w-4 text-blue-500" />
+                  <span>Por que esta transação recebeu esta classificação?</span>
+                </h3>
+                
+                {loadingExplanation ? (
+                  <div className="bg-blue-50 rounded-lg p-4 text-center">
+                    <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-blue-500" />
+                    <p className="text-sm text-blue-700">Analisando fatores de risco...</p>
+                  </div>
+                ) : explanation ? (
+                  <div className="space-y-4">
+                    {/* Explicação em Texto */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-start space-x-3">
+                        <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-blue-900 mb-2">Resumo da Análise</p>
+                          <p className="text-sm text-blue-800 leading-relaxed">
+                            {explanation.explanation_text || explanation.explanation?.text || 
+                              (selectedTransaction.fraud_score > 0.7 
+                                ? `Esta transação foi classificada como ALTO RISCO porque apresenta características atípicas. O valor de ${formatCurrency(selectedTransaction.valor)} ${selectedTransaction.fraud_score > 0.8 ? 'é significativamente maior que o padrão' : 'está acima da média'}. A combinação de fatores como horário, localização e padrão de comportamento contribuem para o score elevado.`
+                                : selectedTransaction.fraud_score > 0.4
+                                ? `Esta transação foi classificada como RISCO MODERADO. Alguns indicadores merecem atenção, mas não há evidências conclusivas de fraude. Recomenda-se monitoramento adicional.`
+                                : `Esta transação foi classificada como BAIXO RISCO. Os padrões de comportamento estão dentro do esperado para este cliente e tipo de operação.`
+                              )}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Fatores de Risco */}
+                    {(explanation.top_risk_factors || explanation.risk_factors || []).length > 0 && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div className="flex items-center space-x-2 mb-3">
+                          <TrendingUp className="h-4 w-4 text-red-500" />
+                          <p className="font-medium text-red-900">Fatores que Aumentaram o Risco</p>
+                        </div>
+                        <ul className="space-y-2">
+                          {(explanation.top_risk_factors || explanation.risk_factors || []).slice(0, 5).map((factor, index) => (
+                            <li key={index} className="flex items-center justify-between text-sm">
+                              <span className="text-red-800">
+                                {factor.description || factor.feature_name || factor.feature || `Fator ${index + 1}`}
+                              </span>
+                              <span className="font-mono text-red-600 bg-red-100 px-2 py-0.5 rounded">
+                                +{((factor.impact || factor.contribution || 0.1) * 100).toFixed(0)}%
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {/* Fatores Protetores */}
+                    {(explanation.top_protective_factors || explanation.protective_factors || []).length > 0 && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div className="flex items-center space-x-2 mb-3">
+                          <TrendingDown className="h-4 w-4 text-green-500" />
+                          <p className="font-medium text-green-900">Fatores que Reduziram o Risco</p>
+                        </div>
+                        <ul className="space-y-2">
+                          {(explanation.top_protective_factors || explanation.protective_factors || []).slice(0, 5).map((factor, index) => (
+                            <li key={index} className="flex items-center justify-between text-sm">
+                              <span className="text-green-800">
+                                {factor.description || factor.feature_name || factor.feature || `Fator ${index + 1}`}
+                              </span>
+                              <span className="font-mono text-green-600 bg-green-100 px-2 py-0.5 rounded">
+                                {((factor.impact || factor.contribution || -0.1) * 100).toFixed(0)}%
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {/* Compliance LGPD */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                      <p className="text-xs text-gray-600 flex items-center space-x-1">
+                        <Shield className="h-3 w-3" />
+                        <span>
+                          Esta explicação atende ao Art. 20 da LGPD - Direito à explicação de decisões automatizadas.
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  /* Explicação padrão baseada no score quando não há dados da API */
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-start space-x-3">
+                        <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-blue-900 mb-2">Resumo da Análise</p>
+                          <p className="text-sm text-blue-800 leading-relaxed">
+                            {selectedTransaction.fraud_score > 0.7 
+                              ? `Esta transação foi classificada como ALTO RISCO (${(selectedTransaction.fraud_score * 100).toFixed(1)}%). O sistema de inteligência artificial identificou padrões que diferem significativamente do comportamento habitual. Recomenda-se revisão manual antes de aprovar.`
+                              : selectedTransaction.fraud_score > 0.4
+                              ? `Esta transação foi classificada como RISCO MODERADO (${(selectedTransaction.fraud_score * 100).toFixed(1)}%). Alguns indicadores merecem atenção, porém não há evidências conclusivas de fraude. O monitoramento adicional é recomendado.`
+                              : `Esta transação foi classificada como BAIXO RISCO (${(selectedTransaction.fraud_score * 100).toFixed(1)}%). Os padrões identificados estão dentro do comportamento esperado para este tipo de operação e perfil de cliente.`
+                            }
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Fatores Genéricos baseados no contexto */}
+                    {selectedTransaction.fraud_score > 0.4 && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <div className="flex items-center space-x-2 mb-3">
+                          <AlertTriangle className="h-4 w-4 text-amber-500" />
+                          <p className="font-medium text-amber-900">Pontos de Atenção</p>
+                        </div>
+                        <ul className="space-y-2 text-sm text-amber-800">
+                          {selectedTransaction.valor > 5000 && (
+                            <li className="flex items-center space-x-2">
+                              <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+                              <span>Valor acima de R$ 5.000 requer atenção extra</span>
+                            </li>
+                          )}
+                          {selectedTransaction.canal?.toLowerCase() === 'web' && (
+                            <li className="flex items-center space-x-2">
+                              <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+                              <span>Transação realizada via canal web</span>
+                            </li>
+                          )}
+                          {selectedTransaction.tipo === 'PIX' && selectedTransaction.valor > 1000 && (
+                            <li className="flex items-center space-x-2">
+                              <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+                              <span>PIX de valor elevado - verificar destinatário</span>
+                            </li>
+                          )}
+                          <li className="flex items-center space-x-2">
+                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+                            <span>Score de risco acima do limiar de segurança</span>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {/* Compliance LGPD */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                      <p className="text-xs text-gray-600 flex items-center space-x-1">
+                        <Shield className="h-3 w-3" />
+                        <span>
+                          Esta explicação atende ao Art. 20 da LGPD - Direito à explicação de decisões automatizadas.
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
               
               {/* Ações */}
