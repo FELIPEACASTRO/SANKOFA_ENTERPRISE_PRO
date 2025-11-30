@@ -1,0 +1,215 @@
+
+PROMPT PARA O REPLIT – INSERIR NO MANUAL TODOS OS CENÁRIOS REAIS POSSÍVEIS
+(EXTRAÍDOS DAS FEATURES, DATASETS, TRANSFER LEARNING E PADRÕES DE FRAUDE REAIS)
+
+ATENÇÃO: ESTE PROMPT EXPANDE O PROMPT ANTERIOR, ACRESCENTANDO UMA NOVA SEÇÃO
+CHAMADA **CENÁRIOS REAIS COMPLETOS** CONTENDO TODOS OS PADRÕES E COMBINAÇÕES
+QUE EXISTEM NO MUNDO REAL E QUE PODEM APARECER NOS DATASETS, NAS FEATURES,
+E QUE SÃO UTILIZADOS PELO MOTOR, PELO REDIS, PELO POSTGRES E PELOS MODELOS
+DE MACHINE LEARNING (INCLUINDO TRANSFER LEARNING).
+
+------------------------------------------------------------------------
+🔥  NOVA SEÇÃO QUE O REPLIT DEVE INSERIR NO MANUAL:
+------------------------------------------------------------------------
+
+### **📌 CENÁRIOS REAIS COMPLETOS – CATÁLOGO DE PADRÕES QUE O MOTOR PRECISA SABER INTERPRETAR**
+
+O Replit DEVE inserir no manual uma seção contendo TODOS os cenários possíveis combinando:
+
+- Todas as **features** reais do sistema  
+- Todos os **datasets** conhecidos  
+- Todos os padrões derivados de **Transfer Learning**  
+- Todos os comportamentos comuns e raros encontrados em sistemas antifraude  
+- Combinações completas de canal, meio de pagamento, dispositivo, IP, localização, horário, valor, histórico, merchant, etc.
+
+A seguir, liste TODOS os cenários que devem entrar nessa seção.
+
+------------------------------------------------------------------------
+🔥 1. CENÁRIOS RELACIONADOS ÀS FEATURES (VARIÁVEIS DO MODELO)
+------------------------------------------------------------------------
+
+O Replit deve gerar cenários reais derivados das features utilizadas pelo sistema, incluindo:
+
+### **1.1. CENÁRIOS DE VALOR (amount)**
+- Valor muito alto fora do padrão histórico  
+- Valor médio, porém repetido diversas vezes  
+- Valor baixo mas em frequência anormal  
+- Valores segmentados por horário (madrugada x horário comercial)  
+- Valores incompatíveis com renda estimada  
+
+### **1.2. CENÁRIOS DE CANAL (channel)**
+- WEB → primeiras transações em navegador desconhecido  
+- WEB → IP compatível com histórico  
+- POS → várias tentativas negadas em sequência  
+- POS → troca de máquina/merchant inesperada  
+- APP → biometria recusada antes da transação  
+
+### **1.3. CENÁRIOS DE PAGAMENTO (paymentType)**
+- PIX alto valor, transferência imediata entre estados  
+- PIX recorrente entre os mesmos destinatários  
+- Crédito à vista de valor atípico  
+- Crédito parcelado fora do padrão do cliente  
+- Débito de pequeno valor repetido muitas vezes  
+- Débito internacional com moeda incomum  
+
+### **1.4. CENÁRIOS DE IP (ipAddress)**
+- IP conhecido  
+- IP desconhecido  
+- IP de outro país  
+- IP que já apareceu em transações fraudulentas  
+- IP doméstico vs IP empresarial  
+- IP em VPN, Proxy ou Tor  
+
+### **1.5. CENÁRIOS DE DISPOSITIVO (deviceId)**
+- Dispositivo conhecido sem histórico negativo  
+- Dispositivo novo nunca visto  
+- Dispositivo que já participou de fraude  
+- Dispositivo que aparece em 2 cidades no mesmo dia  
+- Dispositivo que troca de IP 5 vezes em 10 minutos  
+
+### **1.6. CENÁRIOS DE GEOLOCALIZAÇÃO (geoLocation)**
+- Cliente sempre compra em SP e aparece comprando no México  
+- Diferença de localização impossível (teletransporte)  
+- Cidade que não bate com o IP  
+- Cidade que não bate com o endereço cadastrado  
+
+### **1.7. CENÁRIOS DE FREQUÊNCIA (datasets de histórico)**
+- 10 transações em menos de 1 minuto  
+- Alta frequência de tentativas recusadas  
+- Baixa frequência por meses → comportamento repentino  
+- Cliente que gastava 200/mês → aparece gastando 8000 em dois dias  
+
+------------------------------------------------------------------------
+🔥 2. CENÁRIOS REAIS Baseados nos DATASETS
+------------------------------------------------------------------------
+
+Os datasets trazem padrões reais que devem ser simulados no Manual:
+
+### **2.1. Histórico de FRAUDES**
+- Cliente sem histórico → transação perfeita → mas merchant possui histórico ruim  
+- Cliente com fraude anterior → futuro comportamento suspeito  
+- Uso do mesmo IP de fraude anterior  
+- Uso do mesmo dispositivo de fraude anterior  
+
+### **2.2. Histórico de CLIENTE**
+- Cliente recorrente sempre no mesmo horário  
+- Cliente com padrão de gastos mensal  
+- Cliente que viaja com frequência (padrão móvel)  
+- Cliente que raramente usa POS  
+- Cliente que só usa PIX para família → aparece PIX para terceiro desconhecido  
+
+### **2.3. Histórico de MERCHANT**
+- Merchant conhecido  
+- Merchant suspeito em auditorias  
+- Merchant novo nunca visto  
+- Merchant com grande volume repentino  
+
+------------------------------------------------------------------------
+🔥 3. CENÁRIOS BASEADOS EM TRANSFER LEARNING
+------------------------------------------------------------------------
+
+Se o modelo usa Transfer Learning, padrões aprendidos de outros domínios devem gerar cenários, por exemplo:
+
+### **3.1. Padrões que o modelo “já viu”**
+- Dispositivo com comportamento típico de bot  
+- IP com padrões automatizados de ataque  
+- Valores quebrados que se repetem como assinatura de criminosos  
+- Sequências de tentativas em horários específicos (fraude automatizada)  
+
+### **3.2. Padrões que o modelo reconhece mesmo sem existir no dataset local**
+- Perfis de ataque internacional  
+- Encadeamentos de pequenas transações para testar cartão  
+- “Testes de limite” (small-test → big-test)  
+- Deslocamento de IP e device-ID simultâneo  
+
+------------------------------------------------------------------------
+🔥 4. CENÁRIOS COMBINADOS – MATRIZ COMPLETA
+------------------------------------------------------------------------
+
+O Replit deve gerar uma seção contendo TODAS as combinações possíveis como catálogo.
+
+Exemplos obrigatórios:
+
+### **4.1. FRAUDE CLÁSSICA**
+- Crédito  
+- Web  
+- IP desconhecido  
+- Dispositivo recém-criado  
+- Valor alto  
+- Merchant nunca usado  
+- Horário 03h da manhã  
+- Localização diferente do histórico  
+
+### **4.2. FRAUDE PROFISSIONAL / ORGANIZADA**
+- Múltiplos cartões do mesmo cliente  
+- Diversas tentativas rápidas  
+- Merchants diferentes em minutos  
+- PIX para contas suspeitas  
+- Dispositivo conhecido mas IP alterado via VPN  
+
+### **4.3. SUSPEITA / REVISÃO**
+- Débito  
+- POS  
+- Dispositivo novo  
+- IP normal  
+- Valor dentro do padrão  
+- Horário incomum (04h)  
+- Cliente com histórico moderado  
+
+### **4.4. APROVADO**
+- Cliente recorrente  
+- Dispositivo conhecido  
+- IP conhecido  
+- Valor habitual  
+- Merchant dentro do padrão  
+- Horário usual  
+
+### **4.5. PIX ALTO RISCO**
+- PIX alto valor  
+- Beneficiário desconhecido  
+- Conta criada recentemente  
+- IP divergente  
+- Dispositivo novo  
+
+### **4.6. DÉBITO SUSPEITO**
+- Três débitos seguidos recusados  
+- Merchant incomum  
+- IP/Device sempre mudando  
+
+### **4.7. CENÁRIOS DE “TELEPORTE DIGITAL”**
+- SP → RJ → México → Londres em 5 minutos  
+- DeviceID igual, IPs impossíveis  
+
+### **4.8. CENÁRIOS DE BOT / AUTOMATIZAÇÃO**
+- Tentativas em sequência a cada milissegundo  
+- Padrão repetitivo aprendido via Transfer Learning  
+
+### **4.9. CENÁRIOS DE USO LEGÍTIMO EXCEPCIONAL**
+- Cliente viaja (IP muda, device permanece)  
+- Cliente faz compras maiores porque é Black Friday  
+- Cliente faz PIX incomum mas dentro do padrão emocional (horário/histórico)  
+
+### **4.10. CENÁRIOS DE FALHA / ERRO / DADOS INCOMPLETOS**
+- Campos faltando  
+- GeoLocation inconsistente  
+- DeviceID em formato errado  
+- Currency inválida  
+
+------------------------------------------------------------------------
+🔥 5. O REPLIT DEVE GERAR ESSA SEÇÃO DO MANUAL COM:  
+------------------------------------------------------------------------
+
+- Explicações didáticas  
+- Exemplos reais  
+- Diagramas  
+- JSONs de entrada e saída  
+- Narrativa da jornada dentro do Motor  
+- Interação com Redis  
+- Interação com Postgres  
+- Explicação das decisões  
+- Ligação direta com Features  
+- Ligação direta com Datasets  
+- Ligação direta com Transfer Learning  
+
+------------------------------------------------------------------------
+USE ESTE PROMPT COMO EXTENSÃO DO PROMPT PRINCIPAL E NÃO SIMPLIFIQUE NADA.

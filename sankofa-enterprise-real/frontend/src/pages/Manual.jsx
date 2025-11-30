@@ -1091,7 +1091,8 @@ function CollapsibleSection({ title, icon: Icon, children, defaultOpen = false, 
     green: 'bg-green-50 border-green-200 text-green-800',
     purple: 'bg-purple-50 border-purple-200 text-purple-800',
     orange: 'bg-orange-50 border-orange-200 text-orange-800',
-    red: 'bg-red-50 border-red-200 text-red-800'
+    red: 'bg-red-50 border-red-200 text-red-800',
+    indigo: 'bg-indigo-50 border-indigo-200 text-indigo-800'
   };
 
   return (
