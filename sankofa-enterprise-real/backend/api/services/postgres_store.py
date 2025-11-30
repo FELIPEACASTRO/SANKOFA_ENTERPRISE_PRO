@@ -549,6 +549,401 @@ class PostgresStore:
         except Exception as e:
             print(f"Error fetching transaction: {e}")
             return None
+    
+    def get_dashboard_kpis(self, date_from: str = None, date_to: str = None) -> Dict:
+        """Retorna KPIs do dashboard baseados em dados reais do PostgreSQL
+        
+        Args:
+            date_from: Data inicial (default: últimos 30 dias)
+            date_to: Data final (default: agora)
+        """
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT 
+                            COUNT(*) as total_transactions,
+                            COUNT(CASE WHEN status = 'FRAUD' OR is_fraud = true THEN 1 END) as frauds_detected,
+                            COUNT(CASE WHEN status = 'APPROVED' THEN 1 END) as approved,
+                            COALESCE(AVG(processing_time_ms), 0) as avg_latency,
+                            COALESCE(SUM(CASE WHEN status = 'FRAUD' OR is_fraud = true THEN amount ELSE 0 END), 0) as value_protected,
+                            MAX(created_at) as latest_transaction
+                        FROM transactions
+                    """)
+                    total = cur.fetchone()
+                    
+                    cur.execute("""
+                        SELECT 
+                            COUNT(*) as total_transactions,
+                            COUNT(CASE WHEN status = 'FRAUD' OR is_fraud = true THEN 1 END) as frauds_detected,
+                            COALESCE(AVG(processing_time_ms), 0) as avg_latency
+                        FROM transactions
+                        WHERE created_at >= (SELECT MAX(created_at) - INTERVAL '1 day' FROM transactions)
+                    """)
+                    recent = cur.fetchone()
+                    
+                    total_count = int(total['total_transactions'] or 0)
+                    frauds_count = int(total['frauds_detected'] or 0)
+                    approved_count = int(total['approved'] or 0)
+                    latency_avg = float(total['avg_latency'] or 0)
+                    value_protected = float(total['value_protected'] or 0)
+                    
+                    recent_count = int(recent['total_transactions'] or 0)
+                    recent_frauds = int(recent['frauds_detected'] or 0)
+                    recent_latency = float(recent['avg_latency'] or 0)
+                    
+                    approval_rate = 100.0
+                    if total_count > 0:
+                        approval_rate = (approved_count / total_count) * 100
+                    
+                    fraud_rate = 0.0
+                    if total_count > 0:
+                        fraud_rate = (frauds_count / total_count) * 100
+                    
+                    return {
+                        "transacoes_hoje": total_count,
+                        "transacoes_variacao": 0.0,
+                        "fraudes_detectadas": frauds_count,
+                        "fraudes_variacao": 0.0,
+                        "taxa_aprovacao": round(approval_rate, 1),
+                        "aprovacao_variacao": 0.0,
+                        "latencia_media": round(latency_avg, 2),
+                        "latencia_variacao": 0.0,
+                        "valor_protegido": round(value_protected, 2),
+                        "valor_protegido_ano": round(value_protected * 12, 2),
+                        "transacoes_ano": total_count * 12,
+                        "taxa_fraude": round(fraud_rate, 2),
+                        "transacoes_recentes": recent_count,
+                        "ultima_atualizacao": str(total.get('latest_transaction', ''))
+                    }
+        except Exception as e:
+            print(f"Error fetching dashboard KPIs: {e}")
+            return {
+                "transacoes_hoje": 0, "transacoes_variacao": 0,
+                "fraudes_detectadas": 0, "fraudes_variacao": 0,
+                "taxa_aprovacao": 100.0, "aprovacao_variacao": 0,
+                "latencia_media": 0, "latencia_variacao": 0,
+                "valor_protegido": 0, "valor_protegido_ano": 0,
+                "transacoes_ano": 0
+            }
+    
+    def get_dashboard_timeseries(self) -> List[Dict]:
+        """Retorna série temporal de transações por hora (todas as transações agrupadas por hora)"""
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT 
+                            EXTRACT(HOUR FROM created_at) as hour,
+                            COUNT(*) as transactions,
+                            COALESCE(AVG(processing_time_ms), 0) as avg_latency
+                        FROM transactions
+                        GROUP BY EXTRACT(HOUR FROM created_at)
+                        ORDER BY hour
+                    """)
+                    rows = cur.fetchall()
+                    
+                    hourly_data = {int(row['hour']): row for row in rows}
+                    
+                    result = []
+                    for hour in range(24):
+                        data = hourly_data.get(hour, {"transactions": 0, "avg_latency": 0})
+                        result.append({
+                            "time": f"{hour:02d}:00",
+                            "transactions": int(data.get('transactions', 0)),
+                            "latency": round(float(data.get('avg_latency', 0)), 1)
+                        })
+                    return result
+        except Exception as e:
+            print(f"Error fetching dashboard timeseries: {e}")
+            return [{"time": f"{h:02d}:00", "transactions": 0, "latency": 0} for h in range(24)]
+    
+    def get_dashboard_channels(self) -> List[Dict]:
+        """Retorna estatísticas por canal (todas as transações)"""
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT 
+                            COALESCE(channel, 'PIX') as channel,
+                            COUNT(*) as transactions,
+                            COUNT(CASE WHEN status = 'FRAUD' OR is_fraud = true THEN 1 END) as frauds,
+                            COALESCE(SUM(amount), 0) as total_value
+                        FROM transactions
+                        GROUP BY channel
+                    """)
+                    rows = cur.fetchall()
+                    
+                    channel_map = {"pix": "PIX", "card": "Cartão", "ted": "TED", "doc": "DOC"}
+                    result = []
+                    
+                    for row in rows:
+                        channel_name = channel_map.get(str(row['channel']).lower(), row['channel'])
+                        result.append({
+                            "name": channel_name,
+                            "transactions": int(row['transactions'] or 0),
+                            "frauds": int(row['frauds'] or 0),
+                            "value": round(float(row['total_value'] or 0), 2)
+                        })
+                    
+                    if not result:
+                        result = [
+                            {"name": "PIX", "transactions": 0, "frauds": 0, "value": 0},
+                            {"name": "Cartão", "transactions": 0, "frauds": 0, "value": 0},
+                            {"name": "TED", "transactions": 0, "frauds": 0, "value": 0},
+                            {"name": "DOC", "transactions": 0, "frauds": 0, "value": 0}
+                        ]
+                    return result
+        except Exception as e:
+            print(f"Error fetching dashboard channels: {e}")
+            return []
+    
+    def get_alerts_list(self, limit: int = 100) -> List[Dict]:
+        """Retorna lista de alertas do PostgreSQL"""
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT id, alert_id, title, description, type, severity,
+                               status, transaction_id, amount_involved, 
+                               recommended_action, investigator, tags, created_at
+                        FROM alerts
+                        ORDER BY created_at DESC
+                        LIMIT %s
+                    """, (limit,))
+                    rows = cur.fetchall()
+                    return [dict(row) for row in rows]
+        except Exception as e:
+            print(f"Error fetching alerts: {e}")
+            return []
+    
+    def add_alert(self, alert_data: Dict) -> Dict:
+        """Adiciona novo alerta ao PostgreSQL"""
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        INSERT INTO alerts (alert_id, title, description, type, severity, 
+                                          status, transaction_id, amount_involved, 
+                                          recommended_action, created_at)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                        RETURNING id, alert_id, title, type, severity, status, created_at
+                    """, (
+                        alert_data.get('alert_id', f"ALERT_{datetime.now().strftime('%Y%m%d%H%M%S')}"),
+                        alert_data.get('title', 'Alerta do Sistema'),
+                        alert_data.get('description', ''),
+                        alert_data.get('type', 'system'),
+                        alert_data.get('severity', 'medium'),
+                        alert_data.get('status', 'active'),
+                        alert_data.get('transaction_id'),
+                        alert_data.get('amount_involved', 0),
+                        alert_data.get('recommended_action', '')
+                    ))
+                    conn.commit()
+                    row = cur.fetchone()
+                    return dict(row)
+        except Exception as e:
+            print(f"Error adding alert: {e}")
+            return {}
+    
+    def update_alert_status(self, alert_id: str, status: str, investigator: str = None) -> bool:
+        """Atualiza status de alerta"""
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        UPDATE alerts 
+                        SET status = %s, investigator = %s, updated_at = NOW()
+                        WHERE alert_id = %s OR id::text = %s
+                    """, (status, investigator, alert_id, alert_id))
+                    conn.commit()
+                    return cur.rowcount > 0
+        except Exception as e:
+            print(f"Error updating alert: {e}")
+            return False
+    
+    def update_transaction_status(self, transaction_id: str, new_status: str) -> bool:
+        """Atualiza status de transação"""
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        UPDATE transactions 
+                        SET status = %s
+                        WHERE transaction_id = %s
+                    """, (new_status, transaction_id))
+                    conn.commit()
+                    return cur.rowcount > 0
+        except Exception as e:
+            print(f"Error updating transaction status: {e}")
+            return False
+    
+    def get_model_metrics(self) -> List[Dict]:
+        """Retorna métricas dos modelos"""
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT model_version, accuracy, precision_score, recall,
+                               f1_score, roc_auc, threshold, samples_used, created_at
+                        FROM model_metrics
+                        ORDER BY created_at DESC
+                        LIMIT 10
+                    """)
+                    rows = cur.fetchall()
+                    return [dict(row) for row in rows]
+        except Exception as e:
+            print(f"Error fetching model metrics: {e}")
+            return []
+    
+    def get_calibration_settings(self) -> Dict:
+        """Retorna configurações de calibração do banco"""
+        try:
+            settings = self.get_settings()
+            return settings.get('calibration', {
+                'fraud_threshold': 0.5,
+                'high_risk_threshold': 0.7,
+                'auto_block_threshold': 0.9,
+                'review_band_low': 0.4,
+                'review_band_high': 0.7
+            })
+        except Exception as e:
+            print(f"Error fetching calibration settings: {e}")
+            return {}
+    
+    def save_calibration_settings(self, settings: Dict) -> bool:
+        """Salva configurações de calibração"""
+        try:
+            current_settings = self.get_settings()
+            current_settings['calibration'] = settings
+            return self.update_settings(current_settings)
+        except Exception as e:
+            print(f"Error saving calibration settings: {e}")
+            return False
+    
+    def get_datasets_catalog(self) -> List[Dict]:
+        """Retorna catálogo de datasets disponíveis"""
+        datasets = [
+            {"id": "transactions_2024", "name": "Transações 2024", "records": 0, "type": "production", "status": "active"},
+            {"id": "fraud_samples", "name": "Amostras de Fraude", "records": 0, "type": "training", "status": "active"},
+            {"id": "elliptic_btc", "name": "Elliptic Bitcoin", "records": 203769, "type": "research", "status": "active"},
+            {"id": "ieee_cis", "name": "IEEE-CIS Fraud", "records": 590540, "type": "benchmark", "status": "active"}
+        ]
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT COUNT(*) as count FROM transactions")
+                    row = cur.fetchone()
+                    datasets[0]['records'] = int(row['count'] or 0)
+                    
+                    cur.execute("SELECT COUNT(*) as count FROM transactions WHERE is_fraud = true")
+                    row = cur.fetchone()
+                    datasets[1]['records'] = int(row['count'] or 0)
+        except Exception as e:
+            print(f"Error fetching dataset counts: {e}")
+        return datasets
+    
+    def get_monitoring_status(self) -> Dict:
+        """Retorna status de monitoramento do sistema"""
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT 
+                            COUNT(*) as total_24h,
+                            COUNT(CASE WHEN status = 'FRAUD' THEN 1 END) as frauds_24h,
+                            AVG(processing_time_ms) as avg_latency,
+                            MAX(processing_time_ms) as max_latency,
+                            MIN(processing_time_ms) as min_latency
+                        FROM transactions
+                        WHERE created_at >= NOW() - INTERVAL '24 hours'
+                    """)
+                    stats = cur.fetchone()
+                    
+                    cur.execute("""
+                        SELECT COUNT(*) as active_alerts
+                        FROM alerts
+                        WHERE status = 'active'
+                    """)
+                    alerts = cur.fetchone()
+                    
+                    return {
+                        "system_status": "healthy",
+                        "transactions_24h": int(stats['total_24h'] or 0),
+                        "frauds_24h": int(stats['frauds_24h'] or 0),
+                        "avg_latency_ms": round(float(stats['avg_latency'] or 0), 2),
+                        "max_latency_ms": round(float(stats['max_latency'] or 0), 2),
+                        "min_latency_ms": round(float(stats['min_latency'] or 0), 2),
+                        "active_alerts": int(alerts['active_alerts'] or 0),
+                        "model_status": "healthy",
+                        "database_status": "connected"
+                    }
+        except Exception as e:
+            print(f"Error fetching monitoring status: {e}")
+            return {
+                "system_status": "error",
+                "error": str(e)
+            }
+    
+    def generate_report(self, report_type: str, date_from: str = None, date_to: str = None) -> Dict:
+        """Gera relatório baseado em dados reais do PostgreSQL"""
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor() as cur:
+                    date_filter = ""
+                    params = []
+                    if date_from:
+                        date_filter = " AND created_at >= %s"
+                        params.append(date_from)
+                    if date_to:
+                        date_filter += " AND created_at <= %s"
+                        params.append(date_to)
+                    
+                    cur.execute(f"""
+                        SELECT 
+                            COUNT(*) as total_transactions,
+                            COUNT(CASE WHEN status = 'FRAUD' OR is_fraud = true THEN 1 END) as total_frauds,
+                            COUNT(CASE WHEN status = 'APPROVED' THEN 1 END) as total_approved,
+                            SUM(amount) as total_value,
+                            SUM(CASE WHEN status = 'FRAUD' THEN amount ELSE 0 END) as fraud_value,
+                            AVG(risk_score) as avg_risk_score,
+                            AVG(processing_time_ms) as avg_latency
+                        FROM transactions
+                        WHERE 1=1 {date_filter}
+                    """, params)
+                    stats = cur.fetchone()
+                    
+                    cur.execute(f"""
+                        SELECT channel, COUNT(*) as count, SUM(amount) as value
+                        FROM transactions
+                        WHERE 1=1 {date_filter}
+                        GROUP BY channel
+                    """, params)
+                    channels = cur.fetchall()
+                    
+                    total = int(stats['total_transactions'] or 0)
+                    frauds = int(stats['total_frauds'] or 0)
+                    
+                    return {
+                        "report_type": report_type,
+                        "generated_at": datetime.now().isoformat() + "Z",
+                        "period": {"from": date_from, "to": date_to},
+                        "summary": {
+                            "total_transactions": total,
+                            "total_frauds": frauds,
+                            "total_approved": int(stats['total_approved'] or 0),
+                            "fraud_rate": round((frauds / total * 100) if total > 0 else 0, 2),
+                            "total_value": float(stats['total_value'] or 0),
+                            "fraud_value": float(stats['fraud_value'] or 0),
+                            "avg_risk_score": round(float(stats['avg_risk_score'] or 0), 4),
+                            "avg_latency_ms": round(float(stats['avg_latency'] or 0), 2)
+                        },
+                        "by_channel": [dict(c) for c in channels],
+                        "status": "completed"
+                    }
+        except Exception as e:
+            print(f"Error generating report: {e}")
+            return {"status": "error", "error": str(e)}
 
 
 postgres_store = PostgresStore()

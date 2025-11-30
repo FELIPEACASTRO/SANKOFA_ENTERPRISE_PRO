@@ -1669,36 +1669,42 @@ def get_dashboard_hourly():
 
 @app.route("/api/dashboard/kpis", methods=["GET"])
 def get_dashboard_kpis():
-    """KPIs do dashboard - dados reais coletados pelo sistema"""
-    kpis = metrics_collector.get_kpis()
+    """KPIs do dashboard - dados reais do PostgreSQL"""
+    kpis = postgres_store.get_dashboard_kpis()
     return jsonify({"success": True, "data": kpis})
 
 
 @app.route("/api/dashboard/timeseries", methods=["GET"])
 def get_dashboard_timeseries():
-    """Série temporal - dados reais por hora"""
-    timeseries = metrics_collector.get_timeseries()
+    """Série temporal - dados reais do PostgreSQL por hora"""
+    timeseries = postgres_store.get_dashboard_timeseries()
     return jsonify({"success": True, "data": timeseries})
 
 
 @app.route("/api/dashboard/channels", methods=["GET"])
 def get_dashboard_channels():
-    """Dados por canal - estatísticas reais"""
-    channels = metrics_collector.get_channel_stats()
+    """Dados por canal - estatísticas reais do PostgreSQL"""
+    channels = postgres_store.get_dashboard_channels()
     return jsonify({"success": True, "data": channels})
 
 
 @app.route("/api/dashboard/alerts", methods=["GET"])
 def get_dashboard_alerts():
-    """Alertas do sistema - baseados em condições reais"""
-    alerts = metrics_collector.get_alerts()
+    """Alertas do sistema - do PostgreSQL"""
+    alerts = postgres_store.get_alerts_list(limit=20)
+    for alert in alerts:
+        if 'created_at' in alert and alert['created_at']:
+            alert['timestamp'] = alert['created_at'].isoformat() + "Z" if hasattr(alert['created_at'], 'isoformat') else str(alert['created_at'])
     return jsonify({"success": True, "data": alerts})
 
 
 @app.route("/api/dashboard/recent-alerts", methods=["GET"])
 def get_dashboard_recent_alerts():
-    """Alertas recentes do sistema"""
-    alerts = metrics_collector.get_alerts()
+    """Alertas recentes do PostgreSQL"""
+    alerts = postgres_store.get_alerts_list(limit=10)
+    for alert in alerts:
+        if 'created_at' in alert and alert['created_at']:
+            alert['timestamp'] = alert['created_at'].isoformat() + "Z" if hasattr(alert['created_at'], 'isoformat') else str(alert['created_at'])
     return jsonify({"success": True, "alerts": alerts})
 
 
@@ -1848,23 +1854,29 @@ def get_transactions():
 
 @app.route("/api/transactions/<transaction_id>/approve", methods=["POST"])
 def approve_transaction(transaction_id):
-    """Aprova uma transação manualmente"""
-    logger.info(f"Transaction approved: {transaction_id}", extra={"action": "TRANSACTION_APPROVED", "transaction_id": transaction_id})
+    """Aprova uma transação manualmente - persiste no PostgreSQL"""
+    success = postgres_store.update_transaction_status(transaction_id, "APPROVED")
+    if success:
+        postgres_store.add_audit_log("TRANSACTION_APPROVED", None, f"Transaction approved: {transaction_id}", request.remote_addr)
+        logger.info(f"Transaction approved: {transaction_id}", extra={"action": "TRANSACTION_APPROVED", "transaction_id": transaction_id})
     return jsonify({
-        "success": True,
-        "message": f"Transação {transaction_id} aprovada com sucesso",
+        "success": success,
+        "message": f"Transação {transaction_id} aprovada com sucesso" if success else "Transação não encontrada",
         "data": {"transaction_id": transaction_id, "new_status": "APROVADA"}
     })
 
 
 @app.route("/api/transactions/<transaction_id>/reject", methods=["POST"])
 def reject_transaction(transaction_id):
-    """Rejeita uma transação manualmente"""
+    """Rejeita uma transação manualmente - persiste no PostgreSQL"""
     reason = request.json.get("reason", "Rejeitado por analista") if request.json else "Rejeitado por analista"
-    logger.info(f"Transaction rejected: {transaction_id}", extra={"action": "TRANSACTION_REJECTED", "transaction_id": transaction_id, "reason": reason})
+    success = postgres_store.update_transaction_status(transaction_id, "FRAUD")
+    if success:
+        postgres_store.add_audit_log("TRANSACTION_REJECTED", None, f"Transaction rejected: {transaction_id} - {reason}", request.remote_addr)
+        logger.info(f"Transaction rejected: {transaction_id}", extra={"action": "TRANSACTION_REJECTED", "transaction_id": transaction_id, "reason": reason})
     return jsonify({
-        "success": True,
-        "message": f"Transação {transaction_id} rejeitada",
+        "success": success,
+        "message": f"Transação {transaction_id} rejeitada" if success else "Transação não encontrada",
         "data": {"transaction_id": transaction_id, "new_status": "REJEITADA", "reason": reason}
     })
 
@@ -1946,9 +1958,9 @@ def create_investigation():
 
 @app.route("/api/metrics/dashboard", methods=["GET"])
 def get_metrics_dashboard():
-    """Métricas detalhadas para o dashboard de monitoramento"""
-    kpis = metrics_collector.get_kpis()
-    latency_percentiles = metrics_collector.get_latency_percentiles()
+    """Métricas detalhadas para o dashboard de monitoramento - dados do PostgreSQL"""
+    kpis = postgres_store.get_dashboard_kpis()
+    monitoring = postgres_store.get_monitoring_status()
     model_metrics = fraud_engine.get_performance_metrics()
     cache_stats = redis_cache_system.get_stats()
     
@@ -1956,9 +1968,11 @@ def get_metrics_dashboard():
         "success": True,
         "data": {
             "kpis": kpis,
+            "monitoring": monitoring,
             "latency": {
-                "avg": kpis["latencia_media"],
-                **latency_percentiles
+                "avg": monitoring.get("avg_latency_ms", 0),
+                "max": monitoring.get("max_latency_ms", 0),
+                "min": monitoring.get("min_latency_ms", 0)
             },
             "model": model_metrics,
             "cache": cache_stats,
@@ -2525,36 +2539,29 @@ def get_investigations():
 
 @app.route("/api/datasets", methods=["GET"])
 def get_datasets():
-    """Lista datasets disponíveis para treinamento"""
-    datasets = [
-        {
-            "id": 1,
-            "name": "Production Training Set",
-            "samples": 10000,
-            "fraud_ratio": 0.03,
-            "created_at": "2025-01-01T00:00:00Z",
-            "status": "active"
-        }
-    ]
+    """Lista datasets disponíveis para treinamento - dados reais do PostgreSQL"""
+    datasets = postgres_store.get_datasets_catalog()
     return jsonify({"success": True, "data": datasets})
 
 
 @app.route("/api/reports", methods=["GET"])
 def get_reports():
-    """Lista relatórios disponíveis"""
+    """Lista relatórios disponíveis - com dados agregados do PostgreSQL"""
+    summary = postgres_store.generate_report("summary")
     reports = [
         {
             "id": 1,
-            "name": "Daily Fraud Summary",
+            "name": "Resumo Diário de Fraudes",
             "type": "daily",
             "status": "generated",
-            "created_at": datetime.utcnow().isoformat() + "Z"
+            "created_at": datetime.utcnow().isoformat() + "Z",
+            "summary": summary.get("summary", {})
         },
         {
             "id": 2,
-            "name": "Weekly Performance Report",
+            "name": "Relatório Semanal de Performance",
             "type": "weekly",
-            "status": "pending",
+            "status": "available",
             "created_at": (datetime.utcnow() - timedelta(days=1)).isoformat() + "Z"
         }
     ]
@@ -2563,21 +2570,20 @@ def get_reports():
 
 @app.route("/api/reports/generate", methods=["POST"])
 def generate_report():
-    """Gera novo relatório"""
+    """Gera novo relatório com dados reais do PostgreSQL"""
     if not request.json:
         raise ValidationError("Request body is required")
     
     report_type = request.json.get("type", "daily")
+    date_from = request.json.get("date_from")
+    date_to = request.json.get("date_to")
+    
+    report = postgres_store.generate_report(report_type, date_from, date_to)
+    postgres_store.add_audit_log("REPORT_GENERATED", None, f"Generated {report_type} report", request.remote_addr)
     
     return jsonify({
         "success": True,
-        "data": {
-            "id": 3,
-            "name": f"Generated {report_type.title()} Report",
-            "type": report_type,
-            "status": "generating",
-            "created_at": datetime.utcnow().isoformat() + "Z"
-        }
+        "data": report
     })
 
 
