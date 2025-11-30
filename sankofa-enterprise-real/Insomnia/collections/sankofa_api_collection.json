@@ -21,7 +21,7 @@
       "created": 1732726800000,
       "name": "Base Environment",
       "data": {
-        "base_url": "http://localhost:8000",
+        "base_url": "http://localhost:5000",
         "jwt_token": "",
         "customer_cpf": "12345678901",
         "transaction_id": "TXN1732726800000"
