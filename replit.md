@@ -80,8 +80,8 @@ Clean Architecture with Domain, Application, Infrastructure, and Presentation la
 
 ## Recent Changes (November 30, 2025)
 
-### Manual ULTRA-DIDÁTICO Completo (v3.0) - 2.538 linhas
-O Manual foi COMPLETAMENTE REESCRITO e AMPLIADO com nova seção técnica:
+### Manual ULTRA-DIDÁTICO Completo (v4.0) - 3.073 linhas
+O Manual foi COMPLETAMENTE REESCRITO e AMPLIADO com novas seções técnicas:
 
 **METODOLOGIAS APLICADAS:**
 - Metodologia "Use a Cabeça" (Head First): linguagem conversacional
@@ -91,7 +91,7 @@ O Manual foi COMPLETAMENTE REESCRITO e AMPLIADO com nova seção técnica:
 - Visual Thinking: estrutura hierárquica clara
 - Repetição com Variação: conceitos reforçados em contextos diferentes
 
-**9 SEÇÕES COMPLETAS:**
+**11 SEÇÕES COMPLETAS:**
 1. **Bem-vindo ao Sistema**: Visão geral, personas, fluxo em 6 passos
 2. **Mapa Visual das Telas**: Organizado por módulos (Operações, Análise, Configuração, Listas, ML, Observabilidade, Compliance, Sistema)
 3. **Manual de CADA TELA** (16 telas com padrão):
@@ -110,7 +110,9 @@ O Manual foi COMPLETAMENTE REESCRITO e AMPLIADO com nova seção técnica:
 6. **Transfer Learning (4 Fases)** com métricas
 7. **Fluxo Ponta a Ponta**: Diagrama ASCII completo + história
 8. **Dicas e Boas Práticas**: 8 boas práticas + 8 cuidados
-9. **FAQ Didático**: 10 perguntas frequentes
+9. **Jornada da Requisição**: Do JSON ao Veredito (completo)
+10. **Catálogo de Cenários Reais**: 40+ padrões de fraude (NOVO!)
+11. **FAQ Didático**: 10 perguntas frequentes
 
 **16 TELAS DOCUMENTADAS:**
 Dashboard, Transações, Alertas, Investigação, Revisão Manual, Calibração, Monitoramento, Métricas, Hard Rules, VIP List, HOT List, Feedback, Relatórios, Auditoria, DataSets, Configurações
