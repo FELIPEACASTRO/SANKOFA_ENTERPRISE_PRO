@@ -54,7 +54,14 @@ class PostgresStore:
         return psycopg2.connect(self._conn_string, cursor_factory=RealDictCursor)
     
     def get_hard_rules(self) -> List[Dict]:
-        """Retorna todas as hard rules do PostgreSQL"""
+        """Retorna todas as hard rules do PostgreSQL
+        Com cache em memória (TTL 30s) para reduzir latência
+        """
+        cache_key = "hard_rules"
+        cached = _dashboard_cache.get(cache_key)
+        if cached:
+            return cached
+            
         try:
             with self._get_connection() as conn:
                 with conn.cursor() as cur:
@@ -65,7 +72,9 @@ class PostgresStore:
                         ORDER BY id
                     """)
                     rows = cur.fetchall()
-                    return [dict(row) for row in rows]
+                    result = [dict(row) for row in rows]
+                    _dashboard_cache.set(cache_key, result, ttl=30)
+                    return result
         except Exception as e:
             print(f"Error fetching hard_rules: {e}")
             return []
@@ -548,7 +557,14 @@ class PostgresStore:
             return []
     
     def get_recent_transactions(self, limit: int = 50) -> List[Dict]:
-        """Retorna transações recentes do PostgreSQL"""
+        """Retorna transações recentes do PostgreSQL
+        Com cache em memória (TTL 30s) para reduzir latência
+        """
+        cache_key = f"recent_transactions_{limit}"
+        cached = _dashboard_cache.get(cache_key)
+        if cached:
+            return cached
+            
         try:
             with self._get_connection() as conn:
                 with conn.cursor() as cur:
@@ -560,7 +576,9 @@ class PostgresStore:
                         LIMIT %s
                     """, (limit,))
                     rows = cur.fetchall()
-                    return [dict(row) for row in rows]
+                    result = [dict(row) for row in rows]
+                    _dashboard_cache.set(cache_key, result, ttl=30)
+                    return result
         except Exception as e:
             print(f"Error fetching recent transactions: {e}")
             return []

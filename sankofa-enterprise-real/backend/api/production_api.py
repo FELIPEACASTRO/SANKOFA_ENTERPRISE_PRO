@@ -2056,7 +2056,6 @@ def get_hard_rules():
             rule['created_at'] = rule['created_at'].isoformat() + "Z" if hasattr(rule['created_at'], 'isoformat') else str(rule['created_at'])
         if 'updated_at' in rule and rule['updated_at']:
             rule['updated_at'] = rule['updated_at'].isoformat() + "Z" if hasattr(rule['updated_at'], 'isoformat') else str(rule['updated_at'])
-    postgres_store.add_audit_log("HARD_RULES_VIEW", None, "Listed all hard rules", request.remote_addr)
     return jsonify({"success": True, "data": {"rules": rules}})
 
 
