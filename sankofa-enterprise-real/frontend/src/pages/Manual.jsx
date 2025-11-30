@@ -2512,7 +2512,541 @@ export function Manual() {
 
         </CollapsibleSection>
 
-        {/* SECAO 10: FAQ */}
+        {/* SECAO 10: CENARIOS REAIS COMPLETOS */}
+        <CollapsibleSection id="cenarios-reais" title="Catalogo Completo de Cenarios Reais de Fraude" icon={Flag} color="red">
+          
+          {/* INTRODUCAO */}
+          <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-6 mb-6">
+            <h3 className="text-xl font-bold text-red-800 mb-3 flex items-center gap-2">
+              <AlertTriangle className="h-6 w-6" /> Por Que Este Catalogo e Importante?
+            </h3>
+            <p className="text-gray-700 mb-4">
+              Este catalogo contem TODOS os padroes de fraude que o sistema sabe reconhecer. 
+              Cada cenario foi aprendido atraves de datasets reais, Transfer Learning e feedback de analistas.
+              Use este catalogo como referencia para entender por que o sistema toma cada decisao.
+            </p>
+            <div className="grid md:grid-cols-4 gap-4 mt-4">
+              <div className="bg-white rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-red-600">40+</div>
+                <div className="text-xs text-gray-600">Cenarios Mapeados</div>
+              </div>
+              <div className="bg-white rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-orange-600">7</div>
+                <div className="text-xs text-gray-600">Categorias de Features</div>
+              </div>
+              <div className="bg-white rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-yellow-600">3</div>
+                <div className="text-xs text-gray-600">Datasets Analisados</div>
+              </div>
+              <div className="bg-white rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-purple-600">4</div>
+                <div className="text-xs text-gray-600">Fases de Transfer Learning</div>
+              </div>
+            </div>
+          </div>
+
+          {/* SECAO 1: CENARIOS BASEADOS EM FEATURES */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Brain className="h-6 w-6 text-blue-500" /> 1. Cenarios Baseados em Features (Variaveis do Modelo)
+            </h3>
+
+            {/* 1.1 VALOR */}
+            <div className="bg-blue-50 rounded-xl p-4 mb-4">
+              <h4 className="font-bold text-lg text-blue-800 mb-3 flex items-center gap-2">
+                <DollarSign className="h-5 w-5" /> 1.1 Cenarios de VALOR (amount)
+              </h4>
+              <div className="grid md:grid-cols-2 gap-3">
+                {[
+                  { cenario: 'Valor muito alto fora do padrao historico', score: 85, decisao: 'BLOQUEAR', exemplo: 'Cliente gastou R$ 15.000, media historica R$ 400', cor: 'red' },
+                  { cenario: 'Valor medio repetido varias vezes', score: 72, decisao: 'BLOQUEAR', exemplo: '5 transacoes de R$ 999 em 10 minutos (evitar limite)', cor: 'red' },
+                  { cenario: 'Valor baixo em frequencia anormal', score: 65, decisao: 'REVISAR', exemplo: '20 compras de R$ 50 em lojas diferentes', cor: 'yellow' },
+                  { cenario: 'Valor alto em horario comercial', score: 35, decisao: 'REVISAR', exemplo: 'R$ 5.000 as 14h, cliente executivo', cor: 'yellow' },
+                  { cenario: 'Valor incompativel com renda estimada', score: 78, decisao: 'BLOQUEAR', exemplo: 'Renda R$ 2.000, compra R$ 8.000', cor: 'red' },
+                  { cenario: 'Valor dentro do padrao habitual', score: 12, decisao: 'APROVAR', exemplo: 'R$ 350, media R$ 400, mesmo comerciante', cor: 'green' }
+                ].map((item, i) => (
+                  <div key={i} className={`bg-white rounded-lg p-3 border-l-4 ${
+                    item.cor === 'red' ? 'border-red-500' : item.cor === 'yellow' ? 'border-yellow-500' : 'border-green-500'
+                  }`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-medium text-gray-900 text-sm">{item.cenario}</span>
+                      <span className={`text-xs px-2 py-1 rounded font-bold ${
+                        item.cor === 'red' ? 'bg-red-100 text-red-700' : 
+                        item.cor === 'yellow' ? 'bg-yellow-100 text-yellow-700' : 
+                        'bg-green-100 text-green-700'
+                      }`}>{item.score}</span>
+                    </div>
+                    <p className="text-xs text-gray-600 italic">{item.exemplo}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 1.2 CANAL */}
+            <div className="bg-green-50 rounded-xl p-4 mb-4">
+              <h4 className="font-bold text-lg text-green-800 mb-3 flex items-center gap-2">
+                <Globe className="h-5 w-5" /> 1.2 Cenarios de CANAL (channel)
+              </h4>
+              <div className="grid md:grid-cols-2 gap-3">
+                {[
+                  { cenario: 'WEB: Primeira transacao em navegador desconhecido', score: 68, decisao: 'REVISAR', exemplo: 'Chrome novo, sem cookies, JS desabilitado', cor: 'yellow' },
+                  { cenario: 'WEB: IP compativel com historico', score: 15, decisao: 'APROVAR', exemplo: 'Mesmo IP dos ultimos 30 dias', cor: 'green' },
+                  { cenario: 'POS: Varias tentativas negadas em sequencia', score: 88, decisao: 'BLOQUEAR', exemplo: '5 tentativas recusadas, 6a aprovada', cor: 'red' },
+                  { cenario: 'POS: Troca de maquina/merchant inesperada', score: 72, decisao: 'BLOQUEAR', exemplo: 'Sempre usa maquina A, aparece em maquina B', cor: 'red' },
+                  { cenario: 'APP: Biometria recusada antes da transacao', score: 82, decisao: 'BLOQUEAR', exemplo: '3 tentativas de digital falharam', cor: 'red' },
+                  { cenario: 'APP: Dispositivo conhecido, biometria OK', score: 8, decisao: 'APROVAR', exemplo: 'Celular habitual, Face ID confirmado', cor: 'green' }
+                ].map((item, i) => (
+                  <div key={i} className={`bg-white rounded-lg p-3 border-l-4 ${
+                    item.cor === 'red' ? 'border-red-500' : item.cor === 'yellow' ? 'border-yellow-500' : 'border-green-500'
+                  }`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-medium text-gray-900 text-sm">{item.cenario}</span>
+                      <span className={`text-xs px-2 py-1 rounded font-bold ${
+                        item.cor === 'red' ? 'bg-red-100 text-red-700' : 
+                        item.cor === 'yellow' ? 'bg-yellow-100 text-yellow-700' : 
+                        'bg-green-100 text-green-700'
+                      }`}>{item.score}</span>
+                    </div>
+                    <p className="text-xs text-gray-600 italic">{item.exemplo}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 1.3 TIPO DE PAGAMENTO */}
+            <div className="bg-purple-50 rounded-xl p-4 mb-4">
+              <h4 className="font-bold text-lg text-purple-800 mb-3 flex items-center gap-2">
+                <CreditCard className="h-5 w-5" /> 1.3 Cenarios de PAGAMENTO (paymentType)
+              </h4>
+              <div className="grid md:grid-cols-2 gap-3">
+                {[
+                  { cenario: 'PIX: Alto valor, transferencia entre estados', score: 75, decisao: 'BLOQUEAR', exemplo: 'R$ 25.000 de SP para BA, primeira vez', cor: 'red' },
+                  { cenario: 'PIX: Recorrente entre mesmos destinatarios', score: 10, decisao: 'APROVAR', exemplo: 'Todo mes R$ 1.500 para mae', cor: 'green' },
+                  { cenario: 'CREDITO: Valor atipico a vista', score: 70, decisao: 'BLOQUEAR', exemplo: 'R$ 12.000 a vista, limite R$ 15.000', cor: 'red' },
+                  { cenario: 'CREDITO: Parcelado fora do padrao', score: 55, decisao: 'REVISAR', exemplo: '12x de R$ 800, nunca parcelou antes', cor: 'yellow' },
+                  { cenario: 'DEBITO: Pequeno valor repetido muitas vezes', score: 78, decisao: 'BLOQUEAR', exemplo: '15 debitos de R$ 10 em 5 minutos', cor: 'red' },
+                  { cenario: 'DEBITO: Internacional com moeda incomum', score: 85, decisao: 'BLOQUEAR', exemplo: 'Debito em rublos russos, cliente nunca viajou', cor: 'red' }
+                ].map((item, i) => (
+                  <div key={i} className={`bg-white rounded-lg p-3 border-l-4 ${
+                    item.cor === 'red' ? 'border-red-500' : item.cor === 'yellow' ? 'border-yellow-500' : 'border-green-500'
+                  }`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-medium text-gray-900 text-sm">{item.cenario}</span>
+                      <span className={`text-xs px-2 py-1 rounded font-bold ${
+                        item.cor === 'red' ? 'bg-red-100 text-red-700' : 
+                        item.cor === 'yellow' ? 'bg-yellow-100 text-yellow-700' : 
+                        'bg-green-100 text-green-700'
+                      }`}>{item.score}</span>
+                    </div>
+                    <p className="text-xs text-gray-600 italic">{item.exemplo}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 1.4 IP */}
+            <div className="bg-orange-50 rounded-xl p-4 mb-4">
+              <h4 className="font-bold text-lg text-orange-800 mb-3 flex items-center gap-2">
+                <Network className="h-5 w-5" /> 1.4 Cenarios de IP (ipAddress)
+              </h4>
+              <div className="grid md:grid-cols-2 gap-3">
+                {[
+                  { cenario: 'IP conhecido do cliente', score: 8, decisao: 'APROVAR', exemplo: 'Mesmo IP residencial dos ultimos 6 meses', cor: 'green' },
+                  { cenario: 'IP desconhecido mas mesmo estado', score: 35, decisao: 'REVISAR', exemplo: 'IP novo, mas ainda em Sao Paulo', cor: 'yellow' },
+                  { cenario: 'IP de outro pais', score: 82, decisao: 'BLOQUEAR', exemplo: 'Cliente em SP, IP da Nigeria', cor: 'red' },
+                  { cenario: 'IP ja apareceu em fraudes anteriores', score: 95, decisao: 'BLOQUEAR', exemplo: 'IP na HOT List por fraude confirmada', cor: 'red' },
+                  { cenario: 'IP de VPN/Proxy/Tor detectado', score: 78, decisao: 'BLOQUEAR', exemplo: 'IP identificado como NordVPN', cor: 'red' },
+                  { cenario: 'IP empresarial (corporativo)', score: 20, decisao: 'APROVAR', exemplo: 'IP do escritorio, horario comercial', cor: 'green' }
+                ].map((item, i) => (
+                  <div key={i} className={`bg-white rounded-lg p-3 border-l-4 ${
+                    item.cor === 'red' ? 'border-red-500' : item.cor === 'yellow' ? 'border-yellow-500' : 'border-green-500'
+                  }`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-medium text-gray-900 text-sm">{item.cenario}</span>
+                      <span className={`text-xs px-2 py-1 rounded font-bold ${
+                        item.cor === 'red' ? 'bg-red-100 text-red-700' : 
+                        item.cor === 'yellow' ? 'bg-yellow-100 text-yellow-700' : 
+                        'bg-green-100 text-green-700'
+                      }`}>{item.score}</span>
+                    </div>
+                    <p className="text-xs text-gray-600 italic">{item.exemplo}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 1.5 DISPOSITIVO */}
+            <div className="bg-pink-50 rounded-xl p-4 mb-4">
+              <h4 className="font-bold text-lg text-pink-800 mb-3 flex items-center gap-2">
+                <Smartphone className="h-5 w-5" /> 1.5 Cenarios de DISPOSITIVO (deviceId)
+              </h4>
+              <div className="grid md:grid-cols-2 gap-3">
+                {[
+                  { cenario: 'Dispositivo conhecido sem historico negativo', score: 5, decisao: 'APROVAR', exemplo: 'iPhone do cliente ha 2 anos', cor: 'green' },
+                  { cenario: 'Dispositivo novo nunca visto', score: 55, decisao: 'REVISAR', exemplo: 'Primeiro acesso deste Android', cor: 'yellow' },
+                  { cenario: 'Dispositivo ja participou de fraude', score: 98, decisao: 'BLOQUEAR', exemplo: 'Device ID na HOT List', cor: 'red' },
+                  { cenario: 'Dispositivo em 2 cidades no mesmo dia', score: 92, decisao: 'BLOQUEAR', exemplo: 'SP as 10h, RJ as 10h30 (impossivel)', cor: 'red' },
+                  { cenario: 'Dispositivo troca de IP 5x em 10 min', score: 85, decisao: 'BLOQUEAR', exemplo: 'Comportamento tipico de emulador/bot', cor: 'red' },
+                  { cenario: 'Dispositivo novo mas biometria confirmada', score: 25, decisao: 'APROVAR', exemplo: 'Celular novo, Face ID do cliente OK', cor: 'green' }
+                ].map((item, i) => (
+                  <div key={i} className={`bg-white rounded-lg p-3 border-l-4 ${
+                    item.cor === 'red' ? 'border-red-500' : item.cor === 'yellow' ? 'border-yellow-500' : 'border-green-500'
+                  }`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-medium text-gray-900 text-sm">{item.cenario}</span>
+                      <span className={`text-xs px-2 py-1 rounded font-bold ${
+                        item.cor === 'red' ? 'bg-red-100 text-red-700' : 
+                        item.cor === 'yellow' ? 'bg-yellow-100 text-yellow-700' : 
+                        'bg-green-100 text-green-700'
+                      }`}>{item.score}</span>
+                    </div>
+                    <p className="text-xs text-gray-600 italic">{item.exemplo}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 1.6 GEOLOCALIZACAO */}
+            <div className="bg-teal-50 rounded-xl p-4 mb-4">
+              <h4 className="font-bold text-lg text-teal-800 mb-3 flex items-center gap-2">
+                <MapPin className="h-5 w-5" /> 1.6 Cenarios de GEOLOCALIZACAO (geoLocation)
+              </h4>
+              <div className="grid md:grid-cols-2 gap-3">
+                {[
+                  { cenario: 'Localizacao habitual do cliente', score: 5, decisao: 'APROVAR', exemplo: 'Sempre compra em SP, comprando em SP', cor: 'green' },
+                  { cenario: 'Cliente viajando (padrao conhecido)', score: 18, decisao: 'APROVAR', exemplo: 'Historico de viagens, RJ no fim de semana', cor: 'green' },
+                  { cenario: 'Compra em pais que nunca visitou', score: 88, decisao: 'BLOQUEAR', exemplo: 'Nunca viajou, compra na Russia', cor: 'red' },
+                  { cenario: 'Teletransporte digital (impossivel)', score: 99, decisao: 'BLOQUEAR', exemplo: 'SP as 10h, Londres as 10h05', cor: 'red' },
+                  { cenario: 'Cidade nao bate com IP', score: 75, decisao: 'BLOQUEAR', exemplo: 'GPS mostra RJ, IP e de SP', cor: 'red' },
+                  { cenario: 'Cidade diferente do endereco cadastrado', score: 45, decisao: 'REVISAR', exemplo: 'Mora em SP, compra em MG (viagem?)', cor: 'yellow' }
+                ].map((item, i) => (
+                  <div key={i} className={`bg-white rounded-lg p-3 border-l-4 ${
+                    item.cor === 'red' ? 'border-red-500' : item.cor === 'yellow' ? 'border-yellow-500' : 'border-green-500'
+                  }`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-medium text-gray-900 text-sm">{item.cenario}</span>
+                      <span className={`text-xs px-2 py-1 rounded font-bold ${
+                        item.cor === 'red' ? 'bg-red-100 text-red-700' : 
+                        item.cor === 'yellow' ? 'bg-yellow-100 text-yellow-700' : 
+                        'bg-green-100 text-green-700'
+                      }`}>{item.score}</span>
+                    </div>
+                    <p className="text-xs text-gray-600 italic">{item.exemplo}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 1.7 FREQUENCIA */}
+            <div className="bg-indigo-50 rounded-xl p-4 mb-4">
+              <h4 className="font-bold text-lg text-indigo-800 mb-3 flex items-center gap-2">
+                <Activity className="h-5 w-5" /> 1.7 Cenarios de FREQUENCIA (velocity)
+              </h4>
+              <div className="grid md:grid-cols-2 gap-3">
+                {[
+                  { cenario: '10 transacoes em menos de 1 minuto', score: 95, decisao: 'BLOQUEAR', exemplo: 'Ataque automatizado detectado', cor: 'red' },
+                  { cenario: 'Alta frequencia de tentativas recusadas', score: 88, decisao: 'BLOQUEAR', exemplo: '8 tentativas recusadas, testando cartao', cor: 'red' },
+                  { cenario: 'Inatividade por meses, comportamento repentino', score: 72, decisao: 'BLOQUEAR', exemplo: 'Sem uso por 4 meses, 10 compras hoje', cor: 'red' },
+                  { cenario: 'Aumento dramatico de gastos', score: 80, decisao: 'BLOQUEAR', exemplo: 'R$ 200/mes vira R$ 8.000 em 2 dias', cor: 'red' },
+                  { cenario: 'Frequencia normal, valor normal', score: 8, decisao: 'APROVAR', exemplo: '2-3 transacoes por semana, como sempre', cor: 'green' },
+                  { cenario: 'Pico esperado (Black Friday, Natal)', score: 22, decisao: 'APROVAR', exemplo: 'Mais compras que o normal em novembro', cor: 'green' }
+                ].map((item, i) => (
+                  <div key={i} className={`bg-white rounded-lg p-3 border-l-4 ${
+                    item.cor === 'red' ? 'border-red-500' : item.cor === 'yellow' ? 'border-yellow-500' : 'border-green-500'
+                  }`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-medium text-gray-900 text-sm">{item.cenario}</span>
+                      <span className={`text-xs px-2 py-1 rounded font-bold ${
+                        item.cor === 'red' ? 'bg-red-100 text-red-700' : 
+                        item.cor === 'yellow' ? 'bg-yellow-100 text-yellow-700' : 
+                        'bg-green-100 text-green-700'
+                      }`}>{item.score}</span>
+                    </div>
+                    <p className="text-xs text-gray-600 italic">{item.exemplo}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* SECAO 2: CENARIOS BASEADOS EM DATASETS */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Database className="h-6 w-6 text-green-500" /> 2. Cenarios Baseados em Datasets (Historico)
+            </h3>
+
+            <div className="grid md:grid-cols-3 gap-4">
+              {/* Historico de Fraudes */}
+              <div className="bg-red-50 rounded-xl p-4">
+                <h4 className="font-bold text-red-800 mb-3 flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" /> 2.1 Historico de Fraudes
+                </h4>
+                <ul className="space-y-2">
+                  {[
+                    'Cliente sem historico + merchant com historico ruim',
+                    'Cliente com fraude anterior tentando nova transacao',
+                    'Mesmo IP usado em fraude confirmada',
+                    'Mesmo dispositivo de fraude anterior',
+                    'Mesmo padrao de horario de fraudes passadas',
+                    'Valor identico a fraudes anteriores'
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                      <XCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Historico de Cliente */}
+              <div className="bg-blue-50 rounded-xl p-4">
+                <h4 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
+                  <User className="h-5 w-5" /> 2.2 Historico do Cliente
+                </h4>
+                <ul className="space-y-2">
+                  {[
+                    'Cliente recorrente sempre no mesmo horario',
+                    'Padrao de gastos mensal consistente',
+                    'Cliente que viaja com frequencia (padrao movel)',
+                    'Cliente que raramente usa POS (so APP)',
+                    'Cliente que so usa PIX para familia',
+                    'Cliente VIP com limite especial'
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                      <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Historico de Merchant */}
+              <div className="bg-purple-50 rounded-xl p-4">
+                <h4 className="font-bold text-purple-800 mb-3 flex items-center gap-2">
+                  <Building className="h-5 w-5" /> 2.3 Historico do Merchant
+                </h4>
+                <ul className="space-y-2">
+                  {[
+                    'Merchant conhecido e confiavel',
+                    'Merchant suspeito em auditorias',
+                    'Merchant novo nunca visto no sistema',
+                    'Merchant com volume repentino alto',
+                    'Merchant com taxa de chargeback alta',
+                    'Merchant em categoria de alto risco'
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                      <Building className="h-4 w-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* SECAO 3: CENARIOS DE TRANSFER LEARNING */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Layers className="h-6 w-6 text-purple-500" /> 3. Cenarios de Transfer Learning (Padroes Aprendidos)
+            </h3>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Padroes que o modelo ja viu */}
+              <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-4">
+                <h4 className="font-bold text-purple-800 mb-3">3.1 Padroes que o Modelo "Ja Viu"</h4>
+                <p className="text-sm text-gray-600 mb-3">
+                  Aprendidos do dataset Kaggle (284k transacoes) e adaptados ao Brasil:
+                </p>
+                <div className="space-y-2">
+                  {[
+                    { padrao: 'Comportamento tipico de BOT', desc: 'Tentativas em intervalos exatos, sem variacao humana', score: 92 },
+                    { padrao: 'IP com padroes de ataque automatizado', desc: 'Muitas requisicoes sequenciais do mesmo IP', score: 88 },
+                    { padrao: 'Valores quebrados repetitivos', desc: 'R$ 999,99 varias vezes (evitar limite)', score: 75 },
+                    { padrao: 'Sequencias de tentativas em horarios especificos', desc: 'Sempre as 03h-04h (fraude automatizada)', score: 85 }
+                  ].map((item, i) => (
+                    <div key={i} className="bg-white rounded-lg p-3">
+                      <div className="flex justify-between items-start">
+                        <span className="font-medium text-gray-900 text-sm">{item.padrao}</span>
+                        <span className="text-xs px-2 py-1 rounded bg-red-100 text-red-700 font-bold">{item.score}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Padroes sem existir no dataset local */}
+              <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl p-4">
+                <h4 className="font-bold text-orange-800 mb-3">3.2 Padroes Reconhecidos de Outros Dominios</h4>
+                <p className="text-sm text-gray-600 mb-3">
+                  Padroes internacionais que o modelo reconhece mesmo sem ver no Brasil:
+                </p>
+                <div className="space-y-2">
+                  {[
+                    { padrao: 'Perfis de ataque internacional', desc: 'Padroes de Nigeria, Russia, etc.', score: 90 },
+                    { padrao: 'Testes de cartao (small-test big-test)', desc: 'Compra de R$ 1, depois R$ 5.000', score: 82 },
+                    { padrao: 'Deslocamento simultaneo IP + Device', desc: 'Ambos mudam ao mesmo tempo (clone)', score: 94 },
+                    { padrao: 'Encadeamento de micro-transacoes', desc: 'Varias pequenas para testar limite', score: 78 }
+                  ].map((item, i) => (
+                    <div key={i} className="bg-white rounded-lg p-3">
+                      <div className="flex justify-between items-start">
+                        <span className="font-medium text-gray-900 text-sm">{item.padrao}</span>
+                        <span className="text-xs px-2 py-1 rounded bg-orange-100 text-orange-700 font-bold">{item.score}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* SECAO 4: MATRIZ COMPLETA DE CENARIOS COMBINADOS */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Grid className="h-6 w-6 text-indigo-500" /> 4. Matriz Completa: Cenarios Combinados
+            </h3>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              {[
+                {
+                  titulo: '4.1 FRAUDE CLASSICA',
+                  cor: 'red',
+                  score: 94,
+                  caracteristicas: ['Credito', 'Web', 'IP desconhecido', 'Dispositivo novo', 'Valor alto', 'Merchant nunca usado', 'Horario 03h', 'Localizacao diferente'],
+                  json: '{"channel": "CARTAO", "amount": 12500, "hour": 3, "is_new_device": true, "ip_risk": "high"}'
+                },
+                {
+                  titulo: '4.2 FRAUDE ORGANIZADA',
+                  cor: 'red',
+                  score: 97,
+                  caracteristicas: ['Multiplos cartoes do mesmo cliente', 'Tentativas rapidas', 'Merchants diferentes em minutos', 'PIX para contas suspeitas', 'Device conhecido mas IP via VPN'],
+                  json: '{"velocity_score": 0.95, "merchant_count_1h": 5, "ip_is_vpn": true}'
+                },
+                {
+                  titulo: '4.3 SUSPEITA (REVISAR)',
+                  cor: 'yellow',
+                  score: 55,
+                  caracteristicas: ['Debito', 'POS', 'Dispositivo novo', 'IP normal', 'Valor dentro do padrao', 'Horario incomum (04h)', 'Cliente com historico moderado'],
+                  json: '{"channel": "DEBITO", "is_new_device": true, "hour": 4, "amount_deviation": 1.2}'
+                },
+                {
+                  titulo: '4.4 APROVADO AUTOMATICO',
+                  cor: 'green',
+                  score: 12,
+                  caracteristicas: ['Cliente recorrente', 'Dispositivo conhecido', 'IP conhecido', 'Valor habitual', 'Merchant dentro do padrao', 'Horario usual'],
+                  json: '{"is_known_device": true, "is_known_ip": true, "amount_deviation": 0.8}'
+                },
+                {
+                  titulo: '4.5 PIX ALTO RISCO',
+                  cor: 'red',
+                  score: 88,
+                  caracteristicas: ['PIX alto valor', 'Beneficiario desconhecido', 'Conta criada recentemente', 'IP divergente', 'Dispositivo novo', 'Primeiro PIX para este CPF'],
+                  json: '{"channel": "PIX", "amount": 25000, "recipient_is_new": true, "recipient_account_age_days": 3}'
+                },
+                {
+                  titulo: '4.6 DEBITO SUSPEITO',
+                  cor: 'yellow',
+                  score: 68,
+                  caracteristicas: ['Tres debitos seguidos recusados', 'Merchant incomum', 'IP e Device sempre mudando', 'Valor ligeiramente alto'],
+                  json: '{"failed_attempts_1h": 3, "device_changes_24h": 4, "ip_changes_24h": 5}'
+                },
+                {
+                  titulo: '4.7 TELETRANSPORTE DIGITAL',
+                  cor: 'red',
+                  score: 99,
+                  caracteristicas: ['SP as 10h', 'RJ as 10h05', 'Mexico as 10h10', 'Londres as 10h15', 'DeviceID igual', 'IPs impossiveis'],
+                  json: '{"geo_impossibility": true, "locations_10min": ["SP", "RJ", "MX", "UK"]}'
+                },
+                {
+                  titulo: '4.8 ATAQUE DE BOT',
+                  cor: 'red',
+                  score: 96,
+                  caracteristicas: ['Tentativas a cada milissegundo', 'Padrao repetitivo perfeito', 'Sem variacao humana', 'Valores identicos', 'IPs em sequencia'],
+                  json: '{"is_bot": true, "requests_per_second": 50, "pattern_regularity": 0.99}'
+                },
+                {
+                  titulo: '4.9 USO LEGITIMO EXCEPCIONAL',
+                  cor: 'green',
+                  score: 25,
+                  caracteristicas: ['Cliente viaja (IP muda mas device permanece)', 'Black Friday (compras maiores)', 'PIX incomum mas para pessoa conhecida', 'Horario diferente mas valor normal'],
+                  json: '{"is_known_device": true, "is_travel_pattern": true, "seasonal_event": true}'
+                },
+                {
+                  titulo: '4.10 DADOS INCOMPLETOS/ERRO',
+                  cor: 'yellow',
+                  score: 50,
+                  caracteristicas: ['Campos faltando', 'GeoLocation inconsistente', 'DeviceID em formato errado', 'Currency invalida', 'Timestamp futuro'],
+                  json: '{"data_quality_score": 0.3, "missing_fields": ["ip", "device_id"]}'
+                }
+              ].map((cenario, i) => (
+                <div key={i} className={`rounded-xl overflow-hidden border-2 ${
+                  cenario.cor === 'red' ? 'border-red-300' : 
+                  cenario.cor === 'yellow' ? 'border-yellow-300' : 
+                  'border-green-300'
+                }`}>
+                  <div className={`p-3 ${
+                    cenario.cor === 'red' ? 'bg-red-500 text-white' : 
+                    cenario.cor === 'yellow' ? 'bg-yellow-500 text-white' : 
+                    'bg-green-500 text-white'
+                  }`}>
+                    <div className="flex justify-between items-center">
+                      <span className="font-bold">{cenario.titulo}</span>
+                      <span className="bg-white/20 px-2 py-1 rounded text-sm">Score: {cenario.score}</span>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-white">
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {cenario.caracteristicas.map((c, j) => (
+                        <span key={j} className={`text-xs px-2 py-1 rounded ${
+                          cenario.cor === 'red' ? 'bg-red-100 text-red-700' : 
+                          cenario.cor === 'yellow' ? 'bg-yellow-100 text-yellow-700' : 
+                          'bg-green-100 text-green-700'
+                        }`}>{c}</span>
+                      ))}
+                    </div>
+                    <div className="bg-gray-900 rounded p-2 overflow-x-auto">
+                      <code className="text-xs text-green-400 font-mono">{cenario.json}</code>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* RESUMO FINAL */}
+          <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-6 text-white">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <Award className="h-6 w-6 text-yellow-400" /> Resumo: Como Usar Este Catalogo
+            </h3>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="bg-white/10 rounded-lg p-4">
+                <h4 className="font-bold text-yellow-400 mb-2">Para Analistas</h4>
+                <p className="text-sm text-gray-300">
+                  Use este catalogo para entender por que o sistema bloqueou ou aprovou uma transacao. 
+                  Compare as caracteristicas da transacao com os cenarios listados.
+                </p>
+              </div>
+              <div className="bg-white/10 rounded-lg p-4">
+                <h4 className="font-bold text-blue-400 mb-2">Para Calibracao</h4>
+                <p className="text-sm text-gray-300">
+                  Se muitos cenarios de um tipo estao sendo mal classificados, 
+                  ajuste os thresholds na tela de Calibracao.
+                </p>
+              </div>
+              <div className="bg-white/10 rounded-lg p-4">
+                <h4 className="font-bold text-green-400 mb-2">Para Feedback</h4>
+                <p className="text-sm text-gray-300">
+                  Quando der feedback, pense em qual cenario a transacao se encaixa. 
+                  Isso ajuda a IA a aprender melhor.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </CollapsibleSection>
+
+        {/* SECAO 11: FAQ */}
         <CollapsibleSection id="faq" title="FAQ - Perguntas Frequentes" icon={HelpCircle} color="blue">
           <div className="space-y-4">
             {faq.map((item, i) => (
