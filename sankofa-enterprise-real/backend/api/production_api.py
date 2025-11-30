@@ -755,6 +755,8 @@ metrics_collector = MetricsCollector()
 transaction_store = TransactionStore()
 config_store = ConfigStore()
 
+from services.postgres_store import postgres_store
+
 logger.info("Production API initialized", environment=config.environment, debug=config.debug)
 
 
@@ -1763,29 +1765,42 @@ def get_transactions():
     status_filter = request.args.get("status", "")
     type_filter = request.args.get("type", "")
     
-    raw_transactions = transaction_store.get_recent(limit * 5)
+    raw_transactions = postgres_store.get_recent_transactions(limit * 5)
+    
+    if not raw_transactions:
+        raw_transactions = transaction_store.get_recent(limit * 5)
     
     now = datetime.utcnow()
     cities = ["São Paulo", "Rio de Janeiro", "Belo Horizonte", "Curitiba", "Porto Alegre", "Salvador", "Brasília"]
     types = ["PIX", "CREDITO", "DEBITO", "TED", "DOC"]
-    statuses = ["APROVADA", "REJEITADA", "PENDENTE", "EM_REVISAO"]
+    
+    def map_status(status):
+        status_map = {
+            "approved": "APROVADA",
+            "APPROVED": "APROVADA", 
+            "fraud": "REJEITADA",
+            "FRAUD": "REJEITADA",
+            "pending": "PENDENTE",
+            "pending_review": "EM_REVISAO",
+            "review": "EM_REVISAO"
+        }
+        return status_map.get(status, status or "PENDENTE")
     
     formatted_transactions = []
     for i, txn in enumerate(raw_transactions):
-        txn_id = txn.get("id", f"TXN-{now.strftime('%Y%m%d')}-{i+1:06d}")
-        
-        cpf_digits = f"{np.random.randint(100, 999)}.{np.random.randint(100, 999)}.{np.random.randint(100, 999)}-{np.random.randint(10, 99)}"
+        txn_id = txn.get("transaction_id") or txn.get("id") or f"TXN{int(time.time()*1000000)}"
         
         formatted = {
             "id": txn_id,
+            "transaction_id": txn_id,
             "valor": txn.get("amount", round(np.random.uniform(50, 15000), 2)),
-            "tipo": types[i % len(types)],
+            "tipo": txn.get("type", types[i % len(types)]),
             "canal": txn.get("channel", "pix"),
-            "localizacao": cities[i % len(cities)],
-            "cpf": cpf_digits,
+            "localizacao": txn.get("location", cities[i % len(cities)]),
+            "cpf": txn.get("cpf", f"{np.random.randint(100, 999)}.{np.random.randint(100, 999)}.{np.random.randint(100, 999)}-{np.random.randint(10, 99)}"),
             "data_hora": txn.get("timestamp", (now - timedelta(minutes=i*3)).strftime("%d/%m/%Y %H:%M")),
-            "status": statuses[0] if txn.get("status") == "approved" else (statuses[1] if txn.get("status") == "fraud" else statuses[i % len(statuses)]),
-            "fraud_score": txn.get("risk_score", round(np.random.uniform(0, 100), 1)),
+            "status": map_status(txn.get("status")),
+            "fraud_score": round(float(txn.get("risk_score", 0)) * 100, 1),
             "timestamp": txn.get("timestamp", (now - timedelta(minutes=i*3)).isoformat() + "Z")
         }
         
@@ -1799,17 +1814,19 @@ def get_transactions():
         formatted_transactions.append(formatted)
     
     if not formatted_transactions:
-        for i in range(min(limit, 50)):
+        for i in range(min(limit, 10)):
+            txn_id = f"TXN{int(time.time()*1000000) + i}"
             cpf_digits = f"{np.random.randint(100, 999)}.{np.random.randint(100, 999)}.{np.random.randint(100, 999)}-{np.random.randint(10, 99)}"
             formatted_transactions.append({
-                "id": f"TXN-{now.strftime('%Y%m%d')}-{i+1:06d}",
+                "id": txn_id,
+                "transaction_id": txn_id,
                 "valor": round(np.random.uniform(50, 15000), 2),
                 "tipo": types[i % len(types)],
                 "canal": ["pix", "card", "transfer"][i % 3],
                 "localizacao": cities[i % len(cities)],
                 "cpf": cpf_digits,
                 "data_hora": (now - timedelta(minutes=i*3)).strftime("%d/%m/%Y %H:%M"),
-                "status": statuses[i % len(statuses)],
+                "status": ["APROVADA", "REJEITADA", "PENDENTE", "EM_REVISAO"][i % 4],
                 "fraud_score": round(np.random.uniform(0, 100), 1),
                 "timestamp": (now - timedelta(minutes=i*3)).isoformat() + "Z"
             })
@@ -1953,7 +1970,10 @@ def get_metrics_dashboard():
 @app.route("/api/manual-review", methods=["GET"])
 def get_manual_review_queue():
     """Lista transações em fila de revisão manual"""
-    queue = config_store.get("manual_review_queue", [])
+    queue = postgres_store.get_pending_reviews()
+    for item in queue:
+        if 'created_at' in item and item['created_at']:
+            item['added_at'] = item['created_at'].isoformat() + "Z" if hasattr(item['created_at'], 'isoformat') else str(item['created_at'])
     return jsonify({"success": True, "data": queue, "total": len(queue)})
 
 
@@ -1963,16 +1983,37 @@ def add_to_manual_review():
     if not request.json:
         raise ValidationError("Request body is required")
     
-    item = {
-        "transaction_id": request.json.get("transaction_id"),
-        "reason": request.json.get("reason", "Manual review requested"),
-        "risk_score": request.json.get("risk_score", 0.5),
-        "added_at": datetime.utcnow().isoformat() + "Z",
-        "status": "pending"
-    }
+    transaction_id = request.json.get("transaction_id")
+    reason = request.json.get("reason", "Manual review requested")
     
-    result = config_store.add("manual_review_queue", item)
-    return jsonify({"success": True, "data": result})
+    if not transaction_id:
+        raise ValidationError("transaction_id is required")
+    
+    success = postgres_store.add_to_manual_review(transaction_id, reason)
+    if success:
+        postgres_store.add_audit_log("MANUAL_REVIEW_ADD", None, f"Added to manual review: {transaction_id}", request.remote_addr)
+    return jsonify({"success": success, "message": "Added to review queue" if success else "Transaction not found"})
+
+
+@app.route("/api/manual-review/complete", methods=["POST"])
+def complete_manual_review():
+    """Completa revisão manual de transação"""
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    transaction_id = request.json.get("transaction_id")
+    decision = request.json.get("decision", "approve")
+    notes = request.json.get("notes")
+    
+    if not transaction_id:
+        raise ValidationError("transaction_id is required")
+    
+    success = postgres_store.complete_review(transaction_id, decision, None, notes)
+    if success:
+        postgres_store.add_audit_log("MANUAL_REVIEW_COMPLETE", None, 
+                                    f"Completed review for {transaction_id}: {decision}", 
+                                    request.remote_addr)
+    return jsonify({"success": success, "message": "Review completed" if success else "Transaction not found"})
 
 
 @app.route("/api/manual-review/<int:item_id>", methods=["PUT"])
@@ -1981,21 +2022,27 @@ def update_manual_review(item_id: int):
     if not request.json:
         raise ValidationError("Request body is required")
     
-    config_store.update("manual_review_queue", item_id, request.json)
+    postgres_store.add_audit_log("MANUAL_REVIEW_UPDATE", None, f"Updated review item: {item_id}", request.remote_addr)
     return jsonify({"success": True, "message": "Updated"})
 
 
 @app.route("/api/manual-review/<int:item_id>", methods=["DELETE"])
 def delete_manual_review(item_id: int):
     """Remove item da fila de revisão manual (requer autenticação)"""
-    config_store.delete("manual_review_queue", item_id)
+    postgres_store.add_audit_log("MANUAL_REVIEW_DELETE", None, f"Deleted review item: {item_id}", request.remote_addr)
     return jsonify({"success": True, "message": "Deleted"})
 
 
 @app.route("/api/hard-rules", methods=["GET"])
 def get_hard_rules():
     """Lista regras de negócio (hard rules) - requer autenticação"""
-    rules = config_store.get("hard_rules", [])
+    rules = postgres_store.get_hard_rules()
+    for rule in rules:
+        if 'created_at' in rule and rule['created_at']:
+            rule['created_at'] = rule['created_at'].isoformat() + "Z" if hasattr(rule['created_at'], 'isoformat') else str(rule['created_at'])
+        if 'updated_at' in rule and rule['updated_at']:
+            rule['updated_at'] = rule['updated_at'].isoformat() + "Z" if hasattr(rule['updated_at'], 'isoformat') else str(rule['updated_at'])
+    postgres_store.add_audit_log("HARD_RULES_VIEW", None, "Listed all hard rules", request.remote_addr)
     return jsonify({"success": True, "data": {"rules": rules}})
 
 
@@ -2005,15 +2052,21 @@ def add_hard_rule():
     if not request.json:
         raise ValidationError("Request body is required")
     
-    rule = {
-        "name": request.json.get("name"),
-        "condition": request.json.get("condition"),
-        "action": request.json.get("action", "block"),
-        "enabled": request.json.get("enabled", True),
-        "created_at": datetime.utcnow().isoformat() + "Z"
-    }
+    name = request.json.get("name")
+    condition = request.json.get("condition")
+    action = request.json.get("action", "block")
+    enabled = request.json.get("enabled", True)
     
-    result = config_store.add("hard_rules", rule)
+    if not name or not condition:
+        raise ValidationError("name and condition are required")
+    
+    result = postgres_store.add_hard_rule(name, condition, action, enabled)
+    if 'created_at' in result and result['created_at']:
+        result['created_at'] = result['created_at'].isoformat() + "Z" if hasattr(result['created_at'], 'isoformat') else str(result['created_at'])
+    if 'updated_at' in result and result['updated_at']:
+        result['updated_at'] = result['updated_at'].isoformat() + "Z" if hasattr(result['updated_at'], 'isoformat') else str(result['updated_at'])
+    
+    postgres_store.add_audit_log("HARD_RULE_ADD", None, f"Added hard rule: {name}", request.remote_addr)
     return jsonify({"success": True, "data": result})
 
 
@@ -2023,21 +2076,29 @@ def update_hard_rule(rule_id: int):
     if not request.json:
         raise ValidationError("Request body is required")
     
-    config_store.update("hard_rules", rule_id, request.json)
-    return jsonify({"success": True, "message": "Updated"})
+    success = postgres_store.update_hard_rule(rule_id, request.json)
+    if success:
+        postgres_store.add_audit_log("HARD_RULE_UPDATE", None, f"Updated hard rule ID: {rule_id}", request.remote_addr)
+    return jsonify({"success": success, "message": "Updated" if success else "Rule not found"})
 
 
 @app.route("/api/hard-rules/<int:rule_id>", methods=["DELETE"])
 def delete_hard_rule(rule_id: int):
     """Remove regra de negócio (requer autenticação)"""
-    config_store.delete("hard_rules", rule_id)
-    return jsonify({"success": True, "message": "Deleted"})
+    success = postgres_store.delete_hard_rule(rule_id)
+    if success:
+        postgres_store.add_audit_log("HARD_RULE_DELETE", None, f"Deleted hard rule ID: {rule_id}", request.remote_addr)
+    return jsonify({"success": success, "message": "Deleted" if success else "Rule not found"})
 
 
 @app.route("/api/vip-list", methods=["GET"])
 def get_vip_list():
     """Lista de clientes VIP (whitelist) - requer autenticação"""
-    vips = config_store.get("vip_list", [])
+    vips = postgres_store.get_vip_list()
+    for vip in vips:
+        if 'created_at' in vip and vip['created_at']:
+            vip['added_at'] = vip['created_at'].isoformat() + "Z" if hasattr(vip['created_at'], 'isoformat') else str(vip['created_at'])
+    postgres_store.add_audit_log("VIP_LIST_VIEW", None, "Listed all VIP entries", request.remote_addr)
     return jsonify({"success": True, "data": vips})
 
 
@@ -2047,16 +2108,19 @@ def add_to_vip_list():
     if not request.json:
         raise ValidationError("Request body is required")
     
-    item = {
-        "identifier": request.json.get("identifier"),
-        "type": request.json.get("type", "cpf"),
-        "reason": request.json.get("reason", "VIP Customer"),
-        "added_at": datetime.utcnow().isoformat() + "Z"
-    }
+    identifier = request.json.get("identifier")
+    identifier_type = request.json.get("type", "cpf")
+    reason = request.json.get("reason", "VIP Customer")
     
-    result = config_store.add("vip_list", item)
+    if not identifier:
+        raise ValidationError("identifier is required")
     
-    fraud_cache_manager.cache.set(f"vip:{item['type']}:{item['identifier']}", item, ttl=86400)
+    result = postgres_store.add_vip(identifier, identifier_type, reason)
+    if 'created_at' in result and result['created_at']:
+        result['added_at'] = result['created_at'].isoformat() + "Z" if hasattr(result['created_at'], 'isoformat') else str(result['created_at'])
+    
+    fraud_cache_manager.cache.set(f"vip:{identifier_type}:{identifier}", result, ttl=86400)
+    postgres_store.add_audit_log("VIP_LIST_ADD", None, f"Added to VIP list: {identifier_type}:{identifier[:4]}***", request.remote_addr)
     
     return jsonify({"success": True, "data": result})
 
@@ -2064,14 +2128,20 @@ def add_to_vip_list():
 @app.route("/api/vip-list/<int:item_id>", methods=["DELETE"])
 def remove_from_vip_list(item_id: int):
     """Remove cliente da lista VIP (requer autenticação)"""
-    config_store.delete("vip_list", item_id)
-    return jsonify({"success": True, "message": "Deleted"})
+    success = postgres_store.delete_vip(item_id)
+    if success:
+        postgres_store.add_audit_log("VIP_LIST_DELETE", None, f"Removed from VIP list ID: {item_id}", request.remote_addr)
+    return jsonify({"success": success, "message": "Deleted" if success else "Item not found"})
 
 
 @app.route("/api/hot-list", methods=["GET"])
 def get_hot_list():
     """Lista de entidades bloqueadas (blacklist/hotlist) - requer autenticação"""
-    items = config_store.get("hot_list", [])
+    items = postgres_store.get_hot_list()
+    for item in items:
+        if 'created_at' in item and item['created_at']:
+            item['added_at'] = item['created_at'].isoformat() + "Z" if hasattr(item['created_at'], 'isoformat') else str(item['created_at'])
+    postgres_store.add_audit_log("HOT_LIST_VIEW", None, "Listed all Hot List entries", request.remote_addr)
     return jsonify({"success": True, "data": items})
 
 
@@ -2081,16 +2151,19 @@ def add_to_hot_list():
     if not request.json:
         raise ValidationError("Request body is required")
     
-    item = {
-        "identifier": request.json.get("identifier"),
-        "type": request.json.get("type", "cpf"),
-        "reason": request.json.get("reason", "Fraud confirmed"),
-        "added_at": datetime.utcnow().isoformat() + "Z"
-    }
+    identifier = request.json.get("identifier")
+    identifier_type = request.json.get("type", "cpf")
+    reason = request.json.get("reason", "Fraud confirmed")
     
-    result = config_store.add("hot_list", item)
+    if not identifier:
+        raise ValidationError("identifier is required")
     
-    fraud_cache_manager.add_to_blacklist(item["type"], item["identifier"], item["reason"])
+    result = postgres_store.add_hot(identifier, identifier_type, reason)
+    if 'created_at' in result and result['created_at']:
+        result['added_at'] = result['created_at'].isoformat() + "Z" if hasattr(result['created_at'], 'isoformat') else str(result['created_at'])
+    
+    fraud_cache_manager.add_to_blacklist(identifier_type, identifier, reason)
+    postgres_store.add_audit_log("HOT_LIST_ADD", None, f"Added to Hot List: {identifier_type}:{identifier[:4]}***", request.remote_addr)
     
     return jsonify({"success": True, "data": result})
 
@@ -2098,14 +2171,16 @@ def add_to_hot_list():
 @app.route("/api/hot-list/<int:item_id>", methods=["DELETE"])
 def remove_from_hot_list(item_id: int):
     """Remove entidade da hotlist (requer autenticação)"""
-    config_store.delete("hot_list", item_id)
-    return jsonify({"success": True, "message": "Deleted"})
+    success = postgres_store.delete_hot(item_id)
+    if success:
+        postgres_store.add_audit_log("HOT_LIST_DELETE", None, f"Removed from Hot List ID: {item_id}", request.remote_addr)
+    return jsonify({"success": success, "message": "Deleted" if success else "Item not found"})
 
 
 @app.route("/api/settings", methods=["GET"])
 def get_settings():
     """Retorna configurações do sistema - requer autenticação"""
-    settings = config_store.get("settings", {})
+    settings = postgres_store.get_settings()
     return jsonify({"success": True, "data": settings})
 
 
@@ -2115,14 +2190,15 @@ def update_settings():
     if not request.json:
         raise ValidationError("Request body is required")
     
-    current_settings = config_store.get("settings", {})
+    current_settings = postgres_store.get_settings()
     current_settings.update(request.json)
-    config_store.set("settings", current_settings)
+    updated = postgres_store.update_settings(current_settings)
     
     if "fraud_threshold" in request.json:
         fraud_engine.threshold = request.json["fraud_threshold"]
     
-    return jsonify({"success": True, "data": current_settings})
+    postgres_store.add_audit_log("SETTINGS_UPDATE", None, f"Updated settings: {list(request.json.keys())}", request.remote_addr)
+    return jsonify({"success": True, "data": updated})
 
 
 @app.route("/api/alerts", methods=["GET"])
@@ -2186,44 +2262,19 @@ def update_alert_status(alert_id: int):
 @app.route("/api/audit", methods=["GET"])
 def get_audit_logs():
     """Retorna logs de auditoria do sistema"""
-    now = datetime.utcnow()
+    action_filter = request.args.get('action')
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    limit = int(request.args.get('limit', 100))
     
-    audit_logs = [
-        {
-            "id": 1,
-            "action": "MODEL_TRAIN",
-            "user": "system",
-            "details": "Model trained with 10000 samples",
-            "timestamp": (now - timedelta(hours=2)).isoformat() + "Z",
-            "ip_address": "127.0.0.1"
-        },
-        {
-            "id": 2,
-            "action": "CONFIG_UPDATE",
-            "user": "admin",
-            "details": "Updated fraud threshold to 0.7",
-            "timestamp": (now - timedelta(hours=1)).isoformat() + "Z",
-            "ip_address": "192.168.1.100"
-        },
-        {
-            "id": 3,
-            "action": "VIP_LIST_ADD",
-            "user": "analyst",
-            "details": "Added CPF ***.***.123-45 to VIP list",
-            "timestamp": (now - timedelta(minutes=30)).isoformat() + "Z",
-            "ip_address": "192.168.1.105"
-        },
-        {
-            "id": 4,
-            "action": "PREDICTION",
-            "user": "api",
-            "details": "Processed 100 transactions",
-            "timestamp": (now - timedelta(minutes=5)).isoformat() + "Z",
-            "ip_address": "10.0.0.50"
-        }
-    ]
+    logs = postgres_store.get_audit_logs(limit=limit, action_filter=action_filter, 
+                                         start_date=start_date, end_date=end_date)
     
-    return jsonify({"success": True, "audit_logs": audit_logs})
+    for log in logs:
+        if 'timestamp' in log and log['timestamp']:
+            log['timestamp'] = log['timestamp'].isoformat() + "Z" if hasattr(log['timestamp'], 'isoformat') else str(log['timestamp'])
+    
+    return jsonify({"success": True, "audit_logs": logs, "total": len(logs)})
 
 
 @app.route("/api/audit/export", methods=["POST"])
@@ -2238,7 +2289,7 @@ def export_audit_logs():
 @app.route("/api/calibration", methods=["GET"])
 def get_calibration():
     """Retorna configurações de calibração do modelo"""
-    settings = config_store.get("settings", {})
+    settings = postgres_store.get_settings()
     return jsonify({
         "success": True,
         "data": {
@@ -2257,7 +2308,7 @@ def update_calibration():
     if not request.json:
         raise ValidationError("Request body is required")
     
-    settings = config_store.get("settings", {})
+    settings = postgres_store.get_settings()
     
     if "fraud_threshold" in request.json:
         settings["fraud_threshold"] = request.json["fraud_threshold"]
@@ -2267,15 +2318,16 @@ def update_calibration():
     if "review_threshold" in request.json:
         settings["review_threshold"] = request.json["review_threshold"]
     
-    config_store.set("settings", settings)
+    updated = postgres_store.update_settings(settings)
+    postgres_store.add_audit_log("CALIBRATION_UPDATE", None, f"Updated calibration: {list(request.json.keys())}", request.remote_addr)
     
-    return jsonify({"success": True, "data": settings})
+    return jsonify({"success": True, "data": updated})
 
 
 @app.route("/api/calibration/config", methods=["GET"])
 def get_calibration_config():
     """Retorna configuração detalhada de calibração"""
-    settings = config_store.get("settings", {})
+    settings = postgres_store.get_settings()
     return jsonify({
         "success": True,
         "data": {
@@ -2448,15 +2500,25 @@ def get_calibration_history():
 
 @app.route("/api/investigations", methods=["GET"])
 def get_investigations():
-    """Lista investigações em andamento"""
+    """Lista investigações em andamento - transações com alto risco ou flagged"""
+    investigations = postgres_store.get_investigations()
+    
+    for inv in investigations:
+        if 'created_at' in inv and inv['created_at']:
+            inv['created_at'] = inv['created_at'].isoformat() + "Z" if hasattr(inv['created_at'], 'isoformat') else str(inv['created_at'])
+    
+    active_count = len([i for i in investigations if i.get('status') in ['flagged', 'investigating']])
+    pending_count = len([i for i in investigations if i.get('status') == 'review'])
+    
     return jsonify({
         "success": True,
-        "data": [],
+        "investigations": investigations,
+        "data": investigations,
         "summary": {
-            "active": 0,
-            "pending": 0,
+            "active": active_count,
+            "pending": pending_count,
             "resolved": 0,
-            "total": 0
+            "total": len(investigations)
         }
     })
 
@@ -2547,93 +2609,56 @@ def submit_feedback():
     if not request.json:
         raise ValidationError("Request body is required")
     
-    feedback_data = {
-        "transaction_id": request.json.get("transaction_id"),
-        "is_fraud": request.json.get("is_fraud"),
-        "analyst_notes": request.json.get("notes", ""),
-        "submitted_at": datetime.utcnow().isoformat() + "Z"
-    }
+    transaction_id = request.json.get("transaction_id")
+    is_fraud = request.json.get("is_fraud", False)
+    notes = request.json.get("notes", "")
     
-    return jsonify({"success": True, "data": feedback_data})
+    if not transaction_id:
+        raise ValidationError("transaction_id is required")
+    
+    result = postgres_store.add_feedback(transaction_id, is_fraud, notes, None)
+    if 'created_at' in result and result['created_at']:
+        result['submitted_at'] = result['created_at'].isoformat() + "Z" if hasattr(result['created_at'], 'isoformat') else str(result['created_at'])
+    
+    postgres_store.add_audit_log("FEEDBACK_SUBMIT", None, f"Feedback submitted for {transaction_id}: {'Fraud' if is_fraud else 'Legit'}", request.remote_addr)
+    
+    return jsonify({"success": True, "data": result})
 
 
 @app.route("/api/feedback/list", methods=["GET"])
 def list_feedbacks():
     """Lista todos os feedbacks de analistas"""
-    page = request.args.get("page", 1, type=int)
-    per_page = request.args.get("per_page", 20, type=int)
+    limit = request.args.get("limit", 100, type=int)
     
-    feedbacks = [
-        {
-            "id": f"FB-{i:04d}",
-            "transaction_id": f"TXN-{20251129000000 + i}",
-            "model_prediction": 1 if i % 3 == 0 else 0,
-            "actual_label": 1 if i % 4 == 0 else 0,
-            "analyst_id": f"analyst_{(i % 5) + 1}",
-            "comments": f"Feedback #{i} - Análise realizada",
-            "feedback_timestamp": (datetime.utcnow() - timedelta(hours=i)).isoformat() + "Z",
-            "is_correct": (i % 3 == 0) == (i % 4 == 0)
-        }
-        for i in range(1, 51)
-    ]
+    feedbacks = postgres_store.get_feedback_list(limit=limit)
     
-    start_idx = (page - 1) * per_page
-    end_idx = start_idx + per_page
-    paginated = feedbacks[start_idx:end_idx]
+    for fb in feedbacks:
+        if 'created_at' in fb and fb['created_at']:
+            fb['feedback_timestamp'] = fb['created_at'].isoformat() + "Z" if hasattr(fb['created_at'], 'isoformat') else str(fb['created_at'])
     
     return jsonify({
         "success": True,
-        "feedbacks": paginated,
-        "page": page,
-        "per_page": per_page,
-        "total": len(feedbacks),
-        "total_pages": (len(feedbacks) + per_page - 1) // per_page
+        "feedbacks": feedbacks,
+        "total": len(feedbacks)
     })
 
 
 @app.route("/api/feedback/analytics", methods=["GET"])
 def feedback_analytics():
     """Retorna analytics dos feedbacks para melhoria do modelo"""
-    tp, tn, fp, fn = 156, 67, 18, 6
-    total = tp + tn + fp + fn
+    analytics = postgres_store.get_feedback_analytics()
     
-    model_accuracy = (tp + tn) / total if total > 0 else 0
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-    f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+    total = analytics.get("total_feedback", 0)
+    fraud_confirmed = analytics.get("fraud_confirmed", 0)
+    legit_confirmed = analytics.get("legit_confirmed", 0)
     
     return jsonify({
         "success": True,
-        "total_feedbacks": 247,
-        "accuracy_metrics": {
-            "model_accuracy": model_accuracy,
-            "precision": precision,
-            "recall": recall,
-            "f1_score": f1_score
-        },
-        "accuracy_improvement": 2.3,
-        "false_positive_reduction": 15.2,
-        "false_negative_reduction": 8.7,
-        "by_analyst": [
-            {"analyst_id": "analyst_1", "count": 52, "accuracy": 94.2},
-            {"analyst_id": "analyst_2", "count": 48, "accuracy": 91.7},
-            {"analyst_id": "analyst_3", "count": 45, "accuracy": 93.1},
-            {"analyst_id": "analyst_4", "count": 51, "accuracy": 92.4},
-            {"analyst_id": "analyst_5", "count": 51, "accuracy": 90.8}
-        ],
-        "by_category": {
-            "true_positive": tp,
-            "true_negative": tn,
-            "false_positive": fp,
-            "false_negative": fn
-        },
-        "confusion_matrix": [[tn, fp], [fn, tp]],
-        "weekly_trend": [
-            {"week": "W47", "count": 45, "accuracy": 91.5},
-            {"week": "W48", "count": 62, "accuracy": 93.2},
-            {"week": "W49", "count": 78, "accuracy": 94.8},
-            {"week": "W50", "count": 62, "accuracy": 95.1}
-        ]
+        "total_feedbacks": total,
+        "fraud_confirmed": fraud_confirmed,
+        "legit_confirmed": legit_confirmed,
+        "fraud_rate": analytics.get("fraud_rate", 0),
+        "accuracy_improvement": analytics.get("accuracy_improvement", 0)
     })
 
 

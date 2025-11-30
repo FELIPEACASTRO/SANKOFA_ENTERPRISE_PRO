@@ -80,7 +80,17 @@ const HardRules = () => {
       const response = await fetch('/api/hard-rules');
       if (response.ok) {
         const data = await response.json();
-        setRules(data.rules || []);
+        const rulesList = data.data?.rules || data.rules || [];
+        const mappedRules = rulesList.map(rule => ({
+          id: rule.id,
+          name: rule.name,
+          condition: rule.condition,
+          action: mapActionFromBackend(rule.action),
+          active: rule.enabled !== false,
+          created_at: rule.created_at,
+          updated_at: rule.updated_at
+        }));
+        setRules(mappedRules);
       }
     } catch (error) {
       console.error('Erro ao carregar regras:', error);
@@ -88,18 +98,68 @@ const HardRules = () => {
       setLoading(false);
     }
   };
+  
+  const mapActionFromBackend = (action) => {
+    const actionMap = {
+      'block': 'BLOQUEAR',
+      'review': 'REVISAR',
+      'alert': 'ALERTAR',
+      'approve': 'APROVAR',
+      'step_up': 'REVISAR'
+    };
+    return actionMap[action] || action || 'BLOQUEAR';
+  };
+  
+  const mapActionToBackend = (action) => {
+    const actionMap = {
+      'BLOQUEAR': 'block',
+      'REVISAR': 'review',
+      'ALERTAR': 'alert',
+      'APROVAR': 'approve'
+    };
+    return actionMap[action] || 'block';
+  };
+  
+  const buildCondition = (field, operator, value) => {
+    const operatorMap = {
+      'igual': '==',
+      'diferente': '!=',
+      'maior_que': '>',
+      'menor_que': '<',
+      'maior_igual': '>=',
+      'menor_igual': '<=',
+      'contem': 'contains',
+      'nao_contem': 'not contains',
+      'comeca_com': 'startswith',
+      'termina_com': 'endswith',
+      'in_list': 'in',
+      'not_in_list': 'not in',
+      'between': 'between',
+      'regex': 'regex'
+    };
+    const op = operatorMap[operator] || operator;
+    return `${field} ${op} ${value}`;
+  };
 
   const handleSave = async () => {
     try {
       const url = editingRule ? `/api/hard-rules/${editingRule.id}` : '/api/hard-rules';
       const method = editingRule ? 'PUT' : 'POST';
       
+      const condition = buildCondition(formData.field, formData.operator, formData.value);
+      const payload = {
+        name: formData.name || `Regra ${formData.field} ${formData.operator} ${formData.value}`,
+        condition: condition,
+        action: mapActionToBackend(formData.action),
+        enabled: formData.active !== false
+      };
+      
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -134,7 +194,7 @@ const HardRules = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...rule, active: !rule.active }),
+        body: JSON.stringify({ enabled: !rule.active }),
       });
       if (response.ok) {
         await loadRules();

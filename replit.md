@@ -49,3 +49,29 @@ The system provides API endpoints for health checks, authentication, real-time a
 -   `JWT_SECRET`: JSON Web Token authentication key.
 -   `ENCRYPTION_KEY`: AES-256 key for sensitive data encryption.
 -   `ENVIRONMENT`: Specifies the deployment environment.
+
+## Recent Changes (November 30, 2025)
+
+### Database Integration Fixes
+The following improvements were made to ensure full PostgreSQL integration:
+
+1. **Transaction IDs**: `/api/transactions` endpoint now returns real PostgreSQL transaction IDs (format: `TXN{timestamp}{sequence}`) instead of synthetic frontend-generated IDs.
+
+2. **PostgresStore Enhancements**:
+   - Added `get_recent_transactions(limit)` method for fetching transactions from PostgreSQL
+   - Added `get_transaction_by_id(transaction_id)` method for single transaction lookup
+   - Fixed `get_feedback_list()` to use correct `risk_score` column instead of `fraud_probability`
+
+3. **Manual Review Pipeline**: Complete workflow now functional:
+   - `add_to_manual_review()` - Updates transaction status to `pending_review`
+   - `complete_review()` - Updates status and creates feedback record
+   - Fixed SQL queries to match actual database schema (removed `updated_at` column references)
+
+4. **Status Mapping**: Proper conversion between database statuses (APPROVED, FRAUD, pending_review) and frontend display statuses (APROVADA, REJEITADA, EM_REVISAO).
+
+### Current Integration Status
+All 16 pages now have working backend integration:
+- Transactions, Dashboard, Alerts, Investigations - PostgreSQL-backed
+- Hard Rules, VIP List, Hot List, Settings - CRUD operations with PostgreSQL
+- Manual Review, Feedback - Complete workflow with audit logging
+- Audit Logs - All operations logged to PostgreSQL
