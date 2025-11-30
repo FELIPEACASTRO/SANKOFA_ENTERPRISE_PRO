@@ -1709,7 +1709,809 @@ export function Manual() {
           </div>
         </CollapsibleSection>
 
-        {/* SECAO 9: FAQ */}
+        {/* SECAO 9: JORNADA COMPLETA DA REQUISICAO */}
+        <CollapsibleSection id="jornada-requisicao" title="Jornada da Requisicao: Do JSON ao Veredito" icon={Code} color="indigo">
+          
+          {/* INTRODUCAO */}
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 mb-6">
+            <h3 className="text-xl font-bold text-indigo-800 mb-3 flex items-center gap-2">
+              <Terminal className="h-6 w-6" /> O Que Voce Vai Aprender Nesta Secao
+            </h3>
+            <p className="text-gray-700 mb-4">
+              Aqui vamos abrir a "caixa preta" do sistema e mostrar EXATAMENTE o que acontece quando uma transacao 
+              chega para ser analisada. Voce vai entender:
+            </p>
+            <ul className="space-y-2">
+              {[
+                'Como e o JSON que chega no sistema (todos os campos explicados)',
+                'O caminho completo da requisicao dentro do motor de decisao',
+                'Como cada campo influencia na decisao final',
+                'O JSON de resposta e o que cada campo significa',
+                'Exemplos reais de FRAUDE, SUSPEITA e APROVADO'
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-2 text-gray-700">
+                  <CheckCircle className="h-4 w-4 text-indigo-500" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* JSON DE ENTRADA */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <ArrowRight className="h-6 w-6 text-blue-500" /> 1. JSON de ENTRADA (O Que Chega no Sistema)
+            </h3>
+            
+            <div className="bg-gray-900 rounded-xl p-4 mb-4 overflow-x-auto">
+              <pre className="text-green-400 text-sm font-mono whitespace-pre">{`{
+  "transactions": [
+    {
+      "transaction_id": "TXN123456789",
+      "customer_id": "CPF***456***",
+      "amount": 4850.00,
+      "channel": "PIX",
+      "hour": 14,
+      "merchant_id": "MERC001",
+      "merchant_category": "transferencia_pf",
+      "device_id": "DEV-ABC123",
+      "ip_address": "189.***.***.45",
+      "latitude": -23.5505,
+      "longitude": -46.6333,
+      "is_new_device": false,
+      "is_new_recipient": true,
+      "velocity_score": 0.3,
+      "avg_amount_30d": 850.00,
+      "transaction_count_24h": 2
+    }
+  ],
+  "include_explanation": true,
+  "fast_mode": true
+}`}</pre>
+            </div>
+
+            <h4 className="font-bold text-lg mb-4">Explicacao de CADA Campo:</h4>
+            <div className="space-y-4">
+              {[
+                {
+                  campo: 'transaction_id',
+                  nome: 'ID da Transacao',
+                  tipo: 'string',
+                  peso: 'Identificacao',
+                  desc: 'Codigo unico que identifica esta transacao. Serve para rastrear e auditar.',
+                  exemplo: 'TXN123456789',
+                  importancia: 'Essencial para rastreamento'
+                },
+                {
+                  campo: 'customer_id',
+                  nome: 'ID do Cliente (CPF)',
+                  tipo: 'string',
+                  peso: 'Alto',
+                  desc: 'CPF mascarado do cliente. Usado para buscar historico e comportamento.',
+                  exemplo: 'CPF***456***',
+                  importancia: 'Historico do cliente afeta decisao'
+                },
+                {
+                  campo: 'amount',
+                  nome: 'Valor da Transacao',
+                  tipo: 'number',
+                  peso: 'Muito Alto',
+                  desc: 'Valor em reais. Valores muito altos ou fora do padrao aumentam o risco.',
+                  exemplo: '4850.00',
+                  importancia: 'Campo mais importante na decisao'
+                },
+                {
+                  campo: 'channel',
+                  nome: 'Canal',
+                  tipo: 'string (PIX, TED, CARTAO, BOLETO)',
+                  peso: 'Alto',
+                  desc: 'Por onde a transacao foi feita. PIX tem regras diferentes de cartao.',
+                  exemplo: 'PIX',
+                  importancia: 'PIX exige latencia menor 50ms'
+                },
+                {
+                  campo: 'hour',
+                  nome: 'Hora da Transacao',
+                  tipo: 'number (0-23)',
+                  peso: 'Alto',
+                  desc: 'Hora do dia. Transacoes de madrugada (0-5h) sao mais suspeitas.',
+                  exemplo: '14 (2 da tarde)',
+                  importancia: 'Horario incomum aumenta risco'
+                },
+                {
+                  campo: 'merchant_id',
+                  nome: 'ID do Comerciante',
+                  tipo: 'string',
+                  peso: 'Medio',
+                  desc: 'Identificador do destino/loja. Usado para verificar se e destino conhecido.',
+                  exemplo: 'MERC001',
+                  importancia: 'Destino novo = mais risco'
+                },
+                {
+                  campo: 'device_id',
+                  nome: 'ID do Dispositivo',
+                  tipo: 'string',
+                  peso: 'Alto',
+                  desc: 'Identificador unico do celular/computador. Dispositivo novo e suspeito.',
+                  exemplo: 'DEV-ABC123',
+                  importancia: 'Dispositivo desconhecido = alerta'
+                },
+                {
+                  campo: 'ip_address',
+                  nome: 'Endereco IP',
+                  tipo: 'string',
+                  peso: 'Alto',
+                  desc: 'IP de origem. IPs de VPN, Tor ou paises estranhos aumentam risco.',
+                  exemplo: '189.***.***.45',
+                  importancia: 'IP diferente do usual = suspeito'
+                },
+                {
+                  campo: 'latitude/longitude',
+                  nome: 'Geolocalizacao',
+                  tipo: 'number',
+                  peso: 'Medio',
+                  desc: 'Coordenadas geograficas. Usadas para verificar se faz sentido.',
+                  exemplo: '-23.55, -46.63 (Sao Paulo)',
+                  importancia: 'Localizacao impossivel = fraude'
+                },
+                {
+                  campo: 'is_new_device',
+                  nome: 'Dispositivo Novo?',
+                  tipo: 'boolean',
+                  peso: 'Alto',
+                  desc: 'Se e a primeira vez que o cliente usa este dispositivo.',
+                  exemplo: 'false (ja usou antes)',
+                  importancia: 'true = aumenta score de risco'
+                },
+                {
+                  campo: 'is_new_recipient',
+                  nome: 'Destinatario Novo?',
+                  tipo: 'boolean',
+                  peso: 'Alto',
+                  desc: 'Se e a primeira vez que envia para este destino.',
+                  exemplo: 'true (primeira vez)',
+                  importancia: 'true = muito mais risco'
+                },
+                {
+                  campo: 'velocity_score',
+                  nome: 'Score de Velocidade',
+                  tipo: 'number (0-1)',
+                  peso: 'Alto',
+                  desc: 'Indica se o cliente esta fazendo muitas transacoes rapido.',
+                  exemplo: '0.3 (normal)',
+                  importancia: 'Maior 0.7 = possivel ataque'
+                },
+                {
+                  campo: 'avg_amount_30d',
+                  nome: 'Media 30 Dias',
+                  tipo: 'number',
+                  peso: 'Muito Alto',
+                  desc: 'Media de valor das transacoes nos ultimos 30 dias.',
+                  exemplo: 'R$ 850,00',
+                  importancia: 'Valor muito acima = suspeito'
+                },
+                {
+                  campo: 'transaction_count_24h',
+                  nome: 'Transacoes 24h',
+                  tipo: 'number',
+                  peso: 'Medio',
+                  desc: 'Quantas transacoes o cliente fez nas ultimas 24 horas.',
+                  exemplo: '2 transacoes',
+                  importancia: 'Muitas = possivel fraude'
+                }
+              ].map((item, i) => (
+                <div key={i} className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <code className="bg-gray-100 px-2 py-1 rounded text-blue-600 font-mono">{item.campo}</code>
+                    <span className="text-gray-500">|</span>
+                    <span className="font-medium">{item.nome}</span>
+                    <span className={`px-2 py-1 rounded text-xs font-bold ${
+                      item.peso === 'Muito Alto' ? 'bg-red-100 text-red-700' :
+                      item.peso === 'Alto' ? 'bg-orange-100 text-orange-700' :
+                      item.peso === 'Medio' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      Peso: {item.peso}
+                    </span>
+                  </div>
+                  <p className="text-gray-700 mb-2">{item.desc}</p>
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    <span className="text-gray-500">Tipo: <code className="text-purple-600">{item.tipo}</code></span>
+                    <span className="text-gray-500">Exemplo: <code className="text-green-600">{item.exemplo}</code></span>
+                  </div>
+                  <p className="text-indigo-600 text-sm mt-2 font-medium">{item.importancia}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* DIAGRAMA DA JORNADA */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Workflow className="h-6 w-6 text-purple-500" /> 2. Jornada Completa da Requisicao
+            </h3>
+
+            <div className="bg-gray-100 rounded-xl p-4 mb-4 overflow-x-auto">
+              <pre className="text-gray-800 text-sm font-mono whitespace-pre">{`
+     JORNADA COMPLETA: DO JSON AO VEREDITO (37ms)
+     =============================================
+
+     +------------------+
+     |  JSON DE ENTRADA |  <-- Transacao chega do app/web do cliente
+     |  (request body)  |
+     +--------+---------+
+              |
+              v  [1-2ms]
+     +------------------+
+     |   CONTROLLER     |  <-- Endpoint /api/fraud/predict recebe
+     |   Flask API      |      Valida se JSON esta correto
+     +--------+---------+
+              |
+              v  [1ms]
+     +------------------+
+     |   VALIDACAO      |  <-- Verifica campos obrigatorios
+     |   Cerberus       |      Valida tipos de dados
+     +--------+---------+
+              |
+              v  [2-3ms]
+     +------------------+
+     |  CACHE CHECK     |  <-- Verifica se ja analisou recentemente
+     |  SimpleCache     |      Cache hit = resposta instantanea!
+     +--------+---------+
+              |
+       [cache miss]
+              |
+              v  [3-5ms]
+     +------------------+
+     |  ENRIQUECIMENTO  |  <-- Busca dados extras do cliente:
+     |  PostgreSQL      |      - Historico de transacoes
+     +------------------+      - Media de valores
+                               - Transacoes recentes
+                               - Flags de fraude anterior
+              |
+              v  [5-8ms]
+     +------------------+
+     |  FEATURE         |  <-- Cria 16 features derivadas:
+     |  ENGINEERING     |      - amount_log, is_night
+     |                  |      - suspicious_combo, etc
+     +--------+---------+
+              |
+              v  [10-15ms]
+     +------------------+
+     |  MOTOR DE IA     |  <-- 3 modelos votam em paralelo:
+     |  Ensemble Vote   |      
+     |                  |      Random Forest (40%)   --> 0.82
+     |  RF + GB + LR    |      Gradient Boost (40%)  --> 0.78
+     |                  |      Logistic Reg (20%)    --> 0.75
+     +--------+---------+      
+              |               Media Ponderada = 0.79
+              v  [2ms]
+     +------------------+
+     |  REGRAS HARD     |  <-- Aplica regras de negocio:
+     |  BusinessRules   |      - VIP List? (whitelist)
+     +------------------+      - HOT List? (blacklist)
+                               - Hard Rules customizadas
+              |
+              v  [1ms]
+     +------------------+
+     |  CALIBRACAO      |  <-- Aplica threshold atual:
+     |  Threshold Check |      Score >= 70? BLOQUEAR
+     +--------+---------+      Score 30-69? REVISAR
+              |               Score < 30? APROVAR
+              v  [2ms]
+     +------------------+
+     |  SALVAR NO DB    |  <-- Persiste no PostgreSQL:
+     |  PostgreSQL      |      - Transacao completa
+     +------------------+      - Decisao tomada
+                               - Timestamp
+              |
+              v  [1ms]
+     +------------------+
+     |  JSON DE SAIDA   |  <-- Monta resposta final
+     |  (response)      |      com todos os detalhes
+     +------------------+
+
+     TEMPO TOTAL: ~37ms (SLA PIX: <50ms) ✅
+`}</pre>
+            </div>
+
+            <h4 className="font-bold text-lg mb-4">Explicacao Passo a Passo:</h4>
+            <div className="space-y-4">
+              {[
+                {
+                  passo: '1. Chegada do JSON',
+                  tempo: '1-2ms',
+                  desc: 'O aplicativo do banco envia a transacao como JSON para o endpoint /api/fraud/predict. O Flask recebe e faz um parse inicial.',
+                  detalhe: 'Se o JSON estiver mal formatado, retorna erro 400 imediatamente.'
+                },
+                {
+                  passo: '2. Validacao de Campos',
+                  tempo: '1ms',
+                  desc: 'O sistema verifica se todos os campos obrigatorios estao presentes e se os tipos estao corretos.',
+                  detalhe: 'Campo "amount" precisa ser numero, "channel" precisa ser PIX/TED/CARTAO/BOLETO.'
+                },
+                {
+                  passo: '3. Verificacao de Cache',
+                  tempo: '2-3ms',
+                  desc: 'Antes de processar, verifica se essa mesma transacao ja foi analisada recentemente (ultimos 30 segundos).',
+                  detalhe: 'Se encontrar no cache, retorna resultado imediatamente. Isso economiza 90% do tempo!'
+                },
+                {
+                  passo: '4. Enriquecimento de Dados',
+                  tempo: '3-5ms',
+                  desc: 'Busca no PostgreSQL o historico completo do cliente: transacoes anteriores, media de valores, ultima transacao, etc.',
+                  detalhe: 'Esses dados extras sao cruciais para entender se o comportamento e normal.'
+                },
+                {
+                  passo: '5. Engenharia de Features',
+                  tempo: '5-8ms',
+                  desc: 'Cria 16 novas caracteristicas derivadas dos dados originais.',
+                  detalhe: 'Exemplos: amount_log (log do valor), is_night (se e madrugada), suspicious_combo (valor alto + horario estranho).'
+                },
+                {
+                  passo: '6. Motor de IA (Ensemble)',
+                  tempo: '10-15ms',
+                  desc: 'Os 3 modelos de Machine Learning analisam a transacao em paralelo e votam.',
+                  detalhe: 'Random Forest (40% do peso), Gradient Boosting (40%), Logistic Regression (20%). A media ponderada gera o score final.'
+                },
+                {
+                  passo: '7. Regras de Negocio',
+                  tempo: '2ms',
+                  desc: 'Verifica as Hard Rules, VIP List e HOT List. Pode sobrescrever a decisao da IA.',
+                  detalhe: 'Se o CPF esta na HOT List = fraude automatica. Se esta na VIP List = aprovado automatico.'
+                },
+                {
+                  passo: '8. Calibracao e Decisao',
+                  tempo: '1ms',
+                  desc: 'Compara o score com os thresholds configurados para decidir: APROVAR, REVISAR ou BLOQUEAR.',
+                  detalhe: 'Os thresholds podem ser ajustados na tela de Calibracao.'
+                },
+                {
+                  passo: '9. Persistencia',
+                  tempo: '2ms',
+                  desc: 'Salva a transacao e a decisao no PostgreSQL para auditoria e aprendizado futuro.',
+                  detalhe: 'Para PIX, usa fila assincrona para nao atrasar a resposta.'
+                },
+                {
+                  passo: '10. Resposta Final',
+                  tempo: '1ms',
+                  desc: 'Monta o JSON de resposta com todos os detalhes e envia de volta.',
+                  detalhe: 'Inclui score, decisao, razoes e explicacao LGPD-compliant.'
+                }
+              ].map((item, i) => (
+                <div key={i} className="flex gap-4 bg-white border border-gray-200 rounded-lg p-4">
+                  <div className="flex-shrink-0 w-16">
+                    <div className="bg-purple-100 text-purple-700 rounded-full h-10 w-10 flex items-center justify-center font-bold">
+                      {i + 1}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 text-center">{item.tempo}</div>
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-gray-900">{item.passo}</h5>
+                    <p className="text-gray-700">{item.desc}</p>
+                    <p className="text-gray-500 text-sm mt-1 italic">{item.detalhe}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* JSON DE SAIDA */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <ArrowLeft className="h-6 w-6 text-green-500" /> 3. JSON de SAIDA (O Que o Sistema Responde)
+            </h3>
+
+            <div className="bg-gray-900 rounded-xl p-4 mb-4 overflow-x-auto">
+              <pre className="text-green-400 text-sm font-mono whitespace-pre">{`{
+  "success": true,
+  "data": {
+    "predictions": [
+      {
+        "transaction_id": "TXN123456789",
+        "is_fraud": true,
+        "fraud_probability": 0.87,
+        "risk_score": 87.0,
+        "risk_level": "HIGH",
+        "confidence": 0.92,
+        "processing_time_ms": 37.5,
+        "model_version": "1.0.0",
+        "detection_reason": [
+          "Valor 5.7x maior que media do cliente",
+          "Destinatario nunca utilizado",
+          "Combinacao de alto valor + horario atipico"
+        ],
+        "timestamp": "2025-11-30T14:32:04.123Z",
+        "explanation": {
+          "risk_level": "HIGH",
+          "explanation_text": "Transacao bloqueada por apresentar multiplos indicadores de risco.",
+          "top_risk_factors": [
+            {"factor": "amount_deviation", "impact": 0.35, "description": "Valor muito acima do padrao"},
+            {"factor": "is_new_recipient", "impact": 0.28, "description": "Primeiro envio para este destino"},
+            {"factor": "suspicious_combo", "impact": 0.18, "description": "Combinacao hora + valor"}
+          ],
+          "top_protective_factors": [
+            {"factor": "known_device", "impact": -0.12, "description": "Dispositivo conhecido"}
+          ],
+          "lgpd_compliant": true
+        }
+      }
+    ],
+    "summary": {
+      "total": 1,
+      "frauds_detected": 1,
+      "avg_risk_score": 0.87,
+      "model_version": "1.0.0",
+      "explanations_included": true
+    }
+  }
+}`}</pre>
+            </div>
+
+            <h4 className="font-bold text-lg mb-4">Explicacao de CADA Campo da Resposta:</h4>
+            <div className="space-y-3">
+              {[
+                {
+                  campo: 'success',
+                  desc: 'Indica se a requisicao foi processada com sucesso. True = tudo ok, False = erro.',
+                  valores: 'true ou false'
+                },
+                {
+                  campo: 'is_fraud',
+                  desc: 'Decisao final: a transacao e fraude ou nao? Este e o campo mais importante!',
+                  valores: 'true (bloquear) ou false (liberar)'
+                },
+                {
+                  campo: 'fraud_probability',
+                  desc: 'Probabilidade de fraude calculada pela IA (0 a 1). Quanto maior, mais suspeito.',
+                  valores: '0.00 a 1.00 (0.87 = 87% de chance de fraude)'
+                },
+                {
+                  campo: 'risk_score',
+                  desc: 'Score de risco de 0 a 100. E a probabilidade multiplicada por 100 para facilitar leitura.',
+                  valores: '0 a 100 (87 = alto risco)'
+                },
+                {
+                  campo: 'risk_level',
+                  desc: 'Classificacao em texto do nivel de risco.',
+                  valores: 'LOW (0-29), MEDIUM (30-69), HIGH (70-100)'
+                },
+                {
+                  campo: 'confidence',
+                  desc: 'Quanto o modelo esta confiante na decisao (0 a 1). Confianca baixa = revisar manualmente.',
+                  valores: '0.00 a 1.00 (0.92 = 92% de certeza)'
+                },
+                {
+                  campo: 'processing_time_ms',
+                  desc: 'Tempo que o sistema levou para processar, em milissegundos. SLA PIX: menor 50ms.',
+                  valores: 'Numero em ms (37.5 = muito bom!)'
+                },
+                {
+                  campo: 'detection_reason',
+                  desc: 'Lista de razoes que levaram a decisao. Util para o analista entender o "porque".',
+                  valores: 'Array de strings explicativas'
+                },
+                {
+                  campo: 'explanation.top_risk_factors',
+                  desc: 'Os 3 principais fatores que AUMENTARAM o risco, com impacto numerico.',
+                  valores: 'Array com factor, impact e description'
+                },
+                {
+                  campo: 'explanation.top_protective_factors',
+                  desc: 'Fatores que DIMINUIRAM o risco (ex: dispositivo conhecido).',
+                  valores: 'Array com factor, impact e description'
+                },
+                {
+                  campo: 'lgpd_compliant',
+                  desc: 'Confirma que a explicacao esta em conformidade com a LGPD (sem dados sensiveis expostos).',
+                  valores: 'true (sempre)'
+                }
+              ].map((item, i) => (
+                <div key={i} className="bg-white border border-gray-200 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <code className="bg-green-100 px-2 py-1 rounded text-green-700 font-mono text-sm">{item.campo}</code>
+                  </div>
+                  <p className="text-gray-700 text-sm">{item.desc}</p>
+                  <p className="text-gray-500 text-xs mt-1">Valores: {item.valores}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* EXEMPLOS COMPLETOS */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <FileText className="h-6 w-6 text-orange-500" /> 4. Exemplos Completos de Cenarios Reais
+            </h3>
+
+            {/* EXEMPLO 1: FRAUDE */}
+            <div className="border-2 border-red-200 rounded-xl mb-6 overflow-hidden">
+              <div className="bg-red-500 text-white p-4">
+                <h4 className="text-lg font-bold flex items-center gap-2">
+                  <XCircle className="h-5 w-5" /> CENARIO 1: FRAUDE DETECTADA
+                </h4>
+                <p className="text-red-100 text-sm">Cartao de credito via web, IP diferente, dispositivo desconhecido</p>
+              </div>
+              <div className="p-4 bg-white">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2">JSON de Entrada:</h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-green-400 text-xs font-mono">{`{
+  "transactions": [{
+    "transaction_id": "TXN-FRAUD-001",
+    "customer_id": "CPF***789***",
+    "amount": 12500.00,
+    "channel": "CARTAO",
+    "hour": 3,
+    "device_id": "DEV-UNKNOWN-999",
+    "ip_address": "45.***.***.12",
+    "is_new_device": true,
+    "is_new_recipient": true,
+    "velocity_score": 0.85,
+    "avg_amount_30d": 320.00
+  }]
+}`}</pre>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2">JSON de Resposta:</h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-red-400 text-xs font-mono">{`{
+  "predictions": [{
+    "is_fraud": true,
+    "risk_score": 94.2,
+    "risk_level": "HIGH",
+    "detection_reason": [
+      "Valor 39x maior que media",
+      "Dispositivo desconhecido",
+      "Transacao as 03h (madrugada)",
+      "IP de VPN detectado",
+      "Muitas tentativas recentes"
+    ]
+  }]
+}`}</pre>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 bg-red-50 rounded-lg p-4">
+                  <h5 className="font-bold text-red-800 mb-2">Por Que Foi Bloqueada?</h5>
+                  <ul className="space-y-1 text-red-700 text-sm">
+                    <li>• Valor R$ 12.500 e 39x maior que a media do cliente (R$ 320)</li>
+                    <li>• Feita as 3h da madrugada (horario atipico)</li>
+                    <li>• Dispositivo nunca usado antes (is_new_device = true)</li>
+                    <li>• IP diferente do habitual (possivel VPN)</li>
+                    <li>• Score de velocidade 0.85 = muitas tentativas recentes</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* EXEMPLO 2: SUSPEITA */}
+            <div className="border-2 border-yellow-200 rounded-xl mb-6 overflow-hidden">
+              <div className="bg-yellow-500 text-white p-4">
+                <h4 className="text-lg font-bold flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" /> CENARIO 2: SUSPEITA (REVISAR)
+                </h4>
+                <p className="text-yellow-100 text-sm">PIX de valor medio, dispositivo novo, IP conhecido</p>
+              </div>
+              <div className="p-4 bg-white">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2">JSON de Entrada:</h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-green-400 text-xs font-mono">{`{
+  "transactions": [{
+    "transaction_id": "TXN-REVIEW-002",
+    "customer_id": "CPF***123***",
+    "amount": 2800.00,
+    "channel": "PIX",
+    "hour": 22,
+    "device_id": "DEV-NEW-456",
+    "ip_address": "189.***.***.78",
+    "is_new_device": true,
+    "is_new_recipient": false,
+    "velocity_score": 0.35,
+    "avg_amount_30d": 1200.00
+  }]
+}`}</pre>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2">JSON de Resposta:</h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-yellow-400 text-xs font-mono">{`{
+  "predictions": [{
+    "is_fraud": false,
+    "risk_score": 52.8,
+    "risk_level": "MEDIUM",
+    "detection_reason": [
+      "Dispositivo novo detectado",
+      "Valor 2.3x acima da media",
+      "Horario noturno (22h)"
+    ],
+    "review_recommended": true
+  }]
+}`}</pre>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 bg-yellow-50 rounded-lg p-4">
+                  <h5 className="font-bold text-yellow-800 mb-2">Por Que Precisa de Revisao?</h5>
+                  <ul className="space-y-1 text-yellow-700 text-sm">
+                    <li>• Dispositivo novo, mas IP e conhecido (cliente pode ter trocado celular)</li>
+                    <li>• Valor acima da media, mas nao absurdamente alto</li>
+                    <li>• Destinatario ja recebeu antes (is_new_recipient = false) = bom sinal</li>
+                    <li>• Horario noturno, mas nao madrugada</li>
+                    <li>• Recomendacao: Analista deve ligar para confirmar</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* EXEMPLO 3: APROVADO */}
+            <div className="border-2 border-green-200 rounded-xl mb-6 overflow-hidden">
+              <div className="bg-green-500 text-white p-4">
+                <h4 className="text-lg font-bold flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" /> CENARIO 3: APROVADO
+                </h4>
+                <p className="text-green-100 text-sm">Cliente recorrente, dispositivo conhecido, valor tipico</p>
+              </div>
+              <div className="p-4 bg-white">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2">JSON de Entrada:</h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-green-400 text-xs font-mono">{`{
+  "transactions": [{
+    "transaction_id": "TXN-APPROVE-003",
+    "customer_id": "CPF***456***",
+    "amount": 450.00,
+    "channel": "PIX",
+    "hour": 10,
+    "device_id": "DEV-KNOWN-123",
+    "ip_address": "189.***.***.22",
+    "is_new_device": false,
+    "is_new_recipient": false,
+    "velocity_score": 0.12,
+    "avg_amount_30d": 520.00
+  }]
+}`}</pre>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-gray-900 mb-2">JSON de Resposta:</h5>
+                    <div className="bg-gray-900 rounded-lg p-3 overflow-x-auto">
+                      <pre className="text-green-400 text-xs font-mono">{`{
+  "predictions": [{
+    "is_fraud": false,
+    "risk_score": 12.4,
+    "risk_level": "LOW",
+    "detection_reason": [
+      "Cliente recorrente",
+      "Dispositivo conhecido",
+      "Valor dentro do padrao",
+      "Destinatario habitual"
+    ],
+    "processing_time_ms": 28.3
+  }]
+}`}</pre>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 bg-green-50 rounded-lg p-4">
+                  <h5 className="font-bold text-green-800 mb-2">Por Que Foi Aprovada Automaticamente?</h5>
+                  <ul className="space-y-1 text-green-700 text-sm">
+                    <li>• Valor R$ 450 esta ABAIXO da media do cliente (R$ 520)</li>
+                    <li>• Horario comercial (10h da manha)</li>
+                    <li>• Dispositivo ja conhecido (is_new_device = false)</li>
+                    <li>• Destinatario ja recebeu antes (is_new_recipient = false)</li>
+                    <li>• Velocidade normal (0.12 = poucas transacoes recentes)</li>
+                    <li>• Processamento ultra-rapido: 28ms (SLA PIX: menor 50ms)</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* EXEMPLOS ADICIONAIS */}
+            <h4 className="font-bold text-lg mb-4">Mais Cenarios Importantes:</h4>
+            <div className="grid md:grid-cols-2 gap-4">
+              {[
+                {
+                  titulo: 'PIX de Alto Valor as 4h',
+                  score: 89,
+                  decisao: 'BLOQUEAR',
+                  cor: 'red',
+                  motivos: ['R$ 45.000 as 04:00', 'Destinatario novo', 'Valor 50x maior que media']
+                },
+                {
+                  titulo: 'TED para Conta Conhecida',
+                  score: 18,
+                  decisao: 'APROVAR',
+                  cor: 'green',
+                  motivos: ['Destino ja recebeu 12x', 'Horario comercial', 'Valor dentro do padrao']
+                },
+                {
+                  titulo: 'Cartao em Maquininha Nova',
+                  score: 45,
+                  decisao: 'REVISAR',
+                  cor: 'yellow',
+                  motivos: ['POS nunca usado', 'Cliente viajando', 'Valor compativel']
+                },
+                {
+                  titulo: 'CPF na HOT List',
+                  score: 100,
+                  decisao: 'BLOQUEAR',
+                  cor: 'red',
+                  motivos: ['CPF marcado como fraude', 'Regra absoluta', 'Bloqueio imediato']
+                },
+                {
+                  titulo: 'Dispositivo com Historico de Fraude',
+                  score: 95,
+                  decisao: 'BLOQUEAR',
+                  cor: 'red',
+                  motivos: ['Device ID ja usado em fraude', 'Risco maximo', 'Notificar seguranca']
+                },
+                {
+                  titulo: 'Cliente VIP Fazendo PIX Alto',
+                  score: 5,
+                  decisao: 'APROVAR',
+                  cor: 'green',
+                  motivos: ['CPF na VIP List', 'Cliente verificado', 'Aprovacao automatica']
+                }
+              ].map((cenario, i) => (
+                <div key={i} className={`border-2 rounded-lg p-4 ${
+                  cenario.cor === 'red' ? 'border-red-200 bg-red-50' :
+                  cenario.cor === 'green' ? 'border-green-200 bg-green-50' :
+                  'border-yellow-200 bg-yellow-50'
+                }`}>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-bold text-gray-900">{cenario.titulo}</span>
+                    <span className={`px-2 py-1 rounded text-xs font-bold ${
+                      cenario.cor === 'red' ? 'bg-red-500 text-white' :
+                      cenario.cor === 'green' ? 'bg-green-500 text-white' :
+                      'bg-yellow-500 text-white'
+                    }`}>
+                      Score: {cenario.score} | {cenario.decisao}
+                    </span>
+                  </div>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    {cenario.motivos.map((m, j) => (
+                      <li key={j}>• {m}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* RESUMO VISUAL */}
+          <div className="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-xl p-6">
+            <h3 className="text-xl font-bold text-indigo-900 mb-4 flex items-center gap-2">
+              <Sparkles className="h-6 w-6" /> Resumo: Como Interpretar os Resultados
+            </h3>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="bg-white rounded-lg p-4 text-center">
+                <div className="text-4xl font-bold text-green-500 mb-2">0-29</div>
+                <div className="text-lg font-bold text-green-700">LOW</div>
+                <div className="text-sm text-gray-600">Aprovar automaticamente</div>
+              </div>
+              <div className="bg-white rounded-lg p-4 text-center">
+                <div className="text-4xl font-bold text-yellow-500 mb-2">30-69</div>
+                <div className="text-lg font-bold text-yellow-700">MEDIUM</div>
+                <div className="text-sm text-gray-600">Revisar manualmente</div>
+              </div>
+              <div className="bg-white rounded-lg p-4 text-center">
+                <div className="text-4xl font-bold text-red-500 mb-2">70-100</div>
+                <div className="text-lg font-bold text-red-700">HIGH</div>
+                <div className="text-sm text-gray-600">Bloquear automaticamente</div>
+              </div>
+            </div>
+          </div>
+
+        </CollapsibleSection>
+
+        {/* SECAO 10: FAQ */}
         <CollapsibleSection id="faq" title="FAQ - Perguntas Frequentes" icon={HelpCircle} color="blue">
           <div className="space-y-4">
             {faq.map((item, i) => (
