@@ -1208,9 +1208,37 @@ export function Manual() {
         <div className="flex items-center gap-6 mt-6 text-sm flex-wrap">
           <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Clock className="h-4 w-4" /> Atualizado: 30/11/2025</span>
           <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Users className="h-4 w-4" /> Para: Analistas de Fraude</span>
-          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Grid className="h-4 w-4" /> 16 Telas Documentadas</span>
+          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Shield className="h-4 w-4" /> Compliance: LGPD/BACEN/PCI DSS</span>
           <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Brain className="h-4 w-4" /> 40+ Features de IA</span>
-          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Database className="h-4 w-4" /> 3 DataSets</span>
+          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Database className="h-4 w-4" /> 3 DataSets Explicados</span>
+        </div>
+
+        {/* NAVEGACAO RAPIDA */}
+        <div className="flex flex-wrap gap-2 mt-6">
+          {[
+            { id: 'bem-vindo', label: 'Inicio', icon: Home },
+            { id: 'fluxo-ponta-ponta', label: 'Dia a Dia', icon: Calendar },
+            { id: 'features-ml', label: 'Features de IA', icon: Brain },
+            { id: 'datasets', label: 'DataSets', icon: Database },
+            { id: 'transfer-learning', label: 'Transfer Learning', icon: Layers },
+            { id: 'manual-telas', label: 'Todas as Telas', icon: Grid },
+            { id: 'dicas', label: 'Compliance', icon: Shield },
+            { id: 'cenarios-reais', label: 'Cenarios Reais', icon: Flag },
+            { id: 'faq', label: 'Glossario', icon: BookOpen }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => scrollToSection(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                activeSection === tab.id
+                  ? 'bg-white text-blue-700 shadow-lg'
+                  : 'bg-white/20 text-white hover:bg-white/30'
+              }`}
+            >
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
