@@ -38,19 +38,14 @@ export function AppBar({ onMenuToggle, className }) {
         <div className="flex items-center space-x-3">
           <img 
             src="/sankofa-logo.png" 
-            alt="Sankofa Enterprise Pro" 
-            className="h-11 w-11 object-contain"
+            alt="Sankofa" 
+            className="h-12 w-12 object-contain"
           />
           <div className="hidden sm:block">
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-                Sankofa
-              </h1>
-              <span className="px-2 py-0.5 text-[10px] font-semibold bg-slate-700 dark:bg-slate-600 text-white rounded uppercase tracking-wider">
-                Pro
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+              Sankofa
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Detecção de Fraudes Bancárias
             </p>
           </div>
