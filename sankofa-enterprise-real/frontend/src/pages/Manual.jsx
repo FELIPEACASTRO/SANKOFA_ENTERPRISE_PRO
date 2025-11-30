@@ -1,1656 +1,1734 @@
-import { useState } from 'react';
-import { ChevronDown, ChevronUp, BookOpen, Users, Target, Shield, AlertTriangle, Clock, Zap, Eye, Brain, Settings, FileText, BarChart3, Database, Bell, Lock, Star, CheckCircle, XCircle, TrendingUp, Phone, Building, HelpCircle, Search, Filter, Download, Upload, RefreshCw, Play, Pause, Edit, Trash2, Plus, ArrowRight, ArrowLeft, Info, MessageSquare, ThumbsUp, ThumbsDown, Activity, Cpu, Server, Globe, Calendar, DollarSign, Percent, Hash, List, Grid, PieChart, LineChart, Table, Map, Flag, Award, Bookmark, ExternalLink, Copy, Share, Mail, Send, Layers, GitBranch, Box, Terminal, Code, Workflow, Boxes, Network, Gauge, Timer, Sparkles, GraduationCap, Lightbulb, BookMarked, CircuitBoard } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { ChevronDown, ChevronUp, BookOpen, Users, Target, Shield, AlertTriangle, Clock, Zap, Eye, Brain, Settings, FileText, BarChart3, Database, Bell, Lock, Star, CheckCircle, XCircle, TrendingUp, Phone, Building, HelpCircle, Search, Filter, Download, Upload, RefreshCw, Play, Pause, Edit, Trash2, Plus, ArrowRight, ArrowLeft, Info, MessageSquare, ThumbsUp, ThumbsDown, Activity, Cpu, Server, Globe, Calendar, DollarSign, Percent, Hash, List, Grid, PieChart, LineChart, Table, Map, Flag, Award, Bookmark, ExternalLink, Copy, Share, Mail, Send, Layers, GitBranch, Box, Terminal, Code, Workflow, Boxes, Network, Gauge, Timer, Sparkles, GraduationCap, Lightbulb, BookMarked, CircuitBoard, Home, ChevronRight, User, Fingerprint, CreditCard, Banknote, Smartphone, MapPin, AlertCircle, ShieldCheck, Scale, Gavel, FileCheck, ClipboardList, Monitor, Headphones, Coffee, Sunrise, Sun, Moon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card.jsx';
 
 const personas = {
-  anaPaula: {
-    name: 'Ana Paula Oliveira',
-    role: 'Líder de Prevenção a Fraudes',
+  ana: {
+    name: 'Ana Paula',
+    role: 'Lider de Prevencao a Fraudes',
     avatar: 'AP',
-    department: 'Banco Digital Nexus - Matriz SP',
-    experience: '8 anos em prevenção a fraudes',
-    quote: 'Cada fraude bloqueada é um cliente que continua confiando em nós.',
+    experience: '8 anos',
     color: 'blue',
-    responsibilities: ['Supervisionar equipe de 12 analistas', 'Aprovar Hard Rules novas', 'Escalar incidentes críticos', 'Relatórios semanais para diretoria'],
-    kpis: ['Taxa de detecção > 95%', 'Falsos positivos < 3%', 'SLA < 50ms', 'Satisfação cliente > 4.5']
+    intro: 'Ana supervisiona a equipe e toma decisoes criticas sobre fraudes de alto valor.'
   },
-  carlosRoberto: {
-    name: 'Carlos Roberto Silva',
-    role: 'Analista de Fraudes Sênior',
-    avatar: 'CR',
-    department: 'Operações de Risco - Turno Diurno',
-    experience: '5 anos analisando transações',
-    quote: 'O segredo é entender o padrão normal do cliente antes de julgar.',
+  carlos: {
+    name: 'Carlos Roberto',
+    role: 'Analista Senior',
+    avatar: 'CR', 
+    experience: '5 anos',
     color: 'green',
-    responsibilities: ['Analisar 150+ transações/dia', 'Treinar analistas júnior', 'Investigar fraudes complexas', 'Dar feedback para IA'],
-    kpis: ['Tempo médio análise < 3min', 'Precisão > 98%', 'Feedbacks/dia > 20', 'Escalonamentos < 5%']
+    intro: 'Carlos analisa transacoes diariamente e treina novos analistas.'
   },
-  marinaFernandes: {
-    name: 'Marina Fernandes',
+  marina: {
+    name: 'Marina',
     role: 'Compliance Officer',
     avatar: 'MF',
-    department: 'Jurídico e Compliance',
-    experience: '10 anos em regulação bancária',
-    quote: 'LGPD e BACEN não são obstáculos, são nossos aliados.',
+    experience: '10 anos',
     color: 'purple',
-    responsibilities: ['Validar relatórios STR', 'Auditar mascaramento LGPD', 'Revisar políticas de dados', 'Interface com BACEN'],
-    kpis: ['100% STRs válidos', 'Zero violações LGPD', 'Auditorias sem ressalvas', 'Tempo resposta BACEN < 24h']
+    intro: 'Marina garante que tudo esteja em conformidade com LGPD e BACEN.'
   },
-  rodrigoMendes: {
-    name: 'Rodrigo Mendes',
-    role: 'Analista de Fraudes Júnior',
+  rodrigo: {
+    name: 'Rodrigo',
+    role: 'Analista Junior',
     avatar: 'RM',
-    department: 'Operações de Risco - Turno Noturno',
-    experience: '1 ano no setor bancário',
-    quote: 'Estou aprendendo que cada transação conta uma história.',
+    experience: '1 ano',
     color: 'orange',
-    responsibilities: ['Monitorar alertas noturnos', 'Escalar casos complexos', 'Aprender com seniors', 'Documentar procedimentos'],
-    kpis: ['Tempo resposta < 5min', 'Escalonamentos corretos > 90%', 'Erros < 2%', 'Treinamentos completos']
-  },
-  patriciaLima: {
-    name: 'Patrícia Lima',
-    role: 'Gerente de Operações',
-    avatar: 'PL',
-    department: 'Diretoria de Riscos',
-    experience: '15 anos em bancos',
-    quote: 'Métricas não mentem. Precisamos de dados para tomar decisões.',
-    color: 'blue',
-    responsibilities: ['Definir metas da área', 'Aprovar orçamento de TI', 'Reportar ao C-Level', 'Estratégia anti-fraude'],
-    kpis: ['Perdas < 0.01% do volume', 'ROI sistema > 500%', 'NPS interno > 80', 'Turnover < 10%']
+    intro: 'Rodrigo esta aprendendo e faz o turno noturno.'
   }
 };
 
-const allScenarios = {
-  golpePix: {
-    title: '🚨 Golpe do PIX Falso - Fraude Confirmada',
-    icon: AlertTriangle,
-    difficulty: 'Média',
-    timeToResolve: '10 minutos',
-    steps: [
-      { time: '14:32:01', badge: 'PIX', type: 'action', title: 'Transação Recebida', description: 'PIX de R$ 4.850,00 para conta nova (Banco 341 - Ag 0001). CPF destino: ***.***. 789-01. Chave: celular.' },
-      { time: '14:32:02', badge: 'ML', type: 'action', title: 'Análise de 40 Features', description: 'Modelo analisa: horário (14h = normal), valor (3x média), destinatário (novo), device (mesmo), geolocalização (SP).' },
-      { time: '14:32:03', badge: 'SCORE', type: 'alert', title: 'Score 87/100 - ALTO RISCO', description: 'Fatores: valor atípico (+35 pontos), destinatário novo (+25), padrão de golpe conhecido (+15), horário OK (-5).' },
-      { time: '14:32:04', badge: 'BLOQUEIO', type: 'alert', title: 'Transação Bloqueada Automaticamente', description: 'Regra: Score > 70 = bloqueio. Cliente notificado por SMS e push. Alerta criado no sistema.' },
-      { time: '14:35:00', type: 'action', title: 'Analista Carlos Assume', description: 'Carlos vê alerta na fila. Abre investigação. Verifica histórico de 90 dias do cliente.' },
-      { time: '14:38:00', type: 'action', title: 'Análise de Histórico', description: 'Cliente faz PIX médio de R$ 1.200. Nunca enviou para este destinatário. Último PIX grande foi há 6 meses.' },
-      { time: '14:40:00', type: 'action', title: 'Contato com Cliente', description: 'Carlos liga para cliente. "Senhor João, confirma um PIX de R$ 4.850?" Cliente: "Não fiz nada!"' },
-      { time: '14:42:00', type: 'success', title: 'Fraude Confirmada', description: 'Cliente confirma golpe de WhatsApp. Alguém se passou por filho pedindo dinheiro urgente.' }
+const todasAsTelas = [
+  {
+    id: 'dashboard',
+    nome: 'Dashboard',
+    icone: BarChart3,
+    caminho: 'Menu > Dashboard',
+    rota: '/',
+    modulo: 'Visao Geral',
+    cor: 'blue',
+    objetivo: 'Mostrar uma visao geral de tudo que esta acontecendo no sistema em tempo real. E como o painel de um aviao: todos os indicadores importantes em um so lugar.',
+    quandoUsar: [
+      'Logo ao chegar no trabalho, para ver como esta o dia',
+      'Durante picos de transacoes, para monitorar volume',
+      'Quando a gerencia pedir um resumo rapido',
+      'Para identificar anomalias antes que virem problemas'
     ],
-    outcome: 'R$ 4.850,00 SALVOS! Cliente protegido. Conta laranja reportada ao BACEN via STR. HOT List atualizada.',
-    outcomeType: 'success'
+    elementos: [
+      { nome: 'Total de Transacoes', tipo: 'KPI', desc: 'Numero total de transacoes processadas hoje' },
+      { nome: 'Taxa de Fraude', tipo: 'KPI', desc: 'Porcentagem de transacoes marcadas como fraude' },
+      { nome: 'Latencia Media', tipo: 'KPI', desc: 'Tempo medio de resposta do sistema (meta: <50ms)' },
+      { nome: 'Alertas Pendentes', tipo: 'KPI', desc: 'Quantos alertas ainda nao foram analisados' },
+      { nome: 'Grafico de Timeline', tipo: 'Grafico', desc: 'Mostra transacoes ao longo do dia' },
+      { nome: 'Distribuicao por Canal', tipo: 'Grafico', desc: 'PIX, TED, Cartao - qual canal tem mais volume' }
+    ],
+    historia: 'Carlos chega as 06:00 e a primeira coisa que faz e abrir o Dashboard. Ele ve que durante a madrugada houve um pico de transacoes as 03:00 - algo incomum. Clica no grafico para investigar e descobre que foi um ataque de bot que o sistema bloqueou automaticamente. Ufa!',
+    cuidados: [
+      'Os dados atualizam a cada 30 segundos - nao precisa ficar apertando F5',
+      'Se a latencia subir de 50ms, algo pode estar errado - avise a TI',
+      'KPIs vermelhos precisam de atencao imediata'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  DASHBOARD                              [hoje]   |
++--------------------------------------------------+
+|  +--------+  +--------+  +--------+  +--------+  |
+|  | 4.467  |  | 69.7%  |  |  37ms  |  |   25   |  |
+|  | Trans. |  | Fraude |  | Laten. |  | Alertas|  |
+|  +--------+  +--------+  +--------+  +--------+  |
+|                                                  |
+|  [=====GRAFICO DE TIMELINE==================]    |
+|  |    *                    *                |    |
+|  |   * *     **           * *    ***        |    |
+|  |  *   *   *  *         *   *  *   *       |    |
+|  |------06h----09h----12h----15h----18h-----|    |
+|                                                  |
+|  PIX: 96%  |  TED: 2%  |  CARTAO: 2%            |
++--------------------------------------------------+
+    `
   },
-  falsoPositivo: {
-    title: '✅ Falso Positivo - Viagem de Negócios',
-    icon: CheckCircle,
-    difficulty: 'Baixa',
-    timeToResolve: '10 minutos',
-    steps: [
-      { time: '23:15:01', badge: 'PIX', type: 'action', title: 'PIX Noturno Alto Valor', description: 'R$ 12.000,00 de SP para Salvador. Pagamento para Hotel Fasano. CPF: ***.***. 456-78.' },
-      { time: '23:15:02', badge: 'SCORE', type: 'alert', title: 'Score 72 - Análise Manual', description: 'Horário noturno (+20), valor alto (+15), destino incomum (+20), merchant conhecido (-10), device usual (0).' },
-      { time: '23:15:03', badge: 'HOLD', type: 'alert', title: 'Bloqueio Preventivo', description: 'Score entre 60-80 = retenção para análise. Cliente recebe SMS: "Transação em análise de segurança."' },
-      { time: '23:18:00', type: 'action', title: 'Cliente Liga Irritado', description: '"Estou na recepção do hotel, preciso pagar a reserva! Por que bloquearam?"' },
-      { time: '23:20:00', type: 'action', title: 'Ana Paula Analisa', description: 'Verifica: cliente é empresário, viaja frequentemente, tem histórico de hotéis de luxo.' },
-      { time: '23:22:00', type: 'action', title: 'Validação Cruzada', description: 'Consulta sistema de RH da empresa: viagem autorizada para Salvador, dias 30/11 a 02/12.' },
-      { time: '23:25:00', type: 'success', title: 'Liberação Manual', description: 'Ana Paula aprova manualmente. Adiciona feedback: "Viagem corporativa confirmada". Modelo aprende.' }
+  {
+    id: 'transactions',
+    nome: 'Transacoes',
+    icone: FileText,
+    caminho: 'Menu > Transacoes',
+    rota: '/transactions',
+    modulo: 'Operacoes',
+    cor: 'green',
+    objetivo: 'Listar, buscar e visualizar todas as transacoes processadas pelo sistema. Pense como uma planilha gigante com todas as movimentacoes financeiras.',
+    quandoUsar: [
+      'Quando um cliente ligar perguntando sobre uma transacao especifica',
+      'Para investigar um CPF ou conta suspeita',
+      'Quando precisar de dados para um relatorio',
+      'Para entender o historico de um cliente'
     ],
-    outcome: 'Cliente satisfeito! PIX liberado em 10 minutos. Feedback treinou modelo: viagens de negócios são padrão normal.',
-    outcomeType: 'success'
+    elementos: [
+      { nome: 'Campo de Busca', tipo: 'Input', desc: 'Digite CPF, ID da transacao ou valor para filtrar' },
+      { nome: 'Filtro de Data', tipo: 'Seletor', desc: 'Escolha o periodo que deseja visualizar' },
+      { nome: 'Filtro de Canal', tipo: 'Dropdown', desc: 'PIX, TED, CARTAO ou BOLETO' },
+      { nome: 'Filtro de Status', tipo: 'Dropdown', desc: 'Aprovada, Bloqueada, Em Analise' },
+      { nome: 'Tabela de Resultados', tipo: 'Grid', desc: 'Lista com todas as transacoes encontradas' },
+      { nome: 'Botao Exportar', tipo: 'Acao', desc: 'Baixa os dados em CSV ou Excel' }
+    ],
+    historia: 'Um cliente ligou reclamando que sua TED de R$ 5.000 foi bloqueada. Ana abre a tela de Transacoes, digita o CPF do cliente no campo de busca, e rapidamente encontra a transacao. Ela ve que o score de risco foi 78 (alto) porque era a primeira vez que o cliente enviava dinheiro para aquele destinatario. Ana verifica que e legitimo e libera manualmente.',
+    cuidados: [
+      'Buscas muito amplas (sem filtros) podem demorar',
+      'Dados sensiveis como CPF aparecem mascarados por LGPD',
+      'Exportar muitos dados pode travar o navegador'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  TRANSACOES                                      |
++--------------------------------------------------+
+|  Busca: [CPF, ID ou valor________] [Buscar]      |
+|                                                  |
+|  Filtros: [Hoje v] [PIX v] [Todas v]             |
++--------------------------------------------------+
+|  ID       | VALOR    | CANAL | SCORE | STATUS   |
+|-----------|----------|-------|-------|----------|
+|  TX-001   | R$ 4.850 | PIX   |  87   | BLOQUEIO |
+|  TX-002   | R$ 1.200 | TED   |  23   | APROVADA |
+|  TX-003   | R$ 500   | PIX   |  15   | APROVADA |
+|  TX-004   | R$ 8.900 | CART  |  92   | BLOQUEIO |
++--------------------------------------------------+
+|  Mostrando 1-50 de 4.467 | [Exportar CSV]        |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'alerts',
+    nome: 'Alertas',
+    icone: Bell,
+    caminho: 'Menu > Alertas',
+    rota: '/alerts',
+    modulo: 'Operacoes',
+    cor: 'orange',
+    objetivo: 'Exibir todos os alertas gerados pelo sistema que precisam de atencao humana. E como uma caixa de entrada de emails urgentes - so aparecem coisas que precisam de acao.',
+    quandoUsar: [
+      'Varias vezes ao dia, para ver novos alertas',
+      'Quando o badge de notificacao ficar vermelho',
+      'Para priorizar quais casos analisar primeiro',
+      'Para distribuir trabalho entre a equipe'
+    ],
+    elementos: [
+      { nome: 'Badge de Contagem', tipo: 'Indicador', desc: 'Numero vermelho mostrando alertas pendentes' },
+      { nome: 'Lista de Alertas', tipo: 'Lista', desc: 'Ordenada por prioridade e hora' },
+      { nome: 'Filtro de Prioridade', tipo: 'Abas', desc: 'Critico, Alto, Medio, Baixo' },
+      { nome: 'Botao Assumir', tipo: 'Acao', desc: 'Marca o alerta como "em analise por voce"' },
+      { nome: 'Botao Resolver', tipo: 'Acao', desc: 'Fecha o alerta apos investigacao' }
+    ],
+    historia: 'Rodrigo esta no turno noturno e ve que tem 5 alertas criticos. Ele clica no primeiro - e um cliente fazendo 10 PIX de R$ 999 em 5 minutos (logo abaixo do limite de R$ 1.000). Padrao classico de fraude! Rodrigo assume o caso, bloqueia a conta, e escala para Ana revisar pela manha.',
+    cuidados: [
+      'Alertas criticos devem ser tratados em ate 5 minutos',
+      'Sempre assuma o alerta antes de investigar (evita duplicidade)',
+      'Se nao souber resolver, escale para um senior'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  ALERTAS                             [3] novos   |
++--------------------------------------------------+
+|  [CRITICO] [ALTO] [MEDIO] [BAIXO]                |
++--------------------------------------------------+
+|  ! CRITICO | 10:32 | Multiplos PIX abaixo limite |
+|    CPF: ***.456.***-78 | Score: 94               |
+|    [Assumir] [Ver Detalhes]                      |
+|--------------------------------------------------|
+|  ! ALTO    | 10:28 | Device novo + valor alto   |
+|    CPF: ***.789.***-01 | Score: 78               |
+|    [Assumir] [Ver Detalhes]                      |
+|--------------------------------------------------|
+|  ! MEDIO   | 10:15 | Horario incomum            |
+|    CPF: ***.123.***-45 | Score: 62               |
+|    [Assumir] [Ver Detalhes]                      |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'investigation',
+    nome: 'Investigacao',
+    icone: Search,
+    caminho: 'Menu > Investigacao',
+    rota: '/investigation',
+    modulo: 'Analise',
+    cor: 'purple',
+    objetivo: 'Tela para analise profunda de casos suspeitos. Aqui voce junta todas as pecas do quebra-cabeca: historico do cliente, rede de relacionamentos, padroes de comportamento.',
+    quandoUsar: [
+      'Quando um alerta precisa de investigacao detalhada',
+      'Para mapear redes de fraude (varios CPFs conectados)',
+      'Antes de decidir bloquear uma conta definitivamente',
+      'Para preparar relatorios para o BACEN (STR)'
+    ],
+    elementos: [
+      { nome: 'Perfil do Investigado', tipo: 'Card', desc: 'Dados do cliente sob investigacao' },
+      { nome: 'Timeline de Atividades', tipo: 'Grafico', desc: 'Historico completo de transacoes' },
+      { nome: 'Mapa de Rede', tipo: 'Visual', desc: 'Conexoes com outras contas' },
+      { nome: 'Evidencias', tipo: 'Lista', desc: 'Prints, logs, registros relevantes' },
+      { nome: 'Botao Gerar STR', tipo: 'Acao', desc: 'Cria relatorio para o Banco Central' }
+    ],
+    historia: 'Carlos esta investigando uma conta que recebeu dinheiro de 15 CPFs diferentes em uma semana. No mapa de rede, ele percebe que 12 desses CPFs tambem enviaram para uma segunda conta. Padrao classico de "laranja"! Carlos documenta tudo, gera o STR e envia para o BACEN.',
+    cuidados: [
+      'Investigacoes demoradas devem ser documentadas',
+      'Nunca acuse um cliente sem evidencias solidas',
+      'STR deve ser enviado em ate 24 horas apos confirmacao'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  INVESTIGACAO - CASO #2024-1234                  |
++--------------------------------------------------+
+|  INVESTIGADO                                     |
+|  +------------------------------------------+    |
+|  | Nome: Joao *** Silva                     |    |
+|  | CPF: ***.456.***-78                      |    |
+|  | Conta ativa desde: 15/03/2024            |    |
+|  | Total recebido: R$ 127.450,00            |    |
+|  +------------------------------------------+    |
+|                                                  |
+|  MAPA DE REDE                                    |
+|       [CPF-1]--\\                                 |
+|       [CPF-2]--->[INVESTIGADO]--->[CPF-X]        |
+|       [CPF-3]--/                                 |
+|                                                  |
+|  EVIDENCIAS: 3 documentos anexados               |
+|                                                  |
+|  [Adicionar Nota] [Gerar STR] [Concluir Caso]    |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'manual-review',
+    nome: 'Revisao Manual',
+    icone: Eye,
+    caminho: 'Menu > Revisao Manual',
+    rota: '/manual-review',
+    modulo: 'Operacoes',
+    cor: 'red',
+    objetivo: 'Fila de transacoes que a IA nao conseguiu decidir sozinha e precisa de um humano. O famoso "Human-in-the-Loop" - quando a maquina pede ajuda.',
+    quandoUsar: [
+      'Continuamente durante o expediente',
+      'Quando a fila estiver crescendo',
+      'Para transacoes com score entre 60 e 80 (zona cinza)',
+      'Quando o cliente ligar pedindo liberacao urgente'
+    ],
+    elementos: [
+      { nome: 'Fila de Pendentes', tipo: 'Lista', desc: 'Transacoes aguardando decisao humana' },
+      { nome: 'Tempo na Fila', tipo: 'Indicador', desc: 'Quanto tempo cada item esta esperando' },
+      { nome: 'Detalhes da Transacao', tipo: 'Painel', desc: 'Todas as informacoes para decidir' },
+      { nome: 'Botao Aprovar', tipo: 'Acao', desc: 'Libera a transacao' },
+      { nome: 'Botao Rejeitar', tipo: 'Acao', desc: 'Bloqueia a transacao' },
+      { nome: 'Botao Escalar', tipo: 'Acao', desc: 'Envia para um senior decidir' }
+    ],
+    historia: 'Uma transacao de R$ 50.000 esta na fila ha 3 minutos. Rodrigo ve que e um empresario fazendo um pagamento para fornecedor. O score e 65 - zona cinza. Rodrigo liga para o cliente, confirma que e legitimo, aprova a transacao e adiciona o fornecedor na lista de destinatarios conhecidos.',
+    cuidados: [
+      'SLA maximo: 5 minutos na fila',
+      'Sempre documente o motivo da aprovacao/rejeicao',
+      'Na duvida, escale - nao adivinhe'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  REVISAO MANUAL                    [12 na fila]  |
++--------------------------------------------------+
+|  TRANSACAO EM ANALISE                            |
+|  +------------------------------------------+    |
+|  | ID: TX-7891234                           |    |
+|  | Valor: R$ 50.000,00                      |    |
+|  | Canal: TED                               |    |
+|  | Score: 65 (ZONA CINZA)                   |    |
+|  | Motivo: Valor alto + destino novo        |    |
+|  | Na fila ha: 3 min 22 seg                 |    |
+|  +------------------------------------------+    |
+|                                                  |
+|  DECISAO:                                        |
+|  [APROVAR]  [REJEITAR]  [ESCALAR]               |
+|                                                  |
+|  Justificativa: [_________________________]      |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'calibration',
+    nome: 'Calibracao',
+    icone: Settings,
+    caminho: 'Menu > Calibracao',
+    rota: '/calibration',
+    modulo: 'Configuracao',
+    cor: 'indigo',
+    objetivo: 'Ajustar os limites (thresholds) que definem quando uma transacao e aprovada, vai para revisao ou e bloqueada automaticamente. E como calibrar a sensibilidade de um alarme.',
+    quandoUsar: [
+      'Quando houver muitos falsos positivos (bloqueando clientes legitimos)',
+      'Quando fraudes estiverem passando (falsos negativos)',
+      'Apos mudancas significativas no perfil de clientes',
+      'Mensalmente, como manutencao preventiva'
+    ],
+    elementos: [
+      { nome: 'Slider de Threshold Baixo', tipo: 'Controle', desc: 'Abaixo disso = aprovacao automatica' },
+      { nome: 'Slider de Threshold Alto', tipo: 'Controle', desc: 'Acima disso = bloqueio automatico' },
+      { nome: 'Simulador', tipo: 'Ferramenta', desc: 'Mostra impacto antes de aplicar' },
+      { nome: 'Historico de Mudancas', tipo: 'Log', desc: 'Quem mudou o que e quando' }
+    ],
+    historia: 'Ana percebe que o numero de revisoes manuais dobrou na ultima semana. Ela abre a tela de Calibracao e ve que o threshold de bloqueio esta muito baixo (60). Ela simula subir para 70 e ve que isso reduziria 30% das revisoes manuais sem aumentar fraudes. Aplica a mudanca.',
+    cuidados: [
+      'NUNCA mude thresholds sem simular antes',
+      'Apenas lideres devem ter acesso a esta tela',
+      'Mudancas afetam TODAS as transacoes - tenha cuidado'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  CALIBRACAO DE THRESHOLDS                        |
++--------------------------------------------------+
+|                                                  |
+|  APROVACAO AUTOMATICA (score abaixo de):         |
+|  [====|====================] 30                  |
+|                                                  |
+|  REVISAO MANUAL (score entre):                   |
+|  30 ----------[ZONA CINZA]----------- 70         |
+|                                                  |
+|  BLOQUEIO AUTOMATICO (score acima de):           |
+|  [====================|====] 70                  |
+|                                                  |
++--------------------------------------------------+
+|  SIMULACAO COM NOVOS VALORES                     |
+|  +------------------------------------------+    |
+|  | Reducao de revisoes: -30%               |    |
+|  | Impacto em fraudes: +0.02%              |    |
+|  +------------------------------------------+    |
+|                                                  |
+|  [Simular] [Aplicar Mudancas] [Cancelar]         |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'monitoring',
+    nome: 'Monitoramento',
+    icone: Activity,
+    caminho: 'Menu > Monitoramento',
+    rota: '/monitoring',
+    modulo: 'Operacoes',
+    cor: 'teal',
+    objetivo: 'Monitorar a saude dos modelos de IA e do sistema como um todo. E como o check-up de um carro - verifica se tudo esta funcionando bem.',
+    quandoUsar: [
+      'Diariamente, como rotina de operacao',
+      'Quando o sistema parecer lento',
+      'Apos atualizacoes ou mudancas',
+      'Quando houver suspeita de problemas'
+    ],
+    elementos: [
+      { nome: 'Status dos Modelos', tipo: 'Indicadores', desc: 'RF, GB, CatBoost - Online/Offline' },
+      { nome: 'Metricas de Performance', tipo: 'Graficos', desc: 'Accuracy, Precision, Recall' },
+      { nome: 'Latencia por Endpoint', tipo: 'Tabela', desc: 'Tempo de resposta de cada API' },
+      { nome: 'Alertas de Sistema', tipo: 'Lista', desc: 'Erros e avisos tecnicos' }
+    ],
+    historia: 'O Dashboard mostra latencia de 120ms - muito acima do normal. Ana abre o Monitoramento e ve que o modelo CatBoost esta respondendo lento. Ela reinicia o servico e a latencia volta para 40ms.',
+    cuidados: [
+      'Latencia > 100ms e critica - avise TI imediatamente',
+      'Se um modelo ficar offline, o ensemble usa os outros dois',
+      'Nunca ignore alertas vermelhos'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  MONITORAMENTO DO SISTEMA                        |
++--------------------------------------------------+
+|  STATUS DOS MODELOS                              |
+|  +----------------+----------------+             |
+|  | Random Forest  | [ONLINE]       |             |
+|  | Grad. Boosting | [ONLINE]       |             |
+|  | CatBoost       | [ONLINE]       |             |
+|  +----------------+----------------+             |
+|                                                  |
+|  METRICAS (ultimas 24h)                          |
+|  +----------------+-------+                      |
+|  | Accuracy       | 98.5% |                      |
+|  | Precision      | 94.2% |                      |
+|  | Recall         | 91.8% |                      |
+|  | Latencia Media | 37ms  |                      |
+|  +----------------+-------+                      |
+|                                                  |
+|  ALERTAS: Nenhum alerta ativo                    |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'metrics',
+    nome: 'Metricas',
+    icone: Gauge,
+    caminho: 'Menu > Metricas',
+    rota: '/metrics',
+    modulo: 'Observabilidade',
+    cor: 'cyan',
+    objetivo: 'Exibir metricas em tempo real do sistema. Contadores, tempos, volumes - tudo que pode ser medido aparece aqui em graficos atualizados constantemente.',
+    quandoUsar: [
+      'Para acompanhar picos de uso',
+      'Quando precisar de dados para reunioes',
+      'Para identificar tendencias',
+      'Durante incidentes, para entender o impacto'
+    ],
+    elementos: [
+      { nome: 'Contador de Transacoes', tipo: 'Metrica', desc: 'Total hoje, hora, minuto' },
+      { nome: 'Taxa de Erro', tipo: 'Metrica', desc: 'Porcentagem de falhas' },
+      { nome: 'Graficos Temporais', tipo: 'Visualizacao', desc: 'Evolucao ao longo do tempo' },
+      { nome: 'Comparativo', tipo: 'Tabela', desc: 'Hoje vs ontem vs semana passada' }
+    ],
+    historia: 'Patricia precisa apresentar resultados para a diretoria. Ela abre Metricas, seleciona o periodo do mes, e exporta um grafico mostrando que as fraudes bloqueadas aumentaram 15% enquanto os falsos positivos cairam 8%.',
+    cuidados: [
+      'Metricas atualizam em tempo real - podem variar',
+      'Para relatorios oficiais, use a tela de Relatorios',
+      'Dados antigos podem ter leve diferenca por arredondamento'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  METRICAS EM TEMPO REAL                          |
++--------------------------------------------------+
+|  CONTADORES                                      |
+|  +----------+----------+----------+              |
+|  | HOJE     | HORA     | MINUTO   |              |
+|  | 4.467    | 312      | 5        |              |
+|  +----------+----------+----------+              |
+|                                                  |
+|  PERFORMANCE                                     |
+|  [=============================] 99.8% uptime    |
+|  [===========================  ] 98.2% sucesso   |
+|  [=                            ] 0.3% erros      |
+|                                                  |
+|  COMPARATIVO                                     |
+|  Hoje: 4.467 | Ontem: 4.231 (+5.6%)             |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'hard-rules',
+    nome: 'Hard Rules',
+    icone: Shield,
+    caminho: 'Menu > Hard Rules',
+    rota: '/hard-rules',
+    modulo: 'Configuracao',
+    cor: 'gray',
+    objetivo: 'Regras de negocio que SEMPRE sao aplicadas, independente do que a IA diga. Sao como leis inquebrantaveis - nao tem excecao.',
+    quandoUsar: [
+      'Para criar bloqueios absolutos (ex: pais proibidos)',
+      'Para definir limites de valor',
+      'Para implementar regras regulatorias',
+      'Para proteger contra ataques conhecidos'
+    ],
+    elementos: [
+      { nome: 'Lista de Regras', tipo: 'Tabela', desc: 'Todas as regras ativas' },
+      { nome: 'Editor de Regras', tipo: 'Formulario', desc: 'Criar ou editar uma regra' },
+      { nome: 'Simulador', tipo: 'Ferramenta', desc: 'Testar regra antes de ativar' },
+      { nome: 'Historico', tipo: 'Log', desc: 'Mudancas feitas nas regras' }
+    ],
+    historia: 'O BACEN emitiu nova regulamentacao: transacoes para certos paises precisam de aprovacao manual. Ana cria uma Hard Rule: "Se pais_destino in [lista], entao BLOQUEAR". A regra entra em vigor imediatamente.',
+    cuidados: [
+      'Hard Rules tem prioridade sobre a IA',
+      'Uma regra mal configurada pode bloquear TUDO',
+      'Sempre simule antes de ativar'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  HARD RULES - REGRAS DE NEGOCIO                  |
++--------------------------------------------------+
+|  REGRAS ATIVAS                                   |
+|  +----+----------------------------------+----+  |
+|  | ID | DESCRICAO                        | ON |  |
+|  +----+----------------------------------+----+  |
+|  | 01 | PIX > R$50k = Revisao Manual     | ON |  |
+|  | 02 | TED noturna > R$10k = Bloquear   | ON |  |
+|  | 03 | Paises na lista OFAC = Bloquear  | ON |  |
+|  +----+----------------------------------+----+  |
+|                                                  |
+|  [Nova Regra] [Editar] [Desativar]               |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'vip-list',
+    nome: 'VIP List',
+    icone: Star,
+    caminho: 'Menu > VIP List',
+    rota: '/vip-list',
+    modulo: 'Listas',
+    cor: 'yellow',
+    objetivo: 'Lista de clientes confiavels que NAO devem ser bloqueados. Sao os "clientes VIP" que tem historico impecavel e nao precisam de analise extra.',
+    quandoUsar: [
+      'Para adicionar clientes corporativos grandes',
+      'Para evitar bloqueios recorrentes de clientes legitimos',
+      'Apos analise profunda confirmar que cliente e seguro',
+      'Para CEOs, diretores e pessoas publicas verificadas'
+    ],
+    elementos: [
+      { nome: 'Lista de VIPs', tipo: 'Tabela', desc: 'CPFs/CNPJs na lista branca' },
+      { nome: 'Motivo', tipo: 'Campo', desc: 'Por que esta pessoa e VIP' },
+      { nome: 'Validade', tipo: 'Data', desc: 'Ate quando vale a excecao' },
+      { nome: 'Responsavel', tipo: 'Campo', desc: 'Quem adicionou e quando' }
+    ],
+    historia: 'Um empresario faz TEDs de R$ 500k semanais para fornecedores. Toda semana o sistema bloqueia e ele reclama. Apos Ana verificar que e 100% legitimo, ela adiciona o CNPJ na VIP List com validade de 1 ano.',
+    cuidados: [
+      'VIPs ainda sao monitorados - apenas nao sao bloqueados',
+      'Revisar a lista periodicamente',
+      'Remover VIPs que mudarem de comportamento'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  VIP LIST - LISTA BRANCA                         |
++--------------------------------------------------+
+|  CLIENTES VIP ATIVOS                             |
+|  +------------+-------------------+----------+   |
+|  | CPF/CNPJ   | MOTIVO            | VALIDADE |   |
+|  +------------+-------------------+----------+   |
+|  | **.***.***-01 | Empresario verificado | 12/2025 |
+|  | **.***.***-02 | Diretor do banco   | 06/2025 |   |
+|  +------------+-------------------+----------+   |
+|                                                  |
+|  [Adicionar VIP] [Remover] [Renovar]             |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'hot-list',
+    nome: 'HOT List',
+    icone: AlertTriangle,
+    caminho: 'Menu > HOT List',
+    rota: '/hot-list',
+    modulo: 'Listas',
+    cor: 'red',
+    objetivo: 'Lista negra de CPFs, devices ou IPs que SEMPRE sao bloqueados. Sao os "bandidos conhecidos" que ja foram confirmados como fraudadores.',
+    quandoUsar: [
+      'Apos confirmar uma fraude',
+      'Para bloquear devices de bots',
+      'Para barrar IPs de ataques',
+      'Para incluir contas laranjas identificadas'
+    ],
+    elementos: [
+      { nome: 'Lista de Bloqueados', tipo: 'Tabela', desc: 'CPFs, devices, IPs na lista negra' },
+      { nome: 'Tipo', tipo: 'Campo', desc: 'CPF, Device ID, IP, Email' },
+      { nome: 'Data de Inclusao', tipo: 'Data', desc: 'Quando foi adicionado' },
+      { nome: 'Caso Relacionado', tipo: 'Link', desc: 'Investigacao que originou' }
+    ],
+    historia: 'Carlos identificou uma rede de 15 contas laranjas. Apos concluir a investigacao, ele adiciona todos os 15 CPFs na HOT List. Qualquer transacao futura desses CPFs sera bloqueada automaticamente.',
+    cuidados: [
+      'Verificar MUITO bem antes de adicionar',
+      'Clientes na HOT List NAO conseguem fazer nada',
+      'Mantenha o caso de investigacao vinculado'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  HOT LIST - LISTA NEGRA                          |
++--------------------------------------------------+
+|  BLOQUEADOS PERMANENTEMENTE                      |
+|  +------+------------+------------+----------+   |
+|  | TIPO | VALOR      | DATA       | CASO     |   |
+|  +------+------------+------------+----------+   |
+|  | CPF  | ***456***  | 28/11/2024 | #2024-99 |   |
+|  | DEV  | ABC123...  | 25/11/2024 | #2024-87 |   |
+|  | IP   | 192.168... | 20/11/2024 | #2024-65 |   |
+|  +------+------------+------------+----------+   |
+|                                                  |
+|  [Adicionar] [Remover] [Exportar]                |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'feedback-analyst',
+    nome: 'Feedback do Analista',
+    icone: ThumbsUp,
+    caminho: 'Menu > Feedback',
+    rota: '/feedback-analyst',
+    modulo: 'ML',
+    cor: 'green',
+    objetivo: 'Registrar feedback sobre as decisoes da IA. Quando voce corrige a IA, esse feedback e usado para treina-la e torna-la melhor.',
+    quandoUsar: [
+      'Apos aprovar uma transacao que a IA bloqueou (falso positivo)',
+      'Apos rejeitar algo que a IA aprovou (falso negativo)',
+      'Para registrar casos interessantes de aprendizado',
+      'Diariamente, como parte da rotina'
+    ],
+    elementos: [
+      { nome: 'Transacao Avaliada', tipo: 'Card', desc: 'Detalhes da transacao' },
+      { nome: 'Decisao da IA', tipo: 'Indicador', desc: 'O que a IA disse' },
+      { nome: 'Sua Decisao', tipo: 'Botoes', desc: 'Concordar ou Discordar' },
+      { nome: 'Justificativa', tipo: 'Texto', desc: 'Por que voce discordou' },
+      { nome: 'Confianca', tipo: 'Escala', desc: 'Quao certo voce esta' }
+    ],
+    historia: 'A IA bloqueou um PIX de R$ 2.000 porque o cliente nunca tinha feito PIX acima de R$ 500. Mas Ana verificou que ele acabou de receber o 13o salario. Ela marca como "falso positivo" e explica: "Primeira compra grande apos bonus salarial - padrao normal".',
+    cuidados: [
+      'Feedback de qualidade melhora a IA',
+      'Feedback errado pode piorar a IA',
+      'Seja especifico na justificativa'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  FEEDBACK DO ANALISTA                            |
++--------------------------------------------------+
+|  TRANSACAO AVALIADA                              |
+|  +------------------------------------------+    |
+|  | ID: TX-5678                              |    |
+|  | Valor: R$ 2.000                          |    |
+|  | IA disse: BLOQUEAR (score 75)            |    |
+|  +------------------------------------------+    |
+|                                                  |
+|  SUA AVALIACAO:                                  |
+|  [CONCORDO] [DISCORDO - FALSO POSITIVO]          |
+|                                                  |
+|  Justificativa:                                  |
+|  [Cliente recebeu 13o, padrao normal____]        |
+|                                                  |
+|  Confianca: [=======|===] 80%                    |
+|                                                  |
+|  [Enviar Feedback]                               |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'reports',
+    nome: 'Relatorios',
+    icone: PieChart,
+    caminho: 'Menu > Relatorios',
+    rota: '/reports',
+    modulo: 'Analise',
+    cor: 'blue',
+    objetivo: 'Gerar relatorios estruturados para apresentar a gestao, auditorias e orgaos reguladores. Sao documentos formais, nao dados brutos.',
+    quandoUsar: [
+      'Para reunioes de diretoria',
+      'Para auditorias internas e externas',
+      'Para enviar ao BACEN quando solicitado',
+      'Para analise de performance mensal'
+    ],
+    elementos: [
+      { nome: 'Tipo de Relatorio', tipo: 'Seletor', desc: 'Operacional, Gerencial, Regulatorio' },
+      { nome: 'Periodo', tipo: 'Datas', desc: 'De quando ate quando' },
+      { nome: 'Filtros', tipo: 'Opcoes', desc: 'Canal, status, score, etc.' },
+      { nome: 'Botao Gerar', tipo: 'Acao', desc: 'Processa e cria o relatorio' },
+      { nome: 'Formatos', tipo: 'Opcoes', desc: 'PDF, Excel, CSV' }
+    ],
+    historia: 'O BACEN solicitou um relatorio de todas as transacoes suspeitas do ultimo trimestre. Marina abre Relatorios, seleciona "Regulatorio", define as datas, e gera um PDF formatado com todas as informacoes exigidas.',
+    cuidados: [
+      'Relatorios regulatorios tem formato especifico',
+      'Verifique os dados antes de enviar para fora',
+      'Mantenha copia de todos os relatorios gerados'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  RELATORIOS                                      |
++--------------------------------------------------+
+|  TIPO DE RELATORIO:                              |
+|  ( ) Operacional  (x) Gerencial  ( ) Regulatorio |
+|                                                  |
+|  PERIODO:                                        |
+|  De: [01/11/2024] Ate: [30/11/2024]             |
+|                                                  |
+|  FILTROS:                                        |
+|  Canal: [Todos v]  Status: [Todos v]             |
+|                                                  |
+|  FORMATO:                                        |
+|  (x) PDF  ( ) Excel  ( ) CSV                     |
+|                                                  |
+|  [Gerar Relatorio]                               |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'audit',
+    nome: 'Auditoria',
+    icone: FileText,
+    caminho: 'Menu > Auditoria',
+    rota: '/audit',
+    modulo: 'Compliance',
+    cor: 'gray',
+    objetivo: 'Registro de TUDO que aconteceu no sistema. Quem fez o que, quando e por que. E o "dedo-duro" do sistema - ninguem escapa.',
+    quandoUsar: [
+      'Para investigar acoes suspeitas de usuarios',
+      'Quando houver duvida sobre quem fez algo',
+      'Para auditorias de seguranca',
+      'Para cumprir requisitos de LGPD'
+    ],
+    elementos: [
+      { nome: 'Log de Eventos', tipo: 'Lista', desc: 'Todos os eventos registrados' },
+      { nome: 'Filtro de Usuario', tipo: 'Seletor', desc: 'Ver acoes de pessoa especifica' },
+      { nome: 'Filtro de Acao', tipo: 'Seletor', desc: 'Tipo de acao (login, aprovacao, etc.)' },
+      { nome: 'Detalhes do Evento', tipo: 'Painel', desc: 'Informacoes completas' }
+    ],
+    historia: 'Uma transacao foi aprovada indevidamente e o cliente reclamou. Ana abre a Auditoria, filtra pelo ID da transacao, e descobre exatamente quem aprovou, quando, e qual justificativa foi dada.',
+    cuidados: [
+      'Logs de auditoria NAO podem ser apagados',
+      'Guarde por no minimo 5 anos (exigencia legal)',
+      'Use para aprender, nao para punir'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  AUDITORIA - REGISTRO DE EVENTOS                 |
++--------------------------------------------------+
+|  FILTROS: Usuario [Todos v] Acao [Todas v]       |
+|           Data [Hoje v]                          |
++--------------------------------------------------+
+|  HORA   | USUARIO  | ACAO              | DETALHE |
+|---------|----------|-------------------|---------|
+|  10:45  | carlos   | Aprovar TX        | TX-123  |
+|  10:32  | ana      | Alterar threshold | 60->70  |
+|  10:15  | rodrigo  | Login             | -       |
+|  09:58  | carlos   | Adicionar VIP     | CPF-*** |
++--------------------------------------------------+
+|  Total: 38 eventos hoje                          |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'datasets',
+    nome: 'DataSets',
+    icone: Database,
+    caminho: 'Menu > DataSets',
+    rota: '/datasets',
+    modulo: 'ML',
+    cor: 'purple',
+    objetivo: 'Visualizar e gerenciar os conjuntos de dados usados para treinar a IA. E onde os dados brutos viram conhecimento.',
+    quandoUsar: [
+      'Para entender de onde vem o conhecimento da IA',
+      'Antes de retreinar modelos',
+      'Para verificar qualidade dos dados',
+      'Para auditorias de ML'
+    ],
+    elementos: [
+      { nome: 'Lista de Datasets', tipo: 'Cards', desc: 'Todos os datasets disponiveis' },
+      { nome: 'Estatisticas', tipo: 'Metricas', desc: 'Quantidade, distribuicao, etc.' },
+      { nome: 'Preview', tipo: 'Tabela', desc: 'Amostra dos dados' },
+      { nome: 'Historico de Uso', tipo: 'Log', desc: 'Quando foi usado para treino' }
+    ],
+    historia: 'O time de ML quer retreinar o modelo. Antes, eles abrem a tela de DataSets para verificar se o dataset de producao esta atualizado e balanceado corretamente.',
+    cuidados: [
+      'Dados desbalanceados prejudicam o modelo',
+      'Nunca use dados de producao em ambiente de teste',
+      'Anonimize dados antes de exportar'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  DATASETS - CATALOGO DE DADOS                    |
++--------------------------------------------------+
+|  +------------------+  +------------------+      |
+|  | KAGGLE           |  | PRODUCAO         |      |
+|  | 284.807 tx       |  | 4.467 tx         |      |
+|  | Fraude: 0.17%    |  | Fraude: 69.7%    |      |
+|  | [Ver Detalhes]   |  | [Ver Detalhes]   |      |
+|  +------------------+  +------------------+      |
+|                                                  |
+|  +------------------+                            |
+|  | FEEDBACK         |                            |
+|  | ~50/dia          |                            |
+|  | Usado: continuo  |                            |
+|  | [Ver Detalhes]   |                            |
+|  +------------------+                            |
++--------------------------------------------------+
+    `
+  },
+  {
+    id: 'settings',
+    nome: 'Configuracoes',
+    icone: Settings,
+    caminho: 'Menu > Configuracoes',
+    rota: '/settings',
+    modulo: 'Sistema',
+    cor: 'slate',
+    objetivo: 'Ajustar preferencias do usuario e configuracoes gerais do sistema. Cada usuario pode personalizar sua experiencia.',
+    quandoUsar: [
+      'Para mudar idioma ou tema',
+      'Para configurar notificacoes',
+      'Para ajustar preferencias pessoais',
+      'Para gerenciar integracao com outros sistemas'
+    ],
+    elementos: [
+      { nome: 'Tema', tipo: 'Toggle', desc: 'Claro ou escuro' },
+      { nome: 'Notificacoes', tipo: 'Checkboxes', desc: 'Quais alertas receber' },
+      { nome: 'Idioma', tipo: 'Seletor', desc: 'Portugues, Ingles, etc.' },
+      { nome: 'Integracao', tipo: 'Configuracao', desc: 'APIs externas' }
+    ],
+    historia: 'Rodrigo trabalha a noite e acha a tela muito clara. Ele abre Configuracoes e ativa o tema escuro. Tambem desativa notificacoes sonoras para nao incomodar os colegas.',
+    cuidados: [
+      'Algumas configuracoes sao pessoais, outras sao do sistema',
+      'Configuracoes de sistema precisam de permissao de admin',
+      'Mudancas de integracao podem afetar outros usuarios'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  CONFIGURACOES                                   |
++--------------------------------------------------+
+|  APARENCIA                                       |
+|  Tema: [Claro] [Escuro]                          |
+|                                                  |
+|  NOTIFICACOES                                    |
+|  [x] Alertas criticos                            |
+|  [x] Alertas altos                               |
+|  [ ] Alertas medios                              |
+|  [ ] Alertas baixos                              |
+|  [ ] Som ativado                                 |
+|                                                  |
+|  IDIOMA                                          |
+|  [Portugues (Brasil) v]                          |
+|                                                  |
+|  [Salvar Preferencias]                           |
++--------------------------------------------------+
+    `
   }
-};
+];
 
-const allFeatures = {
-  transactionBasic: {
-    category: 'Dados da Transação',
-    icon: DollarSign,
-    color: 'blue',
+const todasAsFeatures = {
+  transacao: {
+    categoria: 'Dados da Transacao',
+    icone: DollarSign,
+    cor: 'blue',
+    descricao: 'Informacoes basicas sobre cada movimentacao financeira.',
+    analogia: 'Pense como os dados de uma nota fiscal: valor, data, quem pagou, quem recebeu.',
     features: [
-      { name: 'amount', type: 'float', description: 'Valor da transação em reais (R$)', example: '4850.00', impact: 'ALTO', riskDirection: 'up', explanation: 'Valores muito acima da média do cliente aumentam o risco. Se você costuma fazer PIX de R$ 500, um de R$ 5.000 é suspeito.' },
-      { name: 'channel', type: 'string', description: 'Canal: PIX, TED, CARTAO, BOLETO', example: 'PIX', impact: 'MÉDIO', riskDirection: 'varies', explanation: 'PIX é o canal mais arriscado por ser instantâneo e irreversível. TED pode ser revertida. Boleto tem prazo.' },
-      { name: 'transaction_hour', type: 'int', description: 'Hora da transação (0-23)', example: '3', impact: 'ALTO', riskDirection: 'up', explanation: 'Transações entre 00h e 06h são 4x mais propensas a fraude. Criminosos agem quando vítimas dormem.' },
-      { name: 'day_of_week', type: 'int', description: 'Dia da semana (0=Seg, 6=Dom)', example: '5', impact: 'BAIXO', riskDirection: 'neutral', explanation: 'Fins de semana têm padrões diferentes. Menos transações legítimas = proporção maior de fraudes.' },
-      { name: 'is_weekend', type: 'bool', description: 'Se é sábado ou domingo', example: 'true', impact: 'BAIXO', riskDirection: 'up', explanation: 'Fins de semana têm equipes menores nos bancos, facilitando ação de fraudadores.' }
+      { nome: 'amount', nomeAmigavel: 'Valor da Transacao', desc: 'Quanto dinheiro esta sendo movimentado', exemplo: 'R$ 4.850,00', importancia: 'Valores muito altos ou muito baixos podem indicar fraude. Fraudadores costumam testar com valores baixos primeiro.' },
+      { nome: 'channel', nomeAmigavel: 'Canal', desc: 'Por onde a transacao foi feita', exemplo: 'PIX, TED, CARTAO, BOLETO', importancia: 'PIX e o canal mais arriscado porque e instantaneo e irreversivel. Cartao permite chargeback.' },
+      { nome: 'transaction_hour', nomeAmigavel: 'Hora da Transacao', desc: 'Em que momento do dia aconteceu', exemplo: '03:42 (madrugada)', importancia: 'Transacoes de madrugada sao 4x mais suspeitas. Fraudadores agem quando a vitima dorme.' },
+      { nome: 'day_of_week', nomeAmigavel: 'Dia da Semana', desc: 'Se e dia util ou fim de semana', exemplo: 'Sabado', importancia: 'Fins de semana tem menos supervisao bancaria, facilitando fraudes.' },
+      { nome: 'is_weekend', nomeAmigavel: 'E Fim de Semana?', desc: 'Indicador binario', exemplo: 'Sim/Nao', importancia: 'Complementa a analise do dia, simplificando regras.' }
     ]
   },
-  velocity: {
-    category: 'Velocidade e Frequência',
-    icon: Zap,
-    color: 'orange',
+  velocidade: {
+    categoria: 'Velocidade e Frequencia',
+    icone: Zap,
+    cor: 'orange',
+    descricao: 'Quantas transacoes em quanto tempo. Velocidade e inimiga do fraudador comum, mas amiga do bot.',
+    analogia: 'E como contar quantas vezes alguem passou pelo mesmo pedagio. Uma vez e normal, 50 vezes em 1 hora e estranho.',
     features: [
-      { name: 'velocity_1h', type: 'int', description: 'Quantidade de transações na última hora', example: '5', impact: 'CRÍTICO', riskDirection: 'up', explanation: 'Se você fez 0 PIX na última hora e de repente faz 5, algo está errado. Fraudadores agem rápido.' },
-      { name: 'velocity_24h', type: 'int', description: 'Quantidade de transações nas últimas 24h', example: '12', impact: 'ALTO', riskDirection: 'up', explanation: 'Compara com seu padrão normal. Se você faz 3/dia e hoje já fez 12, alerta vermelho.' },
-      { name: 'amount_velocity_1h', type: 'float', description: 'Soma dos valores na última hora', example: '15000.00', impact: 'CRÍTICO', riskDirection: 'up', explanation: 'Total movimentado recentemente. R$ 15k em 1 hora é muito diferente de R$ 500.' },
-      { name: 'avg_time_between_tx', type: 'float', description: 'Tempo médio entre transações (minutos)', example: '2.5', impact: 'ALTO', riskDirection: 'down', explanation: 'Transações muito próximas (< 1 min) indicam automação ou pressa de fraudador.' },
-      { name: 'velocity_ratio', type: 'float', description: 'Razão velocidade atual / velocidade média', example: '8.5', impact: 'CRÍTICO', riskDirection: 'up', explanation: 'Se hoje você está fazendo 8.5x mais transações que o normal, algo mudou drasticamente.' }
+      { nome: 'velocity_1h', nomeAmigavel: 'Transacoes na Ultima Hora', desc: 'Quantidade de transacoes nos ultimos 60 minutos', exemplo: '5 transacoes', importancia: 'Muitas transacoes em pouco tempo = bot ou pressa de fraudador.' },
+      { nome: 'velocity_24h', nomeAmigavel: 'Transacoes em 24h', desc: 'Quantidade nas ultimas 24 horas', exemplo: '12 transacoes', importancia: 'Compara com o padrao historico. Se voce faz 3/dia e hoje ja fez 12, algo mudou.' },
+      { nome: 'amount_velocity_1h', nomeAmigavel: 'Valor Movimentado em 1h', desc: 'Soma dos valores na ultima hora', exemplo: 'R$ 15.000', importancia: 'Mais importante que quantidade: quanto dinheiro saiu rapidamente.' },
+      { nome: 'avg_time_between_tx', nomeAmigavel: 'Tempo Medio Entre Transacoes', desc: 'Intervalo tipico entre uma transacao e outra', exemplo: '2.5 minutos', importancia: 'Intervalos muito curtos (<1 min) indicam automacao ou pressa.' },
+      { nome: 'velocity_ratio', nomeAmigavel: 'Razao de Velocidade', desc: 'Velocidade atual dividida pela velocidade media', exemplo: '8.5x', importancia: 'Se voce esta 8.5x mais rapido que o normal, algo muito diferente esta acontecendo.' }
     ]
   },
-  behavioral: {
-    category: 'Comportamento do Cliente',
-    icon: Users,
-    color: 'green',
+  comportamento: {
+    categoria: 'Comportamento do Cliente',
+    icone: Users,
+    cor: 'green',
+    descricao: 'O que e "normal" para este cliente? Cada pessoa tem um padrao.',
+    analogia: 'E como conhecer os habitos de um vizinho. Voce sabe que ele sai as 7h todo dia. Se ele sair as 3h da manha, voce estranha.',
     features: [
-      { name: 'avg_transaction_amount', type: 'float', description: 'Média histórica de valores do cliente', example: '1200.00', impact: 'ALTO', riskDirection: 'varies', explanation: 'Seu "normal". Transação muito acima ou abaixo da média é suspeita.' },
-      { name: 'std_transaction_amount', type: 'float', description: 'Desvio padrão dos valores', example: '500.00', impact: 'MÉDIO', riskDirection: 'varies', explanation: 'Se você sempre gasta valores parecidos, um valor muito diferente é estranho.' },
-      { name: 'amount_deviation', type: 'float', description: 'Quantos desvios padrão do normal', example: '3.5', impact: 'CRÍTICO', riskDirection: 'up', explanation: 'Valor > 3 desvios = muito anormal. É como uma nota de prova muito diferente das outras.' },
-      { name: 'days_since_last_tx', type: 'int', description: 'Dias desde a última transação', example: '45', impact: 'MÉDIO', riskDirection: 'up', explanation: 'Conta inativa há 45 dias que de repente movimenta milhares é suspeita.' },
-      { name: 'account_age_days', type: 'int', description: 'Idade da conta em dias', example: '30', impact: 'ALTO', riskDirection: 'down', explanation: 'Contas muito novas (< 30 dias) são frequentemente usadas para fraude (contas laranja).' }
+      { nome: 'avg_transaction_amount', nomeAmigavel: 'Media de Valor', desc: 'Valor medio historico das transacoes do cliente', exemplo: 'R$ 1.200', importancia: 'Define o que e "normal" para este cliente. Transacao muito acima da media e suspeita.' },
+      { nome: 'std_transaction_amount', nomeAmigavel: 'Desvio Padrao', desc: 'Variacao tipica dos valores', exemplo: 'R$ 500', importancia: 'Clientes com gastos regulares tem desvio baixo. Variacao alta pode indicar conta compartilhada.' },
+      { nome: 'amount_deviation', nomeAmigavel: 'Quantos Desvios do Normal', desc: 'Quao diferente e esta transacao da media', exemplo: '3.5 desvios', importancia: 'Mais de 3 desvios e muito raro estatisticamente. Quase certamente algo anormal.' },
+      { nome: 'days_since_last_tx', nomeAmigavel: 'Dias Desde Ultima Transacao', desc: 'Ha quanto tempo a conta estava inativa', exemplo: '45 dias', importancia: 'Conta parada ha 45 dias que de repente movimenta milhares = suspeito.' },
+      { nome: 'account_age_days', nomeAmigavel: 'Idade da Conta', desc: 'Ha quantos dias a conta existe', exemplo: '30 dias', importancia: 'Contas muito novas (<30 dias) sao frequentemente usadas para fraude (contas laranja).' }
     ]
   },
-  recipient: {
-    category: 'Destinatário',
-    icon: Target,
-    color: 'red',
+  destinatario: {
+    categoria: 'Destinatario',
+    icone: Target,
+    cor: 'red',
+    descricao: 'Quem esta recebendo o dinheiro? O destino e tao importante quanto a origem.',
+    analogia: 'E como investigar para quem voce esta transferindo. Voce conhece essa pessoa? Ja mandou dinheiro antes?',
     features: [
-      { name: 'recipient_is_new', type: 'bool', description: 'Se é a primeira transação para este destinatário', example: 'true', impact: 'CRÍTICO', riskDirection: 'up', explanation: 'Você nunca enviou dinheiro para esta pessoa. Em golpes, o destino é sempre novo.' },
-      { name: 'recipient_risk_score', type: 'float', description: 'Score de risco do recebedor (0-100)', example: '85', impact: 'CRÍTICO', riskDirection: 'up', explanation: 'Se a conta de destino já recebeu dinheiro de outras fraudes, ela é de alto risco.' },
-      { name: 'recipient_account_age', type: 'int', description: 'Idade da conta do destinatário (dias)', example: '7', impact: 'ALTO', riskDirection: 'down', explanation: 'Conta laranja típica tem menos de 30 dias. Abrem, usam para fraude, e abandonam.' },
-      { name: 'recipient_tx_count', type: 'int', description: 'Quantas transações o destinatário já recebeu', example: '3', impact: 'ALTO', riskDirection: 'down', explanation: 'Conta que só recebe (nunca envia) e tem poucas transações é suspeita.' },
-      { name: 'is_known_merchant', type: 'bool', description: 'Se o destinatário é um comerciante conhecido', example: 'false', impact: 'MÉDIO', riskDirection: 'down', explanation: 'Pagamentos para Uber, iFood, Netflix são seguros. Para CPFs desconhecidos, menos.' }
+      { nome: 'recipient_is_new', nomeAmigavel: 'Destinatario Novo?', desc: 'Se e a primeira vez que envia para esta pessoa', exemplo: 'Sim', importancia: 'Em golpes, o destino e SEMPRE novo. A vitima nunca enviou dinheiro para o golpista antes.' },
+      { nome: 'recipient_risk_score', nomeAmigavel: 'Score de Risco do Recebedor', desc: 'Quao arriscada e a conta de destino', exemplo: '85/100', importancia: 'Se a conta de destino ja recebeu dinheiro de outras fraudes, ela e de alto risco.' },
+      { nome: 'recipient_account_age', nomeAmigavel: 'Idade da Conta Destino', desc: 'Ha quanto tempo a conta de destino existe', exemplo: '7 dias', importancia: 'Conta laranja tipica tem menos de 30 dias. Abrem, usam para fraude, e abandonam.' },
+      { nome: 'recipient_tx_count', nomeAmigavel: 'Transacoes do Destinatario', desc: 'Quantas transacoes a conta destino ja recebeu', exemplo: '3', importancia: 'Conta que so recebe (nunca envia) e tem poucas transacoes = suspeita.' },
+      { nome: 'is_known_merchant', nomeAmigavel: 'E Comerciante Conhecido?', desc: 'Se o destino e uma empresa verificada', exemplo: 'Nao', importancia: 'Pagamentos para Uber, iFood, Netflix sao seguros. Para CPFs desconhecidos, menos.' }
     ]
   },
-  device: {
-    category: 'Dispositivo e Localização',
-    icon: Globe,
-    color: 'purple',
+  dispositivo: {
+    categoria: 'Dispositivo e Localizacao',
+    icone: Globe,
+    cor: 'purple',
+    descricao: 'De onde e de qual aparelho veio a transacao?',
+    analogia: 'E como verificar se voce esta usando seu proprio celular de casa, ou um celular estranho de outro pais.',
     features: [
-      { name: 'device_is_new', type: 'bool', description: 'Se o dispositivo nunca foi usado antes', example: 'true', impact: 'CRÍTICO', riskDirection: 'up', explanation: 'Você sempre usa o mesmo celular. Se de repente usa outro, pode ser fraudador com sua senha.' },
-      { name: 'device_fingerprint_match', type: 'float', description: 'Similaridade com devices anteriores (0-1)', example: '0.2', impact: 'ALTO', riskDirection: 'down', explanation: 'Compara características do aparelho. Mesmo que troque de celular, há padrões.' },
-      { name: 'ip_is_vpn', type: 'bool', description: 'Se o IP é de uma VPN conhecida', example: 'true', impact: 'ALTO', riskDirection: 'up', explanation: 'VPNs escondem localização real. Fraudadores usam para parecer que estão em outro lugar.' },
-      { name: 'geolocation_distance_km', type: 'float', description: 'Distância da localização habitual (km)', example: '2500', impact: 'ALTO', riskDirection: 'up', explanation: 'Se você está em SP e a transação vem do Nordeste, como você viajou 2500km em 1 hora?' },
-      { name: 'location_risk_score', type: 'float', description: 'Score de risco da região', example: '75', impact: 'MÉDIO', riskDirection: 'up', explanation: 'Algumas regiões têm mais fraudes que outras. Dado estatístico, não preconceito.' }
+      { nome: 'device_is_new', nomeAmigavel: 'Dispositivo Novo?', desc: 'Se o aparelho nunca foi usado antes', exemplo: 'Sim', importancia: 'Voce sempre usa o mesmo celular. Se de repente usa outro, pode ser fraudador com sua senha.' },
+      { nome: 'device_fingerprint_match', nomeAmigavel: 'Similaridade do Dispositivo', desc: 'Quao parecido e com dispositivos anteriores', exemplo: '0.2 (baixo)', importancia: 'Mesmo que troque de celular, ha padroes. Modelo, sistema, configuracoes.' },
+      { nome: 'ip_is_vpn', nomeAmigavel: 'IP e de VPN?', desc: 'Se o endereco de internet e de uma VPN', exemplo: 'Sim', importancia: 'VPNs escondem localizacao real. Fraudadores usam para parecer que estao em outro lugar.' },
+      { nome: 'geolocation_distance_km', nomeAmigavel: 'Distancia da Localizacao Habitual', desc: 'Quantos km do local normal', exemplo: '2500 km', importancia: 'Se voce esta em SP e a transacao vem do Nordeste, como voce viajou 2500km em 1 hora?' },
+      { nome: 'location_risk_score', nomeAmigavel: 'Score de Risco da Regiao', desc: 'Quao arriscada e a regiao de origem', exemplo: '75', importancia: 'Algumas regioes tem mais fraudes que outras. Dado estatistico, nao preconceito.' }
     ]
   },
   temporal: {
-    category: 'Padrões Temporais',
-    icon: Clock,
-    color: 'indigo',
+    categoria: 'Padroes Temporais',
+    icone: Clock,
+    cor: 'indigo',
+    descricao: 'Quando aconteceu e se bate com o padrao historico.',
+    analogia: 'E como observar se alguem esta agindo em horario normal ou em horario suspeito.',
     features: [
-      { name: 'is_night_transaction', type: 'bool', description: 'Se é entre 00h e 06h', example: 'true', impact: 'ALTO', riskDirection: 'up', explanation: 'Madrugada é horário preferido de fraudadores. Menos supervisão, vítima dormindo.' },
-      { name: 'is_rush_hour', type: 'bool', description: 'Se é horário de pico (7-9h, 17-19h)', example: 'false', impact: 'BAIXO', riskDirection: 'down', explanation: 'Transações em horário comercial são mais normais.' },
-      { name: 'time_since_account_login', type: 'int', description: 'Minutos desde o último login', example: '2', impact: 'MÉDIO', riskDirection: 'down', explanation: 'Transação logo após login longo pode ser sessão hackeada.' },
-      { name: 'usual_hour_deviation', type: 'float', description: 'Desvio do horário habitual', example: '8.5', impact: 'ALTO', riskDirection: 'up', explanation: 'Se você sempre faz transações às 14h e agora faz às 3h, mudança suspeita.' },
-      { name: 'days_since_password_change', type: 'int', description: 'Dias desde a última troca de senha', example: '1', impact: 'ALTO', riskDirection: 'down', explanation: 'Transação grande logo após troca de senha pode indicar que fraudador trocou.' }
+      { nome: 'is_night_transaction', nomeAmigavel: 'E Transacao Noturna?', desc: 'Se aconteceu entre 00h e 06h', exemplo: 'Sim', importancia: 'Madrugada e horario preferido de fraudadores. Menos supervisao, vitima dormindo.' },
+      { nome: 'is_rush_hour', nomeAmigavel: 'E Horario de Pico?', desc: 'Se e horario comercial movimentado', exemplo: 'Nao', importancia: 'Transacoes em horario comercial sao mais normais.' },
+      { nome: 'time_since_account_login', nomeAmigavel: 'Minutos Desde o Login', desc: 'Quanto tempo passou desde que logou', exemplo: '2 minutos', importancia: 'Transacao logo apos login longo pode ser sessao hackeada.' },
+      { nome: 'usual_hour_deviation', nomeAmigavel: 'Desvio do Horario Habitual', desc: 'Quao diferente e do horario normal', exemplo: '8.5 horas', importancia: 'Se voce sempre faz transacoes as 14h e agora faz as 3h, mudanca suspeita.' },
+      { nome: 'days_since_password_change', nomeAmigavel: 'Dias Desde Troca de Senha', desc: 'Quando a senha foi trocada pela ultima vez', exemplo: '1 dia', importancia: 'Transacao grande logo apos troca de senha pode indicar que fraudador trocou.' }
     ]
   },
-  network: {
-    category: 'Análise de Rede',
-    icon: Network,
-    color: 'teal',
+  rede: {
+    categoria: 'Analise de Rede',
+    icone: Network,
+    cor: 'teal',
+    descricao: 'Conexoes entre contas, dispositivos e IPs. Fraude nunca e isolada.',
+    analogia: 'E como mapear amizades. Se seus amigos sao fraudadores, voce e mais suspeito tambem.',
     features: [
-      { name: 'shared_device_count', type: 'int', description: 'Quantas contas usam o mesmo device', example: '5', impact: 'CRÍTICO', riskDirection: 'up', explanation: 'Se 5 CPFs diferentes usam o mesmo celular, provavelmente é uma quadrilha.' },
-      { name: 'shared_ip_count', type: 'int', description: 'Quantas contas usam o mesmo IP', example: '8', impact: 'ALTO', riskDirection: 'up', explanation: 'Múltiplas contas no mesmo IP = possível operação de fraude.' },
-      { name: 'network_fraud_rate', type: 'float', description: 'Taxa de fraude na rede do cliente', example: '0.15', impact: 'ALTO', riskDirection: 'up', explanation: 'Se pessoas conectadas a você cometeram fraude, você é mais suspeito.' },
-      { name: 'degree_centrality', type: 'float', description: 'Centralidade na rede de transações', example: '0.85', impact: 'MÉDIO', riskDirection: 'varies', explanation: 'Contas muito conectadas podem ser laranjas distribuindo dinheiro.' },
-      { name: 'community_risk', type: 'float', description: 'Risco médio da comunidade de transações', example: '0.4', impact: 'ALTO', riskDirection: 'up', explanation: 'Se você transaciona com pessoas de alto risco, seu risco aumenta.' }
+      { nome: 'shared_device_count', nomeAmigavel: 'Contas no Mesmo Device', desc: 'Quantas contas usam o mesmo aparelho', exemplo: '5', importancia: 'Se 5 CPFs diferentes usam o mesmo celular, provavelmente e uma quadrilha.' },
+      { nome: 'shared_ip_count', nomeAmigavel: 'Contas no Mesmo IP', desc: 'Quantas contas usam o mesmo endereco de internet', exemplo: '8', importancia: 'Multiplas contas no mesmo IP = possivel operacao de fraude.' },
+      { nome: 'network_fraud_rate', nomeAmigavel: 'Taxa de Fraude na Rede', desc: 'Porcentagem de fraude entre conexoes', exemplo: '15%', importancia: 'Se pessoas conectadas a voce cometeram fraude, voce e mais suspeito.' },
+      { nome: 'degree_centrality', nomeAmigavel: 'Centralidade na Rede', desc: 'Quao conectada e a conta', exemplo: '0.85', importancia: 'Contas muito conectadas podem ser laranjas distribuindo dinheiro.' },
+      { nome: 'community_risk', nomeAmigavel: 'Risco da Comunidade', desc: 'Risco medio das contas conectadas', exemplo: '0.4', importancia: 'Se voce transaciona com pessoas de alto risco, seu risco aumenta.' }
     ]
   },
-  mlDerived: {
-    category: 'Features Derivadas por IA',
-    icon: Brain,
-    color: 'pink',
+  derivadas: {
+    categoria: 'Features Derivadas por IA',
+    icone: Brain,
+    cor: 'pink',
+    descricao: 'Calculadas automaticamente pela IA. Sao combinacoes complexas das outras features.',
+    analogia: 'E como a nota final de uma prova, que junta todas as questoes em uma unica pontuacao.',
     features: [
-      { name: 'anomaly_score', type: 'float', description: 'Score de anomalia (0-1)', example: '0.92', impact: 'CRÍTICO', riskDirection: 'up', explanation: 'Quão diferente esta transação é de todas as outras. 0.92 = muito anormal.' },
-      { name: 'cluster_distance', type: 'float', description: 'Distância do centróide do cluster', example: '3.5', impact: 'ALTO', riskDirection: 'up', explanation: 'Transações são agrupadas por similaridade. Estar longe do grupo = diferente.' },
-      { name: 'fraud_probability', type: 'float', description: 'Probabilidade de fraude (0-1)', example: '0.87', impact: 'CRÍTICO', riskDirection: 'up', explanation: 'Resultado final do modelo. 0.87 = 87% de chance de ser fraude.' },
-      { name: 'ensemble_agreement', type: 'float', description: 'Concordância entre os 3 modelos', example: '0.95', impact: 'ALTO', riskDirection: 'varies', explanation: 'Se os 3 modelos concordam, confiamos mais. Discordância = incerteza.' },
-      { name: 'confidence_score', type: 'float', description: 'Confiança da predição', example: '0.88', impact: 'MÉDIO', riskDirection: 'varies', explanation: 'O quão certo o modelo está. Baixa confiança = revisar manualmente.' }
+      { nome: 'anomaly_score', nomeAmigavel: 'Score de Anomalia', desc: 'Quao diferente e esta transacao de todas as outras', exemplo: '0.92', importancia: 'Quanto mais perto de 1, mais anormal. 0.92 = muito fora do padrao.' },
+      { nome: 'cluster_distance', nomeAmigavel: 'Distancia do Cluster', desc: 'Quao longe esta do grupo similar', exemplo: '3.5', importancia: 'Transacoes sao agrupadas por similaridade. Estar longe do grupo = diferente.' },
+      { nome: 'fraud_probability', nomeAmigavel: 'Probabilidade de Fraude', desc: 'Chance de ser fraude (0-100%)', exemplo: '87%', importancia: 'Resultado final do modelo. 87% = alta chance de ser fraude.' },
+      { nome: 'ensemble_agreement', nomeAmigavel: 'Concordancia do Ensemble', desc: 'Se os 3 modelos concordam', exemplo: '95%', importancia: 'Se os 3 modelos concordam, confiamos mais. Discordancia = incerteza.' },
+      { nome: 'confidence_score', nomeAmigavel: 'Confianca da Predicao', desc: 'Quao certo o modelo esta', exemplo: '88%', importancia: 'Baixa confianca = revisar manualmente.' }
     ]
   }
 };
 
-const datasets = {
-  kaggle: {
-    name: 'Credit Card Fraud Detection (Kaggle)',
-    source: 'Kaggle - Machine Learning Group ULB',
-    records: '284.807 transações',
-    fraudRate: '0.172% (492 fraudes)',
-    icon: Database,
-    color: 'blue',
-    description: 'Dataset público mais famoso para detecção de fraudes. Contém transações de cartão de crédito de setembro de 2013 por titulares europeus.',
-    features: [
-      { name: 'V1-V28', description: 'Features transformadas por PCA (Principal Component Analysis) para proteger privacidade' },
-      { name: 'Time', description: 'Segundos decorridos entre esta e a primeira transação do dataset' },
-      { name: 'Amount', description: 'Valor da transação' },
-      { name: 'Class', description: 'Label: 0 = legítima, 1 = fraude' }
+const datasets = [
+  {
+    id: 'kaggle',
+    nome: 'Credit Card Fraud Detection (Kaggle)',
+    icone: Globe,
+    cor: 'blue',
+    registros: '284.807 transacoes',
+    taxaFraude: '0.172%',
+    origem: 'Kaggle - Machine Learning Group ULB (Belgica)',
+    descricao: 'O dataset mais famoso do mundo para detecao de fraudes. Contem transacoes reais de cartao de credito de setembro de 2013 por titulares europeus.',
+    campos: [
+      { nome: 'V1 a V28', desc: 'Features transformadas por PCA para proteger privacidade. Nao sabemos o significado original.' },
+      { nome: 'Time', desc: 'Segundos desde a primeira transacao do dataset.' },
+      { nome: 'Amount', desc: 'Valor da transacao em euros.' },
+      { nome: 'Class', desc: 'Se e fraude (1) ou nao (0).' }
     ],
-    preprocessing: [
-      'Normalização do Amount usando StandardScaler',
-      'SMOTE para balanceamento (oversampling da classe minoritária)',
-      'Split 70/15/15 (treino/validação/teste)',
-      'Remoção de outliers extremos (> 5 desvios padrão)'
-    ],
-    limitations: [
-      'Features V1-V28 são anônimas (não sabemos o significado)',
-      'Dados de 2013 (padrões de fraude evoluíram)',
-      'Apenas cartão de crédito (sem PIX, TED)',
-      'Contexto europeu (diferente do Brasil)'
-    ],
-    usage: 'Pré-treinamento inicial dos modelos. Fornece base estatística robusta.'
+    uso: 'Pre-treinamento inicial. Fornece base estatistica robusta antes de adaptar para o Brasil.',
+    limitacoes: [
+      'Dados de 2013 - padroes de fraude evoluiram',
+      'Apenas cartao de credito (sem PIX)',
+      'Contexto europeu (diferente do Brasil)',
+      'Features anonimas (nao sabemos o que significam)'
+    ]
   },
-  production: {
-    name: 'Transações de Produção (PostgreSQL)',
-    source: 'Sistema Sankofa - Dados Reais',
-    records: '4.467 transações',
-    fraudRate: '69.73% (3.115 fraudes)',
-    icon: Server,
-    color: 'green',
-    description: 'Dados reais do sistema em produção. Inclui PIX, TED, cartões e boletos com contexto brasileiro.',
-    features: [
-      { name: 'transaction_id', description: 'ID único da transação (UUID)' },
-      { name: 'amount', description: 'Valor em reais (R$)' },
-      { name: 'channel', description: 'PIX, TED, CREDIT_CARD, DEBIT_CARD, BOLETO' },
-      { name: 'risk_score', description: 'Score calculado pelo modelo (0-100)' },
-      { name: 'is_fraud', description: 'Se foi confirmada como fraude' },
-      { name: 'created_at', description: 'Timestamp da transação' },
-      { name: 'customer_id', description: 'ID do cliente (mascarado por LGPD)' }
+  {
+    id: 'producao',
+    nome: 'Transacoes de Producao',
+    icone: Server,
+    cor: 'green',
+    registros: '4.467 transacoes',
+    taxaFraude: '69.73%',
+    origem: 'Sistema Sankofa - PostgreSQL',
+    descricao: 'Dados reais processados pelo sistema em producao. Inclui PIX, TED, cartoes e boletos com contexto 100% brasileiro.',
+    campos: [
+      { nome: 'transaction_id', desc: 'Identificador unico (UUID).' },
+      { nome: 'amount', desc: 'Valor em reais (R$).' },
+      { nome: 'channel', desc: 'PIX, TED, CREDIT_CARD, DEBIT_CARD, BOLETO.' },
+      { nome: 'risk_score', desc: 'Score calculado pelo modelo (0-100).' },
+      { nome: 'is_fraud', desc: 'Se foi confirmada como fraude.' },
+      { nome: 'created_at', desc: 'Data e hora da transacao.' }
     ],
-    distribution: [
-      { channel: 'PIX', count: 4285, frauds: 3081, fraudRate: '71.9%' },
-      { channel: 'TED', count: 86, frauds: 14, fraudRate: '16.3%' },
-      { channel: 'BOLETO', count: 88, frauds: 14, fraudRate: '15.9%' },
-      { channel: 'CARTÃO', count: 8, frauds: 6, fraudRate: '75.0%' }
-    ],
-    preprocessing: [
-      'Mascaramento de CPF (LGPD)',
-      'Hash de device_id',
-      'Anonimização de geolocalização',
-      'Retenção de 90 dias (compliance)'
-    ],
-    usage: 'Fine-tuning dos modelos para contexto brasileiro. Validação de performance real.'
+    uso: 'Fine-tuning dos modelos. Adapta o conhecimento global para realidade brasileira.',
+    distribuicao: [
+      { canal: 'PIX', quantidade: 4285, fraudes: 3081, taxa: '71.9%' },
+      { canal: 'TED', quantidade: 86, fraudes: 14, taxa: '16.3%' },
+      { canal: 'BOLETO', quantidade: 88, fraudes: 14, taxa: '15.9%' }
+    ]
   },
-  feedback: {
-    name: 'Feedback dos Analistas',
-    source: 'Human-in-the-Loop',
-    records: '~50 feedbacks/dia',
-    icon: MessageSquare,
-    color: 'purple',
-    description: 'Correções e confirmações feitas por analistas humanos. Fundamental para aprendizado contínuo.',
-    fields: [
-      { name: 'transaction_id', description: 'ID da transação avaliada' },
-      { name: 'analyst_decision', description: 'FRAUD, LEGITIMATE, NEEDS_REVIEW' },
-      { name: 'confidence', description: 'Confiança do analista (1-5)' },
-      { name: 'reasoning', description: 'Texto explicando a decisão' },
-      { name: 'analyst_id', description: 'ID do analista' },
-      { name: 'timestamp', description: 'Quando o feedback foi dado' }
+  {
+    id: 'feedback',
+    nome: 'Feedback dos Analistas',
+    icone: MessageSquare,
+    cor: 'purple',
+    registros: '~50 feedbacks/dia',
+    taxaFraude: 'N/A',
+    origem: 'Human-in-the-Loop',
+    descricao: 'Correcoes e confirmacoes feitas por analistas humanos. Fundamental para aprendizado continuo da IA.',
+    campos: [
+      { nome: 'transaction_id', desc: 'ID da transacao avaliada.' },
+      { nome: 'analyst_decision', desc: 'FRAUD, LEGITIMATE, ou NEEDS_REVIEW.' },
+      { nome: 'confidence', desc: 'Confianca do analista (1-5).' },
+      { nome: 'reasoning', desc: 'Texto explicando a decisao.' },
+      { nome: 'analyst_id', desc: 'Quem deu o feedback.' }
     ],
-    workflow: [
-      'Modelo faz predição inicial',
+    uso: 'Continuous Learning. Modelo evolui diariamente com feedback humano.',
+    fluxo: [
+      'IA faz predicao inicial',
       'Analista revisa e confirma/corrige',
-      'Feedback é armazenado no banco',
-      'Diariamente: batch de retraining',
-      'Modelo é recalibrado com novos dados'
-    ],
-    importance: [
-      'Captura novos padrões de fraude',
-      'Corrige vieses do modelo',
-      'Adapta a mudanças no comportamento',
-      'Mantém modelo atualizado'
-    ],
-    usage: 'Continuous Learning. Modelo evolui com feedback humano.'
-  }
-};
-
-const transferLearning = {
-  phases: [
-    {
-      phase: 1,
-      name: 'Pré-Treinamento',
-      icon: Database,
-      color: 'blue',
-      duration: '~2 horas',
-      description: 'Modelo aprende padrões básicos de fraude com dataset Kaggle',
-      details: [
-        'Carrega 284.807 transações do Kaggle',
-        'Treina Random Forest com 100 árvores',
-        'Treina Gradient Boosting com 100 estimadores',
-        'Treina CatBoost com 500 iterações',
-        'Valida com 15% dos dados reservados',
-        'AUC-ROC > 0.95 nesta fase'
-      ],
-      metrics: { accuracy: '99.2%', auc: '0.97', precision: '85%', recall: '82%' }
-    },
-    {
-      phase: 2,
-      name: 'Adaptação de Domínio',
-      icon: RefreshCw,
-      color: 'green',
-      duration: '~30 minutos',
-      description: 'Modelo se adapta ao contexto brasileiro e tipos de transação locais',
-      details: [
-        'Fine-tune com dados de produção (4.467 transações)',
-        'Adiciona features específicas de PIX',
-        'Aprende padrões de TED brasileira',
-        'Ajusta pesos para horários locais (fuso)',
-        'Calibra thresholds para falsos positivos aceitáveis',
-        'Valida com transações recentes'
-      ],
-      metrics: { accuracy: '97.8%', auc: '0.94', precision: '92%', recall: '89%' }
-    },
-    {
-      phase: 3,
-      name: 'Ensemble Voting',
-      icon: Layers,
-      color: 'purple',
-      duration: 'Tempo real',
-      description: 'Os 3 modelos votam juntos para decisão final mais robusta',
-      details: [
-        'Random Forest dá probabilidade P1',
-        'Gradient Boosting dá probabilidade P2',
-        'CatBoost dá probabilidade P3',
-        'Score final = média ponderada (RF: 0.3, GB: 0.35, CB: 0.35)',
-        'Pesos definidos por performance no validation set',
-        'Discordância alta = encaminha para análise manual'
-      ],
-      metrics: { accuracy: '98.5%', auc: '0.96', precision: '94%', recall: '91%' }
-    },
-    {
-      phase: 4,
-      name: 'Aprendizado Contínuo',
-      icon: Brain,
-      color: 'pink',
-      duration: 'Contínuo',
-      description: 'Modelo evolui diariamente com feedback dos analistas',
-      details: [
-        'Coleta ~50 feedbacks/dia dos analistas',
-        'Batch retraining às 04:00 (baixo volume)',
-        'Incremental learning: não descarta conhecimento anterior',
-        'Detecta concept drift (mudança de padrões)',
-        'Alerta se performance degradar',
-        'Rollback automático se nova versão piorar'
-      ],
-      metrics: { accuracy: '99.1%', auc: '0.97', precision: '95%', recall: '93%' }
-    }
-  ],
-  models: {
-    randomForest: {
-      name: 'Random Forest',
-      icon: GitBranch,
-      weight: 0.30,
-      strengths: ['Robusto a outliers', 'Interpreta importância de features', 'Paralelo = rápido'],
-      weaknesses: ['Menos preciso em dados novos', 'Pode overfit em datasets pequenos'],
-      hyperparameters: {
-        n_estimators: 100,
-        max_depth: 15,
-        min_samples_split: 5,
-        min_samples_leaf: 2,
-        class_weight: 'balanced'
-      }
-    },
-    gradientBoosting: {
-      name: 'Gradient Boosting',
-      icon: TrendingUp,
-      weight: 0.35,
-      strengths: ['Excelente em dados tabulares', 'Captura relações complexas', 'Bom com classes desbalanceadas'],
-      weaknesses: ['Mais lento que RF', 'Sensível a outliers'],
-      hyperparameters: {
-        n_estimators: 100,
-        learning_rate: 0.1,
-        max_depth: 6,
-        subsample: 0.8,
-        colsample_bytree: 0.8
-      }
-    },
-    catboost: {
-      name: 'CatBoost',
-      icon: Cpu,
-      weight: 0.35,
-      strengths: ['Lida bem com categóricas', 'Pouco overfitting', 'State-of-the-art em fraude'],
-      weaknesses: ['Treinamento mais demorado', 'Mais complexo de tunar'],
-      hyperparameters: {
-        iterations: 500,
-        learning_rate: 0.05,
-        depth: 8,
-        l2_leaf_reg: 3,
-        auto_class_weights: 'Balanced'
-      }
-    }
-  }
-};
-
-const compliance = {
-  lgpd: {
-    name: 'LGPD - Lei Geral de Proteção de Dados',
-    icon: Shield,
-    color: 'blue',
-    law: 'Lei 13.709/2018',
-    articles: [
-      { number: 'Art. 6º', title: 'Princípios', description: 'Finalidade, adequação, necessidade, livre acesso, qualidade, transparência, segurança, prevenção.' },
-      { number: 'Art. 7º', title: 'Bases Legais', description: 'Consentimento, execução de contrato, legítimo interesse, proteção ao crédito.' },
-      { number: 'Art. 18', title: 'Direitos do Titular', description: 'Confirmação, acesso, correção, portabilidade, eliminação, revogação.' },
-      { number: 'Art. 46', title: 'Segurança', description: 'Medidas técnicas e administrativas para proteger dados de acessos não autorizados.' }
-    ],
-    implementation: [
-      { feature: 'Mascaramento de CPF', status: '✅ Implementado', details: 'CPF exibido como ***.***. XXX-XX' },
-      { feature: 'Hash de Device ID', status: '✅ Implementado', details: 'SHA-256 irreversível' },
-      { feature: 'Anonimização de IP', status: '✅ Implementado', details: 'Últimos octetos removidos' },
-      { feature: 'Retenção de 90 dias', status: '✅ Implementado', details: 'Auto-purge de dados antigos' },
-      { feature: 'Audit Trail', status: '✅ Implementado', details: 'Todas as ações são logadas' },
-      { feature: 'Direito ao Esquecimento', status: '✅ Implementado', details: 'Endpoint para exclusão de dados' }
+      'Feedback e armazenado',
+      'Retraining diario as 04:00',
+      'Modelo e atualizado'
     ]
+  }
+];
+
+const transferLearningFases = [
+  {
+    fase: 1,
+    nome: 'Pre-Treinamento',
+    icone: Database,
+    cor: 'blue',
+    duracao: '~2 horas',
+    descricao: 'O modelo aprende padroes GERAIS de fraude usando o dataset Kaggle com 284 mil transacoes.',
+    analogia: 'E como estudar medicina geral antes de se especializar. Primeiro aprende o basico que vale para todo mundo.',
+    detalhes: [
+      'Carrega 284.807 transacoes do Kaggle',
+      'Treina Random Forest com 100 arvores',
+      'Treina Gradient Boosting com 100 estimadores',
+      'Treina CatBoost com 500 iteracoes',
+      'Valida com 15% dos dados reservados'
+    ],
+    metricas: { accuracy: '99.2%', auc: '0.97', precision: '85%', recall: '82%' },
+    resultado: 'Modelo que sabe detectar fraude em geral, mas ainda nao conhece o Brasil.'
   },
-  bacen: {
-    name: 'BACEN - Banco Central do Brasil',
-    icon: Building,
-    color: 'green',
-    regulations: [
-      { number: 'Res. 4.893/2021', title: 'Política de Segurança Cibernética', description: 'Requisitos mínimos para segurança em instituições financeiras.' },
-      { number: 'Circ. 3.978/2020', title: 'Prevenção à Lavagem de Dinheiro', description: 'Procedimentos para detecção e comunicação de operações suspeitas.' },
-      { number: 'Res. BCB 1/2020', title: 'PIX - Regulamento', description: 'SLA de 10 segundos para liquidação, fraude zero tolerance.' }
+  {
+    fase: 2,
+    nome: 'Adaptacao de Dominio',
+    icone: RefreshCw,
+    cor: 'green',
+    duracao: '~30 minutos',
+    descricao: 'O modelo se ADAPTA ao contexto brasileiro usando dados reais de producao.',
+    analogia: 'E como um medico estrangeiro fazendo residencia no Brasil. Ele ja sabe medicina, mas aprende as doencas mais comuns aqui.',
+    detalhes: [
+      'Fine-tune com 4.467 transacoes brasileiras',
+      'Adiciona features especificas de PIX',
+      'Aprende padroes de TED brasileira',
+      'Ajusta pesos para horarios locais',
+      'Calibra thresholds para falsos positivos aceitaveis'
     ],
-    requirements: [
-      { requirement: 'SLA PIX < 10s', status: '✅ Cumprido', details: 'Latência atual: 37-50ms' },
-      { requirement: 'STR em 24h', status: '✅ Cumprido', details: 'Sistema gera STR automático' },
-      { requirement: 'Audit Trail', status: '✅ Cumprido', details: '38 registros ativos' },
-      { requirement: 'Treinamento Equipe', status: '✅ Cumprido', details: 'Certificação anual' },
-      { requirement: 'Incidentes < 24h', status: '✅ Cumprido', details: 'Notificação automática' }
-    ]
+    metricas: { accuracy: '97.8%', auc: '0.94', precision: '92%', recall: '89%' },
+    resultado: 'Modelo adaptado para Brasil. Conhece PIX, TED, horarios e padroes locais.'
   },
-  pciDss: {
-    name: 'PCI DSS - Payment Card Industry Data Security Standard',
-    icon: Lock,
-    color: 'purple',
-    version: 'v4.0',
-    requirements: [
-      { number: 'Req. 3', title: 'Proteger Dados do Titular', status: '✅', details: 'Dados de cartão nunca são armazenados em claro.' },
-      { number: 'Req. 4', title: 'Criptografar Transmissão', status: '✅', details: 'TLS 1.3 em todas as comunicações.' },
-      { number: 'Req. 6', title: 'Desenvolver com Segurança', status: '✅', details: 'SAST/DAST em CI/CD.' },
-      { number: 'Req. 7', title: 'Acesso Need-to-Know', status: '✅', details: 'RBAC com 5 roles.' },
-      { number: 'Req. 8', title: 'Autenticação Forte', status: '✅', details: 'JWT + 2FA.' },
-      { number: 'Req. 10', title: 'Monitorar Acessos', status: '✅', details: 'Logs de todas as ações.' }
-    ]
+  {
+    fase: 3,
+    nome: 'Ensemble Voting',
+    icone: Layers,
+    cor: 'purple',
+    duracao: 'Tempo real',
+    descricao: 'Os 3 modelos VOTAM juntos para uma decisao mais robusta. E como um tribunal com 3 juizes.',
+    analogia: 'Se 2 de 3 especialistas concordam, voce confia mais. Se os 3 discordam, precisa investigar melhor.',
+    detalhes: [
+      'Random Forest da probabilidade P1 (peso 30%)',
+      'Gradient Boosting da probabilidade P2 (peso 35%)',
+      'CatBoost da probabilidade P3 (peso 35%)',
+      'Score final = media ponderada',
+      'Discordancia alta = encaminha para analise manual'
+    ],
+    metricas: { accuracy: '98.5%', auc: '0.96', precision: '94%', recall: '91%' },
+    resultado: 'Decisao mais confiavel que qualquer modelo individual.'
+  },
+  {
+    fase: 4,
+    nome: 'Aprendizado Continuo',
+    icone: Brain,
+    cor: 'pink',
+    duracao: 'Continuo',
+    descricao: 'O modelo EVOLUI diariamente com feedback dos analistas. Nunca para de aprender.',
+    analogia: 'E como um medico que continua estudando a vida toda. Cada caso novo e uma licao.',
+    detalhes: [
+      'Coleta ~50 feedbacks/dia dos analistas',
+      'Batch retraining as 04:00 (baixo volume)',
+      'Incremental learning: nao descarta conhecimento anterior',
+      'Detecta concept drift (mudanca de padroes)',
+      'Rollback automatico se nova versao piorar'
+    ],
+    metricas: { accuracy: '99.1%', auc: '0.97', precision: '95%', recall: '93%' },
+    resultado: 'Modelo que melhora constantemente e se adapta a novos tipos de fraude.'
   }
-};
+];
 
-function PersonaCard({ name, role, avatar, department, experience, quote, color, responsibilities, kpis }) {
-  const colorClasses = {
-    blue: 'bg-blue-500',
-    green: 'bg-green-500',
-    purple: 'bg-purple-500',
-    orange: 'bg-orange-500'
-  };
+const faq = [
+  { pergunta: 'Onde encontro o cadastro de clientes?', resposta: 'Este sistema nao tem cadastro de clientes direto. Os clientes vem do sistema bancario principal. Aqui voce ve apenas as transacoes que eles fazem.' },
+  { pergunta: 'Como vejo o score de risco de uma transacao?', resposta: 'Va em Menu > Transacoes, busque pela transacao, e veja a coluna "Score". Quanto maior o numero (0-100), maior o risco.' },
+  { pergunta: 'O que significa score 87?', resposta: 'Score 87 significa 87% de chance de ser fraude. Scores acima de 70 geralmente sao bloqueados automaticamente.' },
+  { pergunta: 'Posso desfazer um bloqueio?', resposta: 'Sim! Va em Menu > Transacoes, encontre a transacao bloqueada, e clique em "Liberar". Voce precisara justificar a decisao.' },
+  { pergunta: 'Como adiciono um cliente na VIP List?', resposta: 'Menu > VIP List > Adicionar VIP. Preencha o CPF/CNPJ, motivo, e defina a validade. Apenas lideres tem essa permissao.' },
+  { pergunta: 'O que e a HOT List?', resposta: 'E a lista negra. CPFs, devices ou IPs que SEMPRE serao bloqueados, sem excecao. Use para fraudadores confirmados.' },
+  { pergunta: 'Como a IA aprende?', resposta: 'Toda vez que voce da feedback (concordando ou discordando da IA), esse feedback treina o modelo. Quanto mais feedback, mais esperta ela fica.' },
+  { pergunta: 'O que fazer se o sistema estiver lento?', resposta: 'Primeiro, verifique Menu > Monitoramento para ver se algum servico esta com problema. Se a latencia estiver alta, avise a TI.' },
+  { pergunta: 'Posso exportar dados?', resposta: 'Sim, na maioria das telas tem um botao "Exportar". Voce pode baixar em CSV, Excel ou PDF dependendo da tela.' },
+  { pergunta: 'O que e LGPD?', resposta: 'E a Lei Geral de Protecao de Dados. Por isso CPFs aparecem mascarados (***456***) e voce nao pode ver dados completos de clientes sem justificativa.' }
+];
 
-  return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-      <div className={`${colorClasses[color]} text-white p-4`}>
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold">
-            {avatar}
-          </div>
-          <div>
-            <h3 className="text-xl font-bold">{name}</h3>
-            <p className="text-white/80">{role}</p>
-          </div>
-        </div>
-      </div>
-      <div className="p-4 space-y-3">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Building className="h-4 w-4" />
-          {department}
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Clock className="h-4 w-4" />
-          {experience}
-        </div>
-        <blockquote className="italic text-gray-500 border-l-4 border-gray-200 pl-3 py-1">
-          "{quote}"
-        </blockquote>
-        {responsibilities && (
-          <div className="mt-4">
-            <h4 className="font-semibold text-gray-700 text-sm mb-2">Responsabilidades:</h4>
-            <ul className="text-xs text-gray-600 space-y-1">
-              {responsibilities.slice(0, 3).map((r, i) => (
-                <li key={i} className="flex items-center gap-1">
-                  <CheckCircle className="h-3 w-3 text-green-500" /> {r}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function AlertBox({ type = 'info', title, children }) {
-  const styles = {
-    info: { bg: 'bg-blue-50', border: 'border-blue-200', icon: Info, iconColor: 'text-blue-600', titleColor: 'text-blue-800' },
-    success: { bg: 'bg-green-50', border: 'border-green-200', icon: CheckCircle, iconColor: 'text-green-600', titleColor: 'text-green-800' },
-    warning: { bg: 'bg-yellow-50', border: 'border-yellow-200', icon: AlertTriangle, iconColor: 'text-yellow-600', titleColor: 'text-yellow-800' },
-    danger: { bg: 'bg-red-50', border: 'border-red-200', icon: XCircle, iconColor: 'text-red-600', titleColor: 'text-red-800' },
-    tip: { bg: 'bg-purple-50', border: 'border-purple-200', icon: Lightbulb, iconColor: 'text-purple-600', titleColor: 'text-purple-800' }
-  };
-  const { bg, border, icon: Icon, iconColor, titleColor } = styles[type];
-
-  return (
-    <div className={`${bg} ${border} border rounded-xl p-4`}>
-      <div className="flex items-start gap-3">
-        <Icon className={`h-5 w-5 ${iconColor} mt-0.5`} />
-        <div>
-          <h4 className={`font-semibold ${titleColor}`}>{title}</h4>
-          <div className="mt-1 text-sm text-gray-700">{children}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Checklist({ items }) {
-  return (
-    <div className="space-y-2">
-      {items.map((item, i) => (
-        <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50">
-          {item.done ? (
-            <CheckCircle className="h-5 w-5 text-green-500" />
-          ) : (
-            <div className="h-5 w-5 border-2 border-gray-300 rounded-full" />
-          )}
-          <span className={item.done ? 'text-gray-700' : 'text-gray-500'}>{item.text}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function KPICard({ title, value, change, changeType, icon: Icon, color }) {
-  const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600',
-    green: 'bg-green-50 text-green-600',
-    red: 'bg-red-50 text-red-600',
-    purple: 'bg-purple-50 text-purple-600',
-    orange: 'bg-orange-50 text-orange-600'
-  };
-
-  return (
-    <div className="bg-white rounded-xl shadow p-4 border">
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-500">{title}</span>
-        <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
-          <Icon className="h-5 w-5" />
-        </div>
-      </div>
-      <div className="mt-2">
-        <span className="text-2xl font-bold text-gray-900">{value}</span>
-        {change && (
-          <span className={`ml-2 text-sm ${changeType === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-            {change}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function StepByStep({ title, steps }) {
-  return (
-    <div className="bg-gray-50 rounded-xl p-6">
-      <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <List className="h-5 w-5 text-blue-600" />
-        {title}
-      </h4>
-      <div className="space-y-4">
-        {steps.map((step, i) => (
-          <div key={i} className="flex gap-4">
-            <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
-                {i + 1}
-              </div>
-              {i < steps.length - 1 && <div className="w-0.5 h-full bg-blue-200 mt-2" />}
-            </div>
-            <div className="flex-1 pb-6">
-              <h5 className="font-semibold text-gray-900">{step.action}</h5>
-              <p className="text-sm text-gray-600 mt-1">{step.details}</p>
-              {step.tip && (
-                <p className="text-xs text-purple-600 mt-2 flex items-center gap-1">
-                  <Lightbulb className="h-3 w-3" /> Dica: {step.tip}
-                </p>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function FeatureCard({ feature, category }) {
-  const riskColors = {
-    up: 'text-red-600 bg-red-50',
-    down: 'text-green-600 bg-green-50',
-    varies: 'text-yellow-600 bg-yellow-50',
-    neutral: 'text-gray-600 bg-gray-50'
-  };
-
-  const impactColors = {
-    'CRÍTICO': 'bg-red-500 text-white',
-    'ALTO': 'bg-orange-500 text-white',
-    'MÉDIO': 'bg-yellow-500 text-white',
-    'BAIXO': 'bg-gray-400 text-white'
-  };
-
-  return (
-    <div className="bg-white rounded-lg border p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-2">
-        <div>
-          <code className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">{feature.name}</code>
-          <span className={`ml-2 text-xs px-2 py-1 rounded ${impactColors[feature.impact]}`}>{feature.impact}</span>
-        </div>
-        <div className={`px-2 py-1 rounded text-xs ${riskColors[feature.riskDirection]}`}>
-          {feature.riskDirection === 'up' ? '↑ Aumenta risco' : feature.riskDirection === 'down' ? '↓ Diminui risco' : '↔ Varia'}
-        </div>
-      </div>
-      <p className="text-sm text-gray-600 mb-2">{feature.description}</p>
-      <p className="text-xs text-gray-500">Exemplo: <code className="bg-gray-100 px-1 rounded">{feature.example}</code></p>
-      <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-        <p className="text-xs text-blue-800"><strong>Explicação:</strong> {feature.explanation}</p>
-      </div>
-    </div>
-  );
-}
-
-function DatasetCard({ dataset }) {
-  const colorClasses = {
-    blue: 'bg-blue-500',
-    green: 'bg-green-500',
-    purple: 'bg-purple-500'
-  };
-
-  return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-      <div className={`${colorClasses[dataset.color]} text-white p-4`}>
-        <div className="flex items-center gap-3">
-          <dataset.icon className="h-8 w-8" />
-          <div>
-            <h3 className="font-bold text-lg">{dataset.name}</h3>
-            <p className="text-sm text-white/80">{dataset.source}</p>
-          </div>
-        </div>
-      </div>
-      <div className="p-4 space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-gray-50 rounded-lg p-3 text-center">
-            <div className="text-xl font-bold text-gray-900">{dataset.records}</div>
-            <div className="text-xs text-gray-500">Registros</div>
-          </div>
-          <div className="bg-gray-50 rounded-lg p-3 text-center">
-            <div className="text-xl font-bold text-red-600">{dataset.fraudRate}</div>
-            <div className="text-xs text-gray-500">Taxa de Fraude</div>
-          </div>
-        </div>
-        <p className="text-sm text-gray-600">{dataset.description}</p>
-      </div>
-    </div>
-  );
-}
-
-function TransferLearningPhase({ phase }) {
-  const colorClasses = {
-    blue: 'bg-blue-500',
-    green: 'bg-green-500',
-    purple: 'bg-purple-500',
-    pink: 'bg-pink-500'
-  };
-
-  return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-      <div className={`${colorClasses[phase.color]} text-white p-4`}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold">
-            {phase.phase}
-          </div>
-          <div>
-            <h3 className="font-bold">{phase.name}</h3>
-            <p className="text-sm text-white/80">Duração: {phase.duration}</p>
-          </div>
-        </div>
-      </div>
-      <div className="p-4 space-y-4">
-        <p className="text-sm text-gray-700">{phase.description}</p>
-        <ul className="text-xs text-gray-600 space-y-1">
-          {phase.details.map((d, i) => (
-            <li key={i} className="flex items-start gap-2">
-              <ArrowRight className="h-3 w-3 text-gray-400 mt-1" />
-              {d}
-            </li>
-          ))}
-        </ul>
-        <div className="grid grid-cols-4 gap-2 mt-4">
-          <div className="bg-gray-50 rounded p-2 text-center">
-            <div className="text-sm font-bold text-gray-900">{phase.metrics.accuracy}</div>
-            <div className="text-[10px] text-gray-500">Accuracy</div>
-          </div>
-          <div className="bg-gray-50 rounded p-2 text-center">
-            <div className="text-sm font-bold text-gray-900">{phase.metrics.auc}</div>
-            <div className="text-[10px] text-gray-500">AUC-ROC</div>
-          </div>
-          <div className="bg-gray-50 rounded p-2 text-center">
-            <div className="text-sm font-bold text-gray-900">{phase.metrics.precision}</div>
-            <div className="text-[10px] text-gray-500">Precision</div>
-          </div>
-          <div className="bg-gray-50 rounded p-2 text-center">
-            <div className="text-sm font-bold text-gray-900">{phase.metrics.recall}</div>
-            <div className="text-[10px] text-gray-500">Recall</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ManualSection({ id, title, icon: Icon, children, defaultOpen = false, priority }) {
+function CollapsibleSection({ title, icon: Icon, children, defaultOpen = false, id, color = 'blue' }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
-  
-  const priorityStyles = {
-    critical: 'border-l-4 border-l-red-500',
-    high: 'border-l-4 border-l-orange-500',
-    default: ''
+  const sectionRef = useRef(null);
+
+  const colorClasses = {
+    blue: 'bg-blue-50 border-blue-200 text-blue-800',
+    green: 'bg-green-50 border-green-200 text-green-800',
+    purple: 'bg-purple-50 border-purple-200 text-purple-800',
+    orange: 'bg-orange-50 border-orange-200 text-orange-800',
+    red: 'bg-red-50 border-red-200 text-red-800'
   };
 
   return (
-    <div id={id} className={`bg-white rounded-xl shadow-lg overflow-hidden ${priorityStyles[priority] || ''}`}>
+    <div id={id} ref={sectionRef} className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        className={`w-full p-5 flex items-center justify-between hover:bg-gray-50 transition-colors ${colorClasses[color]}`}
       >
         <div className="flex items-center gap-3">
-          {Icon && <Icon className="h-6 w-6 text-blue-600" />}
-          <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+          {Icon && <Icon className="h-6 w-6" />}
+          <h2 className="text-xl font-bold">{title}</h2>
         </div>
-        {isOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+        {isOpen ? <ChevronUp className="h-6 w-6" /> : <ChevronDown className="h-6 w-6" />}
       </button>
       {isOpen && <div className="p-6 border-t">{children}</div>}
     </div>
   );
 }
 
-function FAQ({ questions }) {
-  const [openIndex, setOpenIndex] = useState(null);
-  
+function AlertBox({ type = 'info', title, children }) {
+  const styles = {
+    info: { bg: 'bg-blue-50', border: 'border-blue-300', icon: Info, color: 'text-blue-800' },
+    success: { bg: 'bg-green-50', border: 'border-green-300', icon: CheckCircle, color: 'text-green-800' },
+    warning: { bg: 'bg-yellow-50', border: 'border-yellow-300', icon: AlertTriangle, color: 'text-yellow-800' },
+    danger: { bg: 'bg-red-50', border: 'border-red-300', icon: XCircle, color: 'text-red-800' },
+    tip: { bg: 'bg-purple-50', border: 'border-purple-300', icon: Lightbulb, color: 'text-purple-800' }
+  };
+  const { bg, border, icon: IconComponent, color } = styles[type];
+
   return (
-    <div className="space-y-2">
-      {questions.map((q, i) => (
-        <div key={i} className="border border-gray-200 rounded-lg overflow-hidden">
-          <button 
-            onClick={() => setOpenIndex(openIndex === i ? null : i)}
-            className="w-full p-4 text-left flex items-center justify-between hover:bg-gray-50"
-          >
-            <span className="font-medium text-gray-900 flex items-center gap-2">
-              <HelpCircle className="h-5 w-5 text-blue-500" />
-              {q.question}
-            </span>
-            {openIndex === i ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-          </button>
-          {openIndex === i && (
-            <div className="p-4 bg-blue-50 border-t border-gray-200">
-              <p className="text-gray-700">{q.answer}</p>
-            </div>
-          )}
+    <div className={`${bg} ${border} border-2 rounded-xl p-4 my-4`}>
+      <div className="flex items-start gap-3">
+        <IconComponent className={`h-6 w-6 ${color} mt-0.5 flex-shrink-0`} />
+        <div>
+          <h4 className={`font-bold ${color}`}>{title}</h4>
+          <div className="mt-1 text-gray-700">{children}</div>
         </div>
-      ))}
+      </div>
     </div>
   );
 }
 
-function KeyboardShortcut({ keys, description }) {
+function TelaCard({ tela, onClick }) {
   return (
-    <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
-      <span className="text-sm text-gray-600">{description}</span>
-      <div className="flex gap-1">
-        {keys.map((key, i) => (
-          <span key={i}>
-            <kbd className="px-2 py-1 bg-gray-200 rounded text-xs font-mono">{key}</kbd>
-            {i < keys.length - 1 && <span className="mx-1 text-gray-400">+</span>}
-          </span>
-        ))}
+    <div 
+      onClick={onClick}
+      className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer p-4 border-l-4 border-blue-500"
+    >
+      <div className="flex items-center gap-3 mb-2">
+        <tela.icone className="h-8 w-8 text-blue-600" />
+        <div>
+          <h4 className="font-bold text-gray-900">{tela.nome}</h4>
+          <p className="text-xs text-gray-500">{tela.caminho}</p>
+        </div>
+      </div>
+      <p className="text-sm text-gray-600 line-clamp-2">{tela.objetivo.substring(0, 100)}...</p>
+    </div>
+  );
+}
+
+function FeatureCard({ feature, categoria }) {
+  return (
+    <div className="bg-gray-50 rounded-lg p-4 mb-3 hover:bg-gray-100 transition-colors">
+      <div className="flex items-start justify-between mb-2">
+        <div>
+          <code className="text-sm font-mono bg-gray-200 px-2 py-1 rounded">{feature.nome}</code>
+          <span className="ml-2 text-sm font-semibold text-gray-700">{feature.nomeAmigavel}</span>
+        </div>
+      </div>
+      <p className="text-sm text-gray-600 mb-2">{feature.desc}</p>
+      <p className="text-xs text-gray-500 mb-2"><strong>Exemplo:</strong> {feature.exemplo}</p>
+      <div className="bg-blue-50 rounded p-2">
+        <p className="text-xs text-blue-800"><strong>Por que e importante:</strong> {feature.importancia}</p>
       </div>
     </div>
   );
 }
 
 export function Manual() {
-  const [activeTab, setActiveTab] = useState('inicio');
-  
-  const tabs = [
-    { id: 'inicio', label: 'Início', icon: BookOpen },
-    { id: 'dia-a-dia', label: 'Dia a Dia', icon: Calendar },
-    { id: 'features', label: 'Features de IA', icon: Brain },
-    { id: 'datasets', label: 'DataSets', icon: Database },
-    { id: 'transfer-learning', label: 'Transfer Learning', icon: Layers },
-    { id: 'telas', label: 'Todas as Telas', icon: Grid },
-    { id: 'compliance', label: 'Compliance', icon: Shield },
-    { id: 'cenarios', label: 'Cenários Reais', icon: Target },
-    { id: 'glossario', label: 'Glossário', icon: FileText }
-  ];
+  const [activeSection, setActiveSection] = useState('bem-vindo');
+  const [selectedTela, setSelectedTela] = useState(null);
+
+  const scrollToSection = (sectionId) => {
+    setActiveSection(sectionId);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 rounded-2xl p-8 text-white shadow-xl">
+    <div className="min-h-screen bg-gray-50 pb-12">
+      {/* HEADER PRINCIPAL */}
+      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 text-white p-8 rounded-b-3xl shadow-xl">
         <div className="flex items-center gap-4 mb-4">
-          <div className="bg-white/20 p-3 rounded-xl">
-            <BookOpen className="h-10 w-10" />
+          <div className="bg-white/20 p-4 rounded-xl">
+            <BookOpen className="h-12 w-12" />
           </div>
           <div>
-            <h1 className="text-4xl font-bold">Manual Completo do Sankofa v1.0</h1>
-            <p className="text-lg text-blue-100">Sistema de Detecção de Fraudes Bancárias - Guia Definitivo Ultra-Detalhado</p>
+            <h1 className="text-4xl font-bold">Manual Completo do Sankofa</h1>
+            <p className="text-xl text-blue-100">Sistema de Deteccao de Fraudes Bancarias - Guia Ultra-Didatico</p>
           </div>
         </div>
-        <p className="text-blue-100 max-w-4xl">
-          Este é o manual mais completo e didático para analistas de fraude. Contém TODAS as features de IA explicadas,
-          TODOS os datasets utilizados no treinamento, explicação completa de Transfer Learning, todas as 16 telas,
-          cenários reais, compliance LGPD/BACEN/PCI DSS, e muito mais. Use como sua referência diária.
-        </p>
-        <div className="flex items-center gap-6 mt-6 text-sm flex-wrap">
-          <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> Atualizado: 30/11/2025</span>
-          <span className="flex items-center gap-2"><Users className="h-4 w-4" /> Para: Analistas de Fraude</span>
-          <span className="flex items-center gap-2"><Shield className="h-4 w-4" /> Compliance: LGPD/BACEN/PCI DSS</span>
-          <span className="flex items-center gap-2"><Brain className="h-4 w-4" /> 40+ Features de IA</span>
-          <span className="flex items-center gap-2"><Database className="h-4 w-4" /> 3 DataSets Explicados</span>
-        </div>
         
-        {/* Navigation Tabs */}
-        <div className="flex gap-2 mt-6 flex-wrap">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
-                activeTab === tab.id 
-                  ? 'bg-white text-blue-700 font-semibold' 
-                  : 'bg-white/20 hover:bg-white/30'
-              }`}
-            >
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
-            </button>
-          ))}
+        <div className="bg-white/10 rounded-xl p-4 mt-6">
+          <p className="text-blue-100 text-lg">
+            Bem-vindo! Este manual foi criado para ser extremamente claro e didatico. 
+            Aqui voce vai aprender TUDO sobre o sistema: cada tela, cada botao, como a IA funciona, 
+            de onde vem os dados, e como tudo se conecta. Use este guia como sua referencia diaria.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-6 mt-6 text-sm flex-wrap">
+          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Clock className="h-4 w-4" /> Atualizado: 30/11/2025</span>
+          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Users className="h-4 w-4" /> Para: Analistas de Fraude</span>
+          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Grid className="h-4 w-4" /> 16 Telas Documentadas</span>
+          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Brain className="h-4 w-4" /> 40+ Features de IA</span>
+          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Database className="h-4 w-4" /> 3 DataSets</span>
         </div>
       </div>
 
-      {/* ========== ABA: INÍCIO ========== */}
-      {activeTab === 'inicio' && (
-        <>
-          <ManualSection id="bem-vindo" title="🎓 Bem-Vindo ao Sankofa - Seu Guia Completo" icon={GraduationCap} defaultOpen={true}>
-            <div className="space-y-6">
-              <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-6">
-                <h3 className="text-2xl font-bold mb-2">O que você vai aprender neste manual?</h3>
-                <p className="text-green-100">
-                  Este manual foi criado para ser extremamente didático e completo. Independente do seu nível de experiência,
-                  você encontrará explicações claras para TUDO que precisa saber sobre detecção de fraudes bancárias.
+      <div className="max-w-6xl mx-auto px-6 mt-8">
+
+        {/* SECAO 1: BEM-VINDO */}
+        <CollapsibleSection id="bem-vindo" title="Bem-vindo ao Sistema - Visao Geral Didatica" icon={GraduationCap} defaultOpen={true} color="blue">
+          <div className="space-y-6">
+            <AlertBox type="tip" title="O que e o Sankofa?">
+              <p className="text-lg">
+                Pense no Sankofa como um <strong>guarda-costas digital</strong> para o banco. 
+                Enquanto milhoes de transacoes acontecem por segundo, ele analisa CADA UMA em menos de 50 milissegundos 
+                (isso e mais rapido que um piscar de olhos!) e decide se e segura ou suspeita.
+              </p>
+            </AlertBox>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-blue-50 rounded-xl p-6 text-center">
+                <Zap className="h-12 w-12 text-blue-600 mx-auto mb-3" />
+                <h4 className="font-bold text-gray-900 text-lg">Super Rapido</h4>
+                <p className="text-sm text-gray-600 mt-2">
+                  Analisa cada transacao em <strong>37 milissegundos</strong>. 
+                  O cliente nem percebe que foi verificado.
                 </p>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-blue-50 rounded-xl p-6 text-center">
-                  <Brain className="h-12 w-12 text-blue-600 mx-auto mb-3" />
-                  <h4 className="font-bold text-gray-900">40+ Features de IA</h4>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Todas as características que a Inteligência Artificial analisa em cada transação, explicadas de forma simples.
-                  </p>
-                </div>
-                <div className="bg-green-50 rounded-xl p-6 text-center">
-                  <Database className="h-12 w-12 text-green-600 mx-auto mb-3" />
-                  <h4 className="font-bold text-gray-900">3 DataSets Completos</h4>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Kaggle (284k transações), Produção (4.467), e Feedback dos analistas. Saiba como cada um treina o modelo.
-                  </p>
-                </div>
-                <div className="bg-purple-50 rounded-xl p-6 text-center">
-                  <Layers className="h-12 w-12 text-purple-600 mx-auto mb-3" />
-                  <h4 className="font-bold text-gray-900">Transfer Learning</h4>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Como o modelo aprende com dados públicos e depois se adapta ao Brasil. Explicação passo a passo.
-                  </p>
-                </div>
-              </div>
-              
-              <AlertBox type="info" title="Como usar este manual">
-                <p>
-                  Use as abas acima para navegar entre as seções. Cada seção é independente - você pode começar por onde
-                  preferir. Recomendamos começar pelo "Dia a Dia" se você é iniciante, ou ir direto para "Features de IA" 
-                  se quer entender o motor de Machine Learning.
+              <div className="bg-green-50 rounded-xl p-6 text-center">
+                <Brain className="h-12 w-12 text-green-600 mx-auto mb-3" />
+                <h4 className="font-bold text-gray-900 text-lg">Inteligente</h4>
+                <p className="text-sm text-gray-600 mt-2">
+                  <strong>3 modelos de IA</strong> trabalham juntos, analisando mais de 40 caracteristicas diferentes.
                 </p>
-              </AlertBox>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <KPICard title="Transações Processadas" value="4.467" icon={Zap} color="blue" />
-                <KPICard title="Fraudes Detectadas" value="3.115" icon={Shield} color="red" />
-                <KPICard title="Latência Média" value="37ms" icon={Clock} color="green" />
-                <KPICard title="Modelos de IA" value="3" icon={Brain} color="purple" />
+              </div>
+              <div className="bg-purple-50 rounded-xl p-6 text-center">
+                <Users className="h-12 w-12 text-purple-600 mx-auto mb-3" />
+                <h4 className="font-bold text-gray-900 text-lg">Humano + Maquina</h4>
+                <p className="text-sm text-gray-600 mt-2">
+                  Quando a IA tem duvida, <strong>voce decide</strong>. 
+                  E seu feedback treina a IA para ser melhor.
+                </p>
               </div>
             </div>
-          </ManualSection>
 
-          <ManualSection id="personas" title="👥 Conheça Nossa Equipe de Especialistas" icon={Users}>
-            <p className="text-gray-600 mb-6">
-              Acompanhe as histórias de 5 profissionais reais ao longo deste manual. 
-              Cada um tem experiência e perspectiva diferente - você vai aprender com todos eles.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <PersonaCard {...personas.anaPaula} />
-              <PersonaCard {...personas.carlosRoberto} />
-              <PersonaCard {...personas.marinaFernandes} />
-              <PersonaCard {...personas.rodrigoMendes} />
-              <PersonaCard {...personas.patriciaLima} />
+            <div className="bg-gray-900 text-white rounded-xl p-6 mt-6">
+              <h4 className="font-bold text-xl mb-4 flex items-center gap-2">
+                <Workflow className="h-6 w-6" /> Como Funciona em 6 Passos
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-center">
+                {[
+                  { emoji: '1', icon: Smartphone, label: 'Cliente faz PIX' },
+                  { emoji: '2', icon: Search, label: 'Sistema analisa 40+ features' },
+                  { emoji: '3', icon: Brain, label: '3 IAs votam juntas' },
+                  { emoji: '4', icon: Gauge, label: 'Gera score 0-100' },
+                  { emoji: '5', icon: Scale, label: 'Decide: aprovar/bloquear' },
+                  { emoji: '6', icon: CheckCircle, label: 'Tudo em 37ms!' }
+                ].map((step, i) => (
+                  <div key={i} className="bg-gray-800 rounded-lg p-3">
+                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-2 font-bold">{step.emoji}</div>
+                    <step.icon className="h-6 w-6 mx-auto mb-1 text-blue-400" />
+                    <div className="text-xs text-gray-300">{step.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </ManualSection>
 
-          <ManualSection id="como-funciona" title="🧠 Como o Sankofa Funciona - Visão Geral" icon={Cpu}>
-            <div className="space-y-6">
-              <AlertBox type="tip" title="Resumo Executivo">
-                O Sankofa analisa CADA transação bancária em menos de 50 milissegundos (0.05 segundos!) usando 3 modelos 
-                de Inteligência Artificial que trabalham juntos. Ele examina mais de 40 características de cada transação 
-                para decidir se é legítima ou suspeita.
-              </AlertBox>
-              
-              <div className="bg-gray-900 text-white rounded-xl p-6">
-                <h4 className="font-bold mb-4 flex items-center gap-2">
-                  <Workflow className="h-5 w-5" /> Fluxo de uma Transação (Passo a Passo)
+            <h4 className="font-bold text-xl mt-8 mb-4 flex items-center gap-2">
+              <Users className="h-6 w-6 text-blue-600" /> Quem Usa o Sistema?
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Object.values(personas).map((persona, i) => (
+                <div key={i} className={`bg-${persona.color}-50 rounded-xl p-4`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`w-12 h-12 bg-${persona.color}-500 rounded-full flex items-center justify-center text-white font-bold`}>
+                      {persona.avatar}
+                    </div>
+                    <div>
+                      <div className="font-bold">{persona.name}</div>
+                      <div className="text-xs text-gray-600">{persona.role}</div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600">{persona.intro}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </CollapsibleSection>
+
+        {/* SECAO 2: MAPA DAS TELAS */}
+        <CollapsibleSection id="mapa-telas" title="Mapa Visual das Telas e Modulos" icon={Grid} color="green">
+          <AlertBox type="info" title="Navegue pelo Sistema">
+            <p>Abaixo esta o mapa completo de todas as 16 telas do sistema, organizadas por modulo. 
+            Clique em qualquer tela para ver a documentacao detalhada.</p>
+          </AlertBox>
+
+          <div className="space-y-6">
+            {[
+              { modulo: 'Visao Geral', icone: BarChart3, telas: ['dashboard'] },
+              { modulo: 'Operacoes', icone: Activity, telas: ['transactions', 'alerts', 'manual-review'] },
+              { modulo: 'Analise', icone: Search, telas: ['investigation', 'reports'] },
+              { modulo: 'Configuracao', icone: Settings, telas: ['calibration', 'hard-rules'] },
+              { modulo: 'Listas', icone: List, telas: ['vip-list', 'hot-list'] },
+              { modulo: 'ML/Inteligencia', icone: Brain, telas: ['datasets', 'feedback-analyst'] },
+              { modulo: 'Observabilidade', icone: Gauge, telas: ['monitoring', 'metrics'] },
+              { modulo: 'Compliance', icone: Shield, telas: ['audit'] },
+              { modulo: 'Sistema', icone: Settings, telas: ['settings'] }
+            ].map((grupo, i) => (
+              <div key={i}>
+                <h4 className="font-bold text-lg mb-3 flex items-center gap-2">
+                  <grupo.icone className="h-5 w-5 text-blue-600" />
+                  {grupo.modulo}
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-center">
-                  <div className="bg-gray-800 rounded-lg p-4">
-                    <div className="text-3xl mb-2">📱</div>
-                    <div className="font-semibold">1. Cliente</div>
-                    <div className="text-xs text-gray-400">Faz PIX no app</div>
-                    <div className="text-[10px] text-green-400 mt-1">0ms</div>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <ArrowRight className="h-6 w-6 text-gray-500" />
-                  </div>
-                  <div className="bg-gray-800 rounded-lg p-4">
-                    <div className="text-3xl mb-2">🔍</div>
-                    <div className="font-semibold">2. Features</div>
-                    <div className="text-xs text-gray-400">40+ características</div>
-                    <div className="text-[10px] text-yellow-400 mt-1">5ms</div>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <ArrowRight className="h-6 w-6 text-gray-500" />
-                  </div>
-                  <div className="bg-gray-800 rounded-lg p-4">
-                    <div className="text-3xl mb-2">🤖</div>
-                    <div className="font-semibold">3. IA Analisa</div>
-                    <div className="text-xs text-gray-400">3 modelos votam</div>
-                    <div className="text-[10px] text-orange-400 mt-1">25ms</div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-center mt-4">
-                  <div className="bg-gray-800 rounded-lg p-4">
-                    <div className="text-3xl mb-2">📊</div>
-                    <div className="font-semibold">4. Score</div>
-                    <div className="text-xs text-gray-400">0-100 pontos</div>
-                    <div className="text-[10px] text-purple-400 mt-1">30ms</div>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <ArrowRight className="h-6 w-6 text-gray-500" />
-                  </div>
-                  <div className="bg-gray-800 rounded-lg p-4">
-                    <div className="text-3xl mb-2">⚖️</div>
-                    <div className="font-semibold">5. Decisão</div>
-                    <div className="text-xs text-gray-400">Aprovar/Bloquear</div>
-                    <div className="text-[10px] text-cyan-400 mt-1">35ms</div>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <ArrowRight className="h-6 w-6 text-gray-500" />
-                  </div>
-                  <div className="bg-green-800 rounded-lg p-4">
-                    <div className="text-3xl mb-2">✅</div>
-                    <div className="font-semibold">6. Resultado</div>
-                    <div className="text-xs text-gray-300">PIX aprovado!</div>
-                    <div className="text-[10px] text-green-400 mt-1">37ms total</div>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {grupo.telas.map(telaId => {
+                    const tela = todasAsTelas.find(t => t.id === telaId);
+                    if (!tela) return null;
+                    return (
+                      <TelaCard 
+                        key={tela.id} 
+                        tela={tela}
+                        onClick={() => scrollToSection(`tela-${tela.id}`)}
+                      />
+                    );
+                  })}
                 </div>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-blue-50 rounded-xl p-5">
-                  <h4 className="font-bold text-blue-800 flex items-center gap-2">
-                    <GitBranch className="h-5 w-5" /> Random Forest
-                  </h4>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Imagine 100 especialistas votando. Cada um analisa a transação de um ângulo diferente. 
-                    A maioria decide se é fraude ou não. É robusto porque um erro individual não afeta o resultado.
+            ))}
+          </div>
+        </CollapsibleSection>
+
+        {/* SECAO 3: MANUAL DETALHADO POR TELA */}
+        <CollapsibleSection id="manual-telas" title="Manual Detalhado por Tela (Todas as 16)" icon={FileText} color="purple">
+          <AlertBox type="tip" title="Como ler esta secao">
+            <p>Cada tela segue o mesmo formato: Nome, Caminho, Ilustracao Visual, Objetivo, Quando Usar, 
+            Elementos, Historia de Uso e Cuidados. Isso facilita encontrar qualquer informacao rapidamente.</p>
+          </AlertBox>
+
+          {todasAsTelas.map((tela, index) => (
+            <div key={tela.id} id={`tela-${tela.id}`} className="bg-white border-2 border-gray-200 rounded-xl p-6 mb-8 scroll-mt-20">
+              <div className="flex items-center gap-4 mb-4">
+                <div className={`bg-${tela.cor}-100 p-3 rounded-xl`}>
+                  <tela.icone className={`h-8 w-8 text-${tela.cor}-600`} />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">{index + 1}. {tela.nome}</h3>
+                  <p className="text-gray-500 flex items-center gap-2">
+                    <ChevronRight className="h-4 w-4" /> {tela.caminho}
                   </p>
-                  <div className="mt-3 text-xs text-blue-600">Peso na decisão: 30%</div>
-                </div>
-                <div className="bg-green-50 rounded-xl p-5">
-                  <h4 className="font-bold text-green-800 flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" /> Gradient Boosting
-                  </h4>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Funciona como um time que aprende com erros. O primeiro modelo faz uma previsão, 
-                    o segundo corrige os erros do primeiro, o terceiro corrige os erros do segundo, e assim por diante.
-                  </p>
-                  <div className="mt-3 text-xs text-green-600">Peso na decisão: 35%</div>
-                </div>
-                <div className="bg-purple-50 rounded-xl p-5">
-                  <h4 className="font-bold text-purple-800 flex items-center gap-2">
-                    <Cpu className="h-5 w-5" /> CatBoost
-                  </h4>
-                  <p className="text-sm text-gray-600 mt-2">
-                    O mais moderno dos três. Desenvolvido pelo Yandex (Google russo), é especialmente bom 
-                    com dados categóricos como "tipo de transação" ou "dia da semana". State-of-the-art em fraude.
-                  </p>
-                  <div className="mt-3 text-xs text-purple-600">Peso na decisão: 35%</div>
                 </div>
               </div>
-            </div>
-          </ManualSection>
-        </>
-      )}
 
-      {/* ========== ABA: DIA A DIA ========== */}
-      {activeTab === 'dia-a-dia' && (
-        <>
-          <ManualSection id="intro-dia" title="👨‍💼 Um Dia na Vida de Carlos Roberto - Analista Sênior" icon={Users} defaultOpen={true}>
-            <div className="space-y-6">
-              <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold">
-                    CR
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold">Carlos Roberto Silva</h3>
-                    <p className="text-green-100">Analista de Fraudes Sênior | Turno Diurno (06:00 - 14:00)</p>
-                    <p className="text-green-200 text-sm mt-1">5 anos de experiência | Especialista em PIX e Cartões</p>
-                  </div>
-                </div>
+              {/* ASCII Art */}
+              <div className="bg-gray-900 text-green-400 font-mono text-xs p-4 rounded-lg mb-6 overflow-x-auto">
+                <pre>{tela.ascii}</pre>
               </div>
-              
-              <AlertBox type="info" title="Sobre Este Guia">
-                Acompanhe um dia completo de trabalho do Carlos Roberto. Você verá TODAS as situações 
-                onde um Analista Sênior precisa atuar, desde o momento que chega até o fim do turno.
-              </AlertBox>
-              
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-blue-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold text-blue-600">~150</div>
-                  <div className="text-sm text-gray-600">Transações analisadas/dia</div>
-                </div>
-                <div className="bg-green-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold text-green-600">~25</div>
-                  <div className="text-sm text-gray-600">Alertas críticos/dia</div>
-                </div>
-                <div className="bg-orange-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold text-orange-600">~5</div>
-                  <div className="text-sm text-gray-600">Fraudes confirmadas/dia</div>
-                </div>
-                <div className="bg-purple-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold text-purple-600">~10</div>
-                  <div className="text-sm text-gray-600">Ligações para clientes/dia</div>
-                </div>
-              </div>
-            </div>
-          </ManualSection>
 
-          <ManualSection id="turno-0600" title="⏰ 06:00 - Início do Turno e Passagem" icon={Clock}>
-            <div className="space-y-6">
-              <div className="bg-gray-900 text-white rounded-xl p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-bold">06:00</div>
-                  <span className="text-lg">Carlos chega e assume o turno</span>
-                </div>
-                <p className="text-gray-300">
-                  O turno noturno (Rodrigo) está finalizando. Carlos precisa fazer a passagem de turno 
-                  e entender o que aconteceu durante a madrugada antes de começar a trabalhar.
-                </p>
+              {/* Objetivo */}
+              <div className="mb-6">
+                <h4 className="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
+                  <Target className="h-5 w-5 text-blue-600" /> Objetivo da Tela
+                </h4>
+                <p className="text-gray-700">{tela.objetivo}</p>
               </div>
-              
-              <StepByStep 
-                title="Rotina de Início de Turno"
-                steps={[
-                  { action: 'Fazer Login no Sistema', details: 'Abrir o Sankofa, inserir CPF e senha. Sistema registra horário de entrada automaticamente.', tip: 'Sempre use autenticação de 2 fatores (SMS ou app).' },
-                  { action: 'Ler o Log de Passagem de Turno', details: 'Rodrigo deixou anotações: "2 fraudes confirmadas às 03:00, conta laranja identificada."', tip: 'Tela: Auditoria > Log de Turno' },
-                  { action: 'Verificar Dashboard Imediatamente', details: 'Olhar KPIs do turno noturno. Algum spike? Algum modelo offline?', tip: 'Foco nos números vermelhos primeiro.' },
-                  { action: 'Checar Fila de Revisão Manual', details: 'Quantas transações estão esperando análise? SLA está sendo cumprido?', tip: 'Idealmente a fila deve ter < 20 itens.' },
-                  { action: 'Confirmar Status dos Modelos de IA', details: 'Os 3 modelos (RF, GB, CB) devem estar "Online" e "Healthy".', tip: 'Se algum estiver offline, alerta TI.' }
-                ]}
-              />
-            </div>
-          </ManualSection>
 
-          <ManualSection id="turno-resumo" title="📊 Resumo: Todos os Momentos de Atuação do Dia" icon={List}>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="p-3 text-left">Horário</th>
-                    <th className="p-3 text-left">Situação</th>
-                    <th className="p-3 text-left">Tela Usada</th>
-                    <th className="p-3 text-left">Ação Tomada</th>
-                    <th className="p-3 text-left">Prioridade</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  <tr className="bg-white">
-                    <td className="p-3 font-mono">06:00</td>
-                    <td className="p-3">Início de turno - passagem</td>
-                    <td className="p-3">Dashboard, Auditoria</td>
-                    <td className="p-3">Ler log do turno anterior</td>
-                    <td className="p-3"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">Rotina</span></td>
-                  </tr>
-                  <tr className="bg-gray-50">
-                    <td className="p-3 font-mono">06:30</td>
-                    <td className="p-3">Transações pendentes na fila</td>
-                    <td className="p-3">Revisão Manual</td>
-                    <td className="p-3">Analisar e decidir (5 itens)</td>
-                    <td className="p-3"><span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">Média</span></td>
-                  </tr>
-                  <tr className="bg-white">
-                    <td className="p-3 font-mono">08:00</td>
-                    <td className="p-3">Pico de transações matinal</td>
-                    <td className="p-3">Dashboard, Métricas</td>
-                    <td className="p-3">Monitorar volume e latência</td>
-                    <td className="p-3"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">Rotina</span></td>
-                  </tr>
-                  <tr className="bg-red-50">
-                    <td className="p-3 font-mono">09:30</td>
-                    <td className="p-3 font-bold text-red-700">INCIDENTE: Ataque de bot</td>
-                    <td className="p-3">Dashboard, Hard Rules, HOT List</td>
-                    <td className="p-3">Bloquear device, escalar gerência</td>
-                    <td className="p-3"><span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">CRÍTICA</span></td>
-                  </tr>
-                  <tr className="bg-white">
-                    <td className="p-3 font-mono">10:30</td>
-                    <td className="p-3">Investigação de rede de fraude</td>
-                    <td className="p-3">Investigação, HOT List</td>
-                    <td className="p-3">Mapear contas laranjas, STR BACEN</td>
-                    <td className="p-3"><span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Alta</span></td>
-                  </tr>
-                  <tr className="bg-gray-50">
-                    <td className="p-3 font-mono">13:00</td>
-                    <td className="p-3">Registro de feedbacks</td>
-                    <td className="p-3">Feedback Analista</td>
-                    <td className="p-3">Treinar modelo com decisões</td>
-                    <td className="p-3"><span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs">Importante</span></td>
-                  </tr>
-                  <tr className="bg-white">
-                    <td className="p-3 font-mono">13:45</td>
-                    <td className="p-3">Passagem de turno</td>
-                    <td className="p-3">Auditoria, Relatórios</td>
-                    <td className="p-3">Documentar dia, handoff verbal</td>
-                    <td className="p-3"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">Rotina</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </ManualSection>
-        </>
-      )}
-
-      {/* ========== ABA: FEATURES DE IA ========== */}
-      {activeTab === 'features' && (
-        <>
-          <ManualSection id="features-intro" title="🧠 Todas as 40+ Features de Inteligência Artificial" icon={Brain} defaultOpen={true}>
-            <div className="space-y-6">
-              <AlertBox type="info" title="O que são Features?">
-                <p>
-                  <strong>Features</strong> são as "perguntas" que a IA faz sobre cada transação. Imagine que você é um detetive 
-                  investigando uma compra suspeita. Você perguntaria: "Quanto foi?", "Que horas?", "De onde veio?". 
-                  A IA faz mais de 40 perguntas dessas, automaticamente, em menos de 1 segundo.
-                </p>
-              </AlertBox>
-              
-              <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl p-6">
-                <h3 className="text-xl font-bold mb-2">Por que tantas features?</h3>
-                <p className="text-purple-100">
-                  Fraudadores são inteligentes. Se usássemos só o valor da transação, eles fariam valores normais.
-                  Se usássemos só o horário, eles agiriam em horário comercial. Com 40+ features, criamos uma 
-                  "impressão digital" única de cada transação que é muito difícil de falsificar.
-                </p>
+              {/* Quando Usar */}
+              <div className="mb-6">
+                <h4 className="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-green-600" /> Quando Usar Esta Tela?
+                </h4>
+                <ul className="space-y-2">
+                  {tela.quandoUsar.map((uso, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">{uso}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-blue-50 rounded-lg p-4 text-center">
-                  <DollarSign className="h-8 w-8 text-blue-600 mx-auto" />
-                  <div className="font-bold text-gray-900 mt-2">5 Features</div>
-                  <div className="text-xs text-gray-600">Dados da Transação</div>
-                </div>
-                <div className="bg-orange-50 rounded-lg p-4 text-center">
-                  <Zap className="h-8 w-8 text-orange-600 mx-auto" />
-                  <div className="font-bold text-gray-900 mt-2">5 Features</div>
-                  <div className="text-xs text-gray-600">Velocidade</div>
-                </div>
-                <div className="bg-green-50 rounded-lg p-4 text-center">
-                  <Users className="h-8 w-8 text-green-600 mx-auto" />
-                  <div className="font-bold text-gray-900 mt-2">5 Features</div>
-                  <div className="text-xs text-gray-600">Comportamento</div>
-                </div>
-                <div className="bg-red-50 rounded-lg p-4 text-center">
-                  <Target className="h-8 w-8 text-red-600 mx-auto" />
-                  <div className="font-bold text-gray-900 mt-2">5 Features</div>
-                  <div className="text-xs text-gray-600">Destinatário</div>
-                </div>
-                <div className="bg-purple-50 rounded-lg p-4 text-center">
-                  <Globe className="h-8 w-8 text-purple-600 mx-auto" />
-                  <div className="font-bold text-gray-900 mt-2">5 Features</div>
-                  <div className="text-xs text-gray-600">Device/Local</div>
-                </div>
-                <div className="bg-indigo-50 rounded-lg p-4 text-center">
-                  <Clock className="h-8 w-8 text-indigo-600 mx-auto" />
-                  <div className="font-bold text-gray-900 mt-2">5 Features</div>
-                  <div className="text-xs text-gray-600">Temporal</div>
-                </div>
-                <div className="bg-teal-50 rounded-lg p-4 text-center">
-                  <Network className="h-8 w-8 text-teal-600 mx-auto" />
-                  <div className="font-bold text-gray-900 mt-2">5 Features</div>
-                  <div className="text-xs text-gray-600">Rede</div>
-                </div>
-                <div className="bg-pink-50 rounded-lg p-4 text-center">
-                  <Brain className="h-8 w-8 text-pink-600 mx-auto" />
-                  <div className="font-bold text-gray-900 mt-2">5 Features</div>
-                  <div className="text-xs text-gray-600">Derivadas IA</div>
-                </div>
-              </div>
-            </div>
-          </ManualSection>
 
-          {Object.entries(allFeatures).map(([key, category]) => (
-            <ManualSection key={key} id={`features-${key}`} title={`${category.category}`} icon={category.icon}>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {category.features.map((feature, i) => (
-                    <FeatureCard key={i} feature={feature} category={category} />
+              {/* Elementos */}
+              <div className="mb-6">
+                <h4 className="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
+                  <Boxes className="h-5 w-5 text-purple-600" /> Elementos Principais
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {tela.elementos.map((elem, i) => (
+                    <div key={i} className="bg-gray-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded">{elem.tipo}</span>
+                        <span className="font-semibold text-gray-900">{elem.nome}</span>
+                      </div>
+                      <p className="text-sm text-gray-600">{elem.desc}</p>
+                    </div>
                   ))}
                 </div>
               </div>
-            </ManualSection>
-          ))}
-        </>
-      )}
 
-      {/* ========== ABA: DATASETS ========== */}
-      {activeTab === 'datasets' && (
-        <>
-          <ManualSection id="datasets-intro" title="📊 Os 3 DataSets que Treinam Nossa IA" icon={Database} defaultOpen={true}>
-            <div className="space-y-6">
-              <AlertBox type="info" title="O que são DataSets?">
-                <p>
-                  <strong>DataSets</strong> são conjuntos de dados usados para ensinar a IA. Imagine que você quer ensinar 
-                  uma criança a reconhecer gatos. Você mostra milhares de fotos de gatos e "não-gatos". Depois de ver muitos 
-                  exemplos, ela aprende. Nossa IA aprende da mesma forma, mas com transações financeiras.
-                </p>
-              </AlertBox>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <DatasetCard dataset={datasets.kaggle} />
-                <DatasetCard dataset={datasets.production} />
-                <DatasetCard dataset={datasets.feedback} />
+              {/* Historia */}
+              <div className="mb-6">
+                <h4 className="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-orange-600" /> Historia de Uso (Mini-Cenario)
+                </h4>
+                <div className="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-lg">
+                  <p className="text-gray-700 italic">"{tela.historia}"</p>
+                </div>
+              </div>
+
+              {/* Cuidados */}
+              <div>
+                <h4 className="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-red-600" /> Cuidados Importantes
+                </h4>
+                <div className="space-y-2">
+                  {tela.cuidados.map((cuidado, i) => (
+                    <div key={i} className="flex items-start gap-2 bg-red-50 p-3 rounded-lg">
+                      <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">{cuidado}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </ManualSection>
+          ))}
+        </CollapsibleSection>
 
-          <ManualSection id="dataset-kaggle" title="🌐 DataSet Kaggle - Base de Conhecimento Global" icon={Globe}>
-            <div className="space-y-6">
-              <div className="bg-blue-50 rounded-xl p-6">
-                <h4 className="font-bold text-blue-800 mb-3">Por que usamos dados do Kaggle?</h4>
-                <p className="text-gray-700">
-                  O Kaggle é uma plataforma com competições de Machine Learning. O dataset de fraude de cartão de crédito 
-                  é o mais famoso do mundo para este problema. Com 284.807 transações reais (anonimizadas), ele fornece 
-                  uma base estatística robusta para o pré-treinamento inicial dos nossos modelos.
-                </p>
+        {/* SECAO 4: FEATURES DE ML */}
+        <CollapsibleSection id="features-ml" title="Features de Machine Learning (40+ Caracteristicas)" icon={Brain} color="orange">
+          <AlertBox type="info" title="O que sao Features?">
+            <p className="text-lg">
+              <strong>Features</strong> sao as "perguntas" que a IA faz sobre cada transacao. 
+              Assim como um medico analisa sintomas (febre, pressao, dor) para diagnosticar uma doenca, 
+              nossa IA analisa features (valor, horario, destinatario, dispositivo) para detectar fraude.
+            </p>
+          </AlertBox>
+
+          {Object.entries(todasAsFeatures).map(([key, categoria]) => (
+            <div key={key} className="mb-8">
+              <div className={`bg-${categoria.cor}-50 rounded-xl p-4 mb-4`}>
+                <div className="flex items-center gap-3 mb-2">
+                  <categoria.icone className={`h-8 w-8 text-${categoria.cor}-600`} />
+                  <h4 className="text-xl font-bold text-gray-900">{categoria.categoria}</h4>
+                </div>
+                <p className="text-gray-700">{categoria.descricao}</p>
+                <p className="text-sm text-gray-500 mt-2 italic">Analogia: {categoria.analogia}</p>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-bold text-gray-900 mb-3">Campos do Dataset</h4>
-                  <div className="space-y-2">
-                    {datasets.kaggle.features.map((f, i) => (
-                      <div key={i} className="flex items-start gap-2 p-2 bg-gray-50 rounded">
-                        <code className="text-xs bg-blue-100 px-2 py-1 rounded">{f.name}</code>
-                        <span className="text-sm text-gray-600">{f.description}</span>
-                      </div>
-                    ))}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {categoria.features.map((feature, i) => (
+                  <FeatureCard key={i} feature={feature} categoria={categoria} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </CollapsibleSection>
+
+        {/* SECAO 5: DATASETS */}
+        <CollapsibleSection id="datasets" title="DataSets Utilizados (Origem dos Dados)" icon={Database} color="green">
+          <AlertBox type="info" title="O que sao DataSets?">
+            <p className="text-lg">
+              <strong>DataSets</strong> sao grandes colecoes de dados organizados, como uma planilha gigante. 
+              E deles que a IA aprende. Pense em um fichario com milhoes de fichas - cada ficha e uma transacao, 
+              e cada campo da ficha e uma informacao (valor, hora, cliente, etc.).
+            </p>
+          </AlertBox>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {datasets.map((dataset) => (
+              <div key={dataset.id} className={`bg-white rounded-xl shadow-lg overflow-hidden border-t-4 border-${dataset.cor}-500`}>
+                <div className={`bg-${dataset.cor}-50 p-4`}>
+                  <div className="flex items-center gap-3">
+                    <dataset.icone className={`h-10 w-10 text-${dataset.cor}-600`} />
+                    <div>
+                      <h4 className="font-bold text-lg">{dataset.nome}</h4>
+                      <p className="text-sm text-gray-600">{dataset.origem}</p>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-gray-900 mb-3">Pré-processamento</h4>
-                  <ul className="space-y-2">
-                    {datasets.kaggle.preprocessing.map((p, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm">
-                        <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                        {p}
-                      </li>
+                <div className="p-4">
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="bg-gray-50 rounded-lg p-3 text-center">
+                      <div className="text-lg font-bold text-gray-900">{dataset.registros}</div>
+                      <div className="text-xs text-gray-500">Registros</div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3 text-center">
+                      <div className="text-lg font-bold text-red-600">{dataset.taxaFraude}</div>
+                      <div className="text-xs text-gray-500">Taxa Fraude</div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-4">{dataset.descricao}</p>
+                  <h5 className="font-semibold text-gray-900 mb-2">Campos Principais:</h5>
+                  <ul className="text-xs text-gray-600 space-y-1">
+                    {dataset.campos.slice(0, 4).map((campo, i) => (
+                      <li key={i}><code className="bg-gray-100 px-1 rounded">{campo.nome}</code>: {campo.desc}</li>
                     ))}
                   </ul>
+                  <div className="mt-4 bg-blue-50 p-3 rounded-lg">
+                    <p className="text-xs text-blue-800"><strong>Uso:</strong> {dataset.uso}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CollapsibleSection>
+
+        {/* SECAO 6: TRANSFER LEARNING */}
+        <CollapsibleSection id="transfer-learning" title="Transfer Learning Explicado" icon={Layers} color="purple">
+          <AlertBox type="tip" title="O que e Transfer Learning?">
+            <p className="text-lg">
+              <strong>Transfer Learning</strong> e como aprender a dirigir carro e depois usar esse conhecimento 
+              para aprender a dirigir caminhao mais rapido. Voce nao comeca do zero - aproveita o que ja sabe. 
+              Nossa IA faz o mesmo: primeiro aprende com dados globais, depois se adapta ao Brasil.
+            </p>
+          </AlertBox>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {transferLearningFases.map((fase) => (
+              <div key={fase.fase} className={`bg-white rounded-xl shadow-lg overflow-hidden border-l-4 border-${fase.cor}-500`}>
+                <div className={`bg-${fase.cor}-50 p-4`}>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 bg-${fase.cor}-500 text-white rounded-full flex items-center justify-center text-xl font-bold`}>
+                      {fase.fase}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg">{fase.nome}</h4>
+                      <p className="text-sm text-gray-600">Duracao: {fase.duracao}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <p className="text-gray-700 mb-3">{fase.descricao}</p>
+                  <p className="text-sm text-gray-500 italic mb-4">Analogia: {fase.analogia}</p>
                   
-                  <h4 className="font-bold text-gray-900 mb-3 mt-6">Limitações</h4>
-                  <ul className="space-y-2">
-                    {datasets.kaggle.limitations.map((l, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm">
-                        <AlertTriangle className="h-4 w-4 text-yellow-500 mt-0.5" />
-                        {l}
+                  <h5 className="font-semibold text-gray-900 mb-2">O que acontece:</h5>
+                  <ul className="text-sm text-gray-600 space-y-1 mb-4">
+                    {fase.detalhes.map((d, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <ArrowRight className="h-4 w-4 text-gray-400 mt-0.5" />
+                        {d}
                       </li>
                     ))}
                   </ul>
-                </div>
-              </div>
-            </div>
-          </ManualSection>
 
-          <ManualSection id="dataset-producao" title="🏦 DataSet de Produção - Dados Reais Brasileiros" icon={Server}>
-            <div className="space-y-6">
-              <div className="bg-green-50 rounded-xl p-6">
-                <h4 className="font-bold text-green-800 mb-3">Dados Reais do Sistema</h4>
-                <p className="text-gray-700">
-                  Este é o dataset mais valioso: transações reais processadas pelo Sankofa. Inclui PIX, TED, cartões e boletos 
-                  com contexto brasileiro. A IA aprende padrões específicos do nosso país, como horários de pico, 
-                  comportamentos típicos de fraudadores brasileiros e características regionais.
-                </p>
-              </div>
-              
-              <h4 className="font-bold text-gray-900">Distribuição por Canal</h4>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="p-3 text-left">Canal</th>
-                      <th className="p-3 text-left">Transações</th>
-                      <th className="p-3 text-left">Fraudes</th>
-                      <th className="p-3 text-left">Taxa de Fraude</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {datasets.production.distribution.map((d, i) => (
-                      <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                        <td className="p-3 font-semibold">{d.channel}</td>
-                        <td className="p-3">{d.count.toLocaleString()}</td>
-                        <td className="p-3 text-red-600">{d.frauds.toLocaleString()}</td>
-                        <td className="p-3">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            parseFloat(d.fraudRate) > 50 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-                          }`}>
-                            {d.fraudRate}
-                          </span>
-                        </td>
-                      </tr>
+                  <div className="grid grid-cols-4 gap-2">
+                    {Object.entries(fase.metricas).map(([key, val]) => (
+                      <div key={key} className="bg-gray-50 rounded p-2 text-center">
+                        <div className="text-sm font-bold text-gray-900">{val}</div>
+                        <div className="text-[10px] text-gray-500">{key}</div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </ManualSection>
-        </>
-      )}
+                  </div>
 
-      {/* ========== ABA: TRANSFER LEARNING ========== */}
-      {activeTab === 'transfer-learning' && (
-        <>
-          <ManualSection id="tl-intro" title="🔄 Transfer Learning - Como a IA Aprende e Evolui" icon={Layers} defaultOpen={true}>
-            <div className="space-y-6">
-              <AlertBox type="tip" title="O que é Transfer Learning?">
-                <p>
-                  <strong>Transfer Learning</strong> é como aprender a dirigir carro e depois usar esse conhecimento para 
-                  dirigir caminhão. Você não começa do zero - aproveita o que já sabe. Nossa IA faz o mesmo: 
-                  primeiro aprende com 284 mil transações do Kaggle, depois se adapta ao Brasil.
-                </p>
-              </AlertBox>
-              
-              <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl p-6">
-                <h3 className="text-xl font-bold mb-4">As 4 Fases do Aprendizado</h3>
-                <div className="grid grid-cols-4 gap-4 text-center">
-                  <div>
-                    <div className="text-4xl mb-2">📚</div>
-                    <div className="font-semibold">1. Pré-Treino</div>
-                    <div className="text-xs text-purple-200">Kaggle (284k tx)</div>
-                  </div>
-                  <div>
-                    <div className="text-4xl mb-2">🇧🇷</div>
-                    <div className="font-semibold">2. Adaptação</div>
-                    <div className="text-xs text-purple-200">Brasil (4.4k tx)</div>
-                  </div>
-                  <div>
-                    <div className="text-4xl mb-2">🗳️</div>
-                    <div className="font-semibold">3. Ensemble</div>
-                    <div className="text-xs text-purple-200">3 modelos votam</div>
-                  </div>
-                  <div>
-                    <div className="text-4xl mb-2">🔁</div>
-                    <div className="font-semibold">4. Contínuo</div>
-                    <div className="text-xs text-purple-200">Feedback humano</div>
+                  <div className="mt-4 bg-green-50 p-3 rounded-lg">
+                    <p className="text-xs text-green-800"><strong>Resultado:</strong> {fase.resultado}</p>
                   </div>
                 </div>
               </div>
+            ))}
+          </div>
+        </CollapsibleSection>
+
+        {/* SECAO 7: FLUXO PONTA A PONTA */}
+        <CollapsibleSection id="fluxo-ponta-ponta" title="Fluxo Ponta a Ponta: Do Dado a Decisao" icon={Workflow} color="blue">
+          <AlertBox type="info" title="Como tudo se conecta">
+            <p>Veja como os dados entram no sistema, passam pela IA, aparecem nas telas e geram decisoes.</p>
+          </AlertBox>
+
+          <div className="bg-gray-900 text-white rounded-xl p-6 font-mono text-sm overflow-x-auto">
+            <pre>{`
++==================================================================================+
+|                           FLUXO PONTA A PONTA                                    |
++==================================================================================+
+
+    ENTRADA                    PROCESSAMENTO                         SAIDA
+    ═══════                    ═════════════                         ═════
+
+  +-----------+            +------------------+                 +-------------+
+  |  Cliente  |            |  40+ FEATURES    |                 |   DECISAO   |
+  |  faz PIX  | ---------> |  Valor, hora,    | --------------> |   Score     |
+  |  no App   |    5ms     |  device, local   |      25ms       |   0-100     |
+  +-----------+            +------------------+                 +-------------+
+       |                           |                                  |
+       |                           v                                  |
+       |                   +------------------+                       |
+       |                   |  3 MODELOS IA    |                       |
+       |                   |  RF + GB + CB    |                       |
+       |                   |  votam juntos    |                       |
+       |                   +------------------+                       |
+       |                           |                                  |
+       v                           v                                  v
+  +-----------+            +------------------+                 +-------------+
+  |  DATASET  |            |  SCORE < 30      | --------------> |   APROVAR   |
+  |  Producao |            |  Baixo risco     |                 |   (verde)   |
+  |  4.467 tx |            +------------------+                 +-------------+
+  +-----------+            +------------------+                 +-------------+
+       |                   |  SCORE 30-70     | --------------> |   REVISAR   |
+       |                   |  Zona cinza      |                 |   (amarelo) |
+       v                   +------------------+                 +-------------+
+  +-----------+            +------------------+                 +-------------+
+  |  FEEDBACK |            |  SCORE > 70      | --------------> |   BLOQUEAR  |
+  |  Analista |            |  Alto risco      |                 |   (verm.)   |
+  |  ~50/dia  |            +------------------+                 +-------------+
+  +-----------+                    |                                  |
+       |                           |                                  |
+       +---------------------------+----------------------------------+
+                                   |
+                                   v
+                          +------------------+
+                          |  TELAS DO        |
+                          |  SISTEMA         |
+                          |  Dashboard,      |
+                          |  Alertas, etc    |
+                          +------------------+
+                                   |
+                                   v
+                          +------------------+
+                          |  ANALISTA        |
+                          |  TOMA DECISAO    |
+                          |  Humano decide   |
+                          +------------------+
+
+                     TEMPO TOTAL: 37 milissegundos
+            `}</pre>
+          </div>
+
+          <div className="mt-6">
+            <h4 className="font-bold text-lg mb-4">Historia do Fluxo (Exemplo Real)</h4>
+            <div className="bg-blue-50 rounded-xl p-6">
+              <p className="text-gray-700 leading-relaxed">
+                <strong>14:32:01</strong> - Joao abre o app do banco e inicia um PIX de R$ 4.850 para um CPF que nunca usou antes.
+                <br/><br/>
+                <strong>14:32:02</strong> - O sistema captura a transacao e extrai 40+ features: valor (R$ 4.850), hora (14h), 
+                dispositivo (mesmo celular de sempre), destinatario (novo!), localizacao (Sao Paulo).
+                <br/><br/>
+                <strong>14:32:03</strong> - Os 3 modelos de IA analisam. Random Forest: 85%, Gradient Boosting: 88%, CatBoost: 86%. 
+                Media ponderada: Score 87/100.
+                <br/><br/>
+                <strong>14:32:04</strong> - Score 87 > 70, portanto BLOQUEAR automaticamente. 
+                Joao recebe SMS: "Sua transacao esta em analise de seguranca."
+                <br/><br/>
+                <strong>14:35:00</strong> - Carlos, analista, ve o alerta na fila. Abre a investigacao, 
+                verifica historico, liga para Joao.
+                <br/><br/>
+                <strong>14:40:00</strong> - Joao confirma que NAO fez a transacao. Era golpe do WhatsApp! 
+                Carlos confirma fraude, bloqueia definitivamente, adiciona CPF destino na HOT List.
+                <br/><br/>
+                <strong>Resultado:</strong> R$ 4.850 salvos. Cliente protegido. IA aprendeu com o feedback.
+              </p>
             </div>
-          </ManualSection>
+          </div>
+        </CollapsibleSection>
 
-          {transferLearning.phases.map((phase, i) => (
-            <ManualSection key={i} id={`tl-fase-${phase.phase}`} title={`Fase ${phase.phase}: ${phase.name}`} icon={phase.icon}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <TransferLearningPhase phase={phase} />
-                <div className="space-y-4">
-                  <h4 className="font-bold text-gray-900">Explicação Detalhada</h4>
-                  <p className="text-gray-700">{phase.description}</p>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h5 className="font-semibold text-gray-800 mb-2">O que acontece nesta fase:</h5>
-                    <ul className="space-y-2">
-                      {phase.details.map((d, j) => (
-                        <li key={j} className="flex items-start gap-2 text-sm text-gray-600">
-                          <ArrowRight className="h-4 w-4 text-blue-500 mt-0.5" />
-                          {d}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </ManualSection>
-          ))}
-
-          <ManualSection id="tl-modelos" title="🤖 Os 3 Modelos de Machine Learning" icon={Cpu}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {Object.entries(transferLearning.models).map(([key, model]) => (
-                <div key={key} className="bg-white rounded-xl shadow-lg overflow-hidden">
-                  <div className="bg-gradient-to-r from-gray-700 to-gray-900 text-white p-4">
-                    <model.icon className="h-8 w-8 mb-2" />
-                    <h4 className="font-bold text-lg">{model.name}</h4>
-                    <div className="text-sm text-gray-300">Peso: {(model.weight * 100).toFixed(0)}%</div>
-                  </div>
-                  <div className="p-4 space-y-4">
-                    <div>
-                      <h5 className="font-semibold text-green-700 text-sm mb-2">Pontos Fortes:</h5>
-                      <ul className="text-xs space-y-1">
-                        {model.strengths.map((s, i) => (
-                          <li key={i} className="flex items-start gap-1">
-                            <CheckCircle className="h-3 w-3 text-green-500 mt-0.5" /> {s}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div>
-                      <h5 className="font-semibold text-orange-700 text-sm mb-2">Limitações:</h5>
-                      <ul className="text-xs space-y-1">
-                        {model.weaknesses.map((w, i) => (
-                          <li key={i} className="flex items-start gap-1">
-                            <AlertTriangle className="h-3 w-3 text-orange-500 mt-0.5" /> {w}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ManualSection>
-        </>
-      )}
-
-      {/* ========== ABA: TODAS AS TELAS ========== */}
-      {activeTab === 'telas' && (
-        <>
-          <ManualSection id="telas-mapa" title="🗺️ Mapa de Todas as 16 Telas do Sistema" icon={Grid} defaultOpen={true}>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { name: 'Dashboard', icon: BarChart3, desc: 'Visão geral e KPIs', color: 'blue' },
-                { name: 'Transações', icon: FileText, desc: 'Busca e lista', color: 'green' },
-                { name: 'Alertas', icon: Bell, desc: 'Notificações ativas', color: 'orange' },
-                { name: 'Investigação', icon: Search, desc: 'Análise profunda', color: 'purple' },
-                { name: 'Revisão Manual', icon: Eye, desc: 'Fila de análise', color: 'red' },
-                { name: 'Calibração', icon: Settings, desc: 'Ajustar thresholds', color: 'indigo' },
-                { name: 'Métricas', icon: Activity, desc: 'Tempo real', color: 'teal' },
-                { name: 'Monitoramento', icon: Gauge, desc: 'Saúde do sistema', color: 'cyan' },
-                { name: 'Hard Rules', icon: Shield, desc: 'Regras de negócio', color: 'gray' },
-                { name: 'VIP List', icon: Star, desc: 'Whitelist', color: 'yellow' },
-                { name: 'HOT List', icon: AlertTriangle, desc: 'Blacklist', color: 'red' },
-                { name: 'Feedback', icon: ThumbsUp, desc: 'Treinar IA', color: 'green' },
-                { name: 'Relatórios', icon: PieChart, desc: 'Análises e exports', color: 'blue' },
-                { name: 'Auditoria', icon: FileText, desc: 'Logs e trail', color: 'gray' },
-                { name: 'DataSets', icon: Database, desc: 'Catálogo de dados', color: 'purple' },
-                { name: 'Configurações', icon: Settings, desc: 'Preferências', color: 'slate' }
-              ].map((tela, i) => (
-                <div key={i} className={`bg-${tela.color}-50 rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer`}>
-                  <tela.icon className={`h-8 w-8 text-${tela.color}-600 mb-2`} />
-                  <h4 className="font-bold text-gray-900">{tela.name}</h4>
-                  <p className="text-xs text-gray-600">{tela.desc}</p>
-                </div>
-              ))}
-            </div>
-          </ManualSection>
-        </>
-      )}
-
-      {/* ========== ABA: COMPLIANCE ========== */}
-      {activeTab === 'compliance' && (
-        <>
-          <ManualSection id="compliance-intro" title="🛡️ Compliance: LGPD, BACEN e PCI DSS" icon={Shield} defaultOpen={true}>
-            <div className="space-y-6">
-              <AlertBox type="warning" title="Por que Compliance é Importante?">
-                <p>
-                  O Sankofa lida com dados sensíveis de clientes e transações financeiras. Somos obrigados por lei 
-                  a proteger esses dados. Três regulamentações principais nos guiam: LGPD (privacidade), BACEN 
-                  (regulação bancária) e PCI DSS (cartões de crédito).
-                </p>
-              </AlertBox>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {Object.entries(compliance).map(([key, reg]) => (
-                  <div key={key} className="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <div className={`bg-${reg.color}-500 text-white p-4`}>
-                      <reg.icon className="h-8 w-8 mb-2" />
-                      <h4 className="font-bold">{reg.name}</h4>
-                    </div>
-                    <div className="p-4">
-                      <p className="text-sm text-gray-600">
-                        {key === 'lgpd' && 'Lei brasileira de proteção de dados pessoais.'}
-                        {key === 'bacen' && 'Regulamentação do Banco Central do Brasil.'}
-                        {key === 'pciDss' && 'Padrão global de segurança para cartões.'}
-                      </p>
-                    </div>
-                  </div>
+        {/* SECAO 8: DICAS E BOAS PRATICAS */}
+        <CollapsibleSection id="dicas" title="Dicas de Uso, Boas Praticas e Cuidados" icon={Lightbulb} color="orange">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-bold text-lg mb-4 flex items-center gap-2 text-green-700">
+                <ThumbsUp className="h-5 w-5" /> Boas Praticas
+              </h4>
+              <ul className="space-y-3">
+                {[
+                  'Sempre comece o dia verificando o Dashboard',
+                  'Assume alertas antes de investigar (evita duplicidade)',
+                  'De feedback para a IA - ela aprende com voce',
+                  'Use filtros nas buscas para ser mais rapido',
+                  'Documente suas decisoes - auditoria agradece',
+                  'Na duvida, escale para um senior',
+                  'Simule antes de mudar thresholds',
+                  'Revise a VIP List periodicamente'
+                ].map((dica, i) => (
+                  <li key={i} className="flex items-start gap-2 bg-green-50 p-3 rounded-lg">
+                    <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">{dica}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
-          </ManualSection>
-
-          <ManualSection id="lgpd-detalhes" title="📋 LGPD - Proteção de Dados Pessoais" icon={Lock}>
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-bold text-gray-900 mb-3">Artigos Relevantes</h4>
-                  <div className="space-y-2">
-                    {compliance.lgpd.articles.map((a, i) => (
-                      <div key={i} className="bg-blue-50 rounded-lg p-3">
-                        <div className="font-semibold text-blue-800">{a.number}: {a.title}</div>
-                        <div className="text-sm text-gray-600">{a.description}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-bold text-gray-900 mb-3">Implementação no Sankofa</h4>
-                  <div className="space-y-2">
-                    {compliance.lgpd.implementation.map((impl, i) => (
-                      <div key={i} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <span className="text-sm">{impl.feature}</span>
-                        <span className="text-xs text-green-600">{impl.status}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </ManualSection>
-        </>
-      )}
-
-      {/* ========== ABA: CENÁRIOS REAIS ========== */}
-      {activeTab === 'cenarios' && (
-        <>
-          <ManualSection id="cenarios-intro" title="🎯 Cenários Reais de Fraude" icon={Target} defaultOpen={true}>
-            <div className="space-y-6">
-              <AlertBox type="info" title="Aprenda com Casos Reais">
-                Cada cenário abaixo é baseado em fraudes reais detectadas pelo sistema. Acompanhe o passo a passo 
-                de como a IA detectou, como o analista investigou, e qual foi o resultado.
-              </AlertBox>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {Object.entries(allScenarios).map(([key, scenario]) => (
-                  <div key={key} className="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <div className={`p-4 ${scenario.outcomeType === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`}>
-                      <h4 className="font-bold">{scenario.title}</h4>
-                      <div className="flex gap-4 mt-2 text-sm">
-                        <span>Dificuldade: {scenario.difficulty}</span>
-                        <span>Tempo: {scenario.timeToResolve}</span>
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <div className="space-y-2">
-                        {scenario.steps.slice(0, 3).map((step, i) => (
-                          <div key={i} className="flex items-start gap-2 text-sm">
-                            <span className="text-gray-400">{step.time}</span>
-                            <span className="text-gray-700">{step.title}</span>
-                          </div>
-                        ))}
-                        <div className="text-sm text-blue-600">... e mais {scenario.steps.length - 3} passos</div>
-                      </div>
-                      <div className={`mt-4 p-3 rounded-lg ${scenario.outcomeType === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
-                        <strong>Resultado:</strong> {scenario.outcome}
-                      </div>
-                    </div>
-                  </div>
+            <div>
+              <h4 className="font-bold text-lg mb-4 flex items-center gap-2 text-red-700">
+                <AlertTriangle className="h-5 w-5" /> Cuidados Importantes
+              </h4>
+              <ul className="space-y-3">
+                {[
+                  'NUNCA mude thresholds sem simular o impacto',
+                  'NAO adicione na HOT List sem investigacao completa',
+                  'Latencia > 100ms e critica - avise TI imediatamente',
+                  'Dados incorretos prejudicam a IA',
+                  'Nao ignore alertas vermelhos',
+                  'CPFs mascarados sao protecao LGPD - respeite',
+                  'Logs de auditoria NAO podem ser apagados',
+                  'Feedback errado pode piorar a IA'
+                ].map((cuidado, i) => (
+                  <li key={i} className="flex items-start gap-2 bg-red-50 p-3 rounded-lg">
+                    <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">{cuidado}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
-          </ManualSection>
-        </>
-      )}
+          </div>
+        </CollapsibleSection>
 
-      {/* ========== ABA: GLOSSÁRIO ========== */}
-      {activeTab === 'glossario' && (
-        <>
-          <ManualSection id="glossario" title="📖 Glossário Completo de Termos" icon={BookMarked} defaultOpen={true}>
-            <div className="space-y-4">
-              {[
-                { term: 'AUC-ROC', definition: 'Área Sob a Curva ROC. Mede a qualidade do modelo. 1.0 = perfeito, 0.5 = aleatório. Nosso modelo tem 0.97.' },
-                { term: 'Accuracy', definition: 'Porcentagem de previsões corretas. Se 98 de 100 transações foram classificadas corretamente, accuracy = 98%.' },
-                { term: 'CatBoost', definition: 'Algoritmo de Gradient Boosting desenvolvido pelo Yandex, excelente para dados categóricos.' },
-                { term: 'Conta Laranja', definition: 'Conta bancária usada para receber dinheiro de fraudes. Geralmente aberta com documentos falsos.' },
-                { term: 'Ensemble', definition: 'Técnica que combina múltiplos modelos para uma decisão mais robusta.' },
-                { term: 'False Positive', definition: 'Quando o sistema bloqueia uma transação legítima. Causa inconveniente ao cliente.' },
-                { term: 'Feature', definition: 'Característica ou atributo de uma transação usado pelo modelo para fazer previsões.' },
-                { term: 'Fine-tuning', definition: 'Ajustar um modelo pré-treinado para um novo contexto (ex: adaptar ao Brasil).' },
-                { term: 'Gradient Boosting', definition: 'Técnica de ML onde modelos são treinados sequencialmente, cada um corrigindo erros do anterior.' },
-                { term: 'Hard Rule', definition: 'Regra de negócio fixa que sempre bloqueia/aprova, independente do score da IA.' },
-                { term: 'HOT List', definition: 'Lista negra de CPFs, devices ou IPs que SEMPRE são bloqueados.' },
-                { term: 'LGPD', definition: 'Lei Geral de Proteção de Dados. Lei brasileira que protege dados pessoais.' },
-                { term: 'Overfitting', definition: 'Quando o modelo decora os dados de treino mas não generaliza para dados novos.' },
-                { term: 'PIX', definition: 'Sistema de pagamento instantâneo do Brasil. Funciona 24/7, transferência em segundos.' },
-                { term: 'Precision', definition: 'Das transações que o modelo disse serem fraude, quantas realmente eram.' },
-                { term: 'Random Forest', definition: 'Algoritmo que usa múltiplas árvores de decisão e vota na resposta final.' },
-                { term: 'Recall', definition: 'De todas as fraudes reais, quantas o modelo conseguiu detectar.' },
-                { term: 'SLA', definition: 'Service Level Agreement. Acordo de nível de serviço. Ex: latência < 50ms.' },
-                { term: 'SMOTE', definition: 'Técnica para balancear datasets criando exemplos sintéticos da classe minoritária.' },
-                { term: 'STR', definition: 'Suspicious Transaction Report. Relatório de transação suspeita enviado ao BACEN.' },
-                { term: 'Threshold', definition: 'Limite de decisão. Se score > threshold, bloqueia. Se < threshold, aprova.' },
-                { term: 'Transfer Learning', definition: 'Usar conhecimento de um problema para resolver outro relacionado.' },
-                { term: 'VIP List', definition: 'Lista branca de clientes que NÃO devem ser bloqueados (baixo risco).' }
-              ].map((item, i) => (
-                <div key={i} className="flex gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
-                  <div className="font-mono font-bold text-blue-600 min-w-[140px]">{item.term}</div>
-                  <div className="text-gray-700">{item.definition}</div>
+        {/* SECAO 9: FAQ */}
+        <CollapsibleSection id="faq" title="FAQ - Perguntas Frequentes" icon={HelpCircle} color="blue">
+          <div className="space-y-4">
+            {faq.map((item, i) => (
+              <div key={i} className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="bg-gray-50 p-4">
+                  <h4 className="font-bold text-gray-900 flex items-center gap-2">
+                    <HelpCircle className="h-5 w-5 text-blue-500" />
+                    {item.pergunta}
+                  </h4>
                 </div>
-              ))}
-            </div>
-          </ManualSection>
-        </>
-      )}
+                <div className="p-4 bg-white">
+                  <p className="text-gray-700">{item.resposta}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CollapsibleSection>
+
+      </div>
     </div>
   );
 }
