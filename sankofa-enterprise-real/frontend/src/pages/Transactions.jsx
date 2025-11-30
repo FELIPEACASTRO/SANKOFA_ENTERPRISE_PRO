@@ -18,7 +18,14 @@ import {
   Info,
   TrendingUp,
   TrendingDown,
-  HelpCircle
+  HelpCircle,
+  Activity,
+  DollarSign,
+  Zap,
+  Smartphone,
+  Globe,
+  User,
+  MapPin
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.jsx';
 import { Input, FormField } from '@/components/ui/Input.jsx';
@@ -655,156 +662,371 @@ export function Transactions() {
                 </div>
               </div>
               
-              {/* EXPLICAÇÃO DETALHADA - Por que esta transação foi classificada assim? */}
+              {/* EXPLICAÇÃO DETALHADA E DIDÁTICA - Por que esta transação recebeu esta classificação? */}
               <div className="border-t border-[var(--color-border)] pt-4">
-                <h3 className="font-semibold mb-3 flex items-center space-x-2">
-                  <HelpCircle className="h-4 w-4 text-blue-500" />
-                  <span>Por que esta transação recebeu esta classificação?</span>
+                <h3 className="font-semibold mb-4 flex items-center space-x-2 text-lg">
+                  <HelpCircle className="h-5 w-5 text-blue-500" />
+                  <span>Entenda por que esta transação foi classificada assim</span>
                 </h3>
                 
                 {loadingExplanation ? (
-                  <div className="bg-blue-50 rounded-lg p-4 text-center">
-                    <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-blue-500" />
-                    <p className="text-sm text-blue-700">Analisando fatores de risco...</p>
-                  </div>
-                ) : explanation ? (
-                  <div className="space-y-4">
-                    {/* Explicação em Texto */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="flex items-start space-x-3">
-                        <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="font-medium text-blue-900 mb-2">Resumo da Análise</p>
-                          <p className="text-sm text-blue-800 leading-relaxed">
-                            {explanation.explanation_text || explanation.explanation?.text || 
-                              (selectedTransaction.fraud_score > 0.7 
-                                ? `Esta transação foi classificada como ALTO RISCO porque apresenta características atípicas. O valor de ${formatCurrency(selectedTransaction.valor)} ${selectedTransaction.fraud_score > 0.8 ? 'é significativamente maior que o padrão' : 'está acima da média'}. A combinação de fatores como horário, localização e padrão de comportamento contribuem para o score elevado.`
-                                : selectedTransaction.fraud_score > 0.4
-                                ? `Esta transação foi classificada como RISCO MODERADO. Alguns indicadores merecem atenção, mas não há evidências conclusivas de fraude. Recomenda-se monitoramento adicional.`
-                                : `Esta transação foi classificada como BAIXO RISCO. Os padrões de comportamento estão dentro do esperado para este cliente e tipo de operação.`
-                              )}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Fatores de Risco */}
-                    {(explanation.top_risk_factors || explanation.risk_factors || []).length > 0 && (
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <div className="flex items-center space-x-2 mb-3">
-                          <TrendingUp className="h-4 w-4 text-red-500" />
-                          <p className="font-medium text-red-900">Fatores que Aumentaram o Risco</p>
-                        </div>
-                        <ul className="space-y-2">
-                          {(explanation.top_risk_factors || explanation.risk_factors || []).slice(0, 5).map((factor, index) => (
-                            <li key={index} className="flex items-center justify-between text-sm">
-                              <span className="text-red-800">
-                                {factor.description || factor.feature_name || factor.feature || `Fator ${index + 1}`}
-                              </span>
-                              <span className="font-mono text-red-600 bg-red-100 px-2 py-0.5 rounded">
-                                +{((factor.impact || factor.contribution || 0.1) * 100).toFixed(0)}%
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {/* Fatores Protetores */}
-                    {(explanation.top_protective_factors || explanation.protective_factors || []).length > 0 && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <div className="flex items-center space-x-2 mb-3">
-                          <TrendingDown className="h-4 w-4 text-green-500" />
-                          <p className="font-medium text-green-900">Fatores que Reduziram o Risco</p>
-                        </div>
-                        <ul className="space-y-2">
-                          {(explanation.top_protective_factors || explanation.protective_factors || []).slice(0, 5).map((factor, index) => (
-                            <li key={index} className="flex items-center justify-between text-sm">
-                              <span className="text-green-800">
-                                {factor.description || factor.feature_name || factor.feature || `Fator ${index + 1}`}
-                              </span>
-                              <span className="font-mono text-green-600 bg-green-100 px-2 py-0.5 rounded">
-                                {((factor.impact || factor.contribution || -0.1) * 100).toFixed(0)}%
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {/* Compliance LGPD */}
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                      <p className="text-xs text-gray-600 flex items-center space-x-1">
-                        <Shield className="h-3 w-3" />
-                        <span>
-                          Esta explicação atende ao Art. 20 da LGPD - Direito à explicação de decisões automatizadas.
-                        </span>
-                      </p>
-                    </div>
+                  <div className="bg-blue-50 rounded-lg p-6 text-center">
+                    <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-3 text-blue-500" />
+                    <p className="text-blue-700 font-medium">Analisando os detalhes da transação...</p>
+                    <p className="text-sm text-blue-600 mt-1">Nosso sistema está verificando todos os fatores</p>
                   </div>
                 ) : (
-                  /* Explicação padrão baseada no score quando não há dados da API */
-                  <div className="space-y-4">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="flex items-start space-x-3">
-                        <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="font-medium text-blue-900 mb-2">Resumo da Análise</p>
-                          <p className="text-sm text-blue-800 leading-relaxed">
+                  <div className="space-y-5">
+                    
+                    {/* SEÇÃO 1: O QUE SIGNIFICA O STATUS */}
+                    <div className={`rounded-xl p-5 border-2 ${
+                      selectedTransaction.fraud_score > 0.7 
+                        ? 'bg-red-50 border-red-300' 
+                        : selectedTransaction.fraud_score > 0.4 
+                        ? 'bg-amber-50 border-amber-300' 
+                        : 'bg-green-50 border-green-300'
+                    }`}>
+                      <div className="flex items-start space-x-4">
+                        <div className={`p-3 rounded-full ${
+                          selectedTransaction.fraud_score > 0.7 
+                            ? 'bg-red-100' 
+                            : selectedTransaction.fraud_score > 0.4 
+                            ? 'bg-amber-100' 
+                            : 'bg-green-100'
+                        }`}>
+                          {selectedTransaction.fraud_score > 0.7 ? (
+                            <XCircle className="h-8 w-8 text-red-600" />
+                          ) : selectedTransaction.fraud_score > 0.4 ? (
+                            <AlertTriangle className="h-8 w-8 text-amber-600" />
+                          ) : (
+                            <CheckCircle className="h-8 w-8 text-green-600" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className={`font-bold text-xl mb-2 ${
+                            selectedTransaction.fraud_score > 0.7 
+                              ? 'text-red-800' 
+                              : selectedTransaction.fraud_score > 0.4 
+                              ? 'text-amber-800' 
+                              : 'text-green-800'
+                          }`}>
                             {selectedTransaction.fraud_score > 0.7 
-                              ? `Esta transação foi classificada como ALTO RISCO (${(selectedTransaction.fraud_score * 100).toFixed(1)}%). O sistema de inteligência artificial identificou padrões que diferem significativamente do comportamento habitual. Recomenda-se revisão manual antes de aprovar.`
-                              : selectedTransaction.fraud_score > 0.4
-                              ? `Esta transação foi classificada como RISCO MODERADO (${(selectedTransaction.fraud_score * 100).toFixed(1)}%). Alguns indicadores merecem atenção, porém não há evidências conclusivas de fraude. O monitoramento adicional é recomendado.`
-                              : `Esta transação foi classificada como BAIXO RISCO (${(selectedTransaction.fraud_score * 100).toFixed(1)}%). Os padrões identificados estão dentro do comportamento esperado para este tipo de operação e perfil de cliente.`
-                            }
+                              ? 'ALTO RISCO - Possível Fraude Detectada' 
+                              : selectedTransaction.fraud_score > 0.4 
+                              ? 'RISCO MODERADO - Requer Atenção' 
+                              : 'BAIXO RISCO - Transação Normal'}
+                          </h4>
+                          <p className={`text-base leading-relaxed ${
+                            selectedTransaction.fraud_score > 0.7 
+                              ? 'text-red-700' 
+                              : selectedTransaction.fraud_score > 0.4 
+                              ? 'text-amber-700' 
+                              : 'text-green-700'
+                          }`}>
+                            {selectedTransaction.fraud_score > 0.7 
+                              ? 'Esta transação apresenta características muito diferentes do padrão normal. Isso significa que o comportamento observado não é comum para este tipo de operação ou cliente. Recomendamos uma análise cuidadosa antes de aprovar.'
+                              : selectedTransaction.fraud_score > 0.4 
+                              ? 'Esta transação tem alguns pontos que merecem atenção, mas não há certeza de que seja uma fraude. É como um sinal amarelo no trânsito: não é necessário parar, mas convém ter cautela.'
+                              : 'Esta transação segue o padrão esperado. Todas as características estão dentro do normal para este tipo de operação. É como um sinal verde: pode prosseguir com segurança.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* SEÇÃO 2: EXPLICAÇÃO SIMPLES - COMO FUNCIONA */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
+                      <div className="flex items-center space-x-2 mb-4">
+                        <Info className="h-5 w-5 text-blue-600" />
+                        <h4 className="font-bold text-blue-900">Como o sistema chegou a essa conclusão?</h4>
+                      </div>
+                      <div className="space-y-4 text-blue-800">
+                        <p className="leading-relaxed">
+                          Nosso sistema de inteligência artificial analisou <strong>mais de 40 características</strong> desta transação e comparou com milhões de transações anteriores. Funciona assim:
+                        </p>
+                        <div className="grid gap-3">
+                          <div className="flex items-start space-x-3 bg-white/50 rounded-lg p-3">
+                            <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+                            <div>
+                              <p className="font-medium">Análise do Valor</p>
+                              <p className="text-sm">Verificamos se o valor de <strong>{formatCurrency(selectedTransaction.valor)}</strong> é comum para este cliente e tipo de transação. {selectedTransaction.valor > 5000 ? 'Valores altos recebem mais atenção.' : 'O valor está dentro do esperado.'}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start space-x-3 bg-white/50 rounded-lg p-3">
+                            <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
+                            <div>
+                              <p className="font-medium">Análise do Horário e Local</p>
+                              <p className="text-sm">Comparamos quando e onde a transação foi feita. Transações em horários ou locais incomuns para o cliente levantam alertas.</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start space-x-3 bg-white/50 rounded-lg p-3">
+                            <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">3</span>
+                            <div>
+                              <p className="font-medium">Padrão de Comportamento</p>
+                              <p className="text-sm">Analisamos se esta transação combina com o histórico do cliente. Mudanças bruscas de comportamento são sinais de alerta.</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start space-x-3 bg-white/50 rounded-lg p-3">
+                            <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">4</span>
+                            <div>
+                              <p className="font-medium">Canal e Tipo de Transação</p>
+                              <p className="text-sm">Esta é uma transação <strong>{selectedTransaction.tipo}</strong> via <strong>{selectedTransaction.canal}</strong>. {selectedTransaction.tipo === 'PIX' ? 'Transações PIX são instantâneas e recebem análise especial.' : 'Cada tipo de transação tem seus próprios padrões.'}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* SEÇÃO 3: O TERMÔMETRO DE RISCO - VISUALIZAÇÃO */}
+                    <div className="bg-white border border-gray-200 rounded-xl p-5">
+                      <h4 className="font-bold text-gray-900 mb-4 flex items-center space-x-2">
+                        <Activity className="h-5 w-5 text-gray-600" />
+                        <span>Termômetro de Risco - Visualização Simples</span>
+                      </h4>
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <div className="h-8 rounded-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-500 relative overflow-hidden">
+                            <div 
+                              className="absolute top-0 h-8 w-2 bg-white border-2 border-gray-800 rounded shadow-lg transform -translate-x-1/2"
+                              style={{ left: `${selectedTransaction.fraud_score * 100}%` }}
+                            />
+                          </div>
+                          <div className="flex justify-between mt-2 text-sm">
+                            <span className="text-green-600 font-medium">Seguro</span>
+                            <span className="text-yellow-600 font-medium">Atenção</span>
+                            <span className="text-red-600 font-medium">Perigoso</span>
+                          </div>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          <p className="text-center">
+                            <span className="text-gray-600">O indicador está em </span>
+                            <span className={`font-bold text-xl ${
+                              selectedTransaction.fraud_score > 0.7 ? 'text-red-600' :
+                              selectedTransaction.fraud_score > 0.4 ? 'text-amber-600' : 'text-green-600'
+                            }`}>
+                              {(selectedTransaction.fraud_score * 100).toFixed(0)}%
+                            </span>
+                          </p>
+                          <p className="text-center text-sm text-gray-500 mt-1">
+                            {selectedTransaction.fraud_score > 0.7 
+                              ? 'Está na zona vermelha - alta probabilidade de fraude'
+                              : selectedTransaction.fraud_score > 0.4 
+                              ? 'Está na zona amarela - merece atenção especial'
+                              : 'Está na zona verde - baixa probabilidade de fraude'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* SEÇÃO 4: FATORES QUE CHAMARAM ATENÇÃO (Se alto risco) */}
+                    {selectedTransaction.fraud_score > 0.4 && (
+                      <div className="bg-red-50 border border-red-200 rounded-xl p-5">
+                        <div className="flex items-center space-x-2 mb-4">
+                          <AlertTriangle className="h-5 w-5 text-red-600" />
+                          <h4 className="font-bold text-red-900">O que chamou a atenção do sistema?</h4>
+                        </div>
+                        <p className="text-red-700 mb-4">
+                          Os seguintes pontos fizeram o sistema classificar esta transação com risco elevado:
+                        </p>
+                        <div className="space-y-3">
+                          {selectedTransaction.valor > 10000 && (
+                            <div className="flex items-start space-x-3 bg-white/60 rounded-lg p-4">
+                              <div className="bg-red-100 p-2 rounded-full">
+                                <DollarSign className="h-5 w-5 text-red-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-red-900">Valor muito alto: {formatCurrency(selectedTransaction.valor)}</p>
+                                <p className="text-sm text-red-700">Transações acima de R$ 10.000 sempre recebem análise especial, pois são alvos frequentes de fraudadores.</p>
+                              </div>
+                            </div>
+                          )}
+                          {selectedTransaction.valor > 5000 && selectedTransaction.valor <= 10000 && (
+                            <div className="flex items-start space-x-3 bg-white/60 rounded-lg p-4">
+                              <div className="bg-red-100 p-2 rounded-full">
+                                <DollarSign className="h-5 w-5 text-red-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-red-900">Valor elevado: {formatCurrency(selectedTransaction.valor)}</p>
+                                <p className="text-sm text-red-700">Valores entre R$ 5.000 e R$ 10.000 merecem atenção extra por serem significativos.</p>
+                              </div>
+                            </div>
+                          )}
+                          {selectedTransaction.tipo === 'PIX' && (
+                            <div className="flex items-start space-x-3 bg-white/60 rounded-lg p-4">
+                              <div className="bg-red-100 p-2 rounded-full">
+                                <Zap className="h-5 w-5 text-red-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-red-900">Transação PIX instantânea</p>
+                                <p className="text-sm text-red-700">PIX é muito usado em golpes porque o dinheiro chega na hora e é difícil de reverter. Por isso, recebe análise mais rigorosa.</p>
+                              </div>
+                            </div>
+                          )}
+                          {selectedTransaction.canal === 'MOBILE' && (
+                            <div className="flex items-start space-x-3 bg-white/60 rounded-lg p-4">
+                              <div className="bg-amber-100 p-2 rounded-full">
+                                <Smartphone className="h-5 w-5 text-amber-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-amber-900">Transação via celular</p>
+                                <p className="text-sm text-amber-700">Verificamos se o dispositivo usado é o mesmo de costume. Mudanças de aparelho podem indicar que outra pessoa está usando a conta.</p>
+                              </div>
+                            </div>
+                          )}
+                          {selectedTransaction.canal === 'WEB' && (
+                            <div className="flex items-start space-x-3 bg-white/60 rounded-lg p-4">
+                              <div className="bg-amber-100 p-2 rounded-full">
+                                <Globe className="h-5 w-5 text-amber-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-amber-900">Transação via internet (computador)</p>
+                                <p className="text-sm text-amber-700">Transações pela web podem ser mais vulneráveis a ataques. Verificamos a localização e o dispositivo usado.</p>
+                              </div>
+                            </div>
+                          )}
+                          <div className="flex items-start space-x-3 bg-white/60 rounded-lg p-4">
+                            <div className="bg-red-100 p-2 rounded-full">
+                              <Activity className="h-5 w-5 text-red-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-red-900">Padrão incomum detectado</p>
+                              <p className="text-sm text-red-700">A combinação de fatores (valor, horário, local, tipo) não corresponde ao comportamento habitual registrado para este cliente.</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SEÇÃO 5: FATORES POSITIVOS (Se baixo risco) */}
+                    {selectedTransaction.fraud_score <= 0.4 && (
+                      <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+                        <div className="flex items-center space-x-2 mb-4">
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                          <h4 className="font-bold text-green-900">Por que esta transação parece segura?</h4>
+                        </div>
+                        <p className="text-green-700 mb-4">
+                          Os seguintes pontos indicam que esta é uma transação legítima:
+                        </p>
+                        <div className="space-y-3">
+                          <div className="flex items-start space-x-3 bg-white/60 rounded-lg p-4">
+                            <div className="bg-green-100 p-2 rounded-full">
+                              <User className="h-5 w-5 text-green-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-green-900">Comportamento consistente</p>
+                              <p className="text-sm text-green-700">Esta transação está de acordo com o histórico do cliente. O valor, horário e tipo são semelhantes às operações anteriores.</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start space-x-3 bg-white/60 rounded-lg p-4">
+                            <div className="bg-green-100 p-2 rounded-full">
+                              <MapPin className="h-5 w-5 text-green-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-green-900">Local conhecido</p>
+                              <p className="text-sm text-green-700">A transação foi realizada em {selectedTransaction.cidade || 'uma localidade'} que faz parte do padrão habitual deste cliente.</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start space-x-3 bg-white/60 rounded-lg p-4">
+                            <div className="bg-green-100 p-2 rounded-full">
+                              <Clock className="h-5 w-5 text-green-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-green-900">Horário adequado</p>
+                              <p className="text-sm text-green-700">A transação foi feita em um horário normal de operação, sem características suspeitas como madrugada ou feriados.</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SEÇÃO 6: O QUE O ANALISTA DEVE FAZER */}
+                    <div className={`rounded-xl p-5 border-2 ${
+                      selectedTransaction.fraud_score > 0.7 
+                        ? 'bg-purple-50 border-purple-200' 
+                        : 'bg-indigo-50 border-indigo-200'
+                    }`}>
+                      <div className="flex items-center space-x-2 mb-4">
+                        <User className="h-5 w-5 text-purple-600" />
+                        <h4 className="font-bold text-purple-900">Recomendação para o Analista</h4>
+                      </div>
+                      <div className={`p-4 rounded-lg ${
+                        selectedTransaction.fraud_score > 0.7 ? 'bg-purple-100' : 'bg-indigo-100'
+                      }`}>
+                        {selectedTransaction.fraud_score > 0.7 ? (
+                          <div className="space-y-3">
+                            <p className="text-purple-900 font-medium">Esta transação PRECISA de análise manual. Sugerimos:</p>
+                            <ul className="space-y-2 text-purple-800">
+                              <li className="flex items-center space-x-2">
+                                <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                                <span>Verificar se o cliente reconhece esta transação (ligar ou enviar notificação)</span>
+                              </li>
+                              <li className="flex items-center space-x-2">
+                                <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                                <span>Confirmar os dados do destinatário</span>
+                              </li>
+                              <li className="flex items-center space-x-2">
+                                <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                                <span>Verificar se houve outras tentativas suspeitas recentes</span>
+                              </li>
+                              <li className="flex items-center space-x-2">
+                                <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                                <span>Se não confirmar, REJEITAR a transação imediatamente</span>
+                              </li>
+                            </ul>
+                          </div>
+                        ) : selectedTransaction.fraud_score > 0.4 ? (
+                          <div className="space-y-3">
+                            <p className="text-indigo-900 font-medium">Esta transação merece atenção moderada. Sugerimos:</p>
+                            <ul className="space-y-2 text-indigo-800">
+                              <li className="flex items-center space-x-2">
+                                <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                                <span>Verificar rapidamente o histórico recente do cliente</span>
+                              </li>
+                              <li className="flex items-center space-x-2">
+                                <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                                <span>Se tudo parecer normal, pode aprovar com monitoramento</span>
+                              </li>
+                              <li className="flex items-center space-x-2">
+                                <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                                <span>Registrar observações para análise futura se necessário</span>
+                              </li>
+                            </ul>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            <p className="text-indigo-900 font-medium">Esta transação pode ser aprovada com segurança:</p>
+                            <ul className="space-y-2 text-indigo-800">
+                              <li className="flex items-center space-x-2">
+                                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span>Todos os indicadores estão dentro do normal</span>
+                              </li>
+                              <li className="flex items-center space-x-2">
+                                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span>Pode aprovar automaticamente ou com revisão rápida</span>
+                              </li>
+                              <li className="flex items-center space-x-2">
+                                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span>Não há necessidade de contato com o cliente</span>
+                              </li>
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* SEÇÃO 7: COMPLIANCE LGPD */}
+                    <div className="bg-gray-100 border border-gray-300 rounded-xl p-4">
+                      <div className="flex items-start space-x-3">
+                        <Shield className="h-5 w-5 text-gray-600 mt-0.5" />
+                        <div>
+                          <p className="font-medium text-gray-800">Transparência e seus direitos (LGPD)</p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Conforme a Lei Geral de Proteção de Dados (Art. 20), você tem direito a entender como decisões automatizadas afetam você. 
+                            Esta explicação foi gerada automaticamente pelo sistema Sankofa e pode ser contestada ou revista por um humano a qualquer momento.
                           </p>
                         </div>
                       </div>
                     </div>
                     
-                    {/* Fatores Genéricos baseados no contexto */}
-                    {selectedTransaction.fraud_score > 0.4 && (
-                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                        <div className="flex items-center space-x-2 mb-3">
-                          <AlertTriangle className="h-4 w-4 text-amber-500" />
-                          <p className="font-medium text-amber-900">Pontos de Atenção</p>
-                        </div>
-                        <ul className="space-y-2 text-sm text-amber-800">
-                          {selectedTransaction.valor > 5000 && (
-                            <li className="flex items-center space-x-2">
-                              <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
-                              <span>Valor acima de R$ 5.000 requer atenção extra</span>
-                            </li>
-                          )}
-                          {selectedTransaction.canal?.toLowerCase() === 'web' && (
-                            <li className="flex items-center space-x-2">
-                              <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
-                              <span>Transação realizada via canal web</span>
-                            </li>
-                          )}
-                          {selectedTransaction.tipo === 'PIX' && selectedTransaction.valor > 1000 && (
-                            <li className="flex items-center space-x-2">
-                              <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
-                              <span>PIX de valor elevado - verificar destinatário</span>
-                            </li>
-                          )}
-                          <li className="flex items-center space-x-2">
-                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
-                            <span>Score de risco acima do limiar de segurança</span>
-                          </li>
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {/* Compliance LGPD */}
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                      <p className="text-xs text-gray-600 flex items-center space-x-1">
-                        <Shield className="h-3 w-3" />
-                        <span>
-                          Esta explicação atende ao Art. 20 da LGPD - Direito à explicação de decisões automatizadas.
-                        </span>
-                      </p>
-                    </div>
                   </div>
                 )}
               </div>
