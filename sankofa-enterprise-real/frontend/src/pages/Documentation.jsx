@@ -74,8 +74,7 @@ export function Documentation() {
         if (!response.ok) {
           throw new Error('Documento não encontrado');
         }
-        let text = await response.text();
-        text = text.replace(/\(images\//g, '(/docs/images/');
+        const text = await response.text();
         setContent(text);
       } catch (err) {
         setError(err.message);
@@ -217,6 +216,15 @@ export function Documentation() {
                   ">
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm]}
+                      urlTransform={(url) => {
+                        if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
+                          return url;
+                        }
+                        if (url.startsWith('images/')) {
+                          return `/docs/${url}`;
+                        }
+                        return url;
+                      }}
                       components={{
                         img: ({node, src, alt, ...props}) => (
                           <img 
