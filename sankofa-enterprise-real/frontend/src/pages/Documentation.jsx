@@ -214,7 +214,25 @@ export function Documentation() {
                     prose-hr:border-gray-200 dark:prose-hr:border-gray-700 prose-hr:my-8
                     prose-img:rounded-lg prose-img:shadow-md
                   ">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        img: ({node, src, alt, ...props}) => {
+                          const fixedSrc = src?.startsWith('images/') 
+                            ? `/docs/${src}` 
+                            : src;
+                          return (
+                            <img 
+                              src={fixedSrc} 
+                              alt={alt || ''} 
+                              className="rounded-lg shadow-md max-w-full h-auto my-4"
+                              loading="lazy"
+                              {...props} 
+                            />
+                          );
+                        }
+                      }}
+                    >
                       {content}
                     </ReactMarkdown>
                   </article>
