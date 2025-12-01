@@ -70,6 +70,13 @@ All 6 research endpoints are fully functional and tested:
 - `POST /api/research/nlp/batch` - Batch analyze multiple texts
 - `GET /api/research/transfer/datasets` - List supported datasets (4 datasets, 17M+ transactions)
 
+### Documentation (Updated December 2025)
+Ultra-didactic ML documentation available at:
+- `/docs/GUIA_COMPLETO_ML.md` - Complete ML guide explaining how models work together
+  - Covers 7 integrated modules: Bahnsen, Random Forest, Gradient Boosting, Logistic Regression, CatBoost, GNN, PIX Taxonomy, NLP, Transfer Learning
+  - Includes ensemble formula: P = 0.50×Base + 0.25×CatBoost + 0.25×GNN
+  - ASCII diagrams and step-by-step calculation examples
+
 ## External Dependencies
 
 - **PostgreSQL**: Used as the primary relational database for persistent data storage.
