@@ -1,0 +1,421 @@
+🧪 PROMPT COMPLETO (PARTE NOVA INTEGRADA AO PROMPT GLOBAL DE QA)
+Testes Extremos – Para as 7 Telas (Imagens) Novas Enviadas
+
+Você é uma IA especialista em QA, testes funcionais, testes end-to-end, auditoria, integração com backend, detecção de falhas e testes de consistência de dados.
+Quero que você gere um plano de testes ABSURDAMENTE DETALHADO, com 100% de cobertura funcional, técnica e visual, para as seguintes telas:
+
+🔍 1. Central de Investigação
+Elementos a serem testados:
+
+Cards superiores:
+
+Casos Ativos
+
+Em Investigação
+
+Resolvidos
+
+Taxa de Resolução
+
+Botões:
+
+Atualizar
+
+Nova Investigação
+
+Campos de filtro:
+
+Buscar investigações
+
+Todos os Status
+
+Todas as Prioridades
+
+Lista de investigações
+
+Estado vazio: “Nenhuma investigação encontrada”
+
+Painel de detalhes vazio: “Selecione uma investigação…”
+
+Testes obrigatórios:
+✔ Funcionais:
+
+Filtro por texto, status e prioridade.
+
+Atualização e refresh.
+
+Página sem dados.
+
+Página com dados (simulação).
+
+Abertura de detalhes.
+
+Criar nova investigação (validação dos campos, permissões).
+
+✔ Integração:
+
+Endpoint de listagem.
+
+Paginação.
+
+Filtro combinando 3 parâmetros simultâneos.
+
+✔ Validação visual:
+
+Ícones (alerta, relógio, check).
+
+Cores de status.
+
+Comportamento responsivo.
+
+👁️ 2. Revisão Manual – Human in the Loop
+Elementos:
+
+Cards:
+
+Total
+
+Pendentes
+
+Completadas
+
+Expiradas
+
+Botão Atualizar
+
+Tabela de transações pendentes
+
+Estado vazio: “Nenhuma transação pendente…”
+
+Testes obrigatórios:
+✔ Funcionais:
+
+Listar transações pendentes.
+
+Classificação manual (quando existir fluxo).
+
+Atualizar lista.
+
+Ver se “pendentes” = count da tabela.
+
+✔ Validação de tabelas:
+
+Colunas: ID, Valor, CPF, Risco, Status, Ações.
+
+Formatos monetários e CPFs.
+
+Ordenação (quando existir).
+
+✔ Integração com motor:
+
+Transações expiradas devem ser removidas corretamente.
+
+“Completadas” devem diminuir o número de “Pendentes”.
+
+📈 3. Monitoramento do Sistema
+Elementos:
+
+Status Geral
+
+Modelos ativos
+
+TPS (transações por segundo)
+
+Tempo de resposta
+
+Taxa de detecção
+
+Falsos positivos
+
+Processadas hoje
+
+Uptime
+
+Recursos:
+
+CPU
+
+Memória
+
+Disco
+
+Latência
+
+Alertas recentes
+
+Informações do sistema:
+
+Conexões ativas
+
+Modo de operação (Produção/Dev)
+
+Auto-refresh
+
+Testes obrigatórios:
+✔ Valores dinâmicos:
+
+Atualização automática ON/OFF.
+
+Atualização manual.
+
+Picos instantâneos de CPU/Memória.
+
+Latência reduzindo/aumentando.
+
+✔ Cálculos:
+
+Uptime (formato correto 15d 8h 23m).
+
+TPS coerente com volume real.
+
+Taxa de detecção = fraudes detectadas / total.
+
+✔ Estado visual:
+
+Latência verde/amarelo/vermelho conforme thresholds.
+
+Status saudável vs degradado.
+
+📄 4. Central de Relatórios
+Elementos:
+
+Templates disponíveis:
+
+Relatório Mensal
+
+Performance Trimestral
+
+Tendências
+
+Impacto Financeiro
+
+Filtros:
+
+Buscar relatórios
+
+Tipos
+
+Status
+
+Estado vazio
+
+Painel de detalhes vazio
+
+Botão Novo Relatório
+
+Botão Atualizar
+
+Testes obrigatórios:
+✔ Funcionais:
+
+Criar relatório (quando existir fluxo).
+
+Abrir template (quando existir).
+
+Filtrar por tipo/status.
+
+Busca textual.
+
+✔ Interface:
+
+Cada card mostra tempo estimado (5–10 min).
+
+Ícones de cada tipo.
+
+📊 5. Métricas e Contadores (Tempo Real)
+Elementos:
+
+Métricas gerais:
+
+Transações
+
+Fraudes
+
+Precisão
+
+Tempo
+
+Hard Rules:
+
+Acionadas Hoje
+
+Taxa de bloqueio
+
+VIP/HOT Lists
+
+Auto-refresh
+
+Atualizar manualmente
+
+Última atualização
+
+Testes obrigatórios:
+✔ Funcionais:
+
+Atualização contínua dos contadores.
+
+Taxa de bloqueio = regras acionadas / total.
+
+Verificação de VIP/HOT Hits.
+
+Alterações de estado quando valores mudam.
+
+✔ Integração:
+
+Dados devem vir da API real.
+
+Garantir que a precisão seja consistente com “fraudes vs acertos”.
+
+🧑‍💼 6. Feedback de Analistas
+Elementos:
+
+Cards:
+
+Total de Feedbacks
+
+Acurácia
+
+Precisão
+
+Recall
+
+Botões:
+
+Novo Feedback
+
+Exportar
+
+Atualizar
+
+Histórico de Feedbacks:
+
+ID da Transação
+
+Predição do modelo
+
+Classificação real
+
+Status
+
+Data/Hora
+
+Testes obrigatórios:
+✔ Funcionais:
+
+Criar novo feedback (quando fluxo existir).
+
+Comparação entre predição vs classificação real.
+
+Status: Correto, Incorreto.
+
+Exportação correta dos dados.
+
+Filtros (quando houver).
+
+✔ Cálculos:
+
+Acurácia
+
+Precisão
+
+Recall
+
+Use:
+
+Acurácia = (corretos / total)
+
+🔔 7. Central de Alertas
+Elementos:
+
+Cards:
+
+Total
+
+Novos
+
+Investigando
+
+Resolvidos
+
+Críticos
+
+Filtros:
+
+Busca
+
+Tipos
+
+Severidades
+
+Status
+
+Lista de alertas
+
+Painel de detalhes vazio
+
+Botões Atualizar e Configurações
+
+Testes obrigatórios:
+✔ Funcionais:
+
+Filtro por severidade (Baixa/Moderada/Alta/Crítica).
+
+Filtro por status: Novo, Investigando, Resolvido.
+
+Abrir detalhes do alerta.
+
+Validar classificação do alerta (ex. “Médio”).
+
+Mostrar tempo decorrido (“6m atrás”).
+
+✔ Validação da lista:
+
+Detalhes corretos:
+
+Tipo
+
+Código
+
+Risco
+
+Canal
+
+Valor
+
+Tempo atrás
+
+✔ Integração:
+
+Atualizar deve buscar novos alertas.
+
+Configurações devem abrir tela específica (quando houver).
+
+📌 INSTRUÇÃO FINAL PARA O REPLIT
+
+Quero que você produza um PLANO DE TESTES COMPLETO, unificado com o prompt anterior, que inclua para cada tela:
+
+Testes Funcionais
+
+Testes de Validação
+
+Testes de Interface/UX
+
+Testes de Integração
+
+Testes de Performance
+
+Testes de Segurança
+
+Testes de Consistência
+
+Testes de Erro
+
+Testes de Dados Vazios
+
+Testes de Carga
+
+Testes de Responsividade
+
+Checklist Final Completo
+
+Garantir 100% dos elementos visíveis nas imagens testados — sem deixar NENHUM pixel sem validação.
