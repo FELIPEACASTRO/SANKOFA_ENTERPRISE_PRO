@@ -1,0 +1,418 @@
+🧪 PROMPT FINAL E COMPLETO PARA O REPLIT – PLANO DE TESTES EXTREMO PARA A TELA DE CALIBRAGEM MANUAL
+
+Você é uma IA especialista em QA, Testes Funcionais, Testes de Integração, Segurança, UX, Performance e Verificação de Algoritmos de IA em sistemas bancários críticos.
+
+Quero que você analise com extremo rigor técnico, cada componente da tela Calibragem Manual – Ajuste em tempo real dos parâmetros dos algoritmos de IA, utilizando TODAS AS IMAGENS ENVIADAS.
+
+Seu objetivo é criar um plano de testes completo, com 100% de cobertura, garantindo que:
+
+✔ Todos os sliders funcionam
+✔ Todos os toggles funcionam
+✔ Todas as validações são aplicadas
+✔ Todas as regras de negócio são verificadas
+✔ Todos os tiers funcionam corretamente
+✔ Configurações globais se aplicam
+✔ Comunicação com o motor está consistente
+✔ JSON enviado ao motor contém 100% dos parâmetros
+✔ Integrações Backend/Redis/Motor/Logs funcionam
+✔ Segurança, auditoria e compliance estão ativados
+
+🎯 SEÇÕES A SEREM ANALISADAS (INCLUINDO AS 2 IMAGENS FINAIS)
+
+O plano de testes deve cobrir absolutamente todas as seções da tela, incluindo:
+
+🚀 1. Cabeçalho Geral
+
+Aplicar Mudanças ao Motor
+
+Resetar Padrões
+
+Histórico de Mudanças
+
+Motor Online / Latência / Precisão
+
+Última Atualização
+
+Testes a realizar:
+
+Renderização
+
+Conectividade com motor
+
+Estados (loading, erro, sucesso)
+
+Permissões
+
+Proteção contra envio inválido
+
+Persistência pós-aplicação
+
+⚡ 2. Tiers dos Modelos
+
+Cada Tier contém modelos específicos com parâmetros próprios:
+
+Tier 1 – Velocistas
+
+Inclui:
+
+Motor de Regras Básicas
+
+Verificação de Listas Negras
+
+Verificação de Velocidade
+
+Validação Geográfica
+
+Estatísticas Básicas
+
+Testar:
+
+Sliders
+
+Valores mínimos e máximos
+
+Permissão de Regras Customizadas
+
+Cache Timeout
+
+Frequen̂cia de Atualização
+
+Override por whitelist
+
+Máx transações por janela
+
+Velocidade por valor
+
+Tier 2 – Rápidos
+
+Modelos:
+
+Random Forest
+
+XGBoost
+
+Regressão Logística
+
+SVM
+
+Naive Bayes
+
+Testar:
+
+Learning rate
+
+Subsample
+
+Nº de Árvores
+
+Max depth
+
+Colsample by tree
+
+Min samples split
+
+Tier 3 – Avançados
+
+Modelos:
+
+Rede Neural Profunda
+
+LSTM
+
+Transformer
+
+Autoencoder
+
+Testar:
+
+Nº camadas
+
+Neurônios por camada
+
+Dropout
+
+Thresholds individuais
+
+Peso no ensemble
+
+Tier 4 – Supremos
+
+Modelos:
+
+Graph Transformer
+
+Quantum-Inspired Detection
+
+Federated Learning
+
+Testar:
+
+Lógica de federated learning
+
+Threshold extremo
+
+Impacto no ensemble
+
+⚙️ 3. Configurações Globais
+
+Subseções:
+
+Ensemble
+
+Performance
+
+Segurança
+
+Alertas
+
+Monitoramento
+
+Backup ← (primeira imagem adicional)
+
+API ← (segunda imagem adicional)
+
+Cada subseção deve ter TESTES INDIVIDUAIS:
+
+🧩 3.1 Configurações de Ensemble
+
+Threshold final
+
+Auto-learning
+
+Sensibilidade de drift
+
+Feedback em tempo real
+
+Threshold adaptativo
+
+🚀 3.2 Performance
+
+Timeout
+
+Threads paralelas
+
+Cache TTL
+
+Batch Size
+
+Limite de memória
+
+Testes:
+
+Carga extrema
+
+Valores fora do range
+
+Verificação de alto volume
+
+🔐 3.3 Segurança
+
+LGPD / GDPR
+
+Criptografia em trânsito
+
+Validação de Integridade
+
+Anonimização Automática
+
+Retenção de dados sensíveis
+
+🚨 3.4 Alertas
+
+Threshold crítico
+
+Frequência de notificação
+
+E-mail
+
+SMS
+
+Webhooks
+
+Escalação automática
+
+📊 3.5 Monitoramento
+
+Intervalo de health check
+
+Retenção de métricas
+
+Auto-refresh
+
+Métricas de Performance
+
+Alertas de Performance
+
+SLA
+
+💾 3.6 Backup & Recovery – (IMAGEM 1 ADICIONAL)
+
+Parâmetros presentes na imagem enviada:
+
+Elementos:
+
+Retenção de Backups (dias)
+
+RPO – Recovery Point Objective (min)
+
+Backup Automático
+
+Disaster Recovery
+
+Versionamento de Configurações
+
+Testes obrigatórios:
+✔ Sliders:
+
+Retenção mínima: 7 dias
+
+Máxima: 365 dias
+
+RPO mínimo: 15 min
+
+Máximo: 1440 min
+
+Persistência pós-aplicar
+
+Arredondamento nos valores
+
+✔ Toggles:
+
+Backup Automático
+
+Disaster Recovery
+
+Versionamento
+
+Teste:
+
+Ativar e aplicar → verificar JSON
+
+Desativar → verificar logs
+
+Forçar conflito (backup desligado + DR ativado)
+
+Checar se o motor aceita as combinações
+
+✔ Integração:
+
+Testar integração com sistema de Backup real
+
+Testar erros de storage
+
+Testar versionamento de configs
+
+🌐 3.7 API & Integração – (IMAGEM 2 ADICIONAL)
+
+Parâmetros:
+
+Rate Limit (100 – 10.000 req/s)
+
+API Timeout (5 – 120s)
+
+CORS Habilitado
+
+Testes obrigatórios:
+✔ Rate Limit:
+
+Testar mínimo
+
+Testar máximo
+
+Testar valor no meio
+
+Tentar configurar acima do limite → validar erro
+
+✔ Timeout:
+
+Configurar abaixo de 5s → deve recusar
+
+Configurar acima de 120s → recusar
+
+Persistir valor correto no JSON
+
+✔ CORS:
+
+Ativar → confirmar header Access-Control-Allow-Origin
+
+Desativar → confirmar remoção do header
+
+Testar chamadas OPTIONS
+
+✔ Segurança:
+
+Testar CORS habilitado contra endpoints sensíveis
+
+Garantir que o sistema não aceite origem aleatória
+
+Testar XSS via origem maliciosa
+
+🔗 4. Testes de Integração com o Motor
+
+Para cada alteração, verificar:
+
+JSON enviado ao motor contém 100% dos parâmetros
+
+Erros do motor são exibidos claramente
+
+Valores fora dos limites são rejeitados antes do envio
+
+Motor responde com status e mensagem coerente
+
+Aplicação dos parâmetros se reflete na UI
+
+Histórico registra cada mudança
+
+🔥 5. Testes de Segurança
+
+RBAC (quem pode alterar?)
+
+Proteção contra manipulação no DOM
+
+Rejeitar alterações diretas via API
+
+Auditoria completa
+
+CSRF
+
+XSS
+
+Injeção via sliders ou campos de texto
+
+🧪 6. Testes de Performance
+
+Alterar 300 parâmetros rapidamente
+
+Simular alta concorrência
+
+Testar resposta do motor sob carga
+
+Verificar se UI não trava
+
+🎛️ 7. Testes de Consistência
+
+Peso total do ensemble válido
+
+Threshold global vs local sem conflitos
+
+Parâmetros dependentes coerentes
+
+DR não pode ser acionado sem backup ativado
+
+📋 8. Checklist Final
+
+Peça ao Replit gerar:
+
+Lista com 100% dos parâmetros testados
+
+Lista de comportamentos esperados
+
+Lista de integrações verificadas
+
+Lista de erros e gaps encontrados
+
+Lista de recomendações para endurecer segurança
+
+🧨 INSTRUÇÃO FINAL PARA O REPLIT
+
+⚠️ Gere um plano de testes ABSURDAMENTE detalhado, criterioso, cobrindo 100% dos componentes das imagens, sem deixar NENHUM pixel sem validação técnica.

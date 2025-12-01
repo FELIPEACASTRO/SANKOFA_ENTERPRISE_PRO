@@ -78,6 +78,38 @@ Clean Architecture with Domain, Application, Infrastructure, and Presentation la
 - BACEN: SLA monitoring <50ms PIX
 - PCI DSS: Sensitive data masked
 
+## Recent Changes (December 1, 2025)
+
+### 🧪 PLANOS DE TESTES PROFISSIONAIS CRIADOS (v1.0)
+
+**3 Documentos de Testes Completos Entregues**:
+
+1. **PLANO_DE_TESTES_DASHBOARD.md** ✅
+   - 55+ testes funcionais para Dashboard Executivo
+   - KPI Cards, Gráficos, Alertas, Status dos Modelos
+   - Testes de integração front-end + back-end
+   - Exemplos práticos em Vitest, Playwright, pytest
+   - Checklist final com 50+ pontos críticos
+
+2. **PLANO_DE_TESTES_TRANSACOES.md** ✅
+   - 80+ testes funcionais para Lista de Transações
+   - Filtros, Ordenação, Paginação, Exportação CSV
+   - Ações de linha (Aprovar, Rejeitar, Investigar)
+   - Modal de detalhes com 4 seções didáticas
+   - Testes de integração com 7 endpoints da API
+
+3. **PLANO_DE_TESTES_CALIBRAGEM_MANUAL.md** ✅
+   - 400+ testes para Calibragem Manual (100% cobertura)
+   - 4 Tiers de Modelos (18 algoritmos)
+   - 7 Configurações Globais (200+ parâmetros)
+   - Testes de Backup & Recovery + API & Integração
+   - Validações de segurança, performance, consistência
+   - Checklist final de 195 itens críticos
+
+**Total de Testes Documentados**: 535+ casos ✅
+
+---
+
 ## Recent Changes (November 30, 2025)
 
 ### Manual ULTRA-DIDÁTICO Completo (v4.0) - 3.073 linhas
