@@ -1,0 +1,257 @@
+ANÁLISE DETALHADA DAS 5 IMAGENS ADICIONAIS (CATÁLOGO / HARD RULES / VIP / HOT / AUDITORIA)
+
+(Integrado automaticamente com toda a análise anterior — pronto para inserir no PROMPT-MESTRE)
+
+📘 1 — Catálogo de Datasets
+
+📍 Função: Gerenciar todos os datasets usados pela IA (treino, validação, produção, drift, histórico).
+📍 Status atual nas imagens: Vazio (0 datasets).
+
+🔍 O que a tela mostra:
+
+Total de datasets
+
+Total de registros
+
+Total de registros de fraude
+
+Datasets ativos
+
+Métricas de qualidade:
+
+Taxa geral de fraude
+
+Datasets com rótulos
+
+Qualidade média
+
+🧠 O que cada item significa:
+Item	Significado Técnico
+Dataset	Arquivo/tabulação contendo dados históricos usados para treino/re-treino do motor.
+Registro	Cada linha do dataset.
+Rótulos de fraude	Necessários para supervised learning (0/1).
+Qualidade média	Pipeline de sanity-check: duplicados, vazios, inconsistências.
+Status em Tempo Real	Se dataset está sendo usado nos modelos ativos.
+✔ Validações que o sistema deveria fazer:
+
+Conferir schema automaticamente
+
+Detectar drift no dataset versus produção
+
+Validar balanceamento (fraude vs legítima)
+
+Garantir anonimização LGPD
+
+Verificar integridade e checksum dos datasets importados
+
+Versionamento automático (Dataset v1, v2, v3…)
+
+⚠ Possíveis Gaps identificados:
+
+Nenhum dataset — sem base para auto-learning
+
+Não indica origem (S3, DB, upload manual)
+
+Falta informação de tamanho dos arquivos
+
+Não mostra schema inferido
+
+Não mostra auto-validation com regras do motor
+
+📘 2 — Hard Rules (Regras Rígidas)
+
+📍 Função: Regras que bloqueiam imediatamente, independentes do modelo de IA.
+
+🔍 O que aparece:
+
+2 regras ativas:
+
+Transação Alto Valor (bloquear)
+
+DOUBLE_CHECK_TEST (bloquear)
+
+🧠 Estrutura de uma Hard Rule:
+Campo	Significado
+Campo	O atributo analisado (valor, CPF, IP, device, etc.)
+Operador	> < == != contains starts_with
+Valor	Threshold
+Ação	Bloquear / Liberar / Alertar
+Status	Ativa / Inativa
+Validade	Permanente / Temporária
+✔ validações necessárias:
+
+Hard rules devem preceder a IA
+
+Regras precisam ter prioridade claramente definida
+
+Regras devem impactar o ensemble (com peso 1.0)
+
+Logs de acionamento devem ser persistidos
+
+Efeito no SLA do motor deve ser monitorado
+
+⚠ gaps:
+
+Falta motor de regras com versionamento
+
+Falta campo “justificativa”
+
+Não há ranking de acionamentos por regra
+
+📘 3 — Lista VIP (Whitelist)
+
+📍 Função: Aprovação direta / redução de risco.
+
+🔍 O que a tela mostra:
+
+Zero CPFs cadastrados
+
+Zero hits
+
+Status vazio
+
+🧠 Funcionamento esperado:
+
+CPF/Nome
+
+Motivo da inclusão
+
+Expiração automática
+
+Auditoria obrigatória
+
+Bypass parcial ou total da IA
+
+✔ Validações necessárias:
+
+CPF validado com DV
+
+Expiração automática
+
+Toda inclusão deve gerar um evento de auditoria
+
+Deve impactar diretamente pesos no ensemble
+
+Deve reduzir risco para “baixo” automaticamente
+
+⚠ gaps identificados:
+
+Não há segmentation por canal (PIX, cartão, web, ATM)
+
+Falta logs de quem incluiu
+
+Não mostra histórico de VIP expirados
+
+📘 4 — Lista HOT (Blacklist)
+
+📍 Função: Bloqueio imediato.
+
+🔍 O que a tela mostra:
+
+Zero entradas
+
+Zero bloqueios gerados
+
+Interface similar à VIP, porém com finalidade oposta
+
+🧠 Significados:
+
+Quem entra na HOT não passa pelo modelo
+
+Bloqueio é imediato, independente de risco
+
+Usado contra fraudadores já identificados
+
+✔ Validações esperadas:
+
+CPF validado
+
+Expiração temporária ou permanente
+
+Logs completos de inclusão, remoção e acionamentos
+
+⚠ gaps:
+
+Falta anotação do nível de severidade
+
+Falta auditoria da origem da denúncia
+
+Falta sincronização com sistemas externos
+
+Não mostra histórico de hits
+
+📘 5 — Trilhas de Auditoria
+
+📍 Função: Registro completo de tudo que aconteceu no sistema.
+
+🔍 O que aparece:
+
+50 logs totais
+
+Nenhuma falha, nenhum log de alta severidade
+
+Nenhum log selecionado
+
+🧠 O que cada item significa:
+
+Ações: Login, inclusão VIP/HOT, mudança de regra, calibragens…
+
+Severidade: Normal, Alto Risco, Crítico
+
+Status: Sucesso, Falha
+
+Filtros: usuário, status, tipo, severidade
+
+✔ Validações necessárias:
+
+Logs imutáveis (append-only)
+
+Retenção mínima 1 ano
+
+Exportação criptografada
+
+Integração com SIEM (Splunk, ELK, QRadar)
+
+Query avançada (regex, IP, device, event ID)
+
+⚠ Gaps:
+
+Logs não detalhados
+
+Não mostra payload de entrada/saída
+
+Falta integração com motor de auditoria de IA
+
+Falta correlação entre eventos (ex: mudança → problema no modelo)
+
+🚀 INTEGRAÇÃO DAS NOVAS IMAGENS NO PROMPT-MESTRE
+
+A seguir está o bloco que será adicionado ao Mega Prompt que você está montando para o Replit/Devin:
+
+🔥 BLOCO PARA INSERIR NO PROMPT FINAL (PARTE NOVA — DATASETS, HARD RULES, VIP/HOT, AUDITORIA)
+ANALISE também as telas referentes a:
+
+=== CATÁLOGO DE DATASETS ===
+• Validar estrutura, schema, tipos, integridade, rótulos e qualidade geral.
+• Confirmar se datasets atendem drift, auto-learning, versionamento, balanceamento e LGPD.
+• Verificar se existe validação automática e auditoria de importação.
+
+=== HARD RULES (REGRAS RÍGIDAS) ===
+• Confirmar se regras têm prioridade absoluta sobre a IA.
+• Garantir versionamento, logs de acionamento, justificação e impacto no ensemble.
+• Validar operadores, range de valores, limites e segurança.
+
+=== LISTA VIP (WHITELIST) ===
+• Validar CPF, motivo, expiração e auditoria obrigatória.
+• Confirmar impacto direto no risco e no ensemble.
+• Verificar histórico completo e segurança.
+
+=== LISTA HOT (BLACKLIST) ===
+• Bloqueio imediato obrigatório.
+• Validar severidade, logs, expiração e auditoria.
+• Confirmar integração com sistemas externos.
+
+=== TRILHAS DE AUDITORIA ===
+• Garantir logs imutáveis, completos, com retenção mínima exigida.
+• Validar exportação segura, criptografada e indexada.
+• Verificar correlação entre eventos, falhas, calibragens e ações de analistas.
