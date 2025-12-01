@@ -1,4 +1,4 @@
-# Sankofa Enterprise Pro - Fraud Detection System
+# Sankofa Enterprise Pro - Fraud Detection System v2.0
 
 ## Overview
 Sankofa Enterprise Pro is a production-ready fraud detection system designed for banking environments. Its primary purpose is to process financial transactions with low latency, identify and prevent fraud using advanced machine learning models, and ensure compliance with relevant financial regulations (LGPD/BACEN/PCI DSS). The system features a comprehensive React-based dashboard for monitoring and management, aiming for high performance and reliability in a critical banking context.
@@ -22,7 +22,7 @@ The frontend is built with React 18, utilizing Vite for fast development, `shadc
 - **Data Storage**: PostgreSQL serves as the primary database, storing transactional data, audit logs, and configuration information.
 - **Caching**: A `SimpleCache` implementation provides in-memory caching with a 30-second TTL (Time-To-Live) to significantly reduce latency for frequently accessed data, falling back to an in-memory solution if Redis is not configured.
 - **Security**: Implements JWT Authentication, Role-Based Access Control (RBAC) with 5 defined roles, and compliance features like data masking, audit trails, and explainability to meet LGPD, BACEN, and PCI DSS standards.
-- **API Endpoints**: The system exposes 21 fully functional API endpoints covering health checks, dashboard data, transaction processing, alerts, rules management, observability, and configuration.
+- **API Endpoints**: The system exposes 27 fully functional API endpoints covering health checks, dashboard data, transaction processing, alerts, rules management, observability, configuration, and 6 new research ML endpoints.
 
 ### Feature Specifications
 - **Fraud Detection**: Processes transactions with <50ms latency, utilizing ML models and hard rules for real-time fraud scoring.
@@ -61,13 +61,14 @@ Four new modules based on academic research have been implemented:
    - Feature mapping and alignment
    - Model fine-tuning pipeline
 
-### Research Module API Endpoints
-- `POST /api/research/bahnsen/features` - Generate Bahnsen features for a transaction
-- `POST /api/research/pix/analyze` - Analyze PIX transaction for fraud
-- `POST /api/research/nlp/analyze` - Analyze text for social engineering
+### Research Module API Endpoints (NEW v2.0)
+All 6 research endpoints are fully functional and tested:
+- `GET /api/research/modules/status` - Status of all research modules (4 modules available)
+- `POST /api/research/bahnsen/features` - Generate 62+ Bahnsen features for a transaction
+- `POST /api/research/pix/analyze` - Analyze PIX transaction for fraud (10+ types)
+- `POST /api/research/nlp/analyze` - Analyze text for social engineering (70%+ detection)
 - `POST /api/research/nlp/batch` - Batch analyze multiple texts
-- `GET /api/research/transfer/datasets` - List supported datasets
-- `GET /api/research/modules/status` - Get status of all research modules
+- `GET /api/research/transfer/datasets` - List supported datasets (4 datasets, 17M+ transactions)
 
 ## External Dependencies
 
