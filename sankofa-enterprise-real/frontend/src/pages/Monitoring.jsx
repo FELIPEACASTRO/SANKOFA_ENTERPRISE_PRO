@@ -67,19 +67,19 @@ const Monitoring = () => {
 
       setSystemHealth(prev => ({
         ...prev,
-        overall_status: healthData.status || 'healthy',
-        cpu_usage: metricsData.system?.cpu_usage || metricsData.cpu_usage || 45,
-        memory_usage: metricsData.system?.memory_usage || metricsData.memory_usage || 60,
-        disk_usage: metricsData.system?.disk_usage || metricsData.disk_usage || 35,
-        network_latency: slaData.latency?.p50 || metricsData.latency_p50 || 12,
-        active_connections: metricsData.active_connections || 150,
-        uptime: healthData.uptime || metricsData.uptime || '15d 8h 23m',
-        active_models: healthData.active_models || metricsData.models_active || 5,
-        transactions_per_second: metricsData.transactions_per_second || metricsData.tps || 127,
-        avg_response_time: slaData.latency?.avg || metricsData.avg_response_time || 0.15,
-        fraud_detection_rate: metricsData.fraud_detection_rate || metricsData.recall || 94.2,
-        false_positive_rate: metricsData.false_positive_rate || 2.1,
-        processed_today: metricsData.transactions_today || metricsData.processed_today || 15420
+        overall_status: healthData.status || healthData.data?.status || 'healthy',
+        cpu_usage: metricsData.data?.system?.cpu_usage || metricsData.system?.cpu_usage || metricsData.cpu_usage || 0,
+        memory_usage: metricsData.data?.system?.memory_usage || metricsData.system?.memory_usage || metricsData.memory_usage || 0,
+        disk_usage: metricsData.data?.system?.disk_usage || metricsData.system?.disk_usage || metricsData.disk_usage || 0,
+        network_latency: slaData.data?.latency?.p50 || slaData.latency?.p50 || metricsData.latency_p50 || 0,
+        active_connections: metricsData.data?.active_connections || metricsData.active_connections || 0,
+        uptime: healthData.data?.uptime || healthData.uptime || metricsData.uptime || '0d 0h 0m',
+        active_models: healthData.data?.active_models || healthData.active_models || metricsData.models_active || 0,
+        transactions_per_second: metricsData.data?.transactions_per_second || metricsData.transactions_per_second || metricsData.tps || 0,
+        avg_response_time: slaData.data?.latency?.avg || slaData.latency?.avg || metricsData.avg_response_time || 0,
+        fraud_detection_rate: metricsData.data?.fraud_detection_rate || metricsData.fraud_detection_rate || metricsData.recall || 0,
+        false_positive_rate: metricsData.data?.false_positive_rate || metricsData.false_positive_rate || 0,
+        processed_today: metricsData.data?.transactions_today || metricsData.transactions_today || metricsData.processed_today || 0
       }));
 
       if (alertsData.alerts) {

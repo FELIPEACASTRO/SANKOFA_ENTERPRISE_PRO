@@ -2343,32 +2343,27 @@ def reset_settings():
 
 @app.route("/api/alerts", methods=["GET"])
 def get_alerts():
-    """Lista todos os alertas do sistema com formato completo para dashboard"""
-    alerts = metrics_collector.get_alerts()
+    """Lista todos os alertas do sistema com formato completo para dashboard - dados do PostgreSQL"""
+    db_alerts = postgres_store.get_alerts_list(limit=100)
     
-    now = datetime.utcnow()
     extended_alerts = []
-    
-    alert_types = ["fraud_detected", "system_error", "performance_issue", "security_alert", "model_drift", "threshold_exceeded"]
-    severities = ["critico", "alto", "medio", "baixo"]
-    statuses = ["novo", "investigando", "resolvido"]
-    
-    for i, alert in enumerate(alerts):
+    for alert in db_alerts:
+        alert_id = alert.get('alert_id') or alert.get('id')
         extended_alerts.append({
-            "id": f"ALT-{alert.get('id', i+1):04d}",
-            "titulo": alert.get("message", "Alerta do Sistema"),
-            "descricao": f"Detalhes: {alert.get('message', 'N/A')}",
-            "tipo": alert_types[i % len(alert_types)],
-            "severidade": alert.get("severity", severities[i % len(severities)]),
-            "status": statuses[i % len(statuses)] if i > 0 else "novo",
-            "timestamp": alert.get("timestamp", (now - timedelta(minutes=i*5)).isoformat() + "Z"),
-            "valor_envolvido": round(np.random.uniform(1000, 50000), 2) if i % 3 == 0 else None,
-            "transacao_id": f"TXN-{np.random.randint(100000, 999999)}" if i % 2 == 0 else None,
-            "acao_recomendada": "Investigar imediatamente" if alert.get("severity") in ["critico", "alto"] else "Monitorar",
-            "investigador": None,
-            "tags": ["PIX", "alto-valor"] if i % 2 == 0 else ["sistema"],
-            "acknowledged": False,
-            "created_at": (now - timedelta(minutes=i*5)).isoformat() + "Z"
+            "id": alert_id if isinstance(alert_id, str) and alert_id.startswith('ALT') else f"ALT-{alert.get('id', 0):04d}",
+            "titulo": alert.get("title", "Alerta do Sistema"),
+            "descricao": alert.get("description", "Sem descricao"),
+            "tipo": alert.get("type", "system"),
+            "severidade": alert.get("severity", "medio"),
+            "status": alert.get("status", "novo"),
+            "timestamp": alert.get("created_at").isoformat() + "Z" if hasattr(alert.get("created_at"), 'isoformat') else str(alert.get("created_at", "")),
+            "valor_envolvido": alert.get("amount_involved"),
+            "transacao_id": alert.get("transaction_id"),
+            "acao_recomendada": alert.get("recommended_action", "Monitorar"),
+            "investigador": alert.get("investigator"),
+            "tags": alert.get("tags", []),
+            "acknowledged": alert.get("status") == "acknowledged",
+            "created_at": alert.get("created_at").isoformat() + "Z" if hasattr(alert.get("created_at"), 'isoformat') else str(alert.get("created_at", ""))
         })
     
     return jsonify({"success": True, "alerts": extended_alerts})
@@ -3141,14 +3136,16 @@ def get_observability_health():
             }
         })
     except Exception as e:
+        logger.error(f"Error checking health: {e}")
         return jsonify({
-            "success": True,
+            "success": False,
+            "error": {"message": str(e)},
             "data": {
-                "status": "healthy",
-                "components": {"api": "healthy", "database": "healthy", "ml_model": "healthy"},
+                "status": "error",
+                "components": {"api": "unknown", "database": "unknown", "ml_model": "unknown"},
                 "last_check": datetime.now().isoformat() + "Z"
             }
-        })
+        }), 500
 
 
 @app.route("/api/observability/ml", methods=["GET"])
@@ -3173,21 +3170,23 @@ def get_observability_ml():
             }
         })
     except Exception as e:
+        logger.error(f"Error getting ML metrics: {e}")
         return jsonify({
-            "success": True,
+            "success": False,
+            "error": {"message": str(e)},
             "data": {
-                "model_status": "trained",
-                "model_version": "1.0.0",
-                "accuracy": 0.95,
-                "precision": 0.94,
-                "recall": 0.93,
-                "f1_score": 0.935,
-                "roc_auc": 0.98,
-                "threshold": 0.5,
-                "feature_count": 47,
-                "is_trained": True
+                "model_status": "error",
+                "model_version": fraud_engine.VERSION if fraud_engine else "unknown",
+                "accuracy": 0,
+                "precision": 0,
+                "recall": 0,
+                "f1_score": 0,
+                "roc_auc": 0,
+                "threshold": 0,
+                "feature_count": 0,
+                "is_trained": False
             }
-        })
+        }), 500
 
 
 @app.route("/api/health/live", methods=["GET"])
