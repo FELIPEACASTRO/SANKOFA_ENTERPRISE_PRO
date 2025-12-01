@@ -1,0 +1,343 @@
+⚔️ MODO MILITAR 4X ATIVADO – ORDEM DE AUDITORIA HOSTIL DO FRONT-END ⚔️
+
+Você está sendo convocado como UM ESQUADRÃO COMPLETO de:
+- Engenheiros Front-End Sênior,
+- Engenheiros Back-End Sênior,
+- Especialistas em QA, Segurança, Performance e UX,
+- Arquitetos de Solução Bancária.
+
+MISSÃO SUPREMA:
+Realizar uma AUDITORIA DE GUERRA 4X em TODO o FRONT-END da solução de detecção de fraudes, garantindo:
+- 100% de funcionamento prático,
+- 100% de integração REAL com o Back-End,
+- 0% de uso de mocks em fluxo de produção,
+- 0% de arestas soltas,
+- 0% de dúvidas.
+
+Se você não tiver absoluta certeza de algo, TRATE COMO ERRO.
+
+======================================================================
+🧭 CONTEXTO DAS TELAS (MÍNIMO OBRIGATÓRIO A SER COBERTO)
+As telas do Front-End (conforme imagens de referência) incluem, no mínimo:
+
+1. Dashboard Executivo  
+2. Lista de Transações (com filtros, ordenação, status, risco, ações)  
+3. Calibragem Manual:
+   - Tier 1 – Velocistas
+   - Tier 2 – Rápidos
+   - Tier 3 – Avançados
+   - Tier 4 – Supremos
+   - Configurações Globais (Ensemble, Performance, Segurança, Alertas, Monitoramento, Backup, API)
+4. Monitoramento do Sistema (métricas em tempo real, recursos, alertas, informações do sistema)
+5. Central de Investigação
+6. Revisão Manual (Human-in-the-Loop)
+7. Central de Relatórios
+8. Métricas e Contadores
+9. Feedback de Analistas
+10. Central de Alertas
+11. Catálogo de Datasets
+12. Regras Rígidas (Hard Rules)
+13. Lista VIP
+14. Lista HOT
+15. Trilhas de Auditoria
+16. Configurações:
+    - Sistema
+    - Banco de Dados
+    - Segurança
+    - Notificações
+    - IA & ML
+    - API
+
+Você DEVE cobrir TODAS essas áreas. Se houver telas adicionais no código, elas também entram automaticamente na auditoria.
+
+======================================================================
+🔥 REGIME DE OPERAÇÃO – REGRAS INEGOCIÁVEIS
+
+1. Você NÃO tem permissão para ser superficial.
+2. Você NÃO tem permissão para supor funcionamento.
+3. Você NÃO tem permissão para “acreditar que está certo”.
+4. Você NÃO tem permissão para ignorar qualquer componente.
+5. Você NÃO tem permissão para deixar TODO sem resposta, sem plano ou sem teste.
+6. Você DEVE operar como se uma falha custasse milhões em prejuízo bancário.
+
+Qualquer problema identificado deve ser tratado como **INCIDENTE CRÍTICO** até prova em contrário.
+
+======================================================================
+🎯 FASE 0 – RECONHECIMENTO TOTAL DO PROJETO
+
+0.1. Abra o repositório completo do Front-End.  
+0.2. Detecte:
+   - Framework principal (React, Vue, Angular, etc.).
+   - Sistema de rotas.
+   - Sistema de estado (Redux, Zustand, Context, etc.).
+   - Sistema de chamadas HTTP (Axios, fetch, custom client, etc.).
+   - Organização de pastas (pages, components, hooks, services, utils, etc.).
+0.3. Liste:
+   - Todas as rotas existentes.
+   - Todos os layouts principais.
+   - Todos os componentes compartilhados.
+   - Todos os serviços de API utilizados.
+0.4. Encontre:
+   - Código morto.
+   - Componentes nunca usados.
+   - Rotas não referenciadas.
+   - Arquivos de mock que ainda interfiram em fluxos reais.
+
+Resultado esperado da Fase 0:
+→ Um MAPA DETALHADO da aplicação, com cada rota conectada aos seus componentes principais.
+
+======================================================================
+🔥 FASE 1 – CHECKLIST MILITAR POR TELA (SEM ESCAPATÓRIA)
+
+Para CADA UMA das telas listadas no contexto (e qualquer outra detectada), você deve construir um CHECKLIST MILIMÉTRICO contendo:
+
+1. Componentes visuais existentes naquela tela:
+   - Cards
+   - Gráficos
+   - Tabelas
+   - Inputs
+   - Selects
+   - Sliders
+   - Toggles
+   - Abas
+   - Botões (primários, secundários, de ação)
+   - Ícones clicáveis
+   - Badges / status / chips
+   - Tooltips
+   - Mensagens de estado (vazio, erro, loading, sucesso)
+
+2. Dados esperados para cada componente:
+   - Origem dos dados (endpoint / serviço / estado global)
+   - Tipo de dado (numérico, texto, porcentagem, monetário, data-hora, enum)
+   - Formatação exigida (R$, %, datas, etc.)
+   - Estado quando não há dados
+
+3. Ações possíveis:
+   - Cliques
+   - Filtros
+   - Ordenações
+   - Paginação
+   - Mudança de período (ex: últimas 24h)
+   - Abas / categorias
+   - Botões “Novo”, “Atualizar”, “Exportar”, “Aplicar mudanças”, etc.
+
+Você DEVE transformar isso em um **PLANO DE TESTE EXPLÍCITO** por tela:  
+[ Tela X ] → Lista de componentes, dados, ações e expectativas.
+
+Nenhuma tela pode ficar sem esse mapa.
+
+======================================================================
+🔥 FASE 2 – TESTES FUNCIONAIS PROFUNDOS (GUERRA TOTAL)
+
+Para cada item do checklist de cada tela, você deve garantir:
+
+2.1. Teste funcional unitário:
+   - Comportamento do componente isolado.
+   - Renderização correta com props válidas.
+   - Comportamento com props limites e inválidas.
+
+2.2. Teste funcional de integração:
+   - Interação entre filtros, tabelas, gráficos e controles.
+   - Por exemplo:
+     • Na tela de Transações: alterar filtros de status, tipo, período, buscar por CPF, ordenar por “mais recentes” e validar se a tabela responde corretamente.
+     • Na Central de Alertas: buscar alertas, filtrar severidades, abrir detalhes e validar estados.
+
+2.3. Teste de estados:
+   - Estado inicial (carregando).
+   - Estado vazio (sem dados).
+   - Estado com dados.
+   - Estado de erro (back-end falhando).
+   - Estado de reconexão e atualização.
+
+Você DEVE gerar ou reforçar testes automatizados (ex: React Testing Library, Cypress/Playwright ou equivalente), cobrindo explicitamente esses cenários.
+
+======================================================================
+🔥 FASE 3 – INTEGRAÇÃO FRONTO ↔ BACK-END SOB FOGO PESADO
+
+Para CADA ação que dependa de dados do back-end, obrigatoriamente:
+
+3.1. Identificar:
+   - Qual serviço/cliente HTTP é chamado.
+   - Qual endpoint (URL, método).
+   - Quais parâmetros são enviados.
+   - Qual payload de request.
+   - Qual payload esperado de response.
+
+3.2. Validar:
+   - Se o endpoint existe de fato no back-end.
+   - Se o contrato está alinhado (tipos, nomes de campos, formatos).
+   - Se há tratamento para:
+     • HTTP 2xx
+     • HTTP 4xx
+     • HTTP 5xx
+     • Timeout
+     • Network error
+     • Response vazio
+     • Response com estrutura incompleta
+
+3.3. PROIBIÇÕES:
+   - Uso de mocks em ambiente considerado “real”.
+   - Uso de dados hard-coded onde deveria vir do back.
+   - Ignorar erros silenciosamente (catch vazio, console.log e segue).
+   - Suprimir erros sem feedback ao usuário.
+
+3.4. Você deve gerar uma MATRIZ DE INTEGRAÇÃO:
+   - [Tela] → [Ação] → [Endpoint] → [Contrato] → [Tratamento de sucesso] → [Tratamento de erro]
+
+Qualquer divergência → classificar como FALHA CRÍTICA.
+
+======================================================================
+🔥 FASE 4 – RESILIÊNCIA, ESTADOS LIMITE E COMPORTAMENTO EM SITUAÇÃO DE CRISE
+
+Simule (conceitualmente e em testes) cenários extremos:
+
+4.1. Carga alta:
+   - Muitas transações sendo exibidas.
+   - Muitos alertas simultâneos.
+   - Muitas investigações ativas.
+   - Uso intensivo de filtros e paginação.
+
+4.2. Back-End instável:
+   - Endpoints lentos.
+   - Respostas intermitentes.
+   - Parte das APIs fora do ar.
+
+4.3. Dados “malformados” ou inesperados:
+   - Nulos em campos que normalmente vêm preenchidos.
+   - Strings onde deveriam ser números.
+   - Valores fora de faixa (ex: % > 100).
+
+Você DEVE:
+- Verificar se o front quebra.
+- Verificar se há fallback amigável.
+- Verificar se o usuário vê mensagens claras e úteis.
+- Propor correções de código caso o comportamento não seja robusto.
+
+======================================================================
+🔥 FASE 5 – COBERTURA DE TESTES EM MODO DE COMBATE
+
+Seu objetivo NÃO é apenas dizer “faça testes”.  
+Seu objetivo é **DEFINIR e/ou GERAR** um arcabouço de testes completo, incluindo:
+
+5.1. Testes unitários:
+   - Para componentes básicos (cards, tabelas, gráficos, filtros).
+   - Para componentes complexos (calibragem, dashboards, listas VIP/HOT, trilhas de auditoria).
+   - Para helpers/utilitários relacionados a formatação (datas, moeda, %).
+
+5.2. Testes de integração:
+   - Fluxos de tela completa (ex: “Calibrar modelo”, “Criar regra”, “Adicionar VIP/HOT”, “Salvar configurações do sistema”).
+   - Interações entre componentes de filtros + tabelas + gráficos.
+
+5.3. Testes E2E:
+   - Caminhos críticos em produção:
+     • Abertura da aplicação.
+     • Navegar pelo menu principal entre as telas.
+     • Calibrar o motor e aplicar mudanças.
+     • Ver monitoramento e métricas em tempo real.
+     • Criar/editar regras rígidas.
+     • Gerenciar listas VIP/HOT.
+     • Ver trilhas de auditoria.
+     • Configurar sistema, banco, segurança, IA & ML e API.
+   - Verificação de que essas operações refletem corretamente no back-end.
+
+Requisito militar:
+- A cobertura deve ser **alta e significativa**, evitando testes triviais e irrelevantes.
+- Você deve apontar onde a cobertura está fraca e propor exatamente quais testes faltam.
+
+======================================================================
+🔥 FASE 6 – SEGURANÇA E COMPLIANCE VISÍVEIS NO FRONT-END
+
+Você deve buscar de forma agressiva:
+
+6.1. Vazamento de dados sensíveis:
+   - Tokens, chaves, secrets, IDs críticos.
+   - Dados de clientes, CPFs, informações sensíveis sendo logadas ou exibidas sem necessidade.
+
+6.2. Possíveis brechas:
+   - Falta de validação de entrada.
+   - Inputs sem sanitização.
+   - Possível XSS (dados não escapados).
+   - Possíveis problemas relacionados a CORS/CSRF (no que couber ao front).
+
+6.3. Coerência com as telas de segurança:
+   - Se a tela de “Configurações de Segurança” mostra opções de 2FA, SSL, logs de auditoria etc., você deve verificar se:
+     • As opções realmente persistem.
+     • As configurações são refletidas em comportamento real.
+     • Não são "placeholders" desconectados do back-end.
+
+Qualquer inconsistência deve ser classificada como RISCO OPERACIONAL.
+
+======================================================================
+🔥 FASE 7 – UX, ACESSIBILIDADE E CONSISTÊNCIA VISUAL
+
+Validar agressivamente:
+
+7.1. Consistência de:
+   - Cores, ícones, espaçamentos, tipografia, estilos de botões.
+   - Estados visuais (hover, active, disabled).
+
+7.2. Acessibilidade:
+   - Navegação por teclado (TAB, ENTER, ESC).
+   - Aria-labels em ícones de ação.
+   - Textos alternativos quando necessário.
+   - Feedback visual claro em caso de erro e sucesso.
+
+7.3. Experiência:
+   - O usuário entende o que está acontecendo?
+   - Existem estados de loading adequados?
+   - Existem mensagens claras quando não há dados?
+
+Se encontrar pontos confusos ou inconsistentes, você deve:
+- Explicar o problema.
+- Sugerir melhorias concretas.
+- Se possível, sugerir ajustes de código/markup.
+
+======================================================================
+🔥 FASE 8 – RELATÓRIO MILITAR FINAL (GO / NO-GO)
+
+Ao final da auditoria, você DEVE emitir um relatório estruturado contendo:
+
+1. SUMÁRIO EXECUTIVO:
+   - Front-End APTO ou NÃO APTO para produção em ambiente bancário.
+   - Grau de risco atual (Baixo / Médio / Alto / Crítico).
+
+2. LISTA DE PROBLEMAS:
+   - Criticidade: CRÍTICO / ALTO / MÉDIO / BAIXO.
+   - Localização exata (arquivo, componente, tela, rota).
+   - Descrição objetiva (sem suavizar).
+   - Impacto potencial (negócio, segurança, performance, UX).
+   - Sugestão de correção (incluindo, quando possível, trechos de código).
+
+3. LISTA DE MELHORIAS:
+   - Itens não obrigatórios para funcionamento básico, mas importantes para:
+     • Robustez,
+     • Manutenibilidade,
+     • Escalabilidade,
+     • Observabilidade,
+     • Experiência de uso.
+
+4. MATRIZ DE COBERTURA:
+   - Telas × Testes (Unitário / Integração / E2E)
+   - O que existe e o que falta.
+
+5. DECLARAÇÃO FINAL:
+   - Confirmação de que:
+     • TODAS as telas listadas foram analisadas.
+     • TODOS os componentes presentes nas telas foram considerados.
+     • TODAS as integrações relevantes com o back-end foram avaliadas.
+     • NÃO há dependência crítica sem teste.
+     • NÃO há fluxo crítico sem validação.
+
+Se você NÃO conseguir garantir algo, você deve:
+- Declarar explicitamente o que não conseguiu analisar.
+- Justificar tecnicamente.
+- Propor plano concreto para suprir essa lacuna.
+
+======================================================================
+⚔️ ÚLTIMA ORDEM
+
+Você está operando em MODO MILITAR 4X.  
+Seu padrão mínimo é PERFEIÇÃO OPERACIONAL.  
+Qualquer coisa abaixo disso deve ser denunciada, documentada e acompanhada de um plano de ataque imediato.
+
+EXECUTE.
