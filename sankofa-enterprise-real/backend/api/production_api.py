@@ -1854,20 +1854,33 @@ def get_transactions():
     
     formatted_transactions = []
     for i, txn in enumerate(raw_transactions):
-        txn_id = txn.get("transaction_id") or txn.get("id") or f"TXN{int(time.time()*1000000)}"
+        txn_id = txn.get("transaction_id") or txn.get("id")
+        if not txn_id:
+            continue
+        
+        timestamp_val = txn.get("timestamp") or txn.get("created_at")
+        if hasattr(timestamp_val, 'isoformat'):
+            timestamp_str = timestamp_val.isoformat() + "Z"
+            data_hora = timestamp_val.strftime("%d/%m/%Y %H:%M")
+        elif timestamp_val:
+            timestamp_str = str(timestamp_val)
+            data_hora = str(timestamp_val)[:16]
+        else:
+            timestamp_str = now.isoformat() + "Z"
+            data_hora = now.strftime("%d/%m/%Y %H:%M")
         
         formatted = {
             "id": txn_id,
             "transaction_id": txn_id,
-            "valor": txn.get("amount", round(np.random.uniform(50, 15000), 2)),
-            "tipo": txn.get("type", types[i % len(types)]),
+            "valor": float(txn.get("amount", 0)),
+            "tipo": txn.get("type") or txn.get("channel", "PIX").upper(),
             "canal": txn.get("channel", "pix"),
-            "localizacao": txn.get("location", cities[i % len(cities)]),
-            "cpf": txn.get("cpf", f"{np.random.randint(100, 999)}.{np.random.randint(100, 999)}.{np.random.randint(100, 999)}-{np.random.randint(10, 99)}"),
-            "data_hora": txn.get("timestamp", (now - timedelta(minutes=i*3)).strftime("%d/%m/%Y %H:%M")),
+            "localizacao": txn.get("location", "N/A"),
+            "cpf": txn.get("cpf") or txn.get("cpf_hash", "***.***.***-**"),
+            "data_hora": data_hora,
             "status": map_status(txn.get("status")),
             "fraud_score": round(float(txn.get("risk_score", 0)) * 100, 1),
-            "timestamp": txn.get("timestamp", (now - timedelta(minutes=i*3)).isoformat() + "Z")
+            "timestamp": timestamp_str
         }
         
         if search and search.lower() not in str(formatted).lower():
@@ -1878,24 +1891,6 @@ def get_transactions():
             continue
             
         formatted_transactions.append(formatted)
-    
-    if not formatted_transactions:
-        for i in range(min(limit, 10)):
-            txn_id = f"TXN{int(time.time()*1000000) + i}"
-            cpf_digits = f"{np.random.randint(100, 999)}.{np.random.randint(100, 999)}.{np.random.randint(100, 999)}-{np.random.randint(10, 99)}"
-            formatted_transactions.append({
-                "id": txn_id,
-                "transaction_id": txn_id,
-                "valor": round(np.random.uniform(50, 15000), 2),
-                "tipo": types[i % len(types)],
-                "canal": ["pix", "card", "transfer"][i % 3],
-                "localizacao": cities[i % len(cities)],
-                "cpf": cpf_digits,
-                "data_hora": (now - timedelta(minutes=i*3)).strftime("%d/%m/%Y %H:%M"),
-                "status": ["APROVADA", "REJEITADA", "PENDENTE", "EM_REVISAO"][i % 4],
-                "fraud_score": round(np.random.uniform(0, 100), 1),
-                "timestamp": (now - timedelta(minutes=i*3)).isoformat() + "Z"
-            })
     
     start_idx = (page - 1) * limit
     end_idx = start_idx + limit
