@@ -3373,6 +3373,277 @@ def get_task_status(task_id):
     })
 
 
+try:
+    from ml_engine.bahnsen_feature_engineering import BahnsenFeatureEngineering
+    from ml_engine.pix_fraud_taxonomy import PIXFraudTaxonomy
+    from ml_engine.nlp_social_engineering import NLPSocialEngineeringDetector
+    from ml_engine.transfer_learning_pipeline import TransferLearningPipeline
+    
+    bahnsen_engineer = BahnsenFeatureEngineering()
+    pix_taxonomy = PIXFraudTaxonomy()
+    nlp_detector = NLPSocialEngineeringDetector()
+    transfer_pipeline = TransferLearningPipeline()
+    RESEARCH_MODULES_AVAILABLE = True
+    logger.info("Research modules loaded successfully (Bahnsen, PIX Taxonomy, NLP, Transfer Learning)")
+except ImportError as e:
+    logger.warning(f"Research modules not available: {e}")
+    RESEARCH_MODULES_AVAILABLE = False
+    bahnsen_engineer = None
+    pix_taxonomy = None
+    nlp_detector = None
+    transfer_pipeline = None
+
+
+@app.route("/api/research/bahnsen/features", methods=["POST"])
+@limiter.limit("100 per minute")
+def generate_bahnsen_features():
+    """
+    Gera features Bahnsen (2016) para transações
+    
+    Features incluem:
+    - Agregações temporais (1h, 24h, 72h, 168h)
+    - Features periódicas (Von Mises)
+    - Desvio comportamental (Z-score)
+    - Velocity features
+    """
+    if not RESEARCH_MODULES_AVAILABLE:
+        return jsonify({"success": False, "error": "Research modules not available"}), 503
+    
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    user_id = request.json.get("user_id", "unknown")
+    amount = float(request.json.get("amount", 0))
+    timestamp = request.json.get("timestamp", datetime.now().isoformat())
+    channel = request.json.get("channel")
+    transaction_type = request.json.get("transaction_type")
+    
+    if isinstance(timestamp, str):
+        timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+    
+    features = bahnsen_engineer.generate_all_features(
+        user_id=user_id,
+        amount=amount,
+        timestamp=timestamp,
+        channel=channel,
+        transaction_type=transaction_type
+    )
+    
+    bahnsen_engineer.add_transaction_to_history(
+        user_id=user_id,
+        amount=amount,
+        timestamp=timestamp,
+        channel=channel
+    )
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "features": features,
+            "feature_count": len(features),
+            "module_version": bahnsen_engineer.VERSION
+        }
+    })
+
+
+@app.route("/api/research/pix/analyze", methods=["POST"])
+@limiter.limit("200 per minute")
+def analyze_pix_fraud():
+    """
+    Analisa transação PIX para fraude usando taxonomia brasileira
+    
+    Tipos de fraude detectados:
+    - QR Code adulterado
+    - Mão Fantasma
+    - Central falsa
+    - Clone WhatsApp
+    - PIX errado
+    - Bug do PIX
+    - E mais...
+    """
+    if not RESEARCH_MODULES_AVAILABLE:
+        return jsonify({"success": False, "error": "Research modules not available"}), 503
+    
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    transaction_id = request.json.get("transaction_id", f"TXN{int(time.time()*1000)}")
+    amount = float(request.json.get("amount", 0))
+    timestamp = request.json.get("timestamp", datetime.now().isoformat())
+    sender_id = request.json.get("sender_id", "unknown")
+    receiver_id = request.json.get("receiver_id", "unknown")
+    pix_key_type = request.json.get("pix_key_type")
+    channel = request.json.get("channel")
+    device_info = request.json.get("device_info", {})
+    context_indicators = request.json.get("context_indicators", [])
+    historical_data = request.json.get("historical_data", {})
+    
+    if isinstance(timestamp, str):
+        timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+    
+    result = pix_taxonomy.analyze_transaction(
+        transaction_id=transaction_id,
+        amount=amount,
+        timestamp=timestamp,
+        sender_id=sender_id,
+        receiver_id=receiver_id,
+        pix_key_type=pix_key_type,
+        channel=channel,
+        device_info=device_info,
+        context_indicators=context_indicators,
+        historical_data=historical_data
+    )
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "transaction_id": result.transaction_id,
+            "fraud_probability": result.fraud_probability,
+            "predicted_fraud_type": result.predicted_fraud_type.value,
+            "recommended_action": result.recommended_action,
+            "indicators_count": len(result.indicators_detected),
+            "risk_factors": result.risk_factors,
+            "compliance_flags": result.compliance_flags,
+            "explanation": result.explanation,
+            "module_version": pix_taxonomy.VERSION
+        }
+    })
+
+
+@app.route("/api/research/nlp/analyze", methods=["POST"])
+@limiter.limit("100 per minute")
+def analyze_social_engineering():
+    """
+    Analisa texto para detectar engenharia social
+    
+    Detecta padrões de:
+    - SMS phishing (smishing)
+    - Clone de WhatsApp
+    - Impersonação de banco
+    - Golpe do bug do PIX
+    - Manipulação emocional
+    """
+    if not RESEARCH_MODULES_AVAILABLE:
+        return jsonify({"success": False, "error": "Research modules not available"}), 503
+    
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    text = request.json.get("text", "")
+    source = request.json.get("source", "unknown")
+    
+    if not text:
+        raise ValidationError("text field is required")
+    
+    result = nlp_detector.analyze_text(
+        text=text,
+        source=source
+    )
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "text_id": result.text_id,
+            "fraud_probability": result.fraud_probability,
+            "fraud_type": result.fraud_type,
+            "recommendation": result.recommendation,
+            "urgency_score": result.urgency_score,
+            "emotional_score": result.emotional_score,
+            "indicators": result.indicators,
+            "matched_patterns": result.matched_patterns,
+            "suspicious_elements": result.suspicious_elements,
+            "confidence": result.confidence,
+            "module_version": nlp_detector.VERSION
+        }
+    })
+
+
+@app.route("/api/research/nlp/batch", methods=["POST"])
+@limiter.limit("20 per minute")
+def batch_analyze_social_engineering():
+    """Analisa múltiplos textos para engenharia social"""
+    if not RESEARCH_MODULES_AVAILABLE:
+        return jsonify({"success": False, "error": "Research modules not available"}), 503
+    
+    if not request.json or "texts" not in request.json:
+        raise ValidationError("texts field is required")
+    
+    texts = request.json["texts"]
+    source = request.json.get("source", "batch")
+    
+    if not isinstance(texts, list):
+        raise ValidationError("texts must be a list")
+    
+    results = nlp_detector.batch_analyze(texts, source=source)
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "results": [
+                {
+                    "text_id": r.text_id,
+                    "fraud_probability": r.fraud_probability,
+                    "fraud_type": r.fraud_type,
+                    "recommendation": r.recommendation
+                }
+                for r in results
+            ],
+            "total_analyzed": len(results)
+        }
+    })
+
+
+@app.route("/api/research/transfer/datasets", methods=["GET"])
+def list_transfer_datasets():
+    """Lista datasets suportados para transfer learning"""
+    if not RESEARCH_MODULES_AVAILABLE:
+        return jsonify({"success": False, "error": "Research modules not available"}), 503
+    
+    datasets = transfer_pipeline.list_supported_datasets()
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "datasets": datasets,
+            "total": len(datasets),
+            "pix_compatible": sum(1 for d in datasets.values() if d.get("compatible", False))
+        }
+    })
+
+
+@app.route("/api/research/modules/status", methods=["GET"])
+def get_research_modules_status():
+    """Retorna status dos módulos de pesquisa"""
+    return jsonify({
+        "success": True,
+        "data": {
+            "modules_available": RESEARCH_MODULES_AVAILABLE,
+            "modules": {
+                "bahnsen_feature_engineering": {
+                    "available": bahnsen_engineer is not None,
+                    "version": bahnsen_engineer.VERSION if bahnsen_engineer else None,
+                    "description": "Bahnsen et al. 2016 - Temporal aggregations and periodic features"
+                },
+                "pix_fraud_taxonomy": {
+                    "available": pix_taxonomy is not None,
+                    "version": pix_taxonomy.VERSION if pix_taxonomy else None,
+                    "description": "Brazilian PIX fraud taxonomy (10+ fraud types)"
+                },
+                "nlp_social_engineering": {
+                    "available": nlp_detector is not None,
+                    "version": nlp_detector.VERSION if nlp_detector else None,
+                    "description": "NLP-based social engineering detection"
+                },
+                "transfer_learning": {
+                    "available": transfer_pipeline is not None,
+                    "version": transfer_pipeline.VERSION if transfer_pipeline else None,
+                    "description": "Transfer learning pipeline for external datasets"
+                }
+            }
+        }
+    })
+
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     

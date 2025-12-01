@@ -33,6 +33,42 @@ The frontend is built with React 18, utilizing Vite for fast development, `shadc
 - **Calibration**: Enables adjustment of model thresholds and parameters.
 - **Compliance**: Integrates features for LGPD (data privacy), BACEN (banking regulations), and PCI DSS (payment card security).
 
+### Research-Based ML Modules (New)
+Four new modules based on academic research have been implemented:
+
+1. **Bahnsen Feature Engineering (v2.0.0)** - Based on Bahnsen et al. 2016:
+   - Temporal aggregations (1h, 6h, 24h, 72h, 168h windows)
+   - Von Mises periodic features (sin/cos for hour/day/month)
+   - Behavioral deviation detection (Z-scores)
+   - Velocity features and channel risk scoring
+   - Generates 62+ features per transaction
+
+2. **PIX Fraud Taxonomy (v1.0.0)** - Based on arXiv:2511.20902:
+   - 10+ Brazilian PIX fraud types (Mão Fantasma, Clone WhatsApp, QR adulterado, etc.)
+   - Remote access detection with high confidence
+   - BACEN/LGPD compliance flags
+   - Explainable recommendations for compliance
+
+3. **NLP Social Engineering Detector (v1.0.0)** - Based on DIFrauD Dataset:
+   - SMS phishing (smishing) detection
+   - WhatsApp clone patterns
+   - Bank impersonation detection
+   - Urgency and emotional manipulation scoring
+   - Batch analysis support
+
+4. **Transfer Learning Pipeline (v1.0.0)**:
+   - Support for Nigerian Financial (5M tx), PaySim (6.3M tx), Feedzai BAF (6M tx), IEEE-CIS datasets
+   - Feature mapping and alignment
+   - Model fine-tuning pipeline
+
+### Research Module API Endpoints
+- `POST /api/research/bahnsen/features` - Generate Bahnsen features for a transaction
+- `POST /api/research/pix/analyze` - Analyze PIX transaction for fraud
+- `POST /api/research/nlp/analyze` - Analyze text for social engineering
+- `POST /api/research/nlp/batch` - Batch analyze multiple texts
+- `GET /api/research/transfer/datasets` - List supported datasets
+- `GET /api/research/modules/status` - Get status of all research modules
+
 ## External Dependencies
 
 - **PostgreSQL**: Used as the primary relational database for persistent data storage.
