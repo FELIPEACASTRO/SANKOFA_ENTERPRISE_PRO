@@ -1,0 +1,230 @@
+🧪 PROMPT – PLANO DE TESTES DA TELA DASHBOARD EXECUTIVO (FRAUDE)
+
+Você é uma IA especialista em QA, testes funcionais, E2E e integração focada em sistemas de detecção de fraudes bancárias.
+
+Quero que você analise com extremo rigor todo o código relacionado à tela de “Dashboard Executivo – Visão geral do sistema de detecção de fraudes” e monte um plano de testes completo para garantir que todos os componentes da tela estão integrados e funcionando corretamente (front-end + back-end).
+
+Considere que a tela possui, no mínimo, os seguintes blocos/elementos visuais:
+
+Header do Dashboard
+
+Título: Dashboard Executivo
+
+Subtítulo: “Visão geral do sistema de detecção de fraudes”
+
+Badge/indicador de status do sistema: Sistema Online (ou outros estados: Offline, Degradado etc.)
+
+Badge de modelos/algoritmos ativos: 1 Algoritmos Ativos
+
+Indicador de horário da última atualização: Atualizado: 08:00:09
+
+Botão/ícone de ação: Atualizar
+
+Cards de KPIs principais (linha superior)
+
+Transações Hoje
+
+Valor principal (ex.: 4.467)
+
+Indicador de variação vs. período anterior (ex.: 0.0% + texto “Estável em relação ao período anterior”)
+
+Ícone no canto superior direito do card (ex.: info/config)
+
+Fraudes Detectadas
+
+Valor (ex.: 3.115)
+
+Variação vs. período anterior
+
+Ícone
+
+Taxa de Aprovação
+
+Valor percentual (ex.: 30.3%)
+
+Variação vs. período anterior
+
+Ícone tipo gráfico
+
+Latência Média
+
+Valor (ex.: 0.00)
+
+Variação vs. período anterior
+
+Ícone
+
+Gráficos centrais
+
+Transações por Hora (gráfico de linhas/pontos)
+
+Latência do Sistema (gráfico de linha)
+
+Cada gráfico deve ter:
+
+Eixo X com horários
+
+Eixo Y com escala numérica
+
+Série(s) de dados corretas
+
+Tooltip ao passar o mouse (se existir)
+
+Comportamento correto em caso de ausência de dados
+
+Blocos inferiores
+
+Fraudes por Canal (gráfico de barras – PIX, TED, PIX, BOLETO)
+
+Distribuição por Canal (gráfico de pizza com percentual – ex.: 7%, etc.)
+
+Alertas Recentes
+
+Lista de alertas quando existirem
+
+Estado de vazio: “Nenhum alerta recente”
+
+Status dos Modelos
+
+Texto do modelo atual (ex.: Production Ensemble (RF+GB+LR))
+
+Métrica de precisão (ex.: Precisão: 100%)
+
+Badge de saúde: Saudável
+
+Valor Protegido
+
+Valor protegido hoje (ex.: R$ 0)
+
+Valor protegido no ano (ex.: R$ 172.1M)
+
+Quantidade de famílias protegidas (ex.: 0)
+
+🎯 O QUE VOCÊ DEVE ENTREGAR
+
+Mapeamento de componentes
+
+Identifique, no código, todos os componentes React/Vue/Angular (ou a tecnologia usada) que representam cada um dos blocos descritos acima.
+
+Mostre a relação entre os componentes e as fontes de dados (APIs, serviços, mocks, stores de estado, etc.).
+
+Plano de Testes Funcionais (por componente)
+Para cada card, gráfico, badge, botão e bloco, descreva:
+
+Objetivo do teste
+
+Pré-condições (ex.: dados disponíveis na API, usuário logado, etc.)
+
+Passo a passo detalhado
+
+Resultado esperado (valor exibido, formato, comportamento visual, mensagens, ícones, cores de status, etc.)
+
+Exemplos (e quero que você faça isso para TODOS os elementos):
+
+Testar se o botão “Atualizar”:
+
+Dispara a requisição correta para o back-end
+
+Atualiza todos os KPIs e gráficos com novos dados
+
+Atualiza o campo “Atualizado: HH:MM:SS”
+
+Trata corretamente erros de API (exibindo mensagem amigável ou fallback)
+
+Testar o card “Transações Hoje”:
+
+Exibe o número vindo da API no formato correto (separador de milhar, sem casas decimais se for inteiro etc.)
+
+Exibe corretamente o percentual de variação e o texto de contexto
+
+Altera cor/status caso a variação seja positiva, negativa ou neutra
+
+Testes equivalentes para:
+
+Fraudes Detectadas
+
+Taxa de Aprovação
+
+Latência Média
+
+Status dos Modelos
+
+Valor Protegido
+
+Testes de Integração (front-end + back-end)
+
+Para cada endpoint usado pelo dashboard (transações por hora, fraudes por canal, status dos modelos, valor protegido, alertas, etc.):
+
+Verifique se:
+
+A URL chamada está correta
+
+Os parâmetros (datas, filtros, canal, etc.) estão corretos
+
+O tratamento de sucesso/erro/timeouts está bem implementado
+
+Há tratamento de estados: carregando, sucesso, vazio, erro
+
+Monte casos de teste cobrindo:
+
+Dados normais
+
+Nenhum dado retornado
+
+Dados extremos (volumes muito altos, valores zero, percentuais 0% e 100%)
+
+Erros 4xx / 5xx / timeouts
+
+Testes de Gráficos
+
+Verifique:
+
+Se os dados exibidos nos gráficos batem com os dados brutos recebidos da API.
+
+Se a escala de eixos está correta.
+
+Se tooltips mostram valores corretos ao passar o mouse.
+
+Se o gráfico se comporta bem em:
+
+Poucos pontos de dados
+
+Muitos pontos
+
+Valores repetidos
+
+Valores nulos/ausentes
+
+Se, na ausência total de dados, aparece mensagem de “sem dados” em vez de um gráfico quebrado.
+
+Testes de Estados e UX
+
+Verifique:
+
+Estado “Sistema Online” x “Offline/Degradado” (cores, badges, mensagens)
+
+Estado sem alertas x com várias entradas em “Alertas Recentes”
+
+Mensagens amigáveis de erro e timeout
+
+Verifique também:
+
+Responsividade (desktop, tablet, mobile, se previsto)
+
+Quebras de layout com textos longos, números grandes, muitos alertas etc.
+
+Sugestão de Testes Automatizados
+
+Proponha uma estratégia de automação de testes para essa tela, sugerindo:
+
+Testes de unidade para componentes de UI e funções de formatação/conversão
+
+Testes de integração para hooks/serviços de dados
+
+Testes E2E usando Cypress/Playwright (ou a stack de testes do projeto)
+
+Para alguns casos mais críticos (ex.: botão “Atualizar”, carga de KPIs, renderização de alertas), escreva exemplos de cenários de testes E2E em pseudo-código.
+
+Checklist final
+
+Gere um checklist resumido com todos os pontos que devem ser verificados antes de dizer que o dashboard está “100% integrado e funcionando como deve”.
