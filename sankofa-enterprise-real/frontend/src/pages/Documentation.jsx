@@ -13,77 +13,112 @@ const docs = [
     label: 'Sankofa 101', 
     icon: BookOpen, 
     file: 'USE_A_CABECA_SANKOFA.md',
-    description: 'Introdução ao sistema de detecção de fraudes'
+    description: 'Introdução ao sistema de detecção de fraudes',
+    category: 'intro'
   },
   { 
     id: 'ml', 
     label: 'Machine Learning', 
     icon: Brain, 
     file: 'USE_A_CABECA_ML.md',
-    description: 'Como funciona a inteligência artificial'
+    description: 'Como funciona a inteligência artificial',
+    category: 'ml'
   },
   { 
     id: 'ml-completo', 
     label: 'Guia Completo ML', 
     icon: Brain, 
     file: 'GUIA_COMPLETO_ML.md',
-    description: 'Arquitetura completa: 7 módulos, ensemble, fórmulas'
+    description: 'Arquitetura: 7 módulos, ensemble, fórmulas',
+    category: 'ml'
   },
   { 
     id: 'fraudes', 
     label: 'Tipos de Fraudes', 
     icon: AlertTriangle, 
     file: 'USE_A_CABECA_FRAUDES.md',
-    description: 'Enciclopédia completa de fraudes bancárias'
+    description: 'Enciclopédia de fraudes bancárias PIX/Cartão',
+    category: 'fraudes'
   },
   { 
     id: 'research-ml', 
-    label: 'Módulos de Pesquisa ML', 
+    label: 'Módulos de Pesquisa', 
     icon: Microscope, 
     file: 'MODULOS_PESQUISA_ML.md',
-    description: 'Bahnsen, PIX Taxonomy, NLP e Transfer Learning'
+    description: 'Bahnsen, PIX Taxonomy, NLP, Transfer Learning',
+    category: 'ml'
   },
   { 
-    id: 'datasets-features-modelos', 
-    label: 'Datasets, Features e Modelos', 
+    id: 'datasets-features', 
+    label: 'Datasets e Features', 
     icon: Database, 
     file: 'DATASETS_FEATURES_MODELOS.md',
-    description: 'Catálogo completo: 7 datasets, 100+ features, 13 modelos'
+    description: '7 datasets, 100+ features, 13 modelos',
+    category: 'dados'
   },
   { 
     id: 'datasets', 
     label: 'Histórias de Fraude', 
     icon: Database, 
     file: 'DataSets.md',
-    description: '50 casos reais de fraude baseados em dados'
+    description: '50 casos reais baseados em dados',
+    category: 'fraudes'
+  },
+  { 
+    id: 'hard-rules', 
+    label: '216 Regras Duras', 
+    icon: Share2, 
+    file: 'HARD_RULES_216.md',
+    description: 'Engine unificado: BACEN, PIX, Malware, Velocity',
+    category: 'regras'
   },
   { 
     id: 'payload', 
     label: 'Payload de Entrada', 
     icon: Package, 
     file: 'PAYLOAD_ENTRADA.md',
-    description: 'Estrutura dos dados de transação'
+    description: 'Estrutura dos dados de transação',
+    category: 'tecnico'
   },
   { 
     id: 'funcional', 
     label: 'Doc. Funcional', 
     icon: Layers, 
     file: 'DOCUMENTACAO_FUNCIONAL.md',
-    description: 'Especificação funcional do sistema'
+    description: 'Especificação funcional do sistema',
+    category: 'tecnico'
   },
   { 
     id: 'diagramas', 
     label: 'Diagramas', 
     icon: BarChart3, 
     file: 'DIAGRAMAS.md',
-    description: 'Fluxogramas e diagramas técnicos'
+    description: 'Fluxogramas e diagramas técnicos',
+    category: 'tecnico'
   },
   { 
     id: 'arquitetura', 
     label: 'Arquitetura', 
     icon: Code, 
     file: 'ARQUITETURA_TECNICA.md',
-    description: 'Arquitetura técnica completa'
+    description: 'Arquitetura técnica completa',
+    category: 'tecnico'
+  },
+  { 
+    id: 'db-postgres', 
+    label: 'PostgreSQL', 
+    icon: Database, 
+    file: 'DB_01_POSTGRES_INVENTARIO_ULTRA_MILITAR.md',
+    description: '16 tabelas, índices, queries otimizadas',
+    category: 'banco'
+  },
+  { 
+    id: 'db-redis', 
+    label: 'Redis Cache', 
+    icon: Database, 
+    file: 'DB_03_REDIS_ANALISE_MILITAR.md',
+    description: 'Cache distribuído, TTL, fallback',
+    category: 'banco'
   }
 ];
 
@@ -164,10 +199,11 @@ export function Documentation() {
           </nav>
           <div className="p-4 border-t border-gray-200 dark:border-gray-700 mt-auto">
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              <p className="font-semibold text-gray-700 dark:text-gray-300">11 Documentos</p>
-              <p>15.000+ linhas de conteúdo</p>
+              <p className="font-semibold text-gray-700 dark:text-gray-300">14 Documentos</p>
+              <p>20.000+ linhas de conteúdo</p>
               <p>Metodologia Head First</p>
-              <p className="mt-1 text-green-600 dark:text-green-400">+ Catálogo Completo ML v2.0</p>
+              <p className="mt-1 text-green-600 dark:text-green-400">+ 216 Regras Duras v2.0</p>
+              <p className="text-blue-600 dark:text-blue-400">+ PostgreSQL & Redis</p>
             </div>
           </div>
         </aside>

@@ -1,7 +1,7 @@
 # Sankofa Enterprise Pro - Fraud Detection System v2.0
 
 ## Overview
-Sankofa Enterprise Pro is a production-ready fraud detection system designed for banking environments. Its primary purpose is to process financial transactions with low latency, identify and prevent fraud using advanced machine learning models, and ensure compliance with relevant financial regulations (LGPD/BACEN/PCI DSS). The system features a comprehensive React-based dashboard for monitoring and management, aiming for high performance and reliability in a critical banking context.
+Sankofa Enterprise Pro is a production-ready fraud detection system for banking environments. Its core purpose is to process financial transactions with low latency, identify and prevent fraud using advanced machine learning models, and ensure compliance with financial regulations (LGPD/BACEN/PCI DSS). The system includes a comprehensive React-based dashboard for monitoring and management, aiming for high performance and reliability in a critical banking context. The project aims to provide a robust solution for fraud prevention, supporting the banking sector with cutting-edge technology and regulatory adherence.
 
 ## User Preferences
 - Communication style: Simple, everyday language
@@ -11,244 +11,38 @@ Sankofa Enterprise Pro is a production-ready fraud detection system designed for
 ## System Architecture
 
 ### Core Architecture Pattern
-The system adheres to a Clean Architecture pattern, separating concerns into Domain, Application, Infrastructure, and Presentation layers.
+The system follows a Clean Architecture pattern, segmenting concerns into Domain, Application, Infrastructure, and Presentation layers.
 
 ### UI/UX Decisions
-The frontend is built with React 18, utilizing Vite for fast development, `shadcn/ui` for UI components, and TailwindCSS for styling. This combination provides a modern, responsive, and accessible user interface across 16 fully operational pages, including a dashboard, transaction management, alert handling, and various configuration and monitoring screens.
+The frontend is built with React 18, Vite, `shadcn/ui` components, and TailwindCSS, providing a modern, responsive user interface across 16 pages for dashboard, transaction management, alerts, and configuration.
 
 ### Technical Implementations
-- **Backend**: Developed with Python 3.12+ using the Flask framework. It integrates machine learning libraries such as scikit-learn and XGBoost for fraud detection.
-- **ML Models**: Employs a stacking ensemble model combining Random Forest, Gradient Boosting, and CatBoost for robust fraud detection. Transfer Learning techniques are used across four phases.
-- **Data Storage**: PostgreSQL serves as the primary database, storing transactional data, audit logs, and configuration information.
-- **Caching**: A `SimpleCache` implementation provides in-memory caching with a 30-second TTL (Time-To-Live) to significantly reduce latency for frequently accessed data, falling back to an in-memory solution if Redis is not configured.
-- **Security**: Implements JWT Authentication, Role-Based Access Control (RBAC) with 5 defined roles, and compliance features like data masking, audit trails, and explainability to meet LGPD, BACEN, and PCI DSS standards.
-- **API Endpoints**: The system exposes 27 fully functional API endpoints covering health checks, dashboard data, transaction processing, alerts, rules management, observability, configuration, and 6 new research ML endpoints.
+- **Backend**: Developed with Python 3.12+ and Flask, integrating scikit-learn and XGBoost for ML.
+- **ML Models**: Employs a stacking ensemble model (Random Forest, Gradient Boosting, CatBoost) with Transfer Learning across four phases for robust fraud detection.
+- **Data Storage**: PostgreSQL is the primary database for transactional data, audit logs, and configuration.
+- **Caching**: A `SimpleCache` provides in-memory caching with a 30-second TTL, with Redis as an optional external caching layer.
+- **Security**: Features JWT Authentication, Role-Based Access Control (RBAC) with 5 roles, data masking, audit trails, and explainability for LGPD, BACEN, and PCI DSS compliance.
+- **API Endpoints**: 27 functional API endpoints for health checks, dashboard, transaction processing, alerts, rules, observability, configuration, and 6 research ML endpoints.
+- **Hard Rules Engine**: An advanced rules engine supports multiple conditions (AND/OR logic, up to 10+ conditions), 20 available fields across 7 categories, 16 operators, 6 action types (block, review, alert, approve, step_up, score_adjust), and 4 rule types. It provides a unified response format identical to ML model output, with 216 active rules derived from real-world fraud scenarios and academic research.
+- **Research-Based ML Modules**: Four new modules based on academic research are integrated:
+    1.  **Bahnsen Feature Engineering (v2.0.0)**: Generates 62+ features per transaction (temporal aggregations, Von Mises features, behavioral deviation, velocity, channel risk).
+    2.  **PIX Fraud Taxonomy (v1.0.0)**: Detects 10+ Brazilian PIX fraud types, including remote access, with compliance flags.
+    3.  **NLP Social Engineering Detector (v1.0.0)**: Detects SMS phishing, WhatsApp cloning, and bank impersonation patterns.
+    4.  **Transfer Learning Pipeline (v1.0.0)**: Supports fine-tuning models using various financial datasets (e.g., Nigerian Financial, PaySim, Feedzai BAF, IEEE-CIS).
 
 ### Feature Specifications
-- **Fraud Detection**: Processes transactions with <50ms latency, utilizing ML models and hard rules for real-time fraud scoring.
-- **Dashboard**: Provides KPIs, time-series data, and channel-specific insights for comprehensive system overview.
-- **Transaction Management**: Allows for filtering, sorting, pagination, and actions on transactions (approve, reject, investigate).
-- **Alerts & Rules**: Manages fraud alerts, hard business rules, VIP (whitelist) and Hot (blacklist) lists.
-- **Observability**: Offers metrics, performance monitoring, and health checks for system and ML model status.
-- **Calibration**: Enables adjustment of model thresholds and parameters.
-- **Compliance**: Integrates features for LGPD (data privacy), BACEN (banking regulations), and PCI DSS (payment card security).
-
-### Advanced Hard Rules Engine (NEW - December 2025)
-The hard rules system has been upgraded to a full-featured rules engine:
-
-**Multiple Conditions Support:**
-- Support for AND/OR logic operators
-- Up to 10+ conditions per rule
-- Dynamic condition builder in frontend
-
-**20 Available Fields in 7 Categories:**
-- **Transaction (5)**: amount, channel, type, status, is_scheduled
-- **Customer (4)**: cpf, location, is_first_transaction, account_age_days
-- **Device (3)**: device_id, ip_address, is_new_device
-- **Temporal (2)**: hour, day_of_week
-- **Velocity (3)**: velocity_1h, velocity_24h, amount_24h
-- **ML (2)**: risk_score, ml_confidence
-- **PIX (1)**: pix_key_type
-
-**16 Operators:**
-- Comparison: ==, !=, >, <, >=, <=
-- Text: contains, not_contains, starts_with, ends_with
-- Lists: in, not_in
-- Range: between
-- Advanced: regex, is_null, is_not_null
-
-**6 Action Types:**
-- block, review, alert, approve, step_up, score_adjust
-
-**4 Rule Types:**
-- blocking, scoring, routing, alerting
-
-**API Endpoints:**
-- `GET /api/hard-rules/metadata` - Returns all fields, operators, actions, and rule types
-- `POST /api/hard-rules` - Create rule with conditions_json and logic_operator
-- `PUT /api/hard-rules/:id` - Update rule
-- `DELETE /api/hard-rules/:id` - Delete rule
-- `POST /api/hard-rules/explain` - **NEW** Explains a rule in natural language with risk analysis
-
-### HardRulesEngine Unificado (NEW - December 2025)
-Motor de Regras Duras que retorna no **MESMO FORMATO** que o Machine Learning.
-Quem chama a API não consegue distinguir se a resposta veio do ML ou das regras duras.
-
-**Características:**
-- Versão 2.0.0 com resposta unificada
-- 216 regras ativas no PostgreSQL
-- Cache de regras em memória (TTL 30s)
-- Latência < 50ms por transação
-- Suporte a batch processing
-
-**Formato de Resposta (Idêntico ao ML):**
-```python
-{
-    "transaction_id": "TXN_001",
-    "is_fraud": true/false,
-    "fraud_probability": 0.0-1.0,
-    "risk_score": 0.0-1.0,
-    "risk_level": "LOW/MEDIUM/HIGH/CRITICAL",
-    "confidence": 0.0-1.0,
-    "processing_time_ms": float,
-    "model_version": "HARD_RULES_2.0.0",
-    "detection_reason": ["Razão 1", "Razão 2"],
-    "timestamp": "ISO8601"
-}
-```
-
-**Mapeamento Ação → Score:**
-- block: 0.95 (CRITICAL)
-- step_up: 0.80 (HIGH)
-- review: 0.75 (MEDIUM)
-- score_adjust: 0.60 (MEDIUM)
-- alert: 0.50 (MEDIUM)
-- approve: 0.10 (LOW)
-
-**Testes Integrados (30 testes, 100% passing):**
-- TestHardRulesEngineBasic (3 testes)
-- TestHardRulesResponseFormat (3 testes)
-- TestHardRulesCategories (10 testes)
-- TestHardRulesNewFromFiles (6 testes)
-- TestHardRulesPerformance (3 testes)
-- TestUnifiedFraudEngine (2 testes)
-- TestAllRulesEffectiveness (3 testes)
-
-### Data-Driven Hard Rules (EXPANDED - December 2025)
-**216 Regras Duras** criadas baseadas em:
-- Análise de 130.000 cenários reais de fraude (DÉBITO, CRÉDITO, PIX)
-- Pesquisas acadêmicas (MDPI, Nature, IEEE, arXiv)
-- Regulações BACEN/COAF/PCI DSS/LGPD
-- Relatórios Febraban, BioCatch, ClearSale, Kaspersky, ACI Worldwide
-
-**26 Novas Regras (Expansão de 190 → 216):**
-- Cartão Recém-Emitido (3 regras)
-- Endereço Diferente (2 regras)
-- Fraude Triangulação (2 regras)
-- Dados Inconsistentes (2 regras)
-- Combinações Multi-Fator (4 regras)
-- Tipos específicos: Maquininha Adulterada, Falso Comprovante PIX, Chargeback, etc.
-
-**Estatísticas de Fraude (Fontes: BACEN/Febraban 2024):**
-- R$ 4,9 bilhões em perdas com PIX em 2024 (+70% vs 2023)
-- R$ 10,1 bilhões prejuízo total fraudes bancárias
-- 390 mil fraudes PIX/mês (média)
-- 42.9% golpes via WhatsApp clonado
-- 97.43% fraude no horário 13h
-- 80%+ golpes de engenharia social em horário comercial
-
-**Regras por Categoria (216 Total):**
-
-| Categoria | Qtd | Descrição |
-|-----------|-----|-----------|
-| REGULAÇÃO BACEN | 10 | BCB 403/2024, Limites noturnos, COAF, MED 2.0 |
-| CARD-NOT-PRESENT | 10 | AVS, CVV, 3DS, Card Testing, Triangulação, E-commerce |
-| DEVICE/LOCATION | 12 | Fingerprinting, VPN, Emulador, GeoMismatch, IP desconhecido |
-| ENGENHARIA SOCIAL | 6 | WhatsApp, Falsa Central, QR Code, Phishing, Suporte falso |
-| MALWARE | 5 | Mão Fantasma, BrasDex, ATS, Overlay, Acesso remoto |
-| SEQUESTRO | 4 | ATM madrugada, Coação, Múltiplos saques, Under duress |
-| VELOCITY | 18 | Card Testing, Impossible Travel, Structuring, BIN Attack |
-| ML PATTERNS | 10 | Anomalia, Behavioral, Ensemble High Confidence |
-| VALOR | 14 | Faixas críticas R$50-10.000, Acumulados, Limites BACEN |
-| HORÁRIO | 12 | 00h-06h, 13h, 20h-23h, Fins de semana |
-| PIX KEY | 10 | Aleatória, Telefone, CNPJ, CPF, Falso comprovante |
-| COMBINADAS | 14 | Multi-fator, Tríade, Quádrupla verificação |
-| COMPLIANCE | 3 | PCI DSS, LGPD, COAF |
-| CANAL | 12 | Mobile, Web, ATM, E-commerce, Contactless, POS |
-| GOLPES ESPECÍFICOS | 12 | Romântico, Investimento, Pirâmide, Anúncio falso |
-| AUTENTICAÇÃO | 3 | 3DS, Step-up biométrico, MFA |
-| NOVO CLIENTE | 5 | Conta nova, Cartão recém-emitido, Primeira transação |
-
-**Por Tipo de Ação (216 Total):**
-- Review (análise manual): 106 regras
-- Block (bloqueio imediato): 63 regras
-- Alert (monitoramento): 28 regras
-- Step-up (verificação extra): 19 regras
-
-**Fontes das Regras:**
-- BACEN Resolução BCB 403/2024, 501/2024, 522/2024, 524/2024
-- MED 2.0 (rastreamento 5 níveis - 2026)
-- Febraban/BioCatch Digital Banking Fraud Trends 2024
-- Kaspersky - Mão Fantasma, BrasDex, GoatRAT
-- Stripe/Checkout.com - Velocity Rules
-- MDPI/Nature/IEEE - ML Fraud Detection 2024
-- ACI Worldwide - Projeções 2028
-
-**Hipóteses de Cenário:**
-Cada regra inclui descrição de situação real do dia a dia para:
-- Conformidade LGPD (explicabilidade)
-- Treinamento de analistas
-- Auditoria BACEN
-
-**Sistema de Explicação:**
-- Explicação em tempo real em português
-- Análise de risco baseada em dados históricos
-- Insights de dados (taxas de fraude por canal/hora/valor)
-- Recomendações de efetividade
-
-### Research-Based ML Modules (New)
-Four new modules based on academic research have been implemented:
-
-1. **Bahnsen Feature Engineering (v2.0.0)** - Based on Bahnsen et al. 2016:
-   - Temporal aggregations (1h, 6h, 24h, 72h, 168h windows)
-   - Von Mises periodic features (sin/cos for hour/day/month)
-   - Behavioral deviation detection (Z-scores)
-   - Velocity features and channel risk scoring
-   - Generates 62+ features per transaction
-
-2. **PIX Fraud Taxonomy (v1.0.0)** - Based on arXiv:2511.20902:
-   - 10+ Brazilian PIX fraud types (Mão Fantasma, Clone WhatsApp, QR adulterado, etc.)
-   - Remote access detection with high confidence
-   - BACEN/LGPD compliance flags
-   - Explainable recommendations for compliance
-
-3. **NLP Social Engineering Detector (v1.0.0)** - Based on DIFrauD Dataset:
-   - SMS phishing (smishing) detection
-   - WhatsApp clone patterns
-   - Bank impersonation detection
-   - Urgency and emotional manipulation scoring
-   - Batch analysis support
-
-4. **Transfer Learning Pipeline (v1.0.0)**:
-   - Support for Nigerian Financial (5M tx), PaySim (6.3M tx), Feedzai BAF (6M tx), IEEE-CIS datasets
-   - Feature mapping and alignment
-   - Model fine-tuning pipeline
-
-### Research Module API Endpoints (NEW v2.0)
-All 6 research endpoints are fully functional and tested:
-- `GET /api/research/modules/status` - Status of all research modules (4 modules available)
-- `POST /api/research/bahnsen/features` - Generate 62+ Bahnsen features for a transaction
-- `POST /api/research/pix/analyze` - Analyze PIX transaction for fraud (10+ types)
-- `POST /api/research/nlp/analyze` - Analyze text for social engineering (70%+ detection)
-- `POST /api/research/nlp/batch` - Batch analyze multiple texts
-- `GET /api/research/transfer/datasets` - List supported datasets (4 datasets, 17M+ transactions)
-
-### Documentation (Updated December 2025)
-Ultra-didactic ML documentation available at:
-- `/docs/GUIA_COMPLETO_ML.md` - Complete ML guide explaining how models work together
-  - Covers 7 integrated modules: Bahnsen, Random Forest, Gradient Boosting, Logistic Regression, CatBoost, GNN, PIX Taxonomy, NLP, Transfer Learning
-  - Includes ensemble formula: P = 0.50×Base + 0.25×CatBoost + 0.25×GNN
-  - ASCII diagrams and step-by-step calculation examples
-
-### Mock Data Elimination (December 2025)
-All endpoints now return real PostgreSQL data. Changes made:
-- **Frontend Monitoring.jsx**: Fallback values changed from hardcoded (45, 60, 127) to 0/null
-- **Frontend Metrics.jsx**: Mock data no catch block removido, agora retorna zeros + indicador de erro visual
-- **Frontend Metrics.jsx**: Taxa de bloqueio hardcoded (78%) removida, agora usa `metrics.block_rate`
-- **Backend /api/observability/ml**: Returns error with zeros instead of fake metrics on exception
-- **Backend /api/observability/health**: Returns error status instead of fake "healthy"
-- **Backend /api/alerts**: Uses postgres_store.get_alerts_list() instead of np.random
-- **Backend /api/transactions**: Returns real transactions only, no mock generation
-
-### Data Sources Analysis (December 2025)
-Análise completa das 17 páginas (excluindo Manual/Documentação):
-- **13 páginas com 100% PostgreSQL Real**: Dashboard, Transactions, Alerts, HardRules, VipList, HotList, Investigation, ManualReview, FeedbackAnalyst, Audit, Settings, Datasets, Reports
-- **2 páginas mistas (Real + Fallback zeros)**: Monitoring, Metrics
-- **1 página com dados sintéticos (intencional para ML)**: /api/model/train usa np.random para gerar dados de treinamento
+- **Fraud Detection**: Processes transactions with <50ms latency using ML models and hard rules.
+- **Dashboard**: Displays KPIs, time-series data, and channel-specific insights.
+- **Transaction Management**: Allows filtering, sorting, pagination, and actions (approve, reject, investigate).
+- **Alerts & Rules**: Manages fraud alerts, business rules, VIP (whitelist), and Hot (blacklist) lists.
+- **Observability**: Provides metrics, performance monitoring, and health checks.
+- **Calibration**: Adjusts model thresholds and parameters.
+- **Compliance**: Integrates features for LGPD, BACEN, and PCI DSS.
+- **Documentation**: Comprehensive internal documentation including an ML guide, database setup, and frontend interactive manuals.
 
 ## External Dependencies
 
-- **PostgreSQL**: Used as the primary relational database for persistent data storage.
-- **Redis**: Optional caching layer; if not configured, the system defaults to an in-memory cache.
-- **Hugging Face**: Utilized for accessing pre-trained machine learning models.
-- **Stanford SNAP Datasets**: Provides datasets used for machine learning model training and evaluation.
+- **PostgreSQL**: Primary relational database for persistent data storage.
+- **Redis**: Optional caching layer; if not configured, an in-memory cache is used.
+- **Hugging Face**: Used for accessing pre-trained machine learning models.
+- **Stanford SNAP Datasets**: Provides datasets for ML model training and evaluation.
