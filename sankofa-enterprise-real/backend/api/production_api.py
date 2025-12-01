@@ -912,8 +912,11 @@ def serve_static(path):
         return jsonify({"error": {"code": "NOT_FOUND", "message": "Endpoint not found", "available_endpoints": ["/api/health", "/api/status", "/api/fraud/predict", "/api/dashboard/kpis"]}, "success": False}), 404
     
     file_path = STATIC_FOLDER / path
-    if file_path.exists():
+    if file_path.exists() and file_path.is_file():
         return send_from_directory(STATIC_FOLDER, path)
+    static_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.ico', '.css', '.js', '.json', '.woff', '.woff2', '.ttf', '.eot', '.map', '.md')
+    if path.lower().endswith(static_extensions):
+        return jsonify({"error": "File not found", "path": path}), 404
     return send_from_directory(STATIC_FOLDER, "index.html")
 
 @app.route("/api/info", methods=["GET"])
