@@ -272,7 +272,7 @@ class TestFeatureEngineering:
         
         feature_count = len(features)
         print(f"FEATURES GERADAS: {feature_count}")
-        assert feature_count >= 30, f"Apenas {feature_count} features (esperado 30+)"
+        assert feature_count >= 62, f"Apenas {feature_count} features (esperado 62+)"
     
     def test_temporal_features_range(self, bahnsen_engine):
         """Testa se features temporais estao no range correto"""
@@ -343,7 +343,7 @@ class TestLatencyPerformance:
             elapsed = (time.time() - start) * 1000
             
             print(f"LATENCIA SINGLE: {elapsed:.2f}ms")
-            assert elapsed < 500, f"Latencia {elapsed:.2f}ms acima de 500ms"
+            assert elapsed < 100, f"Latencia {elapsed:.2f}ms acima de 100ms (SLA: <50ms avg)"
         except Exception as e:
             pytest.skip(f"API nao disponivel: {e}")
     
@@ -368,7 +368,7 @@ class TestLatencyPerformance:
             elapsed = (time.time() - start) * 1000
             
             print(f"LATENCIA BATCH (10 tx): {elapsed:.2f}ms")
-            assert elapsed < 2000, f"Latencia {elapsed:.2f}ms acima de 2000ms"
+            assert elapsed < 500, f"Latencia {elapsed:.2f}ms acima de 500ms (SLA: <50ms/tx)"
         except Exception as e:
             pytest.skip(f"API nao disponivel: {e}")
     
