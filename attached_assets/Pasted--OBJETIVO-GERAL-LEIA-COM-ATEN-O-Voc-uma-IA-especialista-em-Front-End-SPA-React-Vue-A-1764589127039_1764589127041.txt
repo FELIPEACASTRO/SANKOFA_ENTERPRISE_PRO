@@ -1,0 +1,457 @@
+🎯 OBJETIVO GERAL (LEIA COM ATENÇÃO)
+
+Você é uma IA especialista em:
+- Front-End (SPA/React/Vue/Angular ou similar),
+- UX & UI,
+- QA funcional,
+- Testes automatizados (unitários, integração e end-to-end),
+- Integração front-end ↔ back-end,
+- Observabilidade e qualidade em produção.
+
+Quero que você faça uma AUDITORIA COMPLETA do FRONT-END da solução de detecção de fraudes bancárias, usando como referência TODAS as telas descritas neste prompt (baseadas nas imagens que eu forneci).
+
+⚠ IMPORTANTE:
+- NÃO simplifique.
+- NÃO ignore nenhum elemento visual, mesmo que pareça apenas decorativo.
+- Trate tudo como um produto REAL, pronto para PRODUÇÃO, que não pode ter GAPS.
+
+Seu trabalho é:
+1. Mapear o código do front-end inteiro.
+2. Garantir que TODAS as telas e componentes funcionem como esperado.
+3. Garantir que TUDO esteja realmente integrado com o BACK-END (sem ficar apenas no mock).
+4. Escrever/ajustar testes automatizados (unitário + integração + e2e).
+5. Entregar um RELATÓRIO FINAL com todos os problemas encontrados e correções propostas.
+
+----------------------------------------------------------------------
+🧠 FASE 1 – ENTENDER A ARQUITETURA DO FRONT-END
+
+1. Detecte automaticamente:
+   - Framework principal (React, Vue, Angular, Next, etc.).
+   - Como as páginas e rotas são organizadas (ex.: `pages/`, `routes/`, `src/screens/`).
+   - Como os componentes estão organizados (`components/`, `shared/`, `ui/` etc.).
+   - Como o estado global é gerenciado (Context API, Redux, Zustand, MobX, etc.).
+   - Como o front consome APIs (services, hooks, axios/fetch, etc.).
+   - Como é o layout base (header, sidebar, breadcrumbs, barras de status).
+
+2. Gere um resumo curto da arquitetura:
+   - Mapa de rotas (URL → tela).
+   - Componentes de layout comuns (ex.: `DashboardLayout`, `SettingsLayout`).
+   - Pastas principais e responsabilidade de cada uma.
+
+3. Verifique:
+   - Se há duplicação de componentes que poderiam ser reaproveitados.
+   - Se existem componentes mortos/não usados.
+   - Se há padrões de nomenclatura consistentes.
+
+----------------------------------------------------------------------
+📌 FASE 2 – LISTA DE TELAS E MÓDULOS QUE DEVEM SER COBERTOS
+
+Para CADA item abaixo, você deve:
+- Confirmar que existe uma tela/rota correspondente no código.
+- Mapear os componentes principais.
+- Criar cenários de teste claros.
+- Verificar integração com back-end.
+
+🔹 2.1 Dashboard Executivo / Visão Geral de Fraudes
+- Conteúdos esperados:
+  - Cards:
+    • Transações Hoje
+    • Fraudes Detectadas
+    • Taxa de Aprovação
+    • Latência Média
+    • Status do Sistema (online/offline)
+    • Algoritmos Ativos
+    • Status dos Modelos (ensemble, precisão)
+    • Valor Protegido (hoje, ano, famílias protegidas)
+  - Gráficos:
+    • Transações por Hora
+    • Latência do Sistema
+    • Fraudes por Canal
+    • Distribuição por Canal (pizza)
+  - Alertas Recentes
+- Testar:
+  - Atualização automática (se houver auto-refresh).
+  - Atualização manual (botão “Atualizar”).
+  - Comportamento quando a API devolve:
+    • Dados normais,
+    • Valores extremos (muitos eventos),
+    • 0 transações,
+    • Erro/timeout.
+  - Se o status “Sistema Online”, “Modelos Ativos” etc. estão coerentes com o retorno do back-end.
+
+🔹 2.2 Tela de Transações
+- Filtros:
+  - Campo de busca (ID, CPF, cidade…).
+  - Status (todas / aprovadas / rejeitadas etc.).
+  - Tipo (PIX, TED, BOLETO, etc.).
+  - Período (ex.: últimas 24h).
+  - Ordenação (mais recentes, mais antigas, maior valor etc.).
+- Tabela:
+  - Colunas: ID, Valor, Tipo, Canal, Localização, CPF, Data/Hora, Status, Risco, Ações.
+  - Botões: ver detalhes, menu de ações, etc.
+- Testar:
+  - Combinação de filtros (ex.: período + status + tipo).
+  - Ordenação crescente/decrescente.
+  - Paginação (caso exista).
+  - Clique em uma transação para ver detalhes (garantir que faz a chamada correta ao back-end).
+  - Estados:
+    • Lista cheia,
+    • Sem resultados (após filtrar),
+    • Erro de API (mensagem amigável),
+    • Loading.
+
+🔹 2.3 Calibragem Manual – Tiers 1, 2, 3 e 4 + Configurações Globais
+- Tiers (Velocistas, Rápidos, Avançados, Supremos):
+  - Para cada algoritmo (rule-based, blacklist, velocity, validação geográfica, estatísticas básicas, RF, XGBoost, Regressão Logística, SVM, Naive Bayes, Redes Neurais, LSTM, Transformer, Autoencoder, Graph Transformer, Quantum-Inspired, Federated Learning, etc.):
+    • Slider de Threshold.
+    • Slider de Peso no Ensemble.
+    • Outros sliders/campos específicos (árvores, profundidade, learning rate, dropout, camadas, neurônios, subsample, cache timeout, dias de histórico, sensibilidade a outliers etc.).
+    • Toggle ON/OFF do algoritmo.
+- Configurações Globais:
+  - Ensemble:
+    • Threshold final,
+    • Taxa de auto-learning,
+    • Sensibilidade a drift,
+    • Feedback em tempo real,
+    • Thresholds adaptativos.
+  - Performance:
+    • Timeout de processamento (ms),
+    • Máximo de threads paralelas,
+    • Cache TTL,
+    • Batch size,
+    • Limite de memória.
+  - Segurança:
+    • Retenção de dados,
+    • Criptografia em trânsito,
+    • Validação de integridade,
+    • Modo LGPD/GDPR,
+    • Anonimização automática.
+  - Alertas:
+    • Threshold de alerta crítico,
+    • Frequência de notificações,
+    • Notificações por email/SMS,
+    • Webhooks,
+    • Escalação automática.
+  - Monitoramento:
+    • Intervalo de health check,
+    • Retenção de métricas,
+    • Auto-refresh do dashboard,
+    • Métricas de performance ativas,
+    • Alertas de performance,
+    • Monitoramento de SLA.
+  - Backup:
+    • Retenção de backups,
+    • Recovery Point Objective,
+    • Backup automático,
+    • Disaster recovery,
+    • Versionamento de configurações.
+  - API:
+    • Rate limit (req/s ou req/min),
+    • Timeout de API,
+    • API key obrigatória,
+    • CORS habilitado.
+- Barra de status inferior:
+  - Motor Online / Latência / Precisão / Última atualização.
+- Testar para cada controle:
+  - Validação de ranges (não aceitar valores fora do permitido).
+  - Formato (números, %, casas decimais).
+  - Se “Aplicar Mudanças ao Motor”:
+    • Envia realmente os dados para o back-end,
+    • Trata sucesso e erro,
+    • Atualiza UI e barra de status.
+  - Se “Resetar Padrões”:
+    • Restaura valores default reais (não apenas visualmente).
+  - Verificar persistência:
+    • Recarregar a página e confirmar que as configurações salvas retornam corretamente do back-end.
+
+🔹 2.4 Central de Investigação
+- Cards: Casos Ativos, Em Investigação, Resolvidos, Taxa de Resolução.
+- Filtros: busca por texto, status, prioridade.
+- Lista de investigações.
+- Painel de detalhes (quando um caso é selecionado).
+- Testar:
+  - Seleção de um caso e carregamento dos detalhes.
+  - Filtro por status/prioridade.
+  - Estado vazio (nenhuma investigação).
+  - Comportamento em erro de API.
+
+🔹 2.5 Revisão Manual (Human-in-the-loop)
+- Cards: Total, Pendentes, Completadas, Expiradas.
+- Tabela “Transações para Revisão”.
+- Testar:
+  - Fluxo de revisão de uma transação (aprovar/recusar/atualizar).
+  - Movimentação do status nos cards após revisão.
+  - Estado vazio (nenhuma pendente).
+  - Paginação (se existir).
+
+🔹 2.6 Monitoramento do Sistema
+- Cards:
+  - Status Geral, Modelos Ativos, Transações/seg, Tempo de Resposta.
+  - Taxa de Detecção, Falsos Positivos, Processadas Hoje, Uptime.
+- Recursos do Sistema:
+  - CPU, Memória, Disco, Latência.
+- Alertas Recentes.
+- Informações do Sistema:
+  - Conexões ativas, uptime, última atualização, status dos modelos, modo de operação, auto-refresh.
+- Testar:
+  - Auto-refresh ON/OFF.
+  - Atualização manual.
+  - Se cores (verde, amarelo, vermelho) respeitam thresholds.
+  - Se latency e TPS refletem dados do back-end.
+
+🔹 2.7 Central de Relatórios
+- Templates disponíveis:
+  - Relatório Mensal de Fraudes,
+  - Performance Trimestral,
+  - Análise de Tendências,
+  - Impacto Financeiro.
+- Filtros: busca, tipo, status.
+- Seletor de relatório para ver detalhes.
+- Testar:
+  - Criação de novos relatórios.
+  - Estados: em andamento, concluído, erro.
+  - Exportações.
+  - Estado vazio.
+
+🔹 2.8 Métricas e Contadores
+- Cards: Transações, Fraudes, Precisão, Tempo.
+- Hard Rules:
+  - Acionadas Hoje, Taxa de Bloqueio.
+- VIP/HOT Lists:
+  - VIP Hits, HOT Hits.
+- Testar:
+  - Correspondência entre esses números e as telas de Hard Rules / VIP / HOT.
+  - Comportamento em auto-refresh.
+  - Estado em que não há transações (todos 0).
+
+🔹 2.9 Feedback de Analistas
+- Cards: Total de Feedbacks, Acurácia do Modelo, Precisão, Recall.
+- Histórico de feedbacks:
+  - Transação, Predição do Modelo, Classificação Real, Status, Data/hora.
+- Testar:
+  - Criação de novo feedback.
+  - Recalculo das métricas.
+  - Exportar feedbacks (se existir).
+  - Estado vazio.
+
+🔹 2.10 Central de Alertas
+- Cards: Total, Novos, Investigando, Resolvidos, Críticos.
+- Filtros: texto, tipo, severidade, status.
+- Lista de alertas.
+- Painel de detalhes.
+- Testar:
+  - Filtros combinados.
+  - Seleção de alerta e exibição de detalhes.
+  - Atualização de status (novo → investigando → resolvido).
+  - Integração com módulo de monitoramento (se um alerta vem do monitoramento).
+
+🔹 2.11 Catálogo de Datasets
+- Cards: Total de Datasets, Total de Registros, Registros de Fraude, Datasets Ativos.
+- Abas: Visão Geral, Ranking de Uso, Busca Avançada, Categorias.
+- Métricas de Qualidade:
+  - Taxa geral de fraude, datasets com rótulos, qualidade média.
+- Testar:
+  - Estado 0 datasets (como na imagem).
+  - Estado com datasets reais.
+  - Ranking de uso.
+  - Filtros avançados.
+
+🔹 2.12 Hard Rules, Lista VIP, Lista HOT
+- Hard Rules:
+  - Cards: total de regras, ativas, inativas, acionamentos hoje.
+  - Lista: nome, campo, operador, valor, ação, status, validade, ações (editar/excluir).
+- Lista VIP:
+  - Cards: total VIPs, ativos, hits hoje.
+  - Tabela: CPF, nome, motivo, expira em, status, ações.
+- Lista HOT:
+  - Cards: total HOTs, ativos, bloqueios hoje.
+  - Tabela: CPF, nome, motivo, expira em, status, ações.
+- Testar:
+  - Criação/edição/remoção de regras, VIPs e HOTs.
+  - Validação de CPF.
+  - Validade (data de expiração).
+  - Integração com motor de decisão:
+    • Se uma regra HARD realmente bloqueia transação.
+    • Se VIP libera.
+    • Se HOT bloqueia automaticamente.
+
+🔹 2.13 Trilhas de Auditoria
+- Cards: Total de Logs, Sucessos, Falhas, Alta Severidade.
+- Filtros: busca texto, ações, severidade, status, usuário.
+- Lista de logs.
+- Painel de detalhes ao selecionar um log.
+- Testar:
+  - Filtro por usuário, ação, severidade.
+  - Paginação.
+  - Coerência dos logs com ações reais feitas na aplicação.
+
+🔹 2.14 Configurações (Sistema, Banco de Dados, Segurança, Notificações, IA & ML, API)
+- Sistema:
+  - Nome do sistema, versão, ambiente, timezone, timeout de sessão.
+- Banco de Dados:
+  - Host, porta, nome do banco, pool de conexões, backup automático toggle.
+- Segurança:
+  - 2FA, complexidade de senha, criptografia de sessão, log de auditoria, SSL habilitado.
+- Notificações:
+  - Email, SMS, Slack, Webhook habilitados.
+- IA & ML:
+  - Auto-learning habilitado, detecção de drift, feedback em tempo real.
+  - Batch size, taxa de aprendizado.
+- API:
+  - Rate limiting habilitado, requisições por minuto, API key obrigatória, CORS habilitado, timeout.
+- Testar:
+  - Validações de campo (ex.: porta numérica, timezone válido).
+  - Persistência: salvar, recarregar a página e confirmar que os valores vêm do back-end.
+  - Efeitos reais:
+    • Se rate limiting habilitado afeta as requisições.
+    • Se 2FA/SSL/log de auditoria são realmente aplicados (na medida em que o front pode validar).
+
+----------------------------------------------------------------------
+🧪 FASE 3 – PLANO DE TESTES (UNITÁRIO, INTEGRAÇÃO, E2E)
+
+Para CADA tela/componente descrito:
+
+1. Testes Unitários (Jest, Vitest etc.)
+   - Testar renderização básica do componente.
+   - Testar props obrigatórios/opcionais.
+   - Testar formatação de valores (datas, moedas, percentuais).
+   - Testar lógica de habilitar/desabilitar botões, toggles, sliders.
+   - Testar mensagens exibidas em estado vazio, erro, sucesso.
+
+2. Testes de Integração (React Testing Library ou similar)
+   - Simular o usuário:
+     • preenchendo filtros,
+     • clicando em botões,
+     • navegando entre abas.
+   - Mockar chamadas de API apenas para garantir comportamento dos componentes em:
+     • sucesso,
+     • erro,
+     • timeout,
+     • resposta vazia.
+   - Garantir que:
+     • requests sejam enviados com URL, método e payload corretos,
+     • respostas sejam refletidas corretamente na UI.
+
+3. Testes End-to-End (Cypress, Playwright ou similar)
+   - Simular fluxos completos:
+     • Do login (se houver) até o uso das telas críticas.
+     • Fluxo de calibragem de modelo + ver impacto no dashboard.
+     • Criação de uma hard rule + simulação de transação bloqueada.
+     • Adição de VIP/HOT + ver efeito nas métricas/contadores.
+     • Geração de relatório + ver status até completar.
+   - Testar:
+     • Navegação entre rotas,
+     • Deep links (entrar direto em uma URL específica),
+     • Comportamento em refresh de página.
+
+----------------------------------------------------------------------
+🌐 FASE 4 – INTEGRAÇÃO REAL COM BACK-END
+
+1. Descobrir todas as chamadas de API do front:
+   - Arquivos de services, hooks, clients etc.
+   - Endpoints, métodos HTTP, headers, payloads.
+
+2. Validar:
+   - Se todos os endpoints existem e estão corretos.
+   - Se todos os parâmetros obrigatórios são enviados.
+   - Se erros (4xx, 5xx, timeout) são tratados com:
+     • mensagem amigável,
+     • não quebra de layout,
+     • opção de retentar (quando fizer sentido).
+
+3. Identificar mocks e dados estáticos:
+   - Onde ainda estiver mock:
+     • Sinalizar claramente.
+     • Propor (e se possível implementar) a integração com serviços reais.
+
+----------------------------------------------------------------------
+📱 FASE 5 – UX, RESPONSIVIDADE, ACESSIBILIDADE E CONSISTÊNCIA
+
+1. Responsividade
+   - Verificar o comportamento em:
+     • Resoluções desktop grandes,
+     • Tablets,
+     • Telas menores (mobile, se for suportado).
+   - Conferir:
+     • Se cards e tabelas “quebram” o layout.
+     • Se textos ficam cortados.
+     • Se há barras de rolagem estranhas.
+
+2. Acessibilidade
+   - Verificar:
+     • Uso de elementos semânticos (h1, h2, main, nav, etc.).
+     • Labels em inputs e combobox.
+     • `aria-label` em ícones clicáveis.
+     • Tabulação (navegação por teclado).
+     • Contraste mínimo de textos e ícones.
+
+3. Consistência Visual
+   - Checar:
+     • Paleta de cores consistente (ex.: verde para sucesso, vermelho para erro, amarelo para alerta).
+     • Ícones coerentes (ex.: escudo para segurança, sino para alertas).
+     • Tipografia (tamanhos e pesos de títulos, subtítulos, texto).
+     • Espaçamento e alinhamento.
+
+----------------------------------------------------------------------
+🔐 FASE 6 – SEGURANÇA & OBSERVABILIDADE NO FRONT
+
+1. Segurança no Front-End
+   - Garantir que:
+     • Nenhum dado sensível é exibido em logs do console.
+     • Não há chaves de API hard-coded no front.
+     • Headers sensíveis são tratados no back (mas o front não expõe nada desnecessário).
+   - Verificar:
+     • Tratamento de erros sem vazar stack trace interno para o usuário.
+
+2. Observabilidade
+   - Verificar se:
+     • Há captura de erros globais (error boundaries, interceptors de API).
+     • Logs de eventos importantes (falhas de requisição, exceções, etc.) são enviados para ferramentas de monitoramento (se houver).
+
+----------------------------------------------------------------------
+📋 FASE 7 – RELATÓRIO FINAL
+
+Ao terminar TODAS as fases acima, você deve produzir um relatório com:
+
+1. Lista de TODOS os problemas encontrados:
+   - Funcionais (tela/componente não funciona/bug).
+   - Integração (chamada de API errada, payload, ausência de tratamento de erro).
+   - UX (falta de feedback, loading, estados vazios ruins).
+   - Responsividade (quebra de layout).
+   - Acessibilidade (falta de label, foco, contrastes etc.).
+   - Segurança (dados expostos, más práticas).
+   - Código (componentes duplicados, falta de testes, acoplamento excessivo, etc.).
+
+2. Classificação de severidade:
+   - Crítico / Alto / Médio / Baixo.
+
+3. Para CADA problema:
+   - Descrever CLARAMENTE:
+     • Onde está (arquivo, componente, rota).
+     • O que acontece hoje.
+     • O que deveria acontecer.
+   - Propor a correção:
+     • Explicação da solução.
+     • Se possível, código sugerido.
+
+4. Confirmar explicitamente:
+   - Que TODAS as telas descritas neste prompt foram analisadas.
+   - Que TODOS os componentes visuais conhecidos (cards, gráficos, tabelas, filtros, abas, botões, ícones) foram cobertos por testes.
+   - Que não restam GAPS aparentes no front-end em relação às telas descritas.
+
+----------------------------------------------------------------------
+⚠ REQUISITO FINAL
+
+Trate este pedido como se um BANCO estivesse prestes a ir para PRODUÇÃO com esse front-end.
+
+Você NÃO tem permissão para:
+
+- Ignorar telas porque “parecem simples”.
+- Assumir que algo está certo sem testar.
+- Entregar um relatório superficial.
+
+Seu objetivo é garantir que o FRONT-END esteja:
+
+✅ 100% funcional,  
+✅ 100% integrado com o BACK-END,  
+✅ 100% coberto pelos cenários de teste necessários para um ambiente de PRODUÇÃO BANCÁRIA.
