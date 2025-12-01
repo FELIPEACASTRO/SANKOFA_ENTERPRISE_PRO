@@ -81,21 +81,56 @@ The hard rules system has been upgraded to a full-featured rules engine:
 - Amount R$100-500: 97.2% fraud rate
 - Mobile Channel: 83.3% fraud rate
 
-**Rules Created:**
-1. PIX Horário Crítico 13h (review)
-2. PIX Valor Crítico R$5.000-10.000 (block)
-3. PIX Madrugada Bloqueio (block)
-4. Mobile Alto Valor Noturno (review)
-5. Primeira Transação Alto Valor PIX (review)
-6. Velocidade Alta - Ataque Automatizado (block)
-7. Novo Dispositivo + Alto Valor (step_up)
-8. PIX Valor Suspeito R$100-500 (alert)
-9. Score ML Alto + Canal Risco (review)
-10. Horário Noturno 21h + Valor Médio (review)
-11. Conta Nova + PIX (review)
-12. Chave PIX Aleatória + Alto Valor (review)
-13. Valor Limite BACEN Dia (alert)
-14. TED/BOLETO Alta Quantia (review)
+**Rules Created (41 Total):**
+
+**CARTÃO DE CRÉDITO (8 regras):**
+1. Compra Internacional Alto Valor (review)
+2. Múltiplas Compras Rápidas (block)
+3. Compra Madrugada (review)
+4. Primeiro Uso Online Alto Valor (step_up)
+5. Limite Próximo Esgotado (alert)
+6. Categoria de Alto Risco (review)
+7. Novo Dispositivo + Valor Médio (step_up)
+8. Parcelamento Alto Valor (review)
+
+**CARTÃO DE DÉBITO (8 regras):**
+1. Saque ATM Alto Valor Noturno (block)
+2. Múltiplos Saques em Sequência (block)
+3. Compra em Local Diferente (step_up)
+4. Saque Limite Diário (alert)
+5. Transação Contactless Alto Valor (step_up)
+6. Primeira Compra Física Alto Valor (review)
+7. Saque Madrugada (review)
+8. Compra Online Sem Histórico (step_up)
+
+**PIX (13 regras):**
+1. PIX Alto Valor Noturno (block)
+2. PIX Horário Crítico 13h (review)
+3. PIX Valor Crítico R$5.000-10.000 (block)
+4. PIX Madrugada Bloqueio (block)
+5. PIX Valor Suspeito R$100-500 (alert)
+6. PIX Transferência para Conta Nova (review)
+7. PIX Sequência de Valores Redondos (alert)
+8. PIX Agendado Alto Valor (review)
+9. PIX Chave CPF Diferente do Titular (review)
+10. PIX Limite Noturno Bancário (step_up)
+11. PIX Score ML Crítico (block)
+12. PIX Telefone Celular Pré-pago (review)
+13. PIX Final de Semana + Alto Valor (review)
+
+**GERAIS (12 regras):**
+1. Transação Alto Valor (block)
+2. Mobile Alto Valor Noturno (review)
+3. Primeira Transação Alto Valor PIX (review)
+4. Velocidade Alta - Ataque Automatizado (block)
+5. Novo Dispositivo + Alto Valor (step_up)
+6. Score ML Alto + Canal Risco (review)
+7. Horário Noturno 21h + Valor Médio (review)
+8. Conta Nova + PIX (review)
+9. Chave PIX Aleatória + Alto Valor (review)
+10. Valor Limite BACEN Dia (alert)
+11. TED/BOLETO Alta Quantia (review)
+12. DOUBLE_CHECK_TEST (block)
 
 **Hypothetical Situations:**
 Each rule includes a real-world scenario description for LGPD compliance and analyst understanding.
