@@ -74,7 +74,8 @@ export function Documentation() {
         if (!response.ok) {
           throw new Error('Documento não encontrado');
         }
-        const text = await response.text();
+        let text = await response.text();
+        text = text.replace(/!\[([^\]]*)\]\(images\/([^)]+)\)/g, '![$1](/docs/images/$2)');
         setContent(text);
       } catch (err) {
         setError(err.message);
@@ -216,15 +217,6 @@ export function Documentation() {
                   ">
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm]}
-                      urlTransform={(url) => {
-                        if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
-                          return url;
-                        }
-                        if (url.startsWith('images/')) {
-                          return `/docs/${url}`;
-                        }
-                        return url;
-                      }}
                       components={{
                         img: ({node, src, alt, ...props}) => (
                           <img 
@@ -232,11 +224,6 @@ export function Documentation() {
                             alt={alt || 'Imagem da documentação'} 
                             className="rounded-lg shadow-lg max-w-full h-auto my-6 mx-auto block border border-gray-200 dark:border-gray-700"
                             loading="lazy"
-                            onError={(e) => {
-                              console.error('Erro ao carregar imagem:', src);
-                              e.target.style.opacity = '0.3';
-                              e.target.alt = 'Imagem não disponível';
-                            }}
                             {...props} 
                           />
                         )
