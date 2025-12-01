@@ -2116,19 +2116,39 @@ def get_hard_rules():
 
 @app.route("/api/hard-rules", methods=["POST"])
 def add_hard_rule():
-    """Adiciona nova regra de negócio (requer autenticação)"""
+    """Adiciona nova regra de negócio com suporte a condições múltiplas"""
     if not request.json:
         raise ValidationError("Request body is required")
     
     name = request.json.get("name")
-    condition = request.json.get("condition")
+    condition = request.json.get("condition", "")
+    conditions_json = request.json.get("conditions_json", [])
+    logic_operator = request.json.get("logic_operator", "AND")
     action = request.json.get("action", "block")
+    action_config = request.json.get("action_config", {})
+    rule_type = request.json.get("rule_type", "blocking")
+    priority = request.json.get("priority", 1)
+    description = request.json.get("description")
     enabled = request.json.get("enabled", True)
     
-    if not name or not condition:
-        raise ValidationError("name and condition are required")
+    if not name:
+        raise ValidationError("name is required")
     
-    result = postgres_store.add_hard_rule(name, condition, action, enabled)
+    if not condition and not conditions_json:
+        raise ValidationError("condition or conditions_json is required")
+    
+    if conditions_json and not condition:
+        parts = []
+        for cond in conditions_json:
+            parts.append(f"{cond.get('field', '')} {cond.get('operator', '')} {cond.get('value', '')}")
+        condition = f" {logic_operator} ".join(parts)
+    
+    result = postgres_store.add_hard_rule(
+        name=name, condition=condition, action=action, enabled=enabled,
+        conditions_json=conditions_json, logic_operator=logic_operator,
+        priority=priority, description=description, 
+        action_config=action_config, rule_type=rule_type
+    )
     if 'created_at' in result and result['created_at']:
         result['created_at'] = result['created_at'].isoformat() + "Z" if hasattr(result['created_at'], 'isoformat') else str(result['created_at'])
     if 'updated_at' in result and result['updated_at']:
@@ -2157,6 +2177,85 @@ def delete_hard_rule(rule_id: int):
     if success:
         postgres_store.add_audit_log("HARD_RULE_DELETE", None, f"Deleted hard rule ID: {rule_id}", request.remote_addr)
     return jsonify({"success": success, "message": "Deleted" if success else "Rule not found"})
+
+
+@app.route("/api/hard-rules/metadata", methods=["GET"])
+def get_hard_rules_metadata():
+    """Retorna metadados para construção de regras (campos, operadores, ações)"""
+    metadata = {
+        "fields": [
+            {"value": "amount", "label": "Valor da Transação", "type": "number", "category": "transaction"},
+            {"value": "channel", "label": "Canal", "type": "select", "category": "transaction", 
+             "options": ["PIX", "TED", "BOLETO", "CARTAO", "DOC"]},
+            {"value": "type", "label": "Tipo de Transação", "type": "select", "category": "transaction",
+             "options": ["PIX", "TED", "DOC", "BOLETO", "CARTAO_CREDITO", "CARTAO_DEBITO"]},
+            {"value": "status", "label": "Status", "type": "select", "category": "transaction",
+             "options": ["PENDING", "APPROVED", "FRAUD", "REJECTED", "REVIEW"]},
+            {"value": "risk_score", "label": "Score de Risco", "type": "number", "category": "ml"},
+            {"value": "cpf", "label": "CPF", "type": "string", "category": "customer"},
+            {"value": "location", "label": "Localização", "type": "string", "category": "customer"},
+            {"value": "hour", "label": "Hora do Dia (0-23)", "type": "number", "category": "temporal"},
+            {"value": "day_of_week", "label": "Dia da Semana (0-6)", "type": "number", "category": "temporal"},
+            {"value": "velocity_1h", "label": "Transações na Última Hora", "type": "number", "category": "velocity"},
+            {"value": "velocity_24h", "label": "Transações nas Últimas 24h", "type": "number", "category": "velocity"},
+            {"value": "amount_24h", "label": "Valor Total 24h", "type": "number", "category": "velocity"},
+            {"value": "device_id", "label": "ID do Dispositivo", "type": "string", "category": "device"},
+            {"value": "ip_address", "label": "Endereço IP", "type": "string", "category": "device"},
+            {"value": "is_new_device", "label": "Novo Dispositivo", "type": "boolean", "category": "device"},
+            {"value": "is_first_transaction", "label": "Primeira Transação", "type": "boolean", "category": "customer"},
+            {"value": "account_age_days", "label": "Idade da Conta (dias)", "type": "number", "category": "customer"},
+            {"value": "ml_confidence", "label": "Confiança do Modelo ML", "type": "number", "category": "ml"},
+            {"value": "pix_key_type", "label": "Tipo de Chave PIX", "type": "select", "category": "pix",
+             "options": ["CPF", "CNPJ", "EMAIL", "TELEFONE", "ALEATORIA"]},
+            {"value": "is_scheduled", "label": "Agendado", "type": "boolean", "category": "transaction"}
+        ],
+        "operators": [
+            {"value": "==", "label": "Igual a", "types": ["string", "number", "select", "boolean"]},
+            {"value": "!=", "label": "Diferente de", "types": ["string", "number", "select", "boolean"]},
+            {"value": ">", "label": "Maior que", "types": ["number"]},
+            {"value": "<", "label": "Menor que", "types": ["number"]},
+            {"value": ">=", "label": "Maior ou igual", "types": ["number"]},
+            {"value": "<=", "label": "Menor ou igual", "types": ["number"]},
+            {"value": "contains", "label": "Contém", "types": ["string"]},
+            {"value": "not_contains", "label": "Não contém", "types": ["string"]},
+            {"value": "starts_with", "label": "Começa com", "types": ["string"]},
+            {"value": "ends_with", "label": "Termina com", "types": ["string"]},
+            {"value": "in", "label": "Na lista", "types": ["string", "select"]},
+            {"value": "not_in", "label": "Não na lista", "types": ["string", "select"]},
+            {"value": "between", "label": "Entre", "types": ["number"]},
+            {"value": "regex", "label": "Expressão Regular", "types": ["string"]},
+            {"value": "is_null", "label": "É nulo", "types": ["string", "number"]},
+            {"value": "is_not_null", "label": "Não é nulo", "types": ["string", "number"]}
+        ],
+        "actions": [
+            {"value": "block", "label": "Bloquear Transação", "description": "Rejeita a transação imediatamente"},
+            {"value": "review", "label": "Enviar para Revisão", "description": "Envia para fila de análise manual"},
+            {"value": "alert", "label": "Gerar Alerta", "description": "Cria alerta mas permite transação"},
+            {"value": "approve", "label": "Aprovar Automaticamente", "description": "Aprova sem análise adicional"},
+            {"value": "step_up", "label": "Autenticação Adicional", "description": "Solicita verificação extra"},
+            {"value": "score_adjust", "label": "Ajustar Score", "description": "Modifica score de risco"}
+        ],
+        "rule_types": [
+            {"value": "blocking", "label": "Regra de Bloqueio", "description": "Bloqueia transações suspeitas"},
+            {"value": "scoring", "label": "Regra de Pontuação", "description": "Ajusta score de risco"},
+            {"value": "routing", "label": "Regra de Roteamento", "description": "Direciona para filas específicas"},
+            {"value": "alerting", "label": "Regra de Alerta", "description": "Gera alertas sem bloquear"}
+        ],
+        "logic_operators": [
+            {"value": "AND", "label": "E (todas as condições)"},
+            {"value": "OR", "label": "OU (qualquer condição)"}
+        ],
+        "field_categories": [
+            {"value": "transaction", "label": "Transação"},
+            {"value": "customer", "label": "Cliente"},
+            {"value": "device", "label": "Dispositivo"},
+            {"value": "temporal", "label": "Temporal"},
+            {"value": "velocity", "label": "Velocidade"},
+            {"value": "ml", "label": "Machine Learning"},
+            {"value": "pix", "label": "PIX"}
+        ]
+    }
+    return jsonify({"success": True, "data": metadata})
 
 
 @app.route("/api/vip-list", methods=["GET"])

@@ -13,7 +13,14 @@ import {
   XCircle,
   Filter,
   Download,
-  Upload
+  Upload,
+  ChevronDown,
+  ChevronUp,
+  Layers,
+  Zap,
+  Shield,
+  Bell,
+  Target
 } from 'lucide-react';
 
 const HardRules = () => {
@@ -21,58 +28,37 @@ const HardRules = () => {
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [editingRule, setEditingRule] = useState(null);
+  const [metadata, setMetadata] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    field: '',
-    operator: '',
-    value: '',
-    action: 'BLOQUEAR',
+    conditions: [{ field: '', operator: '', value: '' }],
+    logic_operator: 'AND',
+    action: 'block',
+    action_config: {},
+    rule_type: 'blocking',
     priority: 1,
-    active: true,
-    start_date: '',
-    end_date: ''
+    enabled: true
   });
-
-  const operators = [
-    { value: 'igual', label: 'Igual a' },
-    { value: 'diferente', label: 'Diferente de' },
-    { value: 'maior_que', label: 'Maior que' },
-    { value: 'menor_que', label: 'Menor que' },
-    { value: 'maior_igual', label: 'Maior ou igual' },
-    { value: 'menor_igual', label: 'Menor ou igual' },
-    { value: 'contem', label: 'Contém' },
-    { value: 'nao_contem', label: 'Não contém' },
-    { value: 'comeca_com', label: 'Começa com' },
-    { value: 'termina_com', label: 'Termina com' },
-    { value: 'regex', label: 'Expressão regular' },
-    { value: 'in_list', label: 'Na lista' },
-    { value: 'not_in_list', label: 'Não na lista' },
-    { value: 'between', label: 'Entre valores' },
-    { value: 'not_between', label: 'Não entre valores' }
-  ];
-
-  const fields = [
-    { value: 'valor', label: 'Valor da Transação' },
-    { value: 'cpf', label: 'CPF' },
-    { value: 'tipoTransacao', label: 'Tipo de Transação' },
-    { value: 'canal', label: 'Canal' },
-    { value: 'localizacao', label: 'Localização' },
-    { value: 'horario', label: 'Horário' },
-    { value: 'estabelecimento', label: 'Estabelecimento' },
-    { value: 'categoria', label: 'Categoria' }
-  ];
-
-  const actions = [
-    { value: 'BLOQUEAR', label: 'Bloquear' },
-    { value: 'REVISAR', label: 'Enviar para Revisão' },
-    { value: 'ALERTAR', label: 'Gerar Alerta' },
-    { value: 'APROVAR', label: 'Aprovar Automaticamente' }
-  ];
 
   useEffect(() => {
     loadRules();
+    loadMetadata();
   }, []);
+
+  const loadMetadata = async () => {
+    try {
+      const response = await fetch('/api/hard-rules/metadata');
+      if (response.ok) {
+        const data = await response.json();
+        setMetadata(data.data);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar metadados:', error);
+    }
+  };
 
   const loadRules = async () => {
     try {
@@ -81,16 +67,7 @@ const HardRules = () => {
       if (response.ok) {
         const data = await response.json();
         const rulesList = data.data?.rules || data.rules || [];
-        const mappedRules = rulesList.map(rule => ({
-          id: rule.id,
-          name: rule.name,
-          condition: rule.condition,
-          action: mapActionFromBackend(rule.action),
-          active: rule.enabled !== false,
-          created_at: rule.created_at,
-          updated_at: rule.updated_at
-        }));
-        setRules(mappedRules);
+        setRules(rulesList);
       }
     } catch (error) {
       console.error('Erro ao carregar regras:', error);
@@ -98,98 +75,76 @@ const HardRules = () => {
       setLoading(false);
     }
   };
-  
-  const mapActionFromBackend = (action) => {
+
+  const getActionLabel = (action) => {
     const actionMap = {
-      'block': 'BLOQUEAR',
-      'review': 'REVISAR',
-      'alert': 'ALERTAR',
-      'approve': 'APROVAR',
-      'step_up': 'REVISAR'
+      'block': 'Bloquear',
+      'review': 'Revisar',
+      'alert': 'Alertar',
+      'approve': 'Aprovar',
+      'step_up': 'Step-Up',
+      'score_adjust': 'Ajustar Score'
     };
-    return actionMap[action] || action || 'BLOQUEAR';
-  };
-  
-  const mapActionToBackend = (action) => {
-    const actionMap = {
-      'BLOQUEAR': 'block',
-      'REVISAR': 'review',
-      'ALERTAR': 'alert',
-      'APROVAR': 'approve'
-    };
-    return actionMap[action] || 'block';
-  };
-  
-  const buildCondition = (field, operator, value) => {
-    const operatorMap = {
-      'igual': '==',
-      'diferente': '!=',
-      'maior_que': '>',
-      'menor_que': '<',
-      'maior_igual': '>=',
-      'menor_igual': '<=',
-      'contem': 'contains',
-      'nao_contem': 'not contains',
-      'comeca_com': 'startswith',
-      'termina_com': 'endswith',
-      'in_list': 'in',
-      'not_in_list': 'not in',
-      'between': 'between',
-      'regex': 'regex'
-    };
-    const op = operatorMap[operator] || operator;
-    return `${field} ${op} ${value}`;
+    return actionMap[action] || action;
   };
 
-  const parseCondition = (condition) => {
-    if (!condition) return { field: '', operator: '', value: '' };
-    
-    const reverseOperatorMap = {
-      '==': 'igual',
-      '!=': 'diferente',
-      '>=': 'maior_igual',
-      '<=': 'menor_igual',
-      '>': 'maior_que',
-      '<': 'menor_que',
-      'contains': 'contem',
-      'not contains': 'nao_contem',
-      'startswith': 'comeca_com',
-      'endswith': 'termina_com',
-      'in': 'in_list',
-      'not in': 'not_in_list',
-      'between': 'between',
-      'regex': 'regex'
+  const getRuleTypeIcon = (ruleType) => {
+    const icons = {
+      'blocking': <Shield className="w-4 h-4 text-red-500" />,
+      'scoring': <Target className="w-4 h-4 text-blue-500" />,
+      'routing': <Layers className="w-4 h-4 text-purple-500" />,
+      'alerting': <Bell className="w-4 h-4 text-orange-500" />
     };
+    return icons[ruleType] || <Zap className="w-4 h-4 text-gray-500" />;
+  };
 
-    const multiWordOps = ['not contains', 'not in'];
-    for (const op of multiWordOps) {
-      if (condition.includes(` ${op} `)) {
-        const parts = condition.split(` ${op} `);
-        if (parts.length === 2) {
-          return {
-            field: parts[0].trim(),
-            operator: reverseOperatorMap[op] || op,
-            value: parts[1].trim()
-          };
-        }
-      }
+  const getRuleTypeLabel = (ruleType) => {
+    const labels = {
+      'blocking': 'Bloqueio',
+      'scoring': 'Pontuação',
+      'routing': 'Roteamento',
+      'alerting': 'Alerta'
+    };
+    return labels[ruleType] || ruleType;
+  };
+
+  const addCondition = () => {
+    setFormData({
+      ...formData,
+      conditions: [...formData.conditions, { field: '', operator: '', value: '' }]
+    });
+  };
+
+  const removeCondition = (index) => {
+    if (formData.conditions.length > 1) {
+      const newConditions = formData.conditions.filter((_, i) => i !== index);
+      setFormData({ ...formData, conditions: newConditions });
     }
+  };
 
-    const singleOps = ['>=', '<=', '==', '!=', '>', '<', 'contains', 'startswith', 'endswith', 'in', 'between', 'regex'];
-    for (const op of singleOps) {
-      if (condition.includes(` ${op} `)) {
-        const parts = condition.split(` ${op} `);
-        if (parts.length === 2) {
-          return {
-            field: parts[0].trim(),
-            operator: reverseOperatorMap[op] || op,
-            value: parts[1].trim()
-          };
-        }
-      }
-    }
+  const updateCondition = (index, key, value) => {
+    const newConditions = [...formData.conditions];
+    newConditions[index] = { ...newConditions[index], [key]: value };
+    setFormData({ ...formData, conditions: newConditions });
+  };
 
-    return { field: '', operator: '', value: condition };
+  const getFieldInfo = (fieldValue) => {
+    if (!metadata) return null;
+    return metadata.fields.find(f => f.value === fieldValue);
+  };
+
+  const getOperatorsForField = (fieldValue) => {
+    if (!metadata) return [];
+    const fieldInfo = getFieldInfo(fieldValue);
+    if (!fieldInfo) return metadata.operators;
+    return metadata.operators.filter(op => op.types.includes(fieldInfo.type));
+  };
+
+  const buildConditionString = () => {
+    const parts = formData.conditions
+      .filter(c => c.field && c.operator && c.value)
+      .map(c => `${c.field} ${c.operator} ${c.value}`);
+    return parts.join(` ${formData.logic_operator} `);
   };
 
   const handleSave = async () => {
@@ -197,19 +152,23 @@ const HardRules = () => {
       const url = editingRule ? `/api/hard-rules/${editingRule.id}` : '/api/hard-rules';
       const method = editingRule ? 'PUT' : 'POST';
       
-      const condition = buildCondition(formData.field, formData.operator, formData.value);
+      const conditionString = buildConditionString();
       const payload = {
-        name: formData.name || `Regra ${formData.field} ${formData.operator} ${formData.value}`,
-        condition: condition,
-        action: mapActionToBackend(formData.action),
-        enabled: formData.active !== false
+        name: formData.name,
+        description: formData.description,
+        condition: conditionString,
+        conditions_json: formData.conditions.filter(c => c.field && c.operator && c.value),
+        logic_operator: formData.logic_operator,
+        action: formData.action,
+        action_config: formData.action_config,
+        rule_type: formData.rule_type,
+        priority: formData.priority,
+        enabled: formData.enabled
       };
       
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
@@ -226,9 +185,7 @@ const HardRules = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Tem certeza que deseja excluir esta regra?')) {
       try {
-        const response = await fetch(`/api/hard-rules/${id}`, {
-          method: 'DELETE',
-        });
+        const response = await fetch(`/api/hard-rules/${id}`, { method: 'DELETE' });
         if (response.ok) {
           await loadRules();
         }
@@ -242,10 +199,8 @@ const HardRules = () => {
     try {
       const response = await fetch(`/api/hard-rules/${rule.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ enabled: !rule.active }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: !rule.enabled }),
       });
       if (response.ok) {
         await loadRules();
@@ -259,32 +214,33 @@ const HardRules = () => {
     setFormData({
       name: '',
       description: '',
-      field: '',
-      operator: '',
-      value: '',
-      action: 'BLOQUEAR',
+      conditions: [{ field: '', operator: '', value: '' }],
+      logic_operator: 'AND',
+      action: 'block',
+      action_config: {},
+      rule_type: 'blocking',
       priority: 1,
-      active: true,
-      start_date: '',
-      end_date: ''
+      enabled: true
     });
     setEditingRule(null);
   };
 
   const openDialog = (rule = null) => {
     if (rule) {
-      const parsed = parseCondition(rule.condition);
+      const conditions = rule.conditions_json && rule.conditions_json.length > 0
+        ? rule.conditions_json
+        : [{ field: '', operator: '', value: '' }];
+      
       setFormData({
         name: rule.name || '',
         description: rule.description || '',
-        field: parsed.field || '',
-        operator: parsed.operator || '',
-        value: parsed.value || '',
-        action: rule.action || 'BLOQUEAR',
+        conditions: conditions,
+        logic_operator: rule.logic_operator || 'AND',
+        action: rule.action || 'block',
+        action_config: rule.action_config || {},
+        rule_type: rule.rule_type || 'blocking',
         priority: rule.priority || 1,
-        active: rule.active !== false,
-        start_date: rule.start_date || '',
-        end_date: rule.end_date || ''
+        enabled: rule.enabled !== false
       });
       setEditingRule(rule);
     } else {
@@ -293,21 +249,19 @@ const HardRules = () => {
     setShowDialog(true);
   };
 
-  const isValidDateRange = () => {
-    if (!formData.start_date || !formData.end_date) return true;
-    return new Date(formData.start_date) <= new Date(formData.end_date);
-  };
+  const filteredFields = metadata?.fields?.filter(
+    f => selectedCategory === 'all' || f.category === selectedCategory
+  ) || [];
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Regras Rígidas (Hard Rules)
+            Regras Rígidas Avançadas
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Gerenciamento de regras de bloqueio automático com validação temporal
+            Construtor visual de regras com condições múltiplas AND/OR
           </p>
         </div>
         <div className="flex gap-2">
@@ -325,180 +279,157 @@ const HardRules = () => {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total de Regras</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">{rules.length}</p>
             </div>
-            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <Filter className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
+            <Filter className="w-6 h-6 text-blue-500" />
           </div>
         </div>
-
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Regras Ativas</p>
-              <p className="text-2xl font-bold text-green-600">{rules.filter(r => r.active).length}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Ativas</p>
+              <p className="text-2xl font-bold text-green-600">{rules.filter(r => r.enabled).length}</p>
             </div>
-            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-              <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-            </div>
+            <CheckCircle className="w-6 h-6 text-green-500" />
           </div>
         </div>
-
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Regras Inativas</p>
-              <p className="text-2xl font-bold text-red-600">{rules.filter(r => !r.active).length}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Bloqueio</p>
+              <p className="text-2xl font-bold text-red-600">{rules.filter(r => r.rule_type === 'blocking').length}</p>
             </div>
-            <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-              <XCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
-            </div>
+            <Shield className="w-6 h-6 text-red-500" />
           </div>
         </div>
-
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Acionamentos Hoje</p>
-              <p className="text-2xl font-bold text-orange-600">0</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Pontuação</p>
+              <p className="text-2xl font-bold text-blue-600">{rules.filter(r => r.rule_type === 'scoring').length}</p>
             </div>
-            <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-              <AlertTriangle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+            <Target className="w-6 h-6 text-blue-500" />
+          </div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Alerta</p>
+              <p className="text-2xl font-bold text-orange-600">{rules.filter(r => r.rule_type === 'alerting').length}</p>
             </div>
+            <Bell className="w-6 h-6 text-orange-500" />
           </div>
         </div>
       </div>
 
-      {/* Rules Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border">
-        <div className="p-4 border-b">
+        <div className="p-4 border-b flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Lista de Regras</h2>
+          <div className="text-sm text-gray-500">Ordenado por prioridade</div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Nome
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Campo
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Operador
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Valor
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Ação
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Validade
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Ações
-                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Prioridade</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Nome</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Tipo</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Condições</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Ação</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Ações</th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {loading ? (
                 <tr>
-                  <td colSpan="8" className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-                    Carregando regras...
-                  </td>
+                  <td colSpan="7" className="px-4 py-8 text-center text-gray-500">Carregando...</td>
                 </tr>
               ) : rules.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-                    Nenhuma regra encontrada. Clique em "Nova Regra" para criar a primeira.
+                  <td colSpan="7" className="px-4 py-8 text-center text-gray-500">
+                    Nenhuma regra encontrada. Clique em "Nova Regra" para criar.
                   </td>
                 </tr>
               ) : (
                 rules.map((rule) => (
                   <tr key={rule.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {rule.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {rule.description}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {fields.find(f => f.value === rule.field)?.label || rule.field}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {operators.find(o => o.value === rule.operator)?.label || rule.operator}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {rule.value}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        rule.action === 'BLOQUEAR' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                        rule.action === 'REVISAR' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                        rule.action === 'ALERTAR' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
-                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      }`}>
-                        {rule.action}
+                    <td className="px-4 py-4">
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium">
+                        {rule.priority || 1}
                       </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">{rule.name}</div>
+                      {rule.description && (
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{rule.description}</div>
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        {getRuleTypeIcon(rule.rule_type)}
+                        <span className="text-sm">{getRuleTypeLabel(rule.rule_type)}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="max-w-xs">
+                        {rule.conditions_json && rule.conditions_json.length > 0 ? (
+                          <div className="space-y-1">
+                            {rule.conditions_json.map((cond, idx) => (
+                              <div key={idx} className="text-xs bg-gray-100 dark:bg-gray-700 rounded px-2 py-1 inline-block mr-1">
+                                {cond.field} {cond.operator} {cond.value}
+                              </div>
+                            ))}
+                            {rule.conditions_json.length > 1 && (
+                              <span className="text-xs text-blue-600 font-medium ml-1">
+                                ({rule.logic_operator})
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-500">{rule.condition}</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        rule.action === 'block' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                        rule.action === 'review' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                        rule.action === 'alert' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
+                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      }`}>
+                        {getActionLabel(rule.action)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
                       <button
                         onClick={() => handleToggleActive(rule)}
                         className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
-                          rule.active 
+                          rule.enabled 
                             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                         }`}
                       >
-                        {rule.active ? (
-                          <>
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Ativa
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="w-3 h-3 mr-1" />
-                            Inativa
-                          </>
-                        )}
+                        {rule.enabled ? <CheckCircle className="w-3 h-3 mr-1" /> : <XCircle className="w-3 h-3 mr-1" />}
+                        {rule.enabled ? 'Ativa' : 'Inativa'}
                       </button>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {rule.start_date && rule.end_date ? (
-                        <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-1 text-gray-400" />
-                          <span>{new Date(rule.start_date).toLocaleDateString()} - {new Date(rule.end_date).toLocaleDateString()}</span>
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">Permanente</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-4 py-4">
                       <div className="flex space-x-2">
                         <button
                           onClick={() => openDialog(rule)}
-                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(rule.id)}
-                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                          className="text-red-600 hover:text-red-900 dark:text-red-400"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -512,26 +443,40 @@ const HardRules = () => {
         </div>
       </div>
 
-      {/* Dialog */}
       {showDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-              {editingRule ? 'Editar Regra' : 'Nova Regra'}
+              {editingRule ? 'Editar Regra' : 'Nova Regra Avançada'}
             </h2>
             
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Nome da Regra
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="Ex: Valor Alto Noturno"
-                />
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Nome da Regra *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
+                    placeholder="Ex: Bloqueio PIX Alto Valor Noturno"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Prioridade (1 = mais alta)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={formData.priority}
+                    onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 1 })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
               </div>
 
               <div>
@@ -541,64 +486,130 @@ const HardRules = () => {
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   rows="2"
-                  placeholder="Descrição detalhada da regra"
+                  placeholder="Descreva o objetivo desta regra..."
                 />
+              </div>
+
+              <div className="border dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Construtor de Condições
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Combinar com:</span>
+                    <select
+                      value={formData.logic_operator}
+                      onChange={(e) => setFormData({ ...formData, logic_operator: e.target.value })}
+                      className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm"
+                    >
+                      <option value="AND">E (todas)</option>
+                      <option value="OR">OU (qualquer)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Filtrar campos por categoria:</label>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm"
+                  >
+                    <option value="all">Todas as Categorias</option>
+                    {metadata?.field_categories?.map(cat => (
+                      <option key={cat.value} value={cat.value}>{cat.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-3">
+                  {formData.conditions.map((condition, index) => (
+                    <div key={index} className="flex items-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-lg border dark:border-gray-600">
+                      {index > 0 && (
+                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/50 px-2 py-1 rounded">
+                          {formData.logic_operator}
+                        </span>
+                      )}
+                      <select
+                        value={condition.field}
+                        onChange={(e) => updateCondition(index, 'field', e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm"
+                      >
+                        <option value="">Selecione o campo...</option>
+                        {(selectedCategory === 'all' ? metadata?.fields : filteredFields)?.map(field => (
+                          <option key={field.value} value={field.value}>
+                            {field.label} ({field.category})
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        value={condition.operator}
+                        onChange={(e) => updateCondition(index, 'operator', e.target.value)}
+                        className="w-40 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm"
+                      >
+                        <option value="">Operador...</option>
+                        {getOperatorsForField(condition.field).map(op => (
+                          <option key={op.value} value={op.value}>{op.label}</option>
+                        ))}
+                      </select>
+                      {getFieldInfo(condition.field)?.options ? (
+                        <select
+                          value={condition.value}
+                          onChange={(e) => updateCondition(index, 'value', e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm"
+                        >
+                          <option value="">Selecione...</option>
+                          {getFieldInfo(condition.field).options.map(opt => (
+                            <option key={opt} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type={getFieldInfo(condition.field)?.type === 'number' ? 'number' : 'text'}
+                          value={condition.value}
+                          onChange={(e) => updateCondition(index, 'value', e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white text-sm"
+                          placeholder="Valor..."
+                        />
+                      )}
+                      {formData.conditions.length > 1 && (
+                        <button
+                          onClick={() => removeCondition(index)}
+                          className="p-2 text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={addCondition}
+                  className="mt-3 flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 text-sm font-medium"
+                >
+                  <Plus className="w-4 h-4" />
+                  Adicionar Condição
+                </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Campo
+                    Tipo de Regra
                   </label>
                   <select
-                    value={formData.field}
-                    onChange={(e) => setFormData({ ...formData, field: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    value={formData.rule_type}
+                    onChange={(e) => setFormData({ ...formData, rule_type: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   >
-                    <option value="">Selecione...</option>
-                    {fields.map(field => (
-                      <option key={field.value} value={field.value}>
-                        {field.label}
-                      </option>
+                    {metadata?.rule_types?.map(type => (
+                      <option key={type.value} value={type.value}>{type.label}</option>
                     ))}
                   </select>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Operador
-                  </label>
-                  <select
-                    value={formData.operator}
-                    onChange={(e) => setFormData({ ...formData, operator: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  >
-                    <option value="">Selecione...</option>
-                    {operators.map(operator => (
-                      <option key={operator.value} value={operator.value}>
-                        {operator.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Valor
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.value}
-                    onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="Valor de comparação"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Ação
@@ -606,94 +617,53 @@ const HardRules = () => {
                   <select
                     value={formData.action}
                     onChange={(e) => setFormData({ ...formData, action: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   >
-                    {actions.map(action => (
-                      <option key={action.value} value={action.value}>
-                        {action.label}
-                      </option>
+                    {metadata?.actions?.map(action => (
+                      <option key={action.value} value={action.value}>{action.label}</option>
                     ))}
                   </select>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Prioridade
+                <div className="flex items-center pt-6">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.enabled}
+                      onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
+                      className="mr-2 w-4 h-4"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Regra Ativa</span>
                   </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={formData.priority}
-                    onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Data de Início
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.start_date}
-                    onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Data de Fim
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.end_date}
-                    onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  />
-                </div>
-              </div>
-
-              {!isValidDateRange() && (
-                <div className="flex items-center p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-md">
-                  <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
-                  <span className="text-sm text-red-700 dark:text-red-300">
-                    A data de início deve ser anterior à data de fim.
-                  </span>
+              {formData.conditions.filter(c => c.field && c.operator && c.value).length > 0 && (
+                <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Preview da Regra:</h4>
+                  <code className="text-sm text-blue-700 dark:text-blue-300 font-mono">
+                    SE ({buildConditionString()}) ENTÃO {getActionLabel(formData.action).toUpperCase()}
+                  </code>
                 </div>
               )}
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="active"
-                  checked={formData.active}
-                  onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="active" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                  Regra ativa
-                </label>
+              <div className="flex justify-end gap-3 pt-4 border-t dark:border-gray-600">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowDialog(false);
+                    resetForm();
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  disabled={!formData.name || formData.conditions.every(c => !c.field || !c.operator || !c.value)}
+                >
+                  {editingRule ? 'Salvar Alterações' : 'Criar Regra'}
+                </Button>
               </div>
-            </div>
-
-            <div className="flex justify-end space-x-3 mt-6">
-              <Button
-                variant="outline"
-                onClick={() => setShowDialog(false)}
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleSave}
-                disabled={!formData.name || !formData.field || !formData.operator || !formData.value || !isValidDateRange()}
-                className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
-              >
-                {editingRule ? 'Atualizar' : 'Criar'} Regra
-              </Button>
             </div>
           </div>
         </div>
@@ -703,4 +673,3 @@ const HardRules = () => {
 };
 
 export default HardRules;
-

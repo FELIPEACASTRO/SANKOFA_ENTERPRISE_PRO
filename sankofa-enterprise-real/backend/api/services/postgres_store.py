@@ -66,10 +66,11 @@ class PostgresStore:
             with self._get_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute("""
-                        SELECT id, name, condition, action, enabled, 
-                               created_at, updated_at
+                        SELECT id, name, condition, conditions_json, logic_operator,
+                               action, action_config, rule_type, priority, description,
+                               enabled, created_at, updated_at
                         FROM hard_rules
-                        ORDER BY id
+                        ORDER BY priority ASC, id ASC
                     """)
                     rows = cur.fetchall()
                     result = [dict(row) for row in rows]
@@ -79,16 +80,28 @@ class PostgresStore:
             print(f"Error fetching hard_rules: {e}")
             return []
     
-    def add_hard_rule(self, name: str, condition: str, action: str, enabled: bool = True) -> Dict:
-        """Adiciona nova hard rule"""
+    def add_hard_rule(self, name: str, condition: str, action: str, enabled: bool = True,
+                      conditions_json: list = None, logic_operator: str = 'AND',
+                      priority: int = 1, description: str = None, 
+                      action_config: dict = None, rule_type: str = 'blocking') -> Dict:
+        """Adiciona nova hard rule com suporte a condições múltiplas"""
         try:
+            import json
+            conditions_json = conditions_json or []
+            action_config = action_config or {}
+            
             with self._get_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute("""
-                        INSERT INTO hard_rules (name, condition, action, enabled, created_at, updated_at)
-                        VALUES (%s, %s, %s, %s, NOW(), NOW())
-                        RETURNING id, name, condition, action, enabled, created_at, updated_at
-                    """, (name, condition, action, enabled))
+                        INSERT INTO hard_rules (name, condition, conditions_json, logic_operator,
+                                               action, action_config, rule_type, priority, description,
+                                               enabled, created_at, updated_at)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+                        RETURNING id, name, condition, conditions_json, logic_operator,
+                                  action, action_config, rule_type, priority, description,
+                                  enabled, created_at, updated_at
+                    """, (name, condition, json.dumps(conditions_json), logic_operator,
+                          action, json.dumps(action_config), rule_type, priority, description, enabled))
                     conn.commit()
                     row = cur.fetchone()
                     _dashboard_cache.invalidate("hard_rules")
@@ -98,16 +111,27 @@ class PostgresStore:
             raise
     
     def update_hard_rule(self, rule_id: int, data: Dict) -> bool:
-        """Atualiza hard rule existente"""
+        """Atualiza hard rule existente com suporte a condições múltiplas"""
         try:
+            import json
             with self._get_connection() as conn:
                 with conn.cursor() as cur:
                     fields = []
                     values = []
-                    for key in ['name', 'condition', 'action', 'enabled']:
+                    
+                    allowed_fields = ['name', 'condition', 'action', 'enabled', 
+                                     'logic_operator', 'priority', 'description', 'rule_type']
+                    json_fields = ['conditions_json', 'action_config']
+                    
+                    for key in allowed_fields:
                         if key in data:
                             fields.append(f"{key} = %s")
                             values.append(data[key])
+                    
+                    for key in json_fields:
+                        if key in data:
+                            fields.append(f"{key} = %s")
+                            values.append(json.dumps(data[key]) if isinstance(data[key], (list, dict)) else data[key])
                     
                     if fields:
                         fields.append("updated_at = NOW()")
