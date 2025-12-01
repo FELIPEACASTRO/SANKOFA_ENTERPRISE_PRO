@@ -5,9 +5,9 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #1e293b;
+  background-color: #f8fafc;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -50,18 +50,7 @@ body {
   width: 100%;
 }
 
-/* Light mode adjustments */
-@media (prefers-color-scheme: light) {
-  :root {
-    color: var(--text-primary);
-    background-color: var(--background-color);
-  }
-  
-  body {
-    background-color: var(--background-color);
-    color: var(--text-primary);
-  }
-}
+/* Light mode is now the default - no media query needed */
 
 /* Utility classes */
 .container {

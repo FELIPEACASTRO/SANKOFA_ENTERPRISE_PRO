@@ -4,11 +4,9 @@ const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
-    // Check localStorage first, then system preference
     const stored = localStorage.getItem('booster-theme');
     if (stored) return stored;
-    
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return 'light';
   });
 
   useEffect(() => {
