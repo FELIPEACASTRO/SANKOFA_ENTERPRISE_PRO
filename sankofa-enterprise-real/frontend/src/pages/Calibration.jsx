@@ -19,7 +19,15 @@ import {
   BarChart3,
   Database,
   Wifi,
-  RefreshCw
+  RefreshCw,
+  Microscope,
+  MessageSquare,
+  Smartphone,
+  GitBranch,
+  Timer,
+  Target,
+  AlertOctagon,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card.jsx';
@@ -209,6 +217,74 @@ const initialConfig = {
     localEpochs: 5,
     privacyBudget: 1.0,
     description: 'Federated Learning System'
+  },
+
+  // Tier 5 - Módulos de Pesquisa ML (Novos)
+  bahnsenFeatures: {
+    enabled: true,
+    threshold: 0.75,
+    weight: 0.20,
+    temporal_windows: [1, 6, 24, 72, 168],
+    deviation_sensitivity: 2.0,
+    von_mises_enabled: true,
+    velocity_features_enabled: true,
+    channel_risk_enabled: true,
+    z_score_threshold: 2.5,
+    aggregation_types: ['sum', 'mean', 'max', 'count'],
+    description: 'Bahnsen Feature Engineering (62+ features)'
+  },
+  pixFraudTaxonomy: {
+    enabled: true,
+    threshold: 0.80,
+    weight: 0.25,
+    ghost_hand_enabled: true,
+    ghost_hand_risk: 0.95,
+    whatsapp_clone_enabled: true,
+    whatsapp_clone_risk: 0.85,
+    qr_code_fraud_enabled: true,
+    qr_code_fraud_risk: 0.75,
+    fake_employee_enabled: true,
+    fake_employee_risk: 0.85,
+    pix_bug_enabled: true,
+    pix_bug_risk: 0.65,
+    flash_kidnapping_enabled: true,
+    flash_kidnapping_risk: 0.95,
+    bacen_compliance_enabled: true,
+    lgpd_explainability_enabled: true,
+    description: 'Taxonomia de Fraudes PIX (10+ tipos)'
+  },
+  nlpSocialEngineering: {
+    enabled: true,
+    threshold: 0.70,
+    weight: 0.22,
+    smishing_detection: true,
+    smishing_sensitivity: 0.7,
+    whatsapp_clone_detection: true,
+    bank_impersonation_detection: true,
+    urgency_weight: 0.33,
+    emotional_weight: 0.25,
+    keyword_weight: 0.42,
+    min_confidence: 0.6,
+    batch_analysis_enabled: true,
+    max_batch_size: 100,
+    description: 'Detector de Engenharia Social via NLP'
+  },
+  transferLearning: {
+    enabled: true,
+    threshold: 0.78,
+    weight: 0.18,
+    nigerian_dataset_enabled: true,
+    nigerian_weight: 0.25,
+    paysim_enabled: true,
+    paysim_weight: 0.30,
+    feedzai_baf_enabled: true,
+    feedzai_baf_weight: 0.25,
+    ieee_cis_enabled: false,
+    ieee_cis_weight: 0.20,
+    domain_adaptation_enabled: true,
+    fine_tuning_enabled: true,
+    feature_alignment_enabled: true,
+    description: 'Pipeline de Transfer Learning (17M+ transações)'
   },
 
   // Configurações Globais Completas
@@ -429,6 +505,7 @@ export function Calibration() {
     { id: 'tier2', label: 'Tier 2 - Rápidos', icon: Activity, count: 5 },
     { id: 'tier3', label: 'Tier 3 - Avançados', icon: Brain, count: 4 },
     { id: 'tier4', label: 'Tier 4 - Supremos', icon: Shield, count: 3 },
+    { id: 'tier5', label: 'Tier 5 - Pesquisa ML', icon: Microscope, count: 4 },
     { id: 'global', label: 'Configurações Globais', icon: Settings, count: 6 }
   ];
 
@@ -787,6 +864,351 @@ export function Calibration() {
           step={0.1}
           format="decimal"
           description="Taxa de dropout para regularização"
+        />
+      );
+    }
+
+    // Tier 5 - Módulos de Pesquisa ML
+    if (key === 'bahnsenFeatures') {
+      params.push(
+        <SliderControl
+          key="deviation_sensitivity"
+          label="Sensibilidade de Desvio (Z-Score)"
+          value={[algo.deviation_sensitivity]}
+          onValueChange={(value) => updateAlgorithm(key, 'deviation_sensitivity', value[0])}
+          min={1.0}
+          max={4.0}
+          step={0.1}
+          format="decimal"
+          description="Limiar de desvio padrão para detectar anomalias comportamentais"
+        />,
+        <SliderControl
+          key="z_score_threshold"
+          label="Threshold Z-Score"
+          value={[algo.z_score_threshold]}
+          onValueChange={(value) => updateAlgorithm(key, 'z_score_threshold', value[0])}
+          min={1.5}
+          max={4.0}
+          step={0.1}
+          format="decimal"
+          description="Limite para considerar transação como outlier"
+        />,
+        <SwitchControl
+          key="von_mises_enabled"
+          label="Features Von Mises (Periódicas)"
+          checked={algo.von_mises_enabled}
+          onCheckedChange={(checked) => updateAlgorithm(key, 'von_mises_enabled', checked)}
+          description="Habilitar features sin/cos para hora, dia, mês"
+        />,
+        <SwitchControl
+          key="velocity_features_enabled"
+          label="Features de Velocidade"
+          checked={algo.velocity_features_enabled}
+          onCheckedChange={(checked) => updateAlgorithm(key, 'velocity_features_enabled', checked)}
+          description="Calcular burst score, aceleração e frequência"
+        />,
+        <SwitchControl
+          key="channel_risk_enabled"
+          label="Score de Risco por Canal"
+          checked={algo.channel_risk_enabled}
+          onCheckedChange={(checked) => updateAlgorithm(key, 'channel_risk_enabled', checked)}
+          description="Calcular risco baseado no canal (PIX, TED, etc.)"
+        />
+      );
+    }
+
+    if (key === 'pixFraudTaxonomy') {
+      params.push(
+        <div key="fraudTypes" className="space-y-3 border-t pt-3 mt-3">
+          <h5 className="text-sm font-medium text-[var(--color-text-secondary)]">Tipos de Fraude PIX</h5>
+          <div className="grid grid-cols-2 gap-3">
+            <SwitchControl
+              label="Mão Fantasma"
+              checked={algo.ghost_hand_enabled}
+              onCheckedChange={(checked) => updateAlgorithm(key, 'ghost_hand_enabled', checked)}
+              description="Acesso remoto (AnyDesk, TeamViewer)"
+            />
+            <SliderControl
+              label="Risco Mão Fantasma"
+              value={[algo.ghost_hand_risk]}
+              onValueChange={(value) => updateAlgorithm(key, 'ghost_hand_risk', value[0])}
+              min={0.5}
+              max={1.0}
+              step={0.05}
+              format="percentage"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <SwitchControl
+              label="Clone WhatsApp"
+              checked={algo.whatsapp_clone_enabled}
+              onCheckedChange={(checked) => updateAlgorithm(key, 'whatsapp_clone_enabled', checked)}
+              description="Golpe de clonagem de WhatsApp"
+            />
+            <SliderControl
+              label="Risco Clone WhatsApp"
+              value={[algo.whatsapp_clone_risk]}
+              onValueChange={(value) => updateAlgorithm(key, 'whatsapp_clone_risk', value[0])}
+              min={0.5}
+              max={1.0}
+              step={0.05}
+              format="percentage"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <SwitchControl
+              label="QR Code Adulterado"
+              checked={algo.qr_code_fraud_enabled}
+              onCheckedChange={(checked) => updateAlgorithm(key, 'qr_code_fraud_enabled', checked)}
+              description="QR Code malicioso substituído"
+            />
+            <SliderControl
+              label="Risco QR Adulterado"
+              value={[algo.qr_code_fraud_risk]}
+              onValueChange={(value) => updateAlgorithm(key, 'qr_code_fraud_risk', value[0])}
+              min={0.5}
+              max={1.0}
+              step={0.05}
+              format="percentage"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <SwitchControl
+              label="Falso Funcionário"
+              checked={algo.fake_employee_enabled}
+              onCheckedChange={(checked) => updateAlgorithm(key, 'fake_employee_enabled', checked)}
+              description="Golpe de falsa central/funcionário"
+            />
+            <SliderControl
+              label="Risco Falso Funcionário"
+              value={[algo.fake_employee_risk]}
+              onValueChange={(value) => updateAlgorithm(key, 'fake_employee_risk', value[0])}
+              min={0.5}
+              max={1.0}
+              step={0.05}
+              format="percentage"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <SwitchControl
+              label="Sequestro Relâmpago"
+              checked={algo.flash_kidnapping_enabled}
+              onCheckedChange={(checked) => updateAlgorithm(key, 'flash_kidnapping_enabled', checked)}
+              description="PIX sob coação física"
+            />
+            <SliderControl
+              label="Risco Sequestro"
+              value={[algo.flash_kidnapping_risk]}
+              onValueChange={(value) => updateAlgorithm(key, 'flash_kidnapping_risk', value[0])}
+              min={0.5}
+              max={1.0}
+              step={0.05}
+              format="percentage"
+            />
+          </div>
+        </div>,
+        <SwitchControl
+          key="bacen_compliance_enabled"
+          label="Compliance BACEN"
+          checked={algo.bacen_compliance_enabled}
+          onCheckedChange={(checked) => updateAlgorithm(key, 'bacen_compliance_enabled', checked)}
+          description="Incluir flags de compliance BACEN nas análises"
+        />,
+        <SwitchControl
+          key="lgpd_explainability_enabled"
+          label="Explicabilidade LGPD"
+          checked={algo.lgpd_explainability_enabled}
+          onCheckedChange={(checked) => updateAlgorithm(key, 'lgpd_explainability_enabled', checked)}
+          description="Gerar explicações conforme Art. 20 LGPD"
+        />
+      );
+    }
+
+    if (key === 'nlpSocialEngineering') {
+      params.push(
+        <SliderControl
+          key="smishing_sensitivity"
+          label="Sensibilidade Smishing"
+          value={[algo.smishing_sensitivity]}
+          onValueChange={(value) => updateAlgorithm(key, 'smishing_sensitivity', value[0])}
+          min={0.3}
+          max={1.0}
+          step={0.05}
+          format="percentage"
+          description="Sensibilidade para detecção de SMS phishing"
+        />,
+        <SliderControl
+          key="urgency_weight"
+          label="Peso Score de Urgência"
+          value={[algo.urgency_weight]}
+          onValueChange={(value) => updateAlgorithm(key, 'urgency_weight', value[0])}
+          min={0.1}
+          max={0.5}
+          step={0.01}
+          format="decimal"
+          description="Peso do indicador de urgência no score final"
+        />,
+        <SliderControl
+          key="emotional_weight"
+          label="Peso Manipulação Emocional"
+          value={[algo.emotional_weight]}
+          onValueChange={(value) => updateAlgorithm(key, 'emotional_weight', value[0])}
+          min={0.1}
+          max={0.5}
+          step={0.01}
+          format="decimal"
+          description="Peso do indicador de manipulação emocional"
+        />,
+        <SliderControl
+          key="keyword_weight"
+          label="Peso Palavras-Chave de Risco"
+          value={[algo.keyword_weight]}
+          onValueChange={(value) => updateAlgorithm(key, 'keyword_weight', value[0])}
+          min={0.1}
+          max={0.6}
+          step={0.01}
+          format="decimal"
+          description="Peso das palavras-chave suspeitas no score final"
+        />,
+        <SliderControl
+          key="min_confidence"
+          label="Confiança Mínima"
+          value={[algo.min_confidence]}
+          onValueChange={(value) => updateAlgorithm(key, 'min_confidence', value[0])}
+          min={0.3}
+          max={0.9}
+          step={0.05}
+          format="percentage"
+          description="Confiança mínima para classificar como fraude"
+        />,
+        <SwitchControl
+          key="smishing_detection"
+          label="Detecção de Smishing"
+          checked={algo.smishing_detection}
+          onCheckedChange={(checked) => updateAlgorithm(key, 'smishing_detection', checked)}
+          description="Detectar phishing via SMS"
+        />,
+        <SwitchControl
+          key="bank_impersonation_detection"
+          label="Detecção de Impersonação Bancária"
+          checked={algo.bank_impersonation_detection}
+          onCheckedChange={(checked) => updateAlgorithm(key, 'bank_impersonation_detection', checked)}
+          description="Detectar mensagens falsas de bancos"
+        />,
+        <SwitchControl
+          key="batch_analysis_enabled"
+          label="Análise em Lote"
+          checked={algo.batch_analysis_enabled}
+          onCheckedChange={(checked) => updateAlgorithm(key, 'batch_analysis_enabled', checked)}
+          description="Permitir análise de múltiplos textos"
+        />,
+        <SliderControl
+          key="max_batch_size"
+          label="Tamanho Máximo do Lote"
+          value={[algo.max_batch_size]}
+          onValueChange={(value) => updateAlgorithm(key, 'max_batch_size', value[0])}
+          min={10}
+          max={500}
+          step={10}
+          format="number"
+          description="Máximo de textos por requisição em lote"
+        />
+      );
+    }
+
+    if (key === 'transferLearning') {
+      params.push(
+        <div key="datasets" className="space-y-3 border-t pt-3 mt-3">
+          <h5 className="text-sm font-medium text-[var(--color-text-secondary)]">Datasets de Transfer Learning</h5>
+          <div className="grid grid-cols-2 gap-3">
+            <SwitchControl
+              label="Nigerian Financial (5M tx)"
+              checked={algo.nigerian_dataset_enabled}
+              onCheckedChange={(checked) => updateAlgorithm(key, 'nigerian_dataset_enabled', checked)}
+              description="Dataset de fraudes da Nigéria"
+            />
+            <SliderControl
+              label="Peso Nigerian"
+              value={[algo.nigerian_weight]}
+              onValueChange={(value) => updateAlgorithm(key, 'nigerian_weight', value[0])}
+              min={0.0}
+              max={0.5}
+              step={0.05}
+              format="percentage"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <SwitchControl
+              label="PaySim (6.3M tx)"
+              checked={algo.paysim_enabled}
+              onCheckedChange={(checked) => updateAlgorithm(key, 'paysim_enabled', checked)}
+              description="Simulador de pagamentos móveis"
+            />
+            <SliderControl
+              label="Peso PaySim"
+              value={[algo.paysim_weight]}
+              onValueChange={(value) => updateAlgorithm(key, 'paysim_weight', value[0])}
+              min={0.0}
+              max={0.5}
+              step={0.05}
+              format="percentage"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <SwitchControl
+              label="Feedzai BAF (6M tx)"
+              checked={algo.feedzai_baf_enabled}
+              onCheckedChange={(checked) => updateAlgorithm(key, 'feedzai_baf_enabled', checked)}
+              description="Bank Account Fraud dataset"
+            />
+            <SliderControl
+              label="Peso Feedzai"
+              value={[algo.feedzai_baf_weight]}
+              onValueChange={(value) => updateAlgorithm(key, 'feedzai_baf_weight', value[0])}
+              min={0.0}
+              max={0.5}
+              step={0.05}
+              format="percentage"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <SwitchControl
+              label="IEEE-CIS (590K tx)"
+              checked={algo.ieee_cis_enabled}
+              onCheckedChange={(checked) => updateAlgorithm(key, 'ieee_cis_enabled', checked)}
+              description="Competição Kaggle de fraude"
+            />
+            <SliderControl
+              label="Peso IEEE-CIS"
+              value={[algo.ieee_cis_weight]}
+              onValueChange={(value) => updateAlgorithm(key, 'ieee_cis_weight', value[0])}
+              min={0.0}
+              max={0.5}
+              step={0.05}
+              format="percentage"
+            />
+          </div>
+        </div>,
+        <SwitchControl
+          key="domain_adaptation_enabled"
+          label="Domain Adaptation"
+          checked={algo.domain_adaptation_enabled}
+          onCheckedChange={(checked) => updateAlgorithm(key, 'domain_adaptation_enabled', checked)}
+          description="Adaptar features entre domínios diferentes"
+        />,
+        <SwitchControl
+          key="fine_tuning_enabled"
+          label="Fine-Tuning"
+          checked={algo.fine_tuning_enabled}
+          onCheckedChange={(checked) => updateAlgorithm(key, 'fine_tuning_enabled', checked)}
+          description="Ajuste fino do modelo com dados locais"
+        />,
+        <SwitchControl
+          key="feature_alignment_enabled"
+          label="Alinhamento de Features"
+          checked={algo.feature_alignment_enabled}
+          onCheckedChange={(checked) => updateAlgorithm(key, 'feature_alignment_enabled', checked)}
+          description="Mapear features entre datasets diferentes"
         />
       );
     }
@@ -1216,7 +1638,8 @@ export function Calibration() {
       tier1: ['ruleBasedEngine', 'blacklistLookup', 'velocityChecks', 'geolocationValidation', 'basicStatistics'],
       tier2: ['randomForest', 'xgboost', 'logisticRegression', 'svm', 'naiveBayes'],
       tier3: ['neuralNetwork', 'lstm', 'transformer', 'autoencoder'],
-      tier4: ['graphTransformer', 'quantumInspired', 'federatedLearning']
+      tier4: ['graphTransformer', 'quantumInspired', 'federatedLearning'],
+      tier5: ['bahnsenFeatures', 'pixFraudTaxonomy', 'nlpSocialEngineering', 'transferLearning']
     };
 
     const algorithms = {};
