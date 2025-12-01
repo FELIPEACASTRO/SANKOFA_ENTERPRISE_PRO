@@ -1,0 +1,257 @@
+🧪 PROMPT – PLANO DE TESTES DA TELA LISTA DE TRANSAÇÕES
+
+Você é uma IA especialista em QA, testes funcionais, integração e E2E para sistemas de detecção de fraudes bancárias.
+
+Quero que você analise com extremo rigor todo o código relacionado à tela de “Transações – Lista e busca de transações processadas em tempo real” e construa um plano de testes completo, garantindo que todos os componentes da tela estão integrados e funcionando corretamente (front-end + back-end + base de dados + motor de fraude).
+
+Considere que a tela possui, no mínimo, os seguintes elementos:
+
+1. Cabeçalho da página
+
+Título: “Transações”
+
+Subtítulo: “Lista e busca de transações processadas em tempo real”
+
+Botões de ação:
+
+Exportar (ícone + texto)
+
+Atualizar
+
+Quero que você:
+
+Mapeie quais componentes/handlers estão ligados a esses botões.
+
+Verifique quais endpoints ou serviços são chamados (ex.: export CSV/Excel, refresh de dados).
+
+Crie casos de teste para:
+
+Clique em Exportar:
+
+Geração correta do arquivo (formato, colunas, filtros aplicados).
+
+Tratamento de erro de exportação (timeout, erro 500, etc.).
+
+Clique em Atualizar:
+
+Requisição correta à API.
+
+Atualização da lista e contadores (ex.: “Mostrando 50 de 250 transações”).
+
+Tratamento de erros de comunicação (mensagens amigáveis, estados de loading).
+
+2. Seção de Filtros
+
+Componentes visuais:
+
+Título: “Filtros” + ícone de funil
+
+Campo de busca: input com placeholder “ID, CPF, cidade...”
+
+Dropdown Status (ex.: “Todos”, “Aprovada”, “Rejeitada”, “Em análise” etc.)
+
+Dropdown Tipo (ex.: “Todos”, “PAYMENT”, “TRANSFER”, etc.)
+
+Filtro de Período (seletor de datas / “Últimas 24h”)
+
+Para cada filtro, monte testes cobrindo:
+
+Busca livre
+
+Busca por ID exato.
+
+Busca parcial por CPF.
+
+Busca por campos de localização/cidade (se suportados).
+
+Comportamento quando não há resultados (mensagem de vazio + tabela zerada).
+
+Status
+
+Aplicar filtro “Aprovada”, “Rejeitada”, “Todos”.
+
+Garantir que todas as linhas exibidas respeitam o status selecionado.
+
+Verificar se o filtro combina corretamente com os demais (busca + tipo + período).
+
+Tipo
+
+Filtrar por “PAYMENT” e outros tipos existentes.
+
+Verificar se o texto do tipo (badge “PAYMENT”) está consistente com o valor retornado pela API.
+
+Período
+
+“Últimas 24h”, “Últimos 7 dias”, “Personalizado”, etc.
+
+Verificar se o intervalo de datas enviado para o back-end está correto.
+
+Garantir que a coluna Data/Hora respeita o filtro (sem transações fora do range).
+
+Combinação de filtros
+
+Casos com múltiplos filtros combinados (ex.: Status=Rejeitada, Tipo=PAYMENT, Período=Últimas 24h, busca por CPF).
+
+Verificar se paginação, ordenação e exportação respeitam os filtros ativos.
+
+3. Lista / Tabela de Transações
+
+Elementos esperados na tabela:
+
+Mensagem de contagem: “Mostrando 50 de 250 transações”
+
+Controle de ordenação: “Ordenar por: Mais recentes” (dropdown)
+
+Colunas:
+
+ID (ex.: TXN17644513896743000, possivelmente com link/ação de detalhes)
+
+Valor (ex.: R$ 15.000,00)
+
+Tipo (badge PAYMENT)
+
+Canal (ex.: PIX, TED, BOLETO)
+
+Localização (cidade/país ou similar)
+
+CPF
+
+Data/Hora (ex.: Sun, 30 Nov 2025 14:30:36 GMT)
+
+Status (badge colorida: Rejeitada, Aprovada)
+
+Risco (ex.: badge vermelha “Alto Risco (5000.0%)”, badge verde “Baixo Risco (0.0%)`)
+
+Ações (ícone de “olho” para visualizar + menu “...” com mais opções)
+
+Quero que você:
+
+Mapeie todos os componentes usados nessa tabela e a estrutura dos dados recebidos da API.
+
+Verifique o binding de cada coluna (ID correto, valor formatado em BRL, etc.).
+
+Monte casos de teste para:
+
+Renderização básica
+
+Tabela exibe o número correto de linhas por página (ex.: 50).
+
+Texto “Mostrando X de Y transações” reflete exatamente o retorno paginado do back-end.
+
+Ordenação
+
+Testar ordenação por: mais recentes, mais antigos, maior valor, menor valor (ou outros critérios oferecidos).
+
+Verificar se a ordenação é feita no back-end ou no front, e se está consistente com os dados.
+
+Formato de dados
+
+Coluna Valor:
+
+Formato brasileiro (R$ + separador de milhar + vírgula decimal).
+
+Testes com valores muito altos, zero, casas decimais.
+
+Coluna Data/Hora:
+
+Fuso horário correto (GMT ou configurado).
+
+Formatação consistente em todas as linhas.
+
+Coluna CPF:
+
+Formatação (com/sem máscara).
+
+Comportamento com CPF nulo ou mascarado por LGPD.
+
+Status & Risco
+
+Verificar correspondência entre Status e Risco:
+
+Rejeitada com Alto Risco (vermelho).
+
+Aprovada com Baixo Risco (verde).
+
+Outros estados, se existirem (Ex.: “Em Análise”, “Médio Risco”).
+
+Testar limites de risco (0%, 100%, valores extremos como 5000.0%).
+
+Verificar cores de background/texto das badges, ícones e tooltips (se existirem).
+
+Ações da linha
+
+Clique no ícone de olho:
+
+Abrir modal ou página de detalhes da transação.
+
+Dados do detalhe devem bater exatamente com a linha da tabela.
+
+Menu “...”:
+
+Listar ações adicionais (ex.: reprocessar, marcar como suspeita, abrir ticket etc., se existirem).
+
+Verificar permissões (ações desabilitadas para perfis restritos).
+
+Paginação (se houver)
+
+Navegar entre páginas: próxima, anterior, primeira, última.
+
+Garantir que filtros e ordenação são mantidos na troca de página.
+
+Estados especiais
+
+Sem resultados (mensagem de “Nenhuma transação encontrada”).
+
+Erro de API (mensagem amigável, opção de tentar novamente).
+
+Loading (skeleton/spinner enquanto carrega dados).
+
+4. Testes de Integração (Front + Back + Motor de Fraude)
+
+Para cada endpoint usado nessa tela:
+
+Liste as URLs, parâmetros de requisição (filtros, ordenação, paginação) e o payload de resposta.
+
+Verifique:
+
+Se os filtros da UI estão mapeados corretamente nos parâmetros da API.
+
+Se o cálculo de risco (Alto Risco, Baixo Risco, percentual) está coerente com as regras do motor de fraude.
+
+Se existe consistência entre o que aparece aqui e outras telas (ex.: dashboard executivo, tela de detalhes).
+
+Monte casos de teste cobrindo:
+
+Cenários normais.
+
+Cenários de alta volumetria (muitas transações).
+
+Cenários com dados inconsistentes (campos nulos, tipos inesperados) – validar se a tela trata sem quebrar.
+
+5. Sugestão de Automação de Testes
+
+Proponha uma estratégia de automação para essa tela, incluindo:
+
+Testes de unidade para funções de formatação (valores, datas, risco).
+
+Testes de integração para serviços/hooks que consomem a API de transações.
+
+Testes E2E com Cypress/Playwright (ou framework de testes do projeto) cobrindo:
+
+Aplicação de filtros.
+
+Ordenação.
+
+Paginação.
+
+Exportação.
+
+Abertura de detalhes da transação.
+
+Escreva alguns exemplos de cenários E2E em pseudo-código, especialmente para:
+
+Cenário de transações de alto risco rejeitadas.
+
+Cenário de transações de baixo risco aprovadas.
+
+Verificação de que os filtros combinados funcionam corretamente.
