@@ -141,6 +141,57 @@ const HardRules = () => {
     return `${field} ${op} ${value}`;
   };
 
+  const parseCondition = (condition) => {
+    if (!condition) return { field: '', operator: '', value: '' };
+    
+    const reverseOperatorMap = {
+      '==': 'igual',
+      '!=': 'diferente',
+      '>=': 'maior_igual',
+      '<=': 'menor_igual',
+      '>': 'maior_que',
+      '<': 'menor_que',
+      'contains': 'contem',
+      'not contains': 'nao_contem',
+      'startswith': 'comeca_com',
+      'endswith': 'termina_com',
+      'in': 'in_list',
+      'not in': 'not_in_list',
+      'between': 'between',
+      'regex': 'regex'
+    };
+
+    const multiWordOps = ['not contains', 'not in'];
+    for (const op of multiWordOps) {
+      if (condition.includes(` ${op} `)) {
+        const parts = condition.split(` ${op} `);
+        if (parts.length === 2) {
+          return {
+            field: parts[0].trim(),
+            operator: reverseOperatorMap[op] || op,
+            value: parts[1].trim()
+          };
+        }
+      }
+    }
+
+    const singleOps = ['>=', '<=', '==', '!=', '>', '<', 'contains', 'startswith', 'endswith', 'in', 'between', 'regex'];
+    for (const op of singleOps) {
+      if (condition.includes(` ${op} `)) {
+        const parts = condition.split(` ${op} `);
+        if (parts.length === 2) {
+          return {
+            field: parts[0].trim(),
+            operator: reverseOperatorMap[op] || op,
+            value: parts[1].trim()
+          };
+        }
+      }
+    }
+
+    return { field: '', operator: '', value: condition };
+  };
+
   const handleSave = async () => {
     try {
       const url = editingRule ? `/api/hard-rules/${editingRule.id}` : '/api/hard-rules';
@@ -222,7 +273,19 @@ const HardRules = () => {
 
   const openDialog = (rule = null) => {
     if (rule) {
-      setFormData(rule);
+      const parsed = parseCondition(rule.condition);
+      setFormData({
+        name: rule.name || '',
+        description: rule.description || '',
+        field: parsed.field || '',
+        operator: parsed.operator || '',
+        value: parsed.value || '',
+        action: rule.action || 'BLOQUEAR',
+        priority: rule.priority || 1,
+        active: rule.active !== false,
+        start_date: rule.start_date || '',
+        end_date: rule.end_date || ''
+      });
       setEditingRule(rule);
     } else {
       resetForm();

@@ -91,6 +91,7 @@ class PostgresStore:
                     """, (name, condition, action, enabled))
                     conn.commit()
                     row = cur.fetchone()
+                    _dashboard_cache.invalidate("hard_rules")
                     return dict(row)
         except Exception as e:
             print(f"Error adding hard_rule: {e}")
@@ -114,6 +115,7 @@ class PostgresStore:
                         query = f"UPDATE hard_rules SET {', '.join(fields)} WHERE id = %s"
                         cur.execute(query, values)
                         conn.commit()
+                        _dashboard_cache.invalidate("hard_rules")
                         return cur.rowcount > 0
             return False
         except Exception as e:
@@ -127,6 +129,7 @@ class PostgresStore:
                 with conn.cursor() as cur:
                     cur.execute("DELETE FROM hard_rules WHERE id = %s", (rule_id,))
                     conn.commit()
+                    _dashboard_cache.invalidate("hard_rules")
                     return cur.rowcount > 0
         except Exception as e:
             print(f"Error deleting hard_rule: {e}")
