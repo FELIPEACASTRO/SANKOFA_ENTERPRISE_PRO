@@ -77,6 +77,14 @@ Ultra-didactic ML documentation available at:
   - Includes ensemble formula: P = 0.50×Base + 0.25×CatBoost + 0.25×GNN
   - ASCII diagrams and step-by-step calculation examples
 
+### Mock Data Elimination (December 2025)
+All endpoints now return real PostgreSQL data. Changes made:
+- **Frontend Monitoring.jsx**: Fallback values changed from hardcoded (45, 60, 127) to 0/null
+- **Backend /api/observability/ml**: Returns error with zeros instead of fake metrics on exception
+- **Backend /api/observability/health**: Returns error status instead of fake "healthy"
+- **Backend /api/alerts**: Uses postgres_store.get_alerts_list() instead of np.random
+- **Backend /api/transactions**: Returns real transactions only, no mock generation
+
 ## External Dependencies
 
 - **PostgreSQL**: Used as the primary relational database for persistent data storage.
