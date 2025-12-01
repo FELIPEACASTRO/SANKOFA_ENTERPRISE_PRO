@@ -2226,6 +2226,73 @@ def update_settings():
     return jsonify({"success": True, "data": updated})
 
 
+@app.route("/api/settings/reset", methods=["POST"])
+def reset_settings():
+    """Reseta configurações para valores padrão"""
+    default_settings = {
+        "sistema": {
+            "nome_sistema": "Sankofa Enterprise Pro",
+            "versao": "1.0.0",
+            "ambiente": "producao",
+            "modo_manutencao": False,
+            "timezone": "America/Sao_Paulo",
+            "idioma": "pt-BR",
+            "log_level": "INFO"
+        },
+        "banco_dados": {
+            "pool_size": 10,
+            "timeout": 30,
+            "backup_automatico": True,
+            "backup_frequencia": "daily",
+            "backup_retencao": 30
+        },
+        "seguranca": {
+            "2fa_habilitado": False,
+            "complexidade_senha": "media",
+            "sessao_timeout": 30,
+            "tentativas_login": 5,
+            "criptografia_sessao": True,
+            "auditoria_habilitada": True,
+            "ssl_habilitado": True
+        },
+        "notificacoes": {
+            "email_habilitado": True,
+            "sms_habilitado": False,
+            "webhook_habilitado": True,
+            "slack_habilitado": False,
+            "alertas_criticos": True,
+            "alertas_altos": True,
+            "alertas_medios": False,
+            "alertas_baixos": False
+        },
+        "ia_ml": {
+            "modelo_ativo": "ensemble_v1",
+            "threshold_fraude": 0.7,
+            "auto_learning": True,
+            "feedback_loop": True,
+            "retrain_frequencia": "weekly",
+            "drift_detection": True,
+            "explainability": True
+        },
+        "api": {
+            "rate_limit": 1000,
+            "timeout": 30,
+            "versao": "v1",
+            "cors_habilitado": True,
+            "documentacao_publica": False
+        }
+    }
+    
+    updated = postgres_store.update_settings(default_settings)
+    postgres_store.add_audit_log("SETTINGS_RESET", None, "Settings reset to defaults", request.remote_addr)
+    
+    return jsonify({
+        "success": True,
+        "message": "Configurações resetadas com sucesso",
+        "data": updated
+    })
+
+
 @app.route("/api/alerts", methods=["GET"])
 def get_alerts():
     """Lista todos os alertas do sistema com formato completo para dashboard"""
@@ -2548,11 +2615,107 @@ def get_investigations():
     })
 
 
+@app.route("/api/investigations/<investigation_id>/transactions", methods=["GET"])
+def get_investigation_transactions(investigation_id: str):
+    """Lista transações relacionadas a uma investigação específica"""
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT 
+                        id, transaction_id, amount, channel, status, risk_score,
+                        is_fraud, created_at, cpf_hash, ip_address, device_id
+                    FROM transactions
+                    WHERE transaction_id = %s 
+                       OR cpf_hash = (SELECT cpf_hash FROM transactions WHERE transaction_id = %s LIMIT 1)
+                    ORDER BY created_at DESC
+                    LIMIT 50
+                """, (investigation_id, investigation_id))
+                rows = cur.fetchall()
+                
+                transactions = []
+                for row in rows:
+                    transactions.append({
+                        "id": row[0],
+                        "transaction_id": row[1],
+                        "amount": float(row[2]) if row[2] else 0,
+                        "channel": row[3],
+                        "status": row[4],
+                        "risk_score": float(row[5]) if row[5] else 0,
+                        "is_fraud": row[6],
+                        "created_at": row[7].isoformat() + "Z" if row[7] else None,
+                        "cpf_hash": row[8][:8] + "***" if row[8] else None,
+                        "ip_address": row[9],
+                        "device_id": row[10]
+                    })
+                
+                return jsonify({
+                    "success": True,
+                    "investigation_id": investigation_id,
+                    "transactions": transactions,
+                    "total": len(transactions)
+                })
+    except Exception as e:
+        return jsonify({
+            "success": True,
+            "investigation_id": investigation_id,
+            "transactions": [],
+            "total": 0,
+            "note": "No transactions found for this investigation"
+        })
+
+
 @app.route("/api/datasets", methods=["GET"])
 def get_datasets():
     """Lista datasets disponíveis para treinamento - dados reais do PostgreSQL"""
     datasets = postgres_store.get_datasets_catalog()
     return jsonify({"success": True, "data": datasets})
+
+
+@app.route("/api/datasets/search", methods=["GET"])
+def search_datasets():
+    """Busca avançada em datasets com filtros"""
+    query = request.args.get("query", "")
+    category = request.args.get("category", "")
+    min_size = request.args.get("min_size", 0, type=int)
+    max_size = request.args.get("max_size", 10000000, type=int)
+    
+    datasets_result = postgres_store.get_datasets_catalog()
+    
+    if isinstance(datasets_result, list):
+        datasets_list = datasets_result
+    elif isinstance(datasets_result, dict):
+        datasets_list = datasets_result.get("datasets", datasets_result.get("data", []))
+    else:
+        datasets_list = []
+    
+    filtered = []
+    for ds in datasets_list:
+        name = ds.get("name", "") if isinstance(ds, dict) else ""
+        cat = ds.get("category", ds.get("type", "")) if isinstance(ds, dict) else ""
+        size = ds.get("size", ds.get("records", 0)) if isinstance(ds, dict) else 0
+        
+        if query and query.lower() not in name.lower():
+            continue
+        if category and category.lower() not in cat.lower():
+            continue
+        if size < min_size or size > max_size:
+            continue
+        filtered.append(ds)
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "results": filtered,
+            "total": len(filtered),
+            "query": query,
+            "filters": {
+                "category": category,
+                "min_size": min_size,
+                "max_size": max_size
+            }
+        }
+    })
 
 
 @app.route("/api/reports", methods=["GET"])
@@ -2595,6 +2758,38 @@ def generate_report():
     return jsonify({
         "success": True,
         "data": report
+    })
+
+
+@app.route("/api/reports/<report_id>/download", methods=["GET"])
+def download_report(report_id: str):
+    """Gera URL de download para um relatório específico"""
+    report_data = postgres_store.generate_report("daily")
+    
+    import base64
+    import json
+    
+    report_content = {
+        "report_id": report_id,
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "type": "fraud_analysis",
+        "data": report_data
+    }
+    
+    content_json = json.dumps(report_content, indent=2, default=str)
+    content_base64 = base64.b64encode(content_json.encode()).decode()
+    
+    download_url = f"data:application/json;base64,{content_base64}"
+    
+    postgres_store.add_audit_log("REPORT_DOWNLOAD", None, f"Report {report_id} downloaded", request.remote_addr)
+    
+    return jsonify({
+        "success": True,
+        "report_id": report_id,
+        "filename": f"relatorio_{report_id}_{datetime.utcnow().strftime('%Y%m%d')}.json",
+        "download_url": download_url,
+        "format": "json",
+        "size_bytes": len(content_json)
     })
 
 
@@ -2677,6 +2872,96 @@ def feedback_analytics():
         "fraud_rate": analytics.get("fraud_rate", 0),
         "accuracy_improvement": analytics.get("accuracy_improvement", 0)
     })
+
+
+@app.route("/api/feedback/submit", methods=["POST"])
+def submit_feedback_v2():
+    """Submete feedback sobre uma predição (endpoint alternativo)"""
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    transaction_id = request.json.get("transaction_id")
+    feedback_type = request.json.get("feedback_type", "correction")
+    is_fraud = request.json.get("is_fraud", False)
+    notes = request.json.get("notes", "")
+    confidence = request.json.get("confidence", 1.0)
+    
+    if not transaction_id:
+        raise ValidationError("transaction_id is required")
+    
+    result = postgres_store.add_feedback(transaction_id, is_fraud, notes, None)
+    if 'created_at' in result and result['created_at']:
+        result['submitted_at'] = result['created_at'].isoformat() + "Z" if hasattr(result['created_at'], 'isoformat') else str(result['created_at'])
+    
+    result['feedback_type'] = feedback_type
+    result['confidence'] = confidence
+    
+    postgres_store.add_audit_log("FEEDBACK_SUBMIT", None, f"Feedback submitted for {transaction_id}: {feedback_type}", request.remote_addr)
+    
+    return jsonify({
+        "success": True,
+        "message": "Feedback registrado com sucesso",
+        "data": result
+    })
+
+
+@app.route("/api/feedback/export", methods=["GET"])
+def export_feedbacks():
+    """Exporta todos os feedbacks em formato CSV/JSON"""
+    export_format = request.args.get("format", "json")
+    limit = request.args.get("limit", 1000, type=int)
+    
+    feedbacks = postgres_store.get_feedback_list(limit=limit)
+    
+    for fb in feedbacks:
+        if 'created_at' in fb and fb['created_at']:
+            fb['feedback_timestamp'] = fb['created_at'].isoformat() + "Z" if hasattr(fb['created_at'], 'isoformat') else str(fb['created_at'])
+    
+    if export_format == "csv":
+        import io
+        import csv
+        
+        output = io.StringIO()
+        if feedbacks:
+            writer = csv.DictWriter(output, fieldnames=feedbacks[0].keys())
+            writer.writeheader()
+            writer.writerows(feedbacks)
+        
+        csv_content = output.getvalue()
+        
+        import base64
+        content_base64 = base64.b64encode(csv_content.encode()).decode()
+        download_url = f"data:text/csv;base64,{content_base64}"
+        
+        return jsonify({
+            "success": True,
+            "format": "csv",
+            "total": len(feedbacks),
+            "filename": f"feedbacks_export_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv",
+            "download_url": download_url
+        })
+    else:
+        import json
+        import base64
+        
+        content_json = json.dumps({
+            "exported_at": datetime.utcnow().isoformat() + "Z",
+            "total": len(feedbacks),
+            "feedbacks": feedbacks
+        }, indent=2, default=str)
+        
+        content_base64 = base64.b64encode(content_json.encode()).decode()
+        download_url = f"data:application/json;base64,{content_base64}"
+        
+        postgres_store.add_audit_log("FEEDBACK_EXPORT", None, f"Exported {len(feedbacks)} feedbacks", request.remote_addr)
+        
+        return jsonify({
+            "success": True,
+            "format": "json",
+            "total": len(feedbacks),
+            "filename": f"feedbacks_export_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json",
+            "download_url": download_url
+        })
 
 
 @app.route("/api/observability/metrics", methods=["GET"])

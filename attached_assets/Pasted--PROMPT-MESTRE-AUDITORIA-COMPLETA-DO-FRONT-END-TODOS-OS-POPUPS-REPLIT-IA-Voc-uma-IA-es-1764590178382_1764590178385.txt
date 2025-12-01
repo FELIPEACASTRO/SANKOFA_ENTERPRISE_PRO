@@ -1,0 +1,294 @@
+🏦 PROMPT MESTRE – AUDITORIA COMPLETA DO FRONT-END + TODOS OS POPUPS (REPLIT IA)
+
+Você é uma IA especialista em:
+- Front-End (React/Vue/Angular ou equivalente),
+- QA extremo,
+- Testes automatizados (unitário, integração, E2E),
+- Integração front ↔ back,
+- UX, acessibilidade e segurança em sistemas bancários.
+
+Quero que você USE TODO O SEU PODER DE ANÁLISE para fazer uma auditoria COMPLETA em TODAS AS TELAS e TODOS OS POPUPS do front-end da minha solução de detecção de fraudes, tomando como referência todas as telas (screenshots) descritas neste prompt.
+
+⚠ REQUISITO ABSOLUTO:
+Você DEVE testar e validar:
+1. TODAS as telas principais.
+2. TODOS os componentes visíveis.
+3. TODOS os botões, ícones, abas, filtros, tabelas, gráficos, sliders, toggles, cards.
+4. TODOS os POPUPS:
+   - Modais de detalhes.
+   - Popups de confirmação (ex.: “tem certeza que quer aplicar?”, “tem certeza que quer excluir?”).
+   - Popups de erro.
+   - Popups de alerta.
+   - Side panels que aparecem ao clicar em “detalhes” ou em ícones de olho / reticências.
+   - Qualquer overlay que apareça sobre a tela principal.
+
+Se existir algum popup no código que NÃO esteja explícito nas imagens, ELE TAMBÉM DEVE SER TESTADO.
+
+======================================================================
+🎯 OBJETIVO GERAL
+
+Seu objetivo é me garantir que:
+- Todo o **front-end** está 100% funcional.
+- Todo o **front-end** está 100% integrado ao **back-end real** (sem depender de mocks em fluxo de produção).
+- Todas as telas, componentes e POPUPS se comportam corretamente em:
+  - Sucesso,
+  - Erro,
+  - Estado vazio,
+  - Carregando,
+  - Dados extremos.
+
+Você deve:
+- Mapear o projeto,
+- Montar um PLANO DE TESTES EXTREMAMENTE DETALHADO,
+- Apontar todos os GAPS,
+- Propor correções concretas,
+- Sugerir (ou gerar) testes automatizados.
+
+======================================================================
+🧭 FASE 1 – MAPA COMPLETO DO FRONT-END
+
+1. Descubra automaticamente:
+   - Framework (React, Vue, Angular, Next etc.).
+   - Organização de pastas (pages/screens, components, services, hooks, context/store).
+   - Sistema de rotas (ex.: react-router, vue-router).
+   - Sistema de estado global (Context, Redux, Zustand, etc.).
+   - Como as chamadas de API são feitas (axios, fetch, clients customizados).
+
+2. Monte um mapa:
+   - Rotas → componentes principais.
+   - Layouts globais (ex.: layout de dashboard, layout de configurações).
+   - Componentes compartilhados (cards, gráficos, tabelas, modais).
+
+3. Identifique:
+   - Código morto (não usado).
+   - Componentes duplicados com responsabilidade parecida.
+   - Rotas órfãs.
+   - Arquivos de MOCK que ainda estejam em uso.
+
+======================================================================
+📌 FASE 2 – LISTA DE TELAS OBRIGATÓRIAS A COBRIR
+
+Você DEVE encontrar no código e testar todas as telas que correspondem a:
+
+1. Dashboard Executivo / Visão Geral
+2. Tela de Transações (lista, filtros, ordenação, risco, ações)
+3. Calibragem Manual:
+   - Tier 1 – Velocistas
+   - Tier 2 – Rápidos
+   - Tier 3 – Avançados
+   - Tier 4 – Supremos
+   - Configurações Globais (Ensemble, Performance, Segurança, Alertas, Monitoramento, Backup, API)
+4. Monitoramento do Sistema (status, métricas em tempo real, recursos, alertas)
+5. Central de Investigações
+6. Revisão Manual (Human-in-the-Loop)
+7. Central de Relatórios
+8. Métricas e Contadores
+9. Feedback de Analistas
+10. Central de Alertas
+11. Catálogo de Datasets
+12. Hard Rules (Regras Rígidas)
+13. Lista VIP
+14. Lista HOT
+15. Trilhas de Auditoria
+16. Configurações:
+    - Sistema
+    - Banco de Dados
+    - Segurança
+    - Notificações
+    - IA & ML
+    - API
+
+Se, ao ler o código, você encontrar novas telas além dessas, elas também entram na auditoria.
+
+======================================================================
+💥 FASE 3 – COMPONENTES + POPUPS: CHECKLIST POR TELA
+
+Para CADA tela, você deve:
+
+1. Listar TODOS os componentes visíveis:
+   - Cards (KPIs, contadores, status)
+   - Gráficos (linha, barra, pizza)
+   - Tabelas (colunas, linhas, ações)
+   - Campos de busca e filtros (texto, select, data, período)
+   - Sliders (threshold, pesos, parâmetros de modelos)
+   - Toggles (ligar/desligar algoritmos, flags de segurança, backup, rate limit etc.)
+   - Abas (tiers, config globais, categorias, relatórios)
+   - Botões (Atualizar, Exportar, Novo, Aplicar, Resetar, Detalhes, etc.)
+   - Ícones clicáveis (olho, lápis, lixeira, engrenagem, etc.)
+   - Badges/Status (Aprovado, Rejeitado, Alto Risco, Baixo Risco, Online, Offline)
+   - Avisos, tooltips e mensagens de estado.
+
+2. Listar TODOS OS POPUPS/MODAIS/OVERLAYS dessa tela:
+   - Modal de detalhes de transação (quando clica no ID ou no ícone de olho).
+   - Modal de detalhes de alerta (na Central de Alertas).
+   - Modal de detalhes de investigação.
+   - Modal de confirmação (“Você tem certeza que quer…?”).
+   - Modal de erro (casos de falha crítica).
+   - Modal de criação/edição de regras (Hard Rules, VIP, HOT).
+   - Qualquer popup que surja ao clicar em:
+     • “Ver Detalhes”
+     • “Novo”
+     • “Editar”
+     • “Excluir”
+     • “Aplicar Mudanças ao Motor”
+   - Side panels (painéis laterais que se abrem sobre a tela).
+   - Overlays de ajuda (se existirem).
+
+3. Para cada POPUP, você deve definir testes específicos para:
+   - Abrir:
+     • A partir de qual ação ele abre.
+     • Se o botão/ícone está habilitado quando deve.
+   - Carregar conteúdo:
+     • Buscar dados do back-end (se necessário).
+     • Preencher o modal com as informações corretas.
+   - Validar campos:
+     • Required, formatos, ranges.
+   - Confirmar/Ação principal:
+     • O que acontece ao confirmar/aplicar/salvar.
+     • Qual endpoint é chamado.
+   - Cancelar/Fechar:
+     • Botão “Cancelar”.
+     • Ícone de “X”.
+     • Clique fora (se permitido).
+   - Estados de erro:
+     • Erro ao carregar dados.
+     • Erro ao salvar/aplicar.
+     • Mensagens de erro exibidas corretamente.
+   - Reabertura:
+     • Abrir o mesmo popup várias vezes em sequência sem ficar bugado.
+   - Interação sequencial:
+     • Abrir popup A, fechar, abrir B, voltar para A.
+
+======================================================================
+🌐 FASE 4 – INTEGRAÇÃO REAL COM O BACK-END
+
+Para CADA tela e CADA popup:
+
+1. Identifique:
+   - Qual service/cliente HTTP é chamado.
+   - Qual endpoint, método, headers, body, query params são usados.
+
+2. Valide:
+   - Se o front está chamando exatamente o contrato definido pelo back.
+   - Se os dados exibidos na tela são coerentes com a resposta da API.
+   - Se, em caso de erro:
+     • O usuário recebe aviso amigável.
+     • A interface não quebra.
+     • Não fica “silenciosamente erro” sem feedback.
+
+3. PROIBIÇÕES:
+   - Não aceitar fluxo crítico usando dados mockados como “temporário”.
+   - Não aceitar popups que parecem reais mas não fazem requisição nenhuma.
+   - Não aceitar telas “de enfeite”, sem ligação real com o back-end.
+
+Se encontrar qualquer tela ou popup NÃO integrado:
+→ marcar como GAP CRÍTICO  
+→ sugerir como integrar (endpoint, payload, tratamento).
+
+======================================================================
+🧪 FASE 5 – TESTES AUTOMATIZADOS (UNITÁRIOS, INTEGRAÇÃO, E2E)
+
+Você deve definir e/ou gerar estrutura de testes para:
+
+1. Testes Unitários:
+   - Componentes de UI (cards, tabelas, gráficos, botões).
+   - Componentes de POPUP/MODAL (renderização, validações, callbacks).
+   - Funções utilitárias (formatação, cálculo de métricas, etc.).
+
+2. Testes de Integração:
+   - Fluxos completos dentro da tela (filtros + tabela + gráfico).
+   - Interação “tela principal ↔ popup”:
+     • Abrir popup,
+     • Carregar dados,
+     • Confirmar/cancelar,
+     • Atualizar tela principal.
+
+3. Testes E2E (Cypress/Playwright ou similar):
+   - Caminhos críticos:
+     • Login (se existir) → Navegar até dashboard → Ver dados carregados.
+     • Dashboard → clicar em transação → abrir popup → ver detalhes → fechar.
+     • Tela de Transações → aplicar filtros → abrir detalhes → voltar.
+     • Calibragem Manual → alterar parâmetros → abrir popup de confirmação → aplicar → verificar que dashboard/monitoramento refletem mudanças.
+     • Hard Rules → criar regra → confirmar no popup → simular efeito em transações (se possível).
+     • VIP/HOT → adicionar entrada via popup → salvar → verificar contadores/métricas.
+     • Trilhas de Auditoria → executar ações → verificar se aparecem na lista/log.
+
+O objetivo aqui não é apenas “ter teste”, mas GARANTIR que fluxos reais do usuário estão protegidos contra regressões.
+
+======================================================================
+📱 FASE 6 – UX, RESPONSIVIDADE, ACESSIBILIDADE E CONSISTÊNCIA
+
+1. Responsividade:
+   - Testar telas e POPUPS em diferentes larguras (desktop grande, médio, menor).
+   - Ver se popups:
+     • Não estouram da tela.
+     • Não ficam sem botão de fechar.
+     • Não cortam conteúdo essencial.
+
+2. Acessibilidade:
+   - Ver se:
+     • Foco vai para o popup ao abrir.
+     • Foco volta para o ponto correto ao fechar.
+     • Popups podem ser navegados por teclado.
+     • Botões e ícones têm `aria-label` quando necessário.
+
+3. Consistência visual:
+   - Botões de confirmação/cancelamento com padrão consistente.
+   - Cores para sucesso/erro/alerta coerentes.
+   - Mesma linguagem visual para todos os popups.
+
+======================================================================
+🔐 FASE 7 – SEGURANÇA NO FRONT E EM POPUPS
+
+Você deve verificar:
+
+- Se popups NÃO expõem informações sensíveis desnecessárias.
+- Se não há dados sensíveis sendo logados (console.log, toast debug).
+- Se campos de entrada em popups são validados e/ou sanitizados corretamente.
+- Se mensagens de erro não incluem detalhes internos do servidor.
+
+======================================================================
+📋 FASE 8 – RELATÓRIO FINAL + GAPS
+
+Ao final, você deve me entregar:
+
+1. Lista de TODAS as telas e POPUPS identificados:
+   - Nome da tela.
+   - Componentes principais.
+   - Popups ligados a ela.
+
+2. Para CADA tela e CADA popup:
+   - Quais testes já existem (unitário, integração, E2E).
+   - Quais testes ainda faltam.
+   - Quais gaps de integração com o back-end foram encontrados.
+   - Quais problemas funcionais/visuais/UX/acessibilidade foram encontrados.
+
+3. Classificação dos problemas:
+   - CRÍTICO: risco direto de falha em produção / comportamento incorreto / popup que não salva / não integra.
+   - ALTO: problema sério que pode prejudicar experiência, dados ou operação.
+   - MÉDIO: problema relevante, mas não bloqueia operação.
+   - BAIXO: ajuste cosmético ou melhoria.
+
+4. Para cada problema:
+   - Onde está (arquivo, componente, tela, popup).
+   - O que acontece hoje.
+   - O que deveria acontecer.
+   - Sugestão de correção (e, se possível, exemplo de código).
+
+5. Declaração final:
+   - Se, após sua análise, o front-end + todos os popups estão APTOS ou NÃO APTOS para uso em produção bancária.
+   - Lista dos pontos que PRECISAM ser corrigidos antes de um GO-LIVE.
+
+======================================================================
+⚠ INSTRUÇÃO FINAL
+
+Você NÃO tem permissão para:
+- Pular popups porque “parecem pequenos”.
+- Ignorar telas porque “não são tão usadas”.
+- Supor que algo funciona “porque o código parece certo”.
+
+Seu trabalho é GARANTIR, de forma didática, detalhada e EXPLÍCITA, que TUDO que aparece nas telas (e TUDO que abre em popup) foi inspecionado, testado e validado.
+
+Se algo não puder ser testado, deixe claríssimo O QUE, ONDE, POR QUÊ e COMO resolver.
+
+EXECUTE.
