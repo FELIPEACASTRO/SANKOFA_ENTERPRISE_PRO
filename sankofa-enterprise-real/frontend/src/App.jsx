@@ -19,6 +19,7 @@ import { Audit } from './pages/Audit';
 import { Settings } from './pages/Settings';
 import { FeedbackAnalyst } from './pages/FeedbackAnalyst';
 import { Manual } from './pages/Manual';
+import { Documentation } from './pages/Documentation';
 import './App.css';
 
 function AppContent() {
@@ -44,6 +45,7 @@ function AppContent() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/feedback-analyst" element={<FeedbackAnalyst />} />
         <Route path="/manual" element={<Manual />} />
+        <Route path="/documentation" element={<Documentation />} />
         <Route path="*" element={<div className="p-8 text-center">Página não encontrada</div>} />
       </Routes>
     </Layout>

@@ -16,7 +16,8 @@ import {
   UserX,
   Eye,
   MessageSquare,
-  BookOpen
+  BookOpen,
+  BookMarked
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button.jsx';
 import { cn } from '@/lib/utils';
@@ -129,6 +130,13 @@ const navigationItems = [
     href: '/manual',
     description: 'Guia completo do sistema',
     badge: '?'
+  },
+  {
+    title: 'Documentação',
+    icon: BookMarked,
+    href: '/documentation',
+    description: 'Centro de documentação completo',
+    badge: '📚'
   }
 ];
 
