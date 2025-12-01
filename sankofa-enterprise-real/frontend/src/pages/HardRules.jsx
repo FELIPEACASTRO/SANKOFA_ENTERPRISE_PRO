@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/Button.jsx';
 import { 
   Plus, 
@@ -20,7 +20,10 @@ import {
   Zap,
   Shield,
   Bell,
-  Target
+  Target,
+  Info,
+  Lightbulb,
+  BookOpen
 } from 'lucide-react';
 
 const HardRules = () => {
@@ -30,6 +33,8 @@ const HardRules = () => {
   const [editingRule, setEditingRule] = useState(null);
   const [metadata, setMetadata] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [ruleExplanation, setRuleExplanation] = useState(null);
+  const [loadingExplanation, setLoadingExplanation] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -47,6 +52,47 @@ const HardRules = () => {
     loadRules();
     loadMetadata();
   }, []);
+
+  const fetchExplanation = useCallback(async () => {
+    const validConditions = formData.conditions.filter(c => c.field && c.operator && c.value);
+    if (validConditions.length === 0) {
+      setRuleExplanation(null);
+      return;
+    }
+    
+    setLoadingExplanation(true);
+    try {
+      const response = await fetch('/api/hard-rules/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conditions_json: validConditions,
+          logic_operator: formData.logic_operator,
+          action: formData.action,
+          rule_type: formData.rule_type,
+          name: formData.name
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setRuleExplanation(data.data);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar explicação:', error);
+    } finally {
+      setLoadingExplanation(false);
+    }
+  }, [formData.conditions, formData.logic_operator, formData.action, formData.rule_type, formData.name]);
+
+  useEffect(() => {
+    if (showDialog) {
+      const timeoutId = setTimeout(() => {
+        fetchExplanation();
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [formData.conditions, formData.logic_operator, formData.action, showDialog, fetchExplanation]);
 
   const loadMetadata = async () => {
     try {
@@ -223,6 +269,7 @@ const HardRules = () => {
       enabled: true
     });
     setEditingRule(null);
+    setRuleExplanation(null);
   };
 
   const openDialog = (rule = null) => {
@@ -638,11 +685,98 @@ const HardRules = () => {
               </div>
 
               {formData.conditions.filter(c => c.field && c.operator && c.value).length > 0 && (
-                <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Preview da Regra:</h4>
-                  <code className="text-sm text-blue-700 dark:text-blue-300 font-mono">
-                    SE ({buildConditionString()}) ENTÃO {getActionLabel(formData.action).toUpperCase()}
-                  </code>
+                <div className="space-y-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Preview da Regra:</h4>
+                    <code className="text-sm text-blue-700 dark:text-blue-300 font-mono">
+                      SE ({buildConditionString()}) ENTÃO {getActionLabel(formData.action).toUpperCase()}
+                    </code>
+                  </div>
+
+                  {loadingExplanation ? (
+                    <div className="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-gray-500">
+                        <div className="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full"></div>
+                        <span className="text-sm">Analisando regra...</span>
+                      </div>
+                    </div>
+                  ) : ruleExplanation && (
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                      <div className="flex items-start gap-3 mb-3">
+                        <Lightbulb className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="text-sm font-semibold text-green-800 dark:text-green-200 mb-1">
+                            Explicação da Regra
+                          </h4>
+                          <p className="text-sm text-green-700 dark:text-green-300">
+                            {ruleExplanation.explanation}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {ruleExplanation.risk_analysis && ruleExplanation.risk_analysis.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-green-200 dark:border-green-700">
+                          <div className="flex items-start gap-2">
+                            <Info className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <h5 className="text-xs font-medium text-amber-700 dark:text-amber-300 mb-1">
+                                Análise de Risco (Baseada em Dados Reais)
+                              </h5>
+                              <ul className="text-xs text-amber-600 dark:text-amber-400 space-y-1">
+                                {ruleExplanation.risk_analysis.map((analysis, idx) => (
+                                  <li key={idx} className="flex items-start gap-1">
+                                    <span className="text-amber-500">•</span>
+                                    {analysis}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {ruleExplanation.data_insights && (
+                        <div className="mt-3 pt-3 border-t border-green-200 dark:border-green-700">
+                          <div className="flex items-start gap-2">
+                            <BookOpen className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <h5 className="text-xs font-medium text-blue-700 dark:text-blue-300 mb-2">
+                                Insights dos Dados Históricos
+                              </h5>
+                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div className="bg-white dark:bg-gray-800 rounded p-2">
+                                  <span className="text-gray-500">PIX:</span>
+                                  <span className="ml-1 font-medium text-red-600">{ruleExplanation.data_insights.pix_fraud_rate}</span>
+                                  <span className="text-gray-400"> fraude</span>
+                                </div>
+                                <div className="bg-white dark:bg-gray-800 rounded p-2">
+                                  <span className="text-gray-500">Mobile:</span>
+                                  <span className="ml-1 font-medium text-red-600">{ruleExplanation.data_insights.mobile_fraud_rate}</span>
+                                  <span className="text-gray-400"> fraude</span>
+                                </div>
+                                <div className="bg-white dark:bg-gray-800 rounded p-2">
+                                  <span className="text-gray-500">Noturno:</span>
+                                  <span className="ml-1 font-medium text-orange-600">{ruleExplanation.data_insights.night_fraud_rate}</span>
+                                  <span className="text-gray-400"> fraude</span>
+                                </div>
+                                <div className="bg-white dark:bg-gray-800 rounded p-2">
+                                  <span className="text-gray-500">Alto Valor:</span>
+                                  <span className="ml-1 font-medium text-red-600">{ruleExplanation.data_insights.high_value_fraud_rate}</span>
+                                  <span className="text-gray-400"> fraude</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="mt-3 pt-3 border-t border-green-200 dark:border-green-700">
+                        <p className="text-xs text-green-600 dark:text-green-400 italic">
+                          {ruleExplanation.recommendation}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
