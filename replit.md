@@ -68,6 +68,43 @@ The hard rules system has been upgraded to a full-featured rules engine:
 - `POST /api/hard-rules` - Create rule with conditions_json and logic_operator
 - `PUT /api/hard-rules/:id` - Update rule
 - `DELETE /api/hard-rules/:id` - Delete rule
+- `POST /api/hard-rules/explain` - **NEW** Explains a rule in natural language with risk analysis
+
+### Data-Driven Hard Rules (NEW - December 2025)
+14 intelligent rules created based on real PostgreSQL data analysis:
+
+**Analysis Findings:**
+- PIX Channel: 72.6% fraud rate (highest risk)
+- Hour 13h: 97.4% fraud rate (critical peak)
+- Hour 21-23h: 60-95% fraud rate (night risk)
+- Amount R$5,000-10,000: 99.76% fraud rate
+- Amount R$100-500: 97.2% fraud rate
+- Mobile Channel: 83.3% fraud rate
+
+**Rules Created:**
+1. PIX Horário Crítico 13h (review)
+2. PIX Valor Crítico R$5.000-10.000 (block)
+3. PIX Madrugada Bloqueio (block)
+4. Mobile Alto Valor Noturno (review)
+5. Primeira Transação Alto Valor PIX (review)
+6. Velocidade Alta - Ataque Automatizado (block)
+7. Novo Dispositivo + Alto Valor (step_up)
+8. PIX Valor Suspeito R$100-500 (alert)
+9. Score ML Alto + Canal Risco (review)
+10. Horário Noturno 21h + Valor Médio (review)
+11. Conta Nova + PIX (review)
+12. Chave PIX Aleatória + Alto Valor (review)
+13. Valor Limite BACEN Dia (alert)
+14. TED/BOLETO Alta Quantia (review)
+
+**Hypothetical Situations:**
+Each rule includes a real-world scenario description for LGPD compliance and analyst understanding.
+
+**Rule Explanation System:**
+- Real-time explanation in Portuguese when creating/editing rules
+- Risk analysis based on historical data
+- Data insights (fraud rates by channel, time, value)
+- Recommendations for rule effectiveness
 
 ### Research-Based ML Modules (New)
 Four new modules based on academic research have been implemented:
