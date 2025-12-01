@@ -23,6 +23,13 @@ const docs = [
     description: 'Como funciona a inteligência artificial'
   },
   { 
+    id: 'ml-completo', 
+    label: 'Guia Completo ML', 
+    icon: Brain, 
+    file: 'GUIA_COMPLETO_ML.md',
+    description: 'Arquitetura completa: 7 módulos, ensemble, fórmulas'
+  },
+  { 
     id: 'fraudes', 
     label: 'Tipos de Fraudes', 
     icon: AlertTriangle, 
@@ -37,11 +44,18 @@ const docs = [
     description: 'Bahnsen, PIX Taxonomy, NLP e Transfer Learning'
   },
   { 
+    id: 'datasets-features-modelos', 
+    label: 'Datasets, Features e Modelos', 
+    icon: Database, 
+    file: 'DATASETS_FEATURES_MODELOS.md',
+    description: 'Catálogo completo: 7 datasets, 100+ features, 13 modelos'
+  },
+  { 
     id: 'datasets', 
-    label: 'Datasets', 
+    label: 'Histórias de Fraude', 
     icon: Database, 
     file: 'DataSets.md',
-    description: 'Catálogo de datasets para treinamento'
+    description: '50 casos reais de fraude baseados em dados'
   },
   { 
     id: 'payload', 
@@ -150,10 +164,10 @@ export function Documentation() {
           </nav>
           <div className="p-4 border-t border-gray-200 dark:border-gray-700 mt-auto">
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              <p className="font-semibold text-gray-700 dark:text-gray-300">9 Documentos</p>
-              <p>12.000+ linhas de conteúdo</p>
+              <p className="font-semibold text-gray-700 dark:text-gray-300">11 Documentos</p>
+              <p>15.000+ linhas de conteúdo</p>
               <p>Metodologia Head First</p>
-              <p className="mt-1 text-green-600 dark:text-green-400">+ Módulos ML v2.0</p>
+              <p className="mt-1 text-green-600 dark:text-green-400">+ Catálogo Completo ML v2.0</p>
             </div>
           </div>
         </aside>
