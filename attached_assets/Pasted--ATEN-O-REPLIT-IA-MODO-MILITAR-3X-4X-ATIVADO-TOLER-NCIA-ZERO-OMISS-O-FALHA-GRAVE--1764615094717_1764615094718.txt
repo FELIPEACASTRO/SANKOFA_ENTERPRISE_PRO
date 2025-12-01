@@ -1,0 +1,175 @@
+⚠️ ATENÇÃO REPLIT IA  
+MODO MILITAR 3X/4X ATIVADO  
+TOLERÂNCIA = ZERO  
+OMISSÃO = FALHA GRAVE  
+SUPERFICIALIDADE = PROIBIDA  
+TRATAMENTO SUAVE = PROIBIDO  
+
+MISSÃO:  
+Você deve realizar uma VARREDURA HOSTIL COMPLETA, SEM PIEDADE, dos DOIS ARQUIVOS de catálogo anexados no projeto:
+
+1. "Catálogo Ultra-Rigoroso de Datasets de Fraude_ Cré.md"
+2. "Repositórios e Datasets de Fraude em Crédito, Débi.md"
+
+Esses arquivos contêm dezenas (ou centenas) de URLs.  
+Sua tarefa é:
+
+### 📌 FASE 1 — LEITURA MILITAR DOS ARQUIVOS (OBRIGATÓRIA E TOTAL)
+- Você DEVE abrir CADA UM dos dois arquivos na íntegra.  
+- Você DEVE extrair TODAS as URLs (cada link, cada fonte, cada referência).  
+- Você DEVE montar uma lista consolidada sem duplicações.  
+- Você NÃO tem permissão para pular nenhum link.
+
+Falhou em 1 link → falhou em tudo.
+
+### 📌 FASE 2 — MISSÃO DE INFILTRAÇÃO EM CADA URL (EXECUTAR PARA TODAS)
+Para CADA URL extraída:
+
+1. Você DEVE acessar a URL.  
+2. Você DEVE navegar pelo conteúdo (página principal, abas, descrição, files, READMEs).  
+3. Você DEVE identificar exatamente o que a URL contém:
+   - Dataset?  
+   - Repositório de ML?  
+   - Modelo pré-treinado?  
+   - Paper com conjunto de features?  
+   - Ferramenta de detecção de fraude?  
+   - Benchmark?  
+   - Transfer learning aplicável?  
+   - Dataset sintético avançado?  
+   - Embeddings prontos?  
+   - Graph-based ML?  
+   - Modelos transformer para transações?
+
+4. Você DEVE responder de forma objetiva:
+   - **Essa URL contém algo que ajuda nossa solução?**
+   - **Crédito? Débito? Pix? Outra modalidade útil?**
+   - **Tem datasets que podemos baixar?**
+   - **Tem features aproveitáveis?**
+   - **Tem código utilizável em pipelines reais?**
+   - **Tem exemplos de transfer learning aplicável?**
+
+5. Se a URL estiver quebrada, você DEVE registrar como:
+   **"URL PROBLEMÁTICA – FALHA DE ACESSO"**
+   e seguir para a próxima.
+
+6. Em páginas tipo GitHub:
+   - Ler README,
+   - Ler pastas /src, /data, /models,
+   - Ver se há notebooks (ipynb),
+   - Ver se há scripts de feature engineering,
+   - Ver se há dados baixáveis.
+
+7. Em páginas tipo Kaggle / HuggingFace:
+   - Identificar tipo de dataset,
+   - Quantidade de linhas,
+   - Campos,
+   - Labels,
+   - Origem,
+   - Relevância prática para nosso pipeline.
+
+### 📌 FASE 3 — CLASSIFICAÇÃO DE UTILIDADE (SEVERA)
+Para cada URL visitada, você DEVE classificar com extrema precisão:
+
+- **ALTA UTILIDADE – CRÉDITO**
+- **ALTA UTILIDADE – DÉBITO**
+- **ALTA UTILIDADE – PIX**
+- **ALTA UTILIDADE – TRANSACIONAL GERAL**
+- **ALTA UTILIDADE – GRAPH / GNN**
+- **ALTA UTILIDADE – TRANSFER LEARNING**
+- **ÚTIL – FEATURE ENGINEERING**
+- **POUCO ÚTIL**
+- **DESCARTADO**
+
+Você NÃO tem permissão para indecisão.  
+Você DEVE escolher um e justificar.
+
+### 📌 FASE 4 — EXTRAÇÃO ESPECIALIZADA DE FEATURES
+Você deve identificar:
+
+- Features temporais (janelas de tempo, contagens, frequência, soma).
+- Features comportamentais (velocidade, padrão de uso).
+- Features estatísticas.
+- Features baseadas em Device, IP, Geo.
+- Features de Graph (vizinhança, grau, pagerank, centralidade).
+- Embeddings pré-treinados.
+- Features avançadas usadas em papers de fraude.
+
+E DEVE DOCUMENTAR:
+- Como cada conjunto de features pode ser usado na nossa solução (CRÉDITO, DÉBITO, PIX).
+
+### 📌 FASE 5 — IDENTIFICAÇÃO DE TRANSFER LEARNING (OBRIGATÓRIA)
+Para cada URL que contenha:
+- modelos prontos,
+- código de modelagem,
+- embeddings,
+- arquitetura de rede profunda,
+
+Você DEVE responder:
+- Como podemos pré-treinar modelos nesses datasets e reusar no nosso ambiente?
+- Quais modelos são bons candidatos para transfer learning?
+  - Transformers para sequências de transações
+  - Graph Neural Networks para relações cliente ↔ device ↔ comerciante
+  - Autoencoders para detecção de anomalia
+  - GNNs para AML / Pix
+  - Modelos híbridos (temporal + grafo)
+
+### 📌 FASE 6 — SAÍDA FINAL EM FORMATO MILITAR
+A saída final DEVE conter:
+
+### 1. **LISTA COMPLETA DE TODAS AS URLs VISITADAS**
+Formato obrigatório:
+- Nome do recurso
+- URL
+- Tipo (Dataset/Repo/Model/Paper/Transfer Learning)
+- Modalidade (Crédito/Débito/PIX/Geral/AML/etc.)
+- Volume (e.g., 284k linhas, 6M+, 10GB)
+- Tipo de dado (transações, AML, e-commerce, etc.)
+- Real ou sintético
+- País/região
+- Valor prático para nossa solução
+- Priorização (P1, P2, P3, Baixa)
+
+### 2. **MAPA DE FEATURES RELEVANTES**
+- Features temporais,
+- Comportamentais,
+- High-frequency transaction features,
+- Device/IP,
+- Graph,
+- Embeddings,
+- Representações generativas.
+
+### 3. **MAPA DE TRANSFER LEARNING**
+Quais modelos, quais técnicas, quais repos, quais datasets permitem pré-treino reaproveitável para:
+
+- Crédito,
+- Débito,
+- PIX.
+
+### 4. **TOP 20 RECURSOS ESSENCIAIS**
+Os que você recomenda PRIORITARIAMENTE usar no nosso pipeline.
+
+### 5. **GAPS DETECTADOS**
+- URLs quebradas
+- Repositórios ruins
+- Datasets pobres ou muito sintéticos
+- Papers sem código
+
+### 6. **PLANO DE AÇÃO**
+O que devemos baixar, importar, usar e pré-treinar primeiro.
+
+======================================================================
+⚠️ ORDEM FINAL (NÃO NEGOCIÁVEL)
+
+Você NÃO pode:
+- Ignorar URLs,
+- Fazer resumo superficial,
+- Assumir utilidade sem provar,
+- Ignorar datasets pequenos,
+- Deixar de classificar,
+- Deixar de navegar nas páginas,
+- Deixar de apontar transfer learning aproveitável.
+
+Você DEVE operar em modo militar, precisão absoluta.  
+Seu objetivo é criar o **MAPA DEFINITIVO DE DATASETS, FEATURES E MODELOS** para nossa solução de fraude (crédito, débito e Pix).
+
+EXECUTE AGORA.
