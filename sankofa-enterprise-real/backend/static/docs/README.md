@@ -2,9 +2,9 @@
 
 ## Sistema de Detecção de Fraudes para Instituições Financeiras
 
-**Versão:** 1.0  
-**Data:** 30 de Novembro de 2025  
-**Status:** ✅ PRONTO PARA PRODUÇÃO - 21/21 Endpoints Funcionando (100%)
+**Versão:** 2.0  
+**Data:** 01 de Dezembro de 2025  
+**Status:** ✅ PRONTO PARA PRODUÇÃO - 27/27 Endpoints Funcionando (100%) + 4 Módulos ML
 
 ---
 
@@ -82,7 +82,7 @@
 
 | Métrica | Valor | Status |
 |---------|-------|--------|
-| **Endpoints API** | 21/21 | ✅ 100% |
+| **Endpoints API** | 27/27 | ✅ 100% |
 | **Latência (com cache)** | 37-72ms | ✅ SLA <50ms |
 | **Latência (1ª chamada)** | ~700-850ms | ✅ Aceitável |
 | **Transações PostgreSQL** | 4.466 | ✅ Real |
@@ -168,6 +168,16 @@
 ✅ GET /api/audit               → Audit logs
 ✅ GET /api/investigations      → Investigações
 ✅ GET /api/reports             → Relatórios
+```
+
+### Módulos de Pesquisa ML (NOVO v2.0)
+```
+✅ GET  /api/research/modules/status    → Status dos módulos
+✅ POST /api/research/bahnsen/features  → Features Bahnsen (62+)
+✅ POST /api/research/pix/analyze       → Análise fraude PIX
+✅ POST /api/research/nlp/analyze       → Detecção engenharia social
+✅ POST /api/research/nlp/batch         → Análise NLP em lote
+✅ GET  /api/research/transfer/datasets → Datasets transfer learning
 ```
 
 ---
@@ -273,7 +283,7 @@ npm run dev
 
 **Frontend:** React 18, Vite, TailwindCSS, shadcn/ui, Recharts
 
-**ML:** Stacking Ensemble (RF + GB + CB), SHAP, 47+ features
+**ML:** Stacking Ensemble (RF + GB + CB), SHAP, 47+ features, Bahnsen 62+ features, PIX Taxonomy, NLP Detector, Transfer Learning (17M+ tx)
 
 **Segurança:** JWT, RBAC (5 roles, 20+ permissions), AES-256
 

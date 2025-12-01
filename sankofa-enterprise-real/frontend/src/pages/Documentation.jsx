@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
   BookOpen, Brain, AlertTriangle, Package, Layers, BarChart3, Code,
-  ChevronLeft, ChevronRight, Loader2, BookMarked
+  ChevronLeft, ChevronRight, Loader2, BookMarked, Microscope, Database, MessageSquare, Share2
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/Card.jsx';
 
@@ -28,6 +28,20 @@ const docs = [
     icon: AlertTriangle, 
     file: 'USE_A_CABECA_FRAUDES.md',
     description: 'Enciclopédia completa de fraudes bancárias'
+  },
+  { 
+    id: 'research-ml', 
+    label: 'Módulos de Pesquisa ML', 
+    icon: Microscope, 
+    file: 'MODULOS_PESQUISA_ML.md',
+    description: 'Bahnsen, PIX Taxonomy, NLP e Transfer Learning'
+  },
+  { 
+    id: 'datasets', 
+    label: 'Datasets', 
+    icon: Database, 
+    file: 'DataSets.md',
+    description: 'Catálogo de datasets para treinamento'
   },
   { 
     id: 'payload', 
@@ -136,9 +150,10 @@ export function Documentation() {
           </nav>
           <div className="p-4 border-t border-gray-200 dark:border-gray-700 mt-auto">
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              <p className="font-semibold text-gray-700 dark:text-gray-300">7 Documentos</p>
-              <p>10.000+ linhas de conteúdo</p>
+              <p className="font-semibold text-gray-700 dark:text-gray-300">9 Documentos</p>
+              <p>12.000+ linhas de conteúdo</p>
               <p>Metodologia Head First</p>
+              <p className="mt-1 text-green-600 dark:text-green-400">+ Módulos ML v2.0</p>
             </div>
           </div>
         </aside>

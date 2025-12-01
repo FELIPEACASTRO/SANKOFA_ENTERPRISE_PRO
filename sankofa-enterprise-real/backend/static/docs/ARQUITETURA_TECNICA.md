@@ -601,6 +601,77 @@ RESPONSE:
 +==============================================================================+
 ```
 
+### 4.3 Modulos de Pesquisa ML (v2.0)
+
+Quatro modulos avancados baseados em pesquisas academicas foram implementados:
+
+```
++==============================================================================+
+|                    MODULOS DE PESQUISA ML v2.0                                |
++==============================================================================+
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  1. BAHNSEN FEATURE ENGINEERING (v2.0.0)                                │ |
+|  │     Base: Bahnsen et al. 2016                                           │ |
+|  │                                                                          │ |
+|  │     • Agregacoes temporais (1h, 6h, 24h, 72h, 168h)                     │ |
+|  │     • Features periodicas Von Mises (sin/cos hora/dia/mes)              │ |
+|  │     • Deteccao de desvio comportamental (Z-scores)                      │ |
+|  │     • Features de velocidade e risco por canal                          │ |
+|  │     • Total: 62+ features geradas por transacao                         │ |
+|  │                                                                          │ |
+|  │     Endpoint: POST /api/research/bahnsen/features                        │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  2. PIX FRAUD TAXONOMY (v1.0.0)                                         │ |
+|  │     Base: arXiv:2511.20902                                              │ |
+|  │                                                                          │ |
+|  │     Tipos de Fraude PIX Detectados:                                     │ |
+|  │     • Mao Fantasma (acesso remoto)     - Risco: 0.95                    │ |
+|  │     • Clone WhatsApp                   - Risco: 0.85                    │ |
+|  │     • QR Code Adulterado               - Risco: 0.75                    │ |
+|  │     • Falso Funcionario/Central        - Risco: 0.85                    │ |
+|  │     • Bug do PIX / PIX Errado          - Risco: 0.65-0.70               │ |
+|  │     • Leilao Falso / Comprovante Falso - Risco: 0.60-0.70               │ |
+|  │     • Sequestro Relampago              - Risco: 0.95                    │ |
+|  │                                                                          │ |
+|  │     Compliance: BACEN + LGPD integrado                                  │ |
+|  │     Endpoint: POST /api/research/pix/analyze                            │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  3. NLP SOCIAL ENGINEERING DETECTOR (v1.0.0)                            │ |
+|  │     Base: DIFrauD Dataset                                               │ |
+|  │                                                                          │ |
+|  │     Deteccao de Padroes:                                                │ |
+|  │     • SMS Phishing (smishing)          - Deteccao: 70%+                 │ |
+|  │     • Clone de WhatsApp                - Deteccao: 70%+                 │ |
+|  │     • Impersonacao de Banco            - Deteccao: 70%+                 │ |
+|  │     • Urgencia e Manipulacao Emocional                                  │ |
+|  │                                                                          │ |
+|  │     Recomendacoes: ALLOW, WARN_USER, REVIEW, BLOCK                      │ |
+|  │     Endpoints: POST /api/research/nlp/analyze, /nlp/batch               │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  ┌─────────────────────────────────────────────────────────────────────────┐ |
+|  │  4. TRANSFER LEARNING PIPELINE (v1.0.0)                                 │ |
+|  │                                                                          │ |
+|  │     Datasets Suportados:                                                │ |
+|  │     • Nigerian Financial    - 5M+ transacoes                            │ |
+|  │     • PaySim                - 6.3M transacoes                           │ |
+|  │     • Feedzai BAF           - 6M transacoes                             │ |
+|  │     • IEEE-CIS              - 590K transacoes                           │ |
+|  │                                                                          │ |
+|  │     Fases: Pre-treinamento -> Domain Adaptation -> Fine-tuning          │ |
+|  │     Endpoint: GET /api/research/transfer/datasets                        │ |
+|  └─────────────────────────────────────────────────────────────────────────┘ |
+|                                                                               |
+|  STATUS GERAL: GET /api/research/modules/status                              |
+|                                                                               |
++==============================================================================+
+```
+
 ---
 
 ## 5. Observabilidade

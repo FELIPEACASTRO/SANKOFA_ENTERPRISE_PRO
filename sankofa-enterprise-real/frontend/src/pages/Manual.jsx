@@ -755,6 +755,53 @@ const todasAsTelas = [
     `
   },
   {
+    id: 'research-ml',
+    nome: 'Modulos de Pesquisa ML',
+    icone: Brain,
+    caminho: 'Menu > Documentacao > Modulos ML',
+    rota: '/documentation',
+    modulo: 'ML Avancado',
+    cor: 'indigo',
+    objetivo: '4 modulos avancados de ML baseados em pesquisas academicas: Bahnsen Feature Engineering, PIX Fraud Taxonomy, NLP Social Engineering, e Transfer Learning.',
+    quandoUsar: [
+      'Para entender como a IA detecta fraudes sofisticadas',
+      'Para analisar transacoes PIX de alto risco',
+      'Para detectar golpes de engenharia social (phishing, smishing)',
+      'Para treinar modelos com datasets externos'
+    ],
+    elementos: [
+      { nome: 'Bahnsen Engine', tipo: 'Modulo', desc: 'Gera 62+ features temporais por transacao' },
+      { nome: 'PIX Taxonomy', tipo: 'Modulo', desc: 'Detecta 10+ tipos de fraude PIX brasileira' },
+      { nome: 'NLP Detector', tipo: 'Modulo', desc: 'Identifica phishing, smishing e manipulacao' },
+      { nome: 'Transfer Learning', tipo: 'Pipeline', desc: 'Suporte a 4 datasets externos (17M+ transacoes)' }
+    ],
+    historia: 'Carlos recebe um alerta de transacao PIX suspeita. O sistema mostra que foi detectado software de acesso remoto (Mao Fantasma) com 100% de probabilidade de fraude. O NLP tambem detectou mensagem de phishing anterior. Acao recomendada: BLOQUEAR.',
+    cuidados: [
+      'Modulos geram explicacoes compativeis com LGPD',
+      'Scores altos (>80%) indicam alto risco - revisar imediatamente',
+      'NLP funciona melhor com textos em portugues brasileiro'
+    ],
+    ascii: `
++--------------------------------------------------+
+|  MODULOS DE PESQUISA ML v2.0                     |
++--------------------------------------------------+
+|  +------------------+  +------------------+      |
+|  | BAHNSEN          |  | PIX TAXONOMY     |      |
+|  | 62+ features     |  | 10+ tipos fraude |      |
+|  | Temporal/Ciclico |  | Mao Fantasma     |      |
+|  | [ATIVO]          |  | Clone WhatsApp   |      |
+|  +------------------+  +------------------+      |
+|                                                  |
+|  +------------------+  +------------------+      |
+|  | NLP DETECTOR     |  | TRANSFER LEARN.  |      |
+|  | Phishing: 67%    |  | 4 datasets       |      |
+|  | Smishing: 71%    |  | 17M+ transacoes  |      |
+|  | [ATIVO]          |  | [CONFIGURAVEL]   |      |
+|  +------------------+  +------------------+      |
++--------------------------------------------------+
+    `
+  },
+  {
     id: 'settings',
     nome: 'Configuracoes',
     icone: Settings,
