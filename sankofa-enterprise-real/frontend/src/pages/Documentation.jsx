@@ -74,7 +74,8 @@ export function Documentation() {
         if (!response.ok) {
           throw new Error('Documento não encontrado');
         }
-        const text = await response.text();
+        let text = await response.text();
+        text = text.replace(/\(images\//g, '(/docs/images/');
         setContent(text);
       } catch (err) {
         setError(err.message);
@@ -217,25 +218,20 @@ export function Documentation() {
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm]}
                       components={{
-                        img: ({node, src, alt, ...props}) => {
-                          let fixedSrc = src;
-                          if (src?.startsWith('images/')) {
-                            fixedSrc = `/docs/${src}`;
-                          }
-                          return (
-                            <img 
-                              src={fixedSrc} 
-                              alt={alt || 'Imagem da documentação'} 
-                              className="rounded-lg shadow-md max-w-full h-auto my-4 border border-gray-200 dark:border-gray-700"
-                              loading="lazy"
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                                console.error('Erro ao carregar imagem:', fixedSrc);
-                              }}
-                              {...props} 
-                            />
-                          );
-                        }
+                        img: ({node, src, alt, ...props}) => (
+                          <img 
+                            src={src} 
+                            alt={alt || 'Imagem da documentação'} 
+                            className="rounded-lg shadow-lg max-w-full h-auto my-6 mx-auto block border border-gray-200 dark:border-gray-700"
+                            loading="lazy"
+                            onError={(e) => {
+                              console.error('Erro ao carregar imagem:', src);
+                              e.target.style.opacity = '0.3';
+                              e.target.alt = 'Imagem não disponível';
+                            }}
+                            {...props} 
+                          />
+                        )
                       }}
                     >
                       {content}
