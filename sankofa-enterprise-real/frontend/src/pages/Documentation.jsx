@@ -218,15 +218,20 @@ export function Documentation() {
                       remarkPlugins={[remarkGfm]}
                       components={{
                         img: ({node, src, alt, ...props}) => {
-                          const fixedSrc = src?.startsWith('images/') 
-                            ? `/docs/${src}` 
-                            : src;
+                          let fixedSrc = src;
+                          if (src?.startsWith('images/')) {
+                            fixedSrc = `/docs/${src}`;
+                          }
                           return (
                             <img 
                               src={fixedSrc} 
-                              alt={alt || ''} 
-                              className="rounded-lg shadow-md max-w-full h-auto my-4"
+                              alt={alt || 'Imagem da documentação'} 
+                              className="rounded-lg shadow-md max-w-full h-auto my-4 border border-gray-200 dark:border-gray-700"
                               loading="lazy"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                console.error('Erro ao carregar imagem:', fixedSrc);
+                              }}
                               {...props} 
                             />
                           );
