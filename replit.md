@@ -70,12 +70,64 @@ The hard rules system has been upgraded to a full-featured rules engine:
 - `DELETE /api/hard-rules/:id` - Delete rule
 - `POST /api/hard-rules/explain` - **NEW** Explains a rule in natural language with risk analysis
 
+### HardRulesEngine Unificado (NEW - December 2025)
+Motor de Regras Duras que retorna no **MESMO FORMATO** que o Machine Learning.
+Quem chama a API não consegue distinguir se a resposta veio do ML ou das regras duras.
+
+**Características:**
+- Versão 2.0.0 com resposta unificada
+- 216 regras ativas no PostgreSQL
+- Cache de regras em memória (TTL 30s)
+- Latência < 50ms por transação
+- Suporte a batch processing
+
+**Formato de Resposta (Idêntico ao ML):**
+```python
+{
+    "transaction_id": "TXN_001",
+    "is_fraud": true/false,
+    "fraud_probability": 0.0-1.0,
+    "risk_score": 0.0-1.0,
+    "risk_level": "LOW/MEDIUM/HIGH/CRITICAL",
+    "confidence": 0.0-1.0,
+    "processing_time_ms": float,
+    "model_version": "HARD_RULES_2.0.0",
+    "detection_reason": ["Razão 1", "Razão 2"],
+    "timestamp": "ISO8601"
+}
+```
+
+**Mapeamento Ação → Score:**
+- block: 0.95 (CRITICAL)
+- step_up: 0.80 (HIGH)
+- review: 0.75 (MEDIUM)
+- score_adjust: 0.60 (MEDIUM)
+- alert: 0.50 (MEDIUM)
+- approve: 0.10 (LOW)
+
+**Testes Integrados (30 testes, 100% passing):**
+- TestHardRulesEngineBasic (3 testes)
+- TestHardRulesResponseFormat (3 testes)
+- TestHardRulesCategories (10 testes)
+- TestHardRulesNewFromFiles (6 testes)
+- TestHardRulesPerformance (3 testes)
+- TestUnifiedFraudEngine (2 testes)
+- TestAllRulesEffectiveness (3 testes)
+
 ### Data-Driven Hard Rules (EXPANDED - December 2025)
-**190 Regras Duras** criadas baseadas em:
-- Análise de dados reais PostgreSQL
+**216 Regras Duras** criadas baseadas em:
+- Análise de 130.000 cenários reais de fraude (DÉBITO, CRÉDITO, PIX)
 - Pesquisas acadêmicas (MDPI, Nature, IEEE, arXiv)
 - Regulações BACEN/COAF/PCI DSS/LGPD
 - Relatórios Febraban, BioCatch, ClearSale, Kaspersky, ACI Worldwide
+
+**26 Novas Regras (Expansão de 190 → 216):**
+- Cartão Recém-Emitido (3 regras)
+- Endereço Diferente (2 regras)
+- Fraude Triangulação (2 regras)
+- Dados Inconsistentes (2 regras)
+- Combinações Multi-Fator (4 regras)
+- Tipos específicos: Maquininha Adulterada, Falso Comprovante PIX, Chargeback, etc.
 
 **Estatísticas de Fraude (Fontes: BACEN/Febraban 2024):**
 - R$ 4,9 bilhões em perdas com PIX em 2024 (+70% vs 2023)
@@ -85,32 +137,33 @@ The hard rules system has been upgraded to a full-featured rules engine:
 - 97.43% fraude no horário 13h
 - 80%+ golpes de engenharia social em horário comercial
 
-**Regras por Categoria (190 Total):**
+**Regras por Categoria (216 Total):**
 
 | Categoria | Qtd | Descrição |
 |-----------|-----|-----------|
 | REGULAÇÃO BACEN | 10 | BCB 403/2024, Limites noturnos, COAF, MED 2.0 |
-| CARD-NOT-PRESENT | 7 | AVS, CVV, 3DS, Card Testing, E-commerce |
-| DEVICE/LOCATION | 10 | Fingerprinting, VPN, Emulador, GeoMismatch |
-| ENGENHARIA SOCIAL | 5 | WhatsApp, Falsa Central, QR Code, Phishing |
-| MALWARE | 4 | Mão Fantasma, BrasDex, ATS, Overlay |
-| SEQUESTRO | 3 | ATM madrugada, Coação, Múltiplos saques |
-| VELOCITY | 15 | Card Testing, Impossible Travel, Structuring |
+| CARD-NOT-PRESENT | 10 | AVS, CVV, 3DS, Card Testing, Triangulação, E-commerce |
+| DEVICE/LOCATION | 12 | Fingerprinting, VPN, Emulador, GeoMismatch, IP desconhecido |
+| ENGENHARIA SOCIAL | 6 | WhatsApp, Falsa Central, QR Code, Phishing, Suporte falso |
+| MALWARE | 5 | Mão Fantasma, BrasDex, ATS, Overlay, Acesso remoto |
+| SEQUESTRO | 4 | ATM madrugada, Coação, Múltiplos saques, Under duress |
+| VELOCITY | 18 | Card Testing, Impossible Travel, Structuring, BIN Attack |
 | ML PATTERNS | 10 | Anomalia, Behavioral, Ensemble High Confidence |
-| VALOR | 11 | Faixas críticas R$50-10.000, Acumulados |
-| HORÁRIO | 10 | 00h-06h, 13h, 20h-23h, Fins de semana |
-| PIX KEY | 8 | Aleatória, Telefone, CNPJ, CPF |
-| COMBINADAS | 10 | Multi-fator, Tríade, Quádrupla verificação |
-| COMPLIANCE | 2 | PCI DSS, LGPD |
-| CANAL | 10 | Mobile, Web, ATM, E-commerce, Contactless |
-| GOLPES ESPECÍFICOS | 10 | Romântico, Investimento, Pirâmide |
-| AUTENTICAÇÃO | 2 | 3DS, Step-up biométrico |
+| VALOR | 14 | Faixas críticas R$50-10.000, Acumulados, Limites BACEN |
+| HORÁRIO | 12 | 00h-06h, 13h, 20h-23h, Fins de semana |
+| PIX KEY | 10 | Aleatória, Telefone, CNPJ, CPF, Falso comprovante |
+| COMBINADAS | 14 | Multi-fator, Tríade, Quádrupla verificação |
+| COMPLIANCE | 3 | PCI DSS, LGPD, COAF |
+| CANAL | 12 | Mobile, Web, ATM, E-commerce, Contactless, POS |
+| GOLPES ESPECÍFICOS | 12 | Romântico, Investimento, Pirâmide, Anúncio falso |
+| AUTENTICAÇÃO | 3 | 3DS, Step-up biométrico, MFA |
+| NOVO CLIENTE | 5 | Conta nova, Cartão recém-emitido, Primeira transação |
 
-**Por Tipo de Ação:**
-- Review (análise manual): 95 regras
-- Block (bloqueio imediato): 55 regras
-- Alert (monitoramento): 23 regras
-- Step-up (verificação extra): 17 regras
+**Por Tipo de Ação (216 Total):**
+- Review (análise manual): 106 regras
+- Block (bloqueio imediato): 63 regras
+- Alert (monitoramento): 28 regras
+- Step-up (verificação extra): 19 regras
 
 **Fontes das Regras:**
 - BACEN Resolução BCB 403/2024, 501/2024, 522/2024, 524/2024
