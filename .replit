@@ -42,14 +42,10 @@ externalPort = 3001
 localPort = 38265
 externalPort = 3000
 
-[[ports]]
-localPort = 39927
-externalPort = 3002
-
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind=0.0.0.0:5000", "--workers=2", "--timeout=120", "--preload", "--max-requests=1000", "--max-requests-jitter=50", "api.production_api:app"]
-build = ["bash", "-c", "cd sankofa-enterprise-real/frontend && npm run build && cp -r dist/* ../backend/static/"]
+run = ["bash", "-c", "cd sankofa-enterprise-real/backend && python api/production_api.py"]
+build = ["bash", "-c", "cd sankofa-enterprise-real/frontend && npm install && npm run build && rm -rf ../../sankofa-enterprise-real/backend/static/* && cp -r dist/* ../../sankofa-enterprise-real/backend/static/"]
 
 [userenv]
 
