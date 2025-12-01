@@ -899,11 +899,56 @@ def handle_exception(error):
 
 
 STATIC_FOLDER = Path(__file__).parent.parent / "static"
+DOCS_FOLDER = STATIC_FOLDER / "docs"
 
 @app.route("/", methods=["GET"])
 def serve_frontend():
     """Serve React frontend"""
     return send_from_directory(STATIC_FOLDER, "index.html")
+
+@app.route("/docs/<path:filename>", methods=["GET"])
+def serve_docs(filename):
+    """Serve documentation files (markdown and images) with proper content types"""
+    from flask import Response
+    
+    docs_path = DOCS_FOLDER / filename
+    
+    if not docs_path.exists() or not docs_path.is_file():
+        return jsonify({"error": "Documentation file not found", "path": filename}), 404
+    
+    if filename.lower().endswith('.png'):
+        with open(docs_path, 'rb') as f:
+            content = f.read()
+        return Response(content, mimetype='image/png', headers={
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Content-Disposition': f'inline; filename={docs_path.name}'
+        })
+    elif filename.lower().endswith('.md'):
+        with open(docs_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return Response(content, mimetype='text/markdown; charset=utf-8', headers={
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+        })
+    elif filename.lower().endswith(('.jpg', '.jpeg')):
+        with open(docs_path, 'rb') as f:
+            content = f.read()
+        return Response(content, mimetype='image/jpeg', headers={
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+        })
+    elif filename.lower().endswith('.gif'):
+        with open(docs_path, 'rb') as f:
+            content = f.read()
+        return Response(content, mimetype='image/gif', headers={
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+        })
+    elif filename.lower().endswith('.svg'):
+        with open(docs_path, 'rb') as f:
+            content = f.read()
+        return Response(content, mimetype='image/svg+xml', headers={
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+        })
+    else:
+        return send_from_directory(DOCS_FOLDER, filename)
 
 @app.route("/<path:path>", methods=["GET"])
 def serve_static(path):
