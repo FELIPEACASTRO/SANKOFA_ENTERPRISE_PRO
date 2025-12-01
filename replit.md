@@ -33,6 +33,42 @@ The frontend is built with React 18, utilizing Vite for fast development, `shadc
 - **Calibration**: Enables adjustment of model thresholds and parameters.
 - **Compliance**: Integrates features for LGPD (data privacy), BACEN (banking regulations), and PCI DSS (payment card security).
 
+### Advanced Hard Rules Engine (NEW - December 2025)
+The hard rules system has been upgraded to a full-featured rules engine:
+
+**Multiple Conditions Support:**
+- Support for AND/OR logic operators
+- Up to 10+ conditions per rule
+- Dynamic condition builder in frontend
+
+**20 Available Fields in 7 Categories:**
+- **Transaction (5)**: amount, channel, type, status, is_scheduled
+- **Customer (4)**: cpf, location, is_first_transaction, account_age_days
+- **Device (3)**: device_id, ip_address, is_new_device
+- **Temporal (2)**: hour, day_of_week
+- **Velocity (3)**: velocity_1h, velocity_24h, amount_24h
+- **ML (2)**: risk_score, ml_confidence
+- **PIX (1)**: pix_key_type
+
+**16 Operators:**
+- Comparison: ==, !=, >, <, >=, <=
+- Text: contains, not_contains, starts_with, ends_with
+- Lists: in, not_in
+- Range: between
+- Advanced: regex, is_null, is_not_null
+
+**6 Action Types:**
+- block, review, alert, approve, step_up, score_adjust
+
+**4 Rule Types:**
+- blocking, scoring, routing, alerting
+
+**API Endpoints:**
+- `GET /api/hard-rules/metadata` - Returns all fields, operators, actions, and rule types
+- `POST /api/hard-rules` - Create rule with conditions_json and logic_operator
+- `PUT /api/hard-rules/:id` - Update rule
+- `DELETE /api/hard-rules/:id` - Delete rule
+
 ### Research-Based ML Modules (New)
 Four new modules based on academic research have been implemented:
 
