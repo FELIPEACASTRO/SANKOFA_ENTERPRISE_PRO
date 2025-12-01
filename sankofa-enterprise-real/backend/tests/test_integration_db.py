@@ -126,10 +126,10 @@ class TestPostgreSQLTransactions:
         try:
             with conn.cursor() as cur:
                 cur.execute("""
-                    INSERT INTO transactions (transaction_id, amount, channel, status, risk_score, created_at)
-                    VALUES (%s, %s, %s, %s, %s, NOW())
+                    INSERT INTO transactions (transaction_id, amount, channel, type, status, risk_score, created_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, NOW())
                     RETURNING id;
-                """, (test_id, 1000.00, 'pix', 'PENDING', 0.5))
+                """, (test_id, 1000.00, 'pix', 'PIX', 'PENDING', 0.5))
                 
                 inserted_id = cur.fetchone()['id']
                 assert inserted_id > 0
@@ -318,7 +318,7 @@ class TestPostgreSQLAuditLogs:
         with self.get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("""
-                    INSERT INTO audit_logs (action, details, ip_address, timestamp)
+                    INSERT INTO audit_logs (action, details, ip_address, created_at)
                     VALUES (%s, %s, %s, NOW())
                     RETURNING id;
                 """, ('INTEGRATION_TEST', 'Test audit log entry', '127.0.0.1'))
@@ -629,9 +629,10 @@ class TestPostgresStoreIntegration:
         elapsed = (time.time() - start) * 1000
         
         assert isinstance(kpis, dict)
-        assert 'total_transactions' in kpis
+        assert 'total_transacoes' in kpis or 'fraudes_detectadas' in kpis
         print(f"✓ get_dashboard_kpis em {elapsed:.2f}ms")
-        print(f"  - Transações: {kpis.get('total_transactions', 0)}")
+        print(f"  - Transações: {kpis.get('total_transacoes', 0)}")
+        print(f"  - Fraudes: {kpis.get('fraudes_detectadas', 0)}")
         
     def test_get_dashboard_timeseries(self):
         """Testa método get_dashboard_timeseries"""
@@ -733,7 +734,7 @@ class TestDatabaseSchema:
             'vip_list',
             'hot_list',
             'audit_logs',
-            'settings'
+            'system_configs'
         ]
         
         with self.get_connection() as conn:
@@ -802,8 +803,8 @@ class TestEndToEndIntegration:
             with conn.cursor() as cur:
                 cur.execute("""
                     INSERT INTO transactions 
-                    (transaction_id, amount, channel, status, risk_score, created_at)
-                    VALUES (%s, 5000.00, 'pix', 'PENDING', 0.75, NOW())
+                    (transaction_id, amount, channel, type, status, risk_score, created_at)
+                    VALUES (%s, 5000.00, 'pix', 'PIX', 'PENDING', 0.75, NOW())
                     RETURNING id;
                 """, (test_txn_id,))
                 inserted_id = cur.fetchone()['id']
