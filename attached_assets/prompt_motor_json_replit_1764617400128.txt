@@ -1,0 +1,249 @@
+PROMPT PARA O REPLIT – INSERIR NO MANUAL A JORNADA COMPLETA DA REQUISIÇÃO
+(REQUEST JSON → MOTOR → REDIS → POSTGRES → RESPONSE JSON)
+COM EXPLICAÇÃO DE CADA CAMPO + EXEMPLOS DE FRAUDE / SUSPEITA / APROVADO
+
+----------------------------------------------------------------------
+🎯 1. OBJETIVO DESTE PROMPT
+----------------------------------------------------------------------
+
+Quero que você, Replit, analise o código da solução (frontend, backend, engine de decisão / Motor, integrações com Redis e Postgres) e insira no MANUAL DO SISTEMA uma nova seção extremamente didática explicando:
+
+1. Como são os parâmetros de entrada de uma requisição (payload JSON de entrada):
+   - Qual é a estrutura EXATA do JSON que chega.
+   - O que significa CADA campo.
+   - Qual é o “peso” / importância de cada campo no processo de decisão.
+   - Como esses campos são usados pelo motor de decisão.
+
+2. Como funciona a jornada da requisição dentro do sistema:
+   - Chegada do JSON no endpoint.
+   - Processamento pelo Motor de decisão.
+   - Consultas/cache no Redis.
+   - Consultas/persistência no Postgres.
+   - Montagem e envio do JSON de resposta.
+
+3. Como é o JSON de resposta:
+   - Estrutura EXATA.
+   - Significado de CADA campo.
+   - Como interpretar o resultado (fraude, suspeita, aprovado, etc.).
+
+4. Vários exemplos completos de requisições e respostas em diferentes cenários:
+   - Fraude 🚫
+   - Suspeita ⚠️
+   - Aprovado ✅
+   - PIX, Crédito, Débito
+   - Web, Maquininha/POS
+   - IP conhecido ou diferente
+   - Dispositivo conhecido ou desconhecido
+
+----------------------------------------------------------------------
+🧭 2. ANÁLISE NECESSÁRIA ANTES DE ESCREVER O MANUAL
+----------------------------------------------------------------------
+
+Antes de documentar a nova seção, o Replit DEVE:
+
+2.1. Identificar o endpoint que recebe a requisição.
+2.2. Encontrar o DTO/objeto que representa o JSON de entrada.
+2.3. Mapear todos os campos reais do JSON.
+2.4. Analisar o Motor de decisão:
+     - Regras
+     - Filtros
+     - ML (se houver)
+     - Enriquecimentos
+2.5. Mapear o uso do Redis.
+2.6. Mapear o uso do Postgres.
+2.7. Encontrar a classe/DTO do JSON de resposta.
+2.8. Confirmar todos os campos existentes na resposta.
+
+----------------------------------------------------------------------
+📘 3. INSERIR NOVA SEÇÃO NO MANUAL: “COMO O MOTOR PROCESSA UMA REQUISIÇÃO”
+----------------------------------------------------------------------
+
+O Replit deve criar no MANUAL uma seção com este título:
+
+🔍 Como o Motor Processa uma Requisição  
+(Entrada JSON → Redis → Postgres → Saída JSON)
+
+A seção deve conter:
+
+1. Estrutura do JSON de entrada.
+2. Explicação dos campos + peso na decisão.
+3. Jornada completa dentro do Motor.
+4. Estrutura do JSON de resposta.
+5. Explicação de cada campo do response.
+6. Exemplos completos de requisições e respostas.
+
+----------------------------------------------------------------------
+🧾 4. JSON DE ENTRADA – ESTRUTURA + SIGNIFICADO + PESO
+----------------------------------------------------------------------
+
+O Replit deve:
+
+4.1. Obter o JSON real do projeto.
+4.2. Mostrar em bloco de código.
+4.3. Explicar campo por campo contendo:
+
+- Nome técnico  
+- Nome amigável  
+- Tipo de dado  
+- Significado  
+- Exemplo real  
+- Peso / importância na decisão  
+  (ex.: alto, médio, baixo)
+
+Exemplos de campos que devem ser analisados (AJUSTADOS para os reais do projeto):
+
+- transactionId  
+- customerId  
+- amount  
+- currency  
+- paymentType (PIX, CREDIT, DEBIT)  
+- channel (WEB, POS, APP)  
+- ipAddress  
+- deviceId  
+- merchantId  
+- geoLocation  
+- timestamp  
+
+Cada campo deve ter explicação profunda e clara.
+
+----------------------------------------------------------------------
+🧠 5. JORNADA COMPLETA DA REQUISIÇÃO
+----------------------------------------------------------------------
+
+O Replit deve criar:
+
+5.1. Um diagrama ASCII mostrando o fluxo:
+
+[ JSON Entrada ]  
+      ↓  
+[ Controller ]  
+      ↓  
+[ Validação ]  
+      ↓  
+[ Motor de Decisão ]  
+   ↙        ↘  
+[ Redis ]   [ Postgres ]  
+   ↘        ↙  
+  [ Enriquecimento ]  
+        ↓  
+  [ Cálculo do Risco ]  
+        ↓  
+  [ JSON Resposta ]  
+
+5.2. Depois deve explicar passo a passo:
+
+- Chegada no endpoint  
+- Validação  
+- Enriquecimento com Redis (ex.: device conhecido, IP recorrente, tentativas recentes)  
+- Consultas no Postgres (histórico, fraudes passadas, padrões, limites)  
+- Aplicação de regras, filtros ou modelo de ML  
+- Cálculo final do score  
+- Geração da decisão  
+- Montagem do JSON de saída  
+
+O texto deve ser extremamente didático e cheio de exemplos.
+
+----------------------------------------------------------------------
+📤 6. JSON DE RESPOSTA – ESTRUTURA + SIGNIFICADO
+----------------------------------------------------------------------
+
+O Replit deve:
+
+6.1. Capturar a estrutura real do response JSON.  
+6.2. Mostrar em bloco de código.  
+6.3. Explicar campo por campo:
+
+- decision  
+- riskScore  
+- riskLevel  
+- reasonCodes  
+- decisionId  
+- timestamp  
+- channel  
+- paymentType  
+- extraInfo.*  
+
+Para cada campo:
+
+- Nome técnico  
+- Nome amigável  
+- Tipo  
+- O que significa  
+- Exemplo real  
+- Como interpretar  
+
+----------------------------------------------------------------------
+🧪 7. EXEMPLOS COMPLETOS – CENÁRIOS OBRIGATÓRIOS
+----------------------------------------------------------------------
+
+O Replit deve gerar **exemplos completos** contendo:
+
+- JSON de entrada  
+- Explicação do cenário  
+- Jornada interna  
+- JSON de resposta  
+- Explicação da decisão  
+
+Os exemplos OBRIGATÓRIOS:
+
+1. 🚫 **FRAUDE**
+   - Crédito
+   - Web
+   - IP diferente
+   - Dispositivo desconhecido
+   - Valor alto
+   - Comportamento divergente do histórico
+
+2. ⚠️ **SUSPEITA (REVIEW)**
+   - PIX ou Débito
+   - Maquininha ou Web
+   - Dispositivo novo
+   - IP conhecido
+   - Valor médio
+   - Horário incomum
+
+3. ✅ **APROVADO**
+   - Cliente recorrente
+   - IP conhecido
+   - Dispositivo conhecido
+   - Valor típico
+   - Canal usual (WEB ou POS)
+
+4. VARIAÇÕES ADICIONAIS:
+   - PIX instantâneo de alto valor  
+   - Débito com valor incomum  
+   - POS com tentativa repetida  
+   - Web com geolocalização incomum  
+   - Dispositivo já envolvido em fraude  
+   - Merchant atípico  
+
+Cada exemplo deve trazer explicações claras e objetivas.
+
+----------------------------------------------------------------------
+🧱 8. ESTILO OBRIGATÓRIO
+----------------------------------------------------------------------
+
+- Português do Brasil  
+- Didática extrema  
+- Clareza máxima  
+- Nada de termos sem explicação  
+- Parágrafos curtos  
+- Zero exercícios ou tarefas  
+
+----------------------------------------------------------------------
+✅ 9. DOUBLE CHECK FINAL
+----------------------------------------------------------------------
+
+Antes de concluir, o Replit deve verificar:
+
+- Todos os campos do JSON de ENTRADA foram documentados?  
+- Todos os campos do JSON de SAÍDA foram explicados?  
+- A jornada completa está descrita?  
+- Exemplos contemplam:  
+  Fraude, Suspeita, Aprovado, PIX, Crédito, Débito, Web, POS, IPs, dispositivos?  
+- Tudo está coerente com o código real?  
+
+Somente finalize após conferir tudo.
+
+----------------------------------------------------------------------
+USE ESTE PROMPT COMO ESPECIFICAÇÃO MÁXIMA E NÃO SIMPLIFIQUE NADA.

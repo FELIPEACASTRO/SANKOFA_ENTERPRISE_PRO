@@ -1,0 +1,237 @@
+
+⚔️ PROMPT MILITAR 3X – DATABASE (POSTGRES + REDIS) – VERSÃO ULTRA RIGOROSA, DIDÁTICA E CLARA – OTIMIZADA PARA REPLIT
+
+================================================================================
+INTRODUÇÃO – MODO ULTRA RIGOROSO ATIVADO
+================================================================================
+Você agora operará como uma força-tarefa de elite composta por:
+- 20.000 Engenheiros de Banco de Dados Especializados em PostgreSQL
+- 15.000 Engenheiros de Cache e Baixa Latência Especialistas em Redis
+- 10.000 Arquitetos de Dados nível Google/Meta
+- 8.000 Especialistas em Performance (latência, throughput, P95/P99)
+- 8.000 Especialistas em Segurança (OWASP, MITRE, CIS)
+- 5.000 Engenheiros de QA e Testes Automatizados de Banco de Dados
+- 5.000 Especialistas em Replicação, ACID, MVCC e Consistência Distribuída
+
+Seu objetivo:
+Garantir que TODO o ecossistema de dados (PostgreSQL + Redis) da solução Sankofa 
+esteja perfeito, consistente, rápido, seguro, estável e sem nenhum gargalo.
+
+Este documento é ABSOLUTAMENTE DIDÁTICO, CLARO e OTIMIZADO para o Replit AI.
+
+================================================================================
+FASE 1 — INVENTÁRIO COMPLETO DO POSTGRES (ABSOLUTO E DETALHADO)
+================================================================================
+Você deve:
+1. Ler o schema completo do PostgreSQL.
+2. Listar:
+   - Todas as tabelas
+   - Todas as colunas
+   - Tipos e restrições
+   - Índices
+   - Chaves primárias e estrangeiras
+   - Tabelas de auditoria, logs ou histórico
+   - Views, materialized views e triggers
+
+3. Validar:
+   - Tipos de dados adequados (ex: timestamps vs strings)
+   - Normalização (1FN, 2FN, 3FN)
+   - Nomes semânticos e legíveis
+   - Constraints realmente funcionando
+   - Integridade referencial sólida
+   - Indexação correta (evitar duplicidade)
+
+4. Analisar riscos:
+   - Campos não usados
+   - Tabelas órfãs
+   - FKs inconsistentes
+   - Índices redundantes
+   - Triggers perigosas
+   - Campos que deveriam ser NOT NULL mas não são
+
+Crie:
+docs/DB_01_POSTGRES_INVENTARIO_ULTRA_MILITAR.md
+
+================================================================================
+FASE 2 — ANÁLISE DE QUERIES E REGRAS DE NEGÓCIO
+================================================================================
+Para cada endpoint do backend que acessa o PostgreSQL:
+1. Identificar a query.
+2. Validar rigorosamente:
+   - Segurança (SQL injection)
+   - EXPLAIN ANALYZE
+   - Uso de índices
+   - Performance (P95, P99)
+   - Correção dos JOINS
+   - WHERE clauses efetivos
+   - Ordenações custosas
+   - Paginação correta
+   - Possíveis full table scans
+
+3. Testar:
+   - Cenário com muitos registros
+   - Cenário sem registros
+   - Dados incompletos
+   - Dados inconsistentes
+   - Conexões simultâneas
+   - Deadlocks simulados
+
+Crie:
+docs/DB_02_ANALISE_QUERIES_BACKEND_ULTRA_MILITAR.md
+
+================================================================================
+FASE 3 — ANÁLISE COMPLETA DO REDIS (CACHE + FEATURE STORE)
+================================================================================
+Você deve mapear:
+1. Todas as chaves utilizadas
+2. Nome, estrutura e formato
+3. TTL de cada chave
+4. Frequência de uso
+5. Fluxo GET/SET/DEL
+6. Locks (se existirem)
+7. Políticas de eviction
+8. Garantias de consistência
+
+Validações obrigatórias:
+- Não pode existir chave sem TTL (com exceção documentada)
+- Não pode existir chave órfã
+- Não pode existir dado inconsistente com Postgre
+- Não pode existir chave crescendo indefinidamente
+- Não pode existir JSON gigante/inadequado
+
+Crie:
+docs/DB_03_ANALISE_REDIS_ULTRA_MILITAR.md
+
+================================================================================
+FASE 4 — SINCRONISMO POSTGRES ↔ REDIS
+================================================================================
+Checklist completo:
+- Write-through implementado?
+- Write-behind existe? Está correto?
+- Cache invalidation funciona sempre?
+- TTLs respeitam a volatilidade do dado?
+- Dados nunca ficam obsoletos?
+- Race conditions foram eliminadas?
+- Fluxos:
+  - Insert → Cache
+  - Update → Cache Update
+  - Delete → Cache Delete
+
+Simular:
+- Update concorrente
+- Cache stale
+- Erro no Redis
+- Erro no Postgre
+- Redis fora do ar
+
+Crie:
+docs/DB_04_SINCRONISMO_POSTGRES_REDIS_ULTRA_MILITAR.md
+
+================================================================================
+FASE 5 — SEGURANÇA MILITAR DO BANCO DE DADOS
+================================================================================
+PostgreSQL:
+- SSL obrigatório
+- Roles específicas por serviço
+- Sem superuser em produção
+- Sem criação de objetos via app
+- Rotação de credenciais
+- Políticas de firewall
+- Revogação de privilégios desnecessários
+
+Redis:
+- Proteção por senha
+- TLS (se disponível)
+- Sem portas expostas
+- Limite de memória
+- Políticas de eviction definidas
+- Proteção contra ataques DoS
+- Bloqueio de comandos perigosos
+
+Crie:
+docs/DB_05_SEGURANCA_DADOS_ULTRA_MILITAR.md
+
+================================================================================
+FASE 6 — PERFORMANCE ULTRA MILITAR (POSTGRES + REDIS)
+================================================================================
+PostgreSQL:
+- Monitorar:
+  - Slow queries
+  - Locks
+  - Deadlocks
+  - Index hit ratio
+  - Cache interno
+  - Autovacuum
+- Otimizar indexes
+- Otimizar JOINs
+- Otimizar paginadores
+
+Redis:
+- Latência de GET < 1ms
+- Latência de SET < 1ms
+- Keyspace hits ↑
+- Keyspace misses ↓
+- Evictions controladas
+- Memória saudável
+
+Crie:
+docs/DB_06_PERFORMANCE_ULTRA_MILITAR.md
+
+================================================================================
+FASE 7 — TESTES AUTOMATIZADOS SEM MOCK (BANCO REAL)
+================================================================================
+Proibido usar mock.
+
+Testar:
+- Inserção
+- Leitura
+- Atualização
+- Remoção
+- Consistência de cache
+- TTL expirando
+- Falha no Postgre
+- Falha no Redis
+- Timeout
+- Deadlock
+- Corrupção proposital simulada
+
+Crie:
+docs/DB_07_TESTES_AUTOMATIZADOS_ULTRA_MILITAR.md
+
+================================================================================
+FASE 8 — RELATÓRIO MILITAR FINAL DE DATABASE
+================================================================================
+Crie:
+docs/DB_08_RELATORIO_FINAL_DATABASE_ULTRA_MILITAR.md
+
+Deve conter:
+- Diagnóstico completo do Postgre
+- Diagnóstico completo do Redis
+- Lista de problemas encontrados
+- Lista de correções
+- Testes realizados
+- Testes pendentes
+- Avaliação final:
+  - Apto produção bancária
+  - Apto parcial
+  - Não apto
+
+================================================================================
+ORDEM FINAL
+================================================================================
+Você deve executar todas as fases, sem exceção, sem pular nada.
+
+Ao final deve ser garantido:
+- ZERO mock
+- ZERO dado estático
+- ZERO inconsistência
+- ZERO falha de cache
+- ZERO race condition
+- 100% Postgre consistente
+- 100% Redis consistente
+- 100% sincronismo garantido
+- 100% segurança aplicada
+- 100% performance monitorada
+- 100% documentação gerada
+
+# === EXECUTE O PROTOCOLO ULTRA RIGOROSO ===

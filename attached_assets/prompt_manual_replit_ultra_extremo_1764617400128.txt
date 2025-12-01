@@ -1,0 +1,610 @@
+
+PROMPT ULTRA-EXTREMO E HIPERDETALHADO PARA O REPLIT
+Criação, Reescrita e Aprimoramento do MANUAL DO SISTEMA (Frontend + Backend + ML)
+Com Explicações 1000x Mais Didáticas, Claras, Ricas e Profundas (Incluindo Features, Datasets e Transfer Learning)
+
+----------------------------------------------------------------------
+⚙️ 0. CONTEXTO GERAL E PAPEL DO REPLIT
+----------------------------------------------------------------------
+
+Você (agente do Replit) deve atuar como um time combinado de especialistas de altíssimo nível em:
+
+- Arquitetura de Software (frontend, backend, APIs, integração com ML)
+- UX/UI, UX Writing e Design de Informação
+- Documentação Técnica e Funcional
+- Design Instrucional e Neurociência do Aprendizado
+- Engenharia de Machine Learning (ML), incluindo:
+  - Engenharia de Features
+  - Preparação de Datasets
+  - Modelagem Preditiva
+  - Transfer Learning
+- Boas práticas de desenvolvimento de sistemas profissionais e prontos para produção
+
+Seu objetivo é:
+
+1. Analisar com máximo rigor todo o projeto (frontend, backend e camadas de ML, se existirem).
+2. Mapear todas as telas, fluxos, módulos, features e pontos de ML do sistema.
+3. Construir, ou reescrever do zero, uma tela de MANUAL DO SISTEMA:
+   - 1000x mais didática
+   - 1000x mais detalhada
+   - 1000x mais clara e rica em exemplos reais
+   - 1000x mais amigável para usuários não técnicos
+4. Explicar, dentro desse Manual:
+   - Todas as TELAS da aplicação (uma a uma, sem pular nada).
+   - Todas as FEATURES de Machine Learning relevantes.
+   - Todos os DATASETS principais usados na solução.
+   - Como é aplicado TRANSFER LEARNING (se existir) ou como poderá ser aplicado.
+5. Aplicar, ao mesmo tempo, todas as metodologias de aprendizado mencionadas:
+   - Metodologia “Use a Cabeça” (Head First)
+   - Dual Coding (texto + visual)
+   - Storytelling Learning (aprendizado por histórias)
+   - Problem-Based Learning (PBL) – apenas descritivo
+   - Visual Thinking (pensar e explicar visualmente)
+   - Repetição com variação
+6. Garantir que TODO o conteúdo:
+   - Esteja em português do Brasil.
+   - Tenha ortografia e gramática corretas.
+   - Seja extremamente didático, claro, simples e direto.
+   - NÃO contenha exercícios, quizzes, tarefas ou desafios ao usuário final (manual 100% explicativo).
+
+IMPORTANTE:
+- Este PROMPT é para você, Replit, usar como guia completo.
+- NÃO simplifique, NÃO resuma e NÃO ignore partes.
+- Siga cada uma das instruções a seguir com máximo cuidado.
+
+----------------------------------------------------------------------
+🧠 1. FUNDAMENTOS PEDAGÓGICOS E METODOLÓGICOS (OBRIGATÓRIO)
+----------------------------------------------------------------------
+
+Você deve aplicar TODAS as metodologias abaixo, de forma combinada, em TODO o conteúdo da tela MANUAL:
+
+1. Metodologia “Use a Cabeça” (Head First)
+   - Linguagem conversacional, próxima do usuário, sem ser infantil.
+   - Uso de metáforas simples e analogias com situações do dia a dia.
+   - Quebra do texto em blocos pequenos, com títulos claros e visuais.
+   - Humor leve, apenas quando não atrapalhar a compreensão.
+   - Repetição inteligente de conceitos importantes, em contextos diferentes.
+
+2. Dual Coding (Teoria do Código Duplo)
+   - Combinar texto verbal com elementos visuais, como:
+     - Diagramas em texto (ASCII)
+     - Emojis
+     - Ícones
+     - Tabelas simples
+     - Caixas e blocos visuais
+   - Objetivo: facilitar a criação de “imagens mentais” das telas, fluxos e conceitos.
+
+3. Storytelling Learning (Aprendizagem por Histórias)
+   - Explicar conceitos, telas e fluxos usando pequenas histórias reais:
+     - Ex.: “Ana, analista de risco, precisa verificar uma transação suspeita…”
+   - Conectar cada tela e cada feature a cenários do mundo real.
+
+4. Problem-Based Learning (PBL) – apenas descritivo
+   - Para cada tela, feature, dataset e uso de Transfer Learning, deixar claro:
+     - Qual problema isso resolve.
+     - Em que situação real aquilo é útil.
+   - NÃO transformar isso em exercício: apenas descreva o problema e a solução.
+
+5. Visual Thinking
+   - Estruturar a informação de maneira visual e organizada:
+     - Títulos hierárquicos
+     - Subtítulos
+     - Listas
+     - Destaques
+     - Caixas de atenção (ex.: “⚠️ Atenção”, “💡 Dica”)
+   - Representar telas, fluxos e arquitetura com diagramas em texto.
+
+6. Repetição com Variação
+   - Reforçar conceitos críticos (ex.: “feature de ML”, “dataset”, “Transfer Learning”, “score de risco”, “tela de cadastro”, “tela de consulta”) várias vezes, porém:
+     - Com exemplos diferentes
+     - Em contextos diferentes
+     - Com palavras ligeiramente diferentes
+   - Objetivo: consolidar o aprendizado sem deixar o texto repetitivo e cansativo.
+
+RESTRIÇÃO ABSOLUTA:
+- Não crie exercícios, desafios, “faça você mesmo”, questionários ou testes.
+- TODO o Manual deve ser EXPLICATIVO.
+
+----------------------------------------------------------------------
+🧭 2. ANÁLISE DO PROJETO (ANTES DE GERAR O MANUAL)
+----------------------------------------------------------------------
+
+Antes de escrever qualquer coisa na tela /manual, você deve:
+
+2.1. Analisar o FRONTEND:
+   - Identificar:
+     - Todas as rotas.
+     - Todos os componentes de página.
+     - Todos os menus e submenus.
+     - Todos os módulos (ex.: “Cadastros”, “Relatórios”, “Configurações”, “ML/Inteligência”, etc.).
+   - Mapear:
+     - Nome de cada tela.
+     - Localização de cada tela no menu.
+     - Principais elementos de cada tela:
+       - Campos
+       - Botões
+       - Tabelas
+       - Grids
+       - Filtros
+       - Gráficos
+     - Principais fluxos de uso:
+       - Cadastro
+       - Consulta
+       - Edição
+       - Exclusão
+       - Aprovação
+       - Exportação
+       - Envio de dados
+
+2.2. Analisar o BACKEND:
+   - Identificar:
+     - Principais endpoints (APIs).
+     - Domínios de negócio relevantes (entidades, agregados, DTOs).
+     - Relacionamento com as telas do frontend.
+   - Entender:
+     - Como os dados trafegam entre frontend e backend.
+     - Que dados são apresentados ou manipulados em cada tela.
+
+2.3. Analisar a CAMADA DE MACHINE LEARNING (se existir):
+   - Identificar:
+     - Onde são definidas as FEATURES (variáveis de entrada dos modelos).
+     - Onde e como são montados os DATASETS.
+     - Se há uso de modelos pré-treinados (Transfer Learning).
+     - Como são realizadas:
+       - Predições
+       - Scorings
+       - Classificações
+       - Regras complementares
+   - Entender:
+     - Quais telas estão ligadas a ML (ex.: telas com score de risco, probabilidade, classificação, etc.).
+     - Quais decisões de negócio dependem dos modelos.
+
+Aceite isso como regra:
+➡️ APENAS depois de analisar frontend, backend e ML é que você poderá montar o MANUAL completo.
+
+----------------------------------------------------------------------
+📘 3. CRIAÇÃO/ATUALIZAÇÃO DO ITEM DE MENU “MANUAL”
+----------------------------------------------------------------------
+
+3.1. Adicione (ou verifique se já existe) um item no menu principal com o rótulo:
+
+   MANUAL
+   ou
+   MANUAL DO SISTEMA
+
+3.2. Esse item deve:
+   - Ser claramente visível para o usuário.
+   - Estar em uma posição lógica do menu (ex.: perto de “Ajuda”, “Configurações” ou “Sobre”).
+   - Redirecionar para a rota:
+
+   /manual
+
+3.3. A rota /manual deve carregar uma TELA dedicada de Manual do Sistema:
+   - Conteúdo 100% estático (texto, diagramas, explicações).
+   - Organizado, legível e agradável visualmente.
+
+----------------------------------------------------------------------
+📚 4. ESTRUTURA MACRO DO MANUAL (SEÇÕES OBRIGATÓRIAS)
+----------------------------------------------------------------------
+
+O conteúdo da tela /manual deve ser organizado em seções principais, na seguinte ordem sugerida (você pode ajustar a ordem somente se fizer mais sentido para o projeto, mas mantendo todos os tópicos):
+
+4.1. Bem-vindo ao Sistema – Visão Geral Didática
+4.2. Mapa Visual das Telas e Módulos (Sumário Ilustrado)
+4.3. Manual Detalhado por Tela (todas as telas, sem exceção)
+4.4. Features de Machine Learning (engenharia de features)
+4.5. Datasets Utilizados (origem, papel, exemplos práticos)
+4.6. Transfer Learning Explicado de Forma Simples
+4.7. Fluxo Ponta a Ponta: do Dado à Decisão
+4.8. Dicas de Uso, Boas Práticas e Cuidados
+4.9. FAQ Didático (perguntas e respostas explicativas, sem exercícios)
+
+Você deve preencher cada uma dessas seções com conteúdo 1000x mais detalhado, usando as metodologias citadas.
+
+----------------------------------------------------------------------
+🎨 5. SEÇÃO “BEM-VINDO AO SISTEMA – VISÃO GERAL DIDÁTICA”
+----------------------------------------------------------------------
+
+5.1. Objetivo:
+   - Apresentar o sistema de forma amigável, como se estivesse explicando para alguém que acabou de entrar na empresa.
+
+5.2. Instruções para o conteúdo:
+   - Explique:
+     - Qual é o propósito geral do sistema.
+     - Quem costuma utilizá-lo (ex.: analistas, gestores, operação, TI).
+     - Que tipo de problemas o sistema ajuda a resolver.
+   - Use analogias:
+     - “Este sistema é como uma central de comando…”
+     - “Pense nele como um painel de controle de avião, onde você vê tudo o que importa em um só lugar…”
+   - Use emojis para reforçar ideias, por exemplo:
+     - 🚀 para velocidade ou performance
+     - 📊 para gráficos e indicadores
+     - 🤖 para inteligência artificial
+     - 🧠 para tomada de decisão
+     - 🧩 para partes que se encaixam
+
+5.3. Resultado esperado:
+   - Após ler essa seção, um usuário leigo deve:
+     - Entender “em palavras simples” o que o sistema faz.
+     - Ter uma visão geral de onde entram dados, onde são analisados e onde aparecem resultados.
+
+----------------------------------------------------------------------
+🗺️ 6. SEÇÃO “MAPA VISUAL DAS TELAS E MÓDULOS (SUMÁRIO ILUSTRADO)”
+----------------------------------------------------------------------
+
+6.1. Objetivo:
+   - Fornecer um “mapa mental” de todas as telas, de modo que o usuário consiga localizar mentalmente onde está cada parte do sistema.
+
+6.2. Como montar:
+   - Liste todos os módulos (ex.: Cadastros, Consultas, Relatórios, Configurações, ML/Inteligência, etc.).
+   - Sob cada módulo, liste as telas existentes.
+   - Use ícones e emojis coerentes para cada módulo/tela.
+
+6.3. Exemplo de estrutura (adapte para o sistema real):
+
+   📊 Dashboard  
+   📚 Cadastros  
+      • Cadastro de Clientes  
+      • Cadastro de Produtos  
+   🔍 Consultas  
+      • Consulta de Transações  
+      • Consulta de Clientes  
+   🧾 Relatórios  
+      • Relatório de Transações por Período  
+      • Relatório de Risco por Segmento  
+   ⚙️ Configurações  
+      • Configurações Gerais  
+      • Perfis e Permissões  
+   🤖 Inteligência / Machine Learning  
+      • Visualização de Scores  
+      • Monitoramento de Modelos  
+   📨 Notificações  
+      • Alertas de Risco  
+      • Alertas Operacionais  
+   📘 Manual  
+      • Esta tela
+
+6.4. Requisito:
+   - Cada item deste mapa deve ter um link/âncora para sua subseção no Manual.
+
+----------------------------------------------------------------------
+📄 7. SEÇÃO “MANUAL DETALHADO POR TELA” (PADRÃO OBRIGATÓRIO)
+----------------------------------------------------------------------
+
+Para CADA tela do sistema, você deve criar uma subseção seguindo SEMPRE o padrão abaixo.
+
+7.1. Estrutura obrigatória por tela:
+
+1) Nome da Tela  
+2) Caminho no Menu  
+3) Ilustração ASCII / Visual da Tela  
+4) Objetivo da Tela  
+5) Quando Usar Essa Tela (Exemplos Reais do Dia a Dia)  
+6) Elementos Principais (campos, botões, áreas, tabelas)  
+7) Fluxo de Uso (Mini-História)  
+8) Cuidados Importantes  
+
+7.2. Detalhamento de cada item:
+
+1) Nome da Tela
+   - Nome amigável, igual ou muito parecido com o que aparece na UI.
+   - Ex.: “Tela de Cadastro de Clientes”, “Dashboard de Risco”, etc.
+
+2) Caminho no Menu
+   - Indicar exatamente como o usuário chega até ali.
+   - Ex.: “Menu > Cadastros > Clientes”.
+
+3) Ilustração ASCII / Visual
+   - Representar a tela em “modo visual” usando blocos de texto.
+   - Exemplo:
+
+   ---------------------------------------------
+   | 📝 Cadastro de Clientes                   |
+   |-------------------------------------------|
+   | 👤 Nome completo: [_____________________] |
+   | 📱 Telefone:       [_____________________] |
+   | ✉️  E-mail:        [_____________________] |
+   | CPF:              [_____________________] |
+   |-------------------------------------------|
+   | 💾 Salvar          ❌ Cancelar            |
+   ---------------------------------------------
+
+4) Objetivo da Tela
+   - Explicar claramente, em 2–4 parágrafos curtos:
+     - Para que essa tela existe.
+     - Que tipo de problema ela resolve.
+   - Usar analogias:
+     - “Pense nesta tela como a ficha cadastral oficial do cliente…”
+
+5) Quando Usar Essa Tela (Exemplos Reais)
+   - Listar situações concretas:
+     - “Quando um novo cliente precisa ser cadastrado…”
+     - “Quando você precisa atualizar o telefone de um cliente…”
+   - Descrever em linguagem simples, como se fosse uma conversa.
+
+6) Elementos Principais
+   - Listar cada campo importante, cada botão crítico, cada área relevante da tela.
+   - Para cada elemento, informar:
+     - Nome
+     - Ícone (se fizer sentido)
+     - Descrição clara
+     - Exemplo real
+   - Exemplo:
+
+     - 👤 Nome Completo  
+       Descrição: Nome do cliente conforme documento oficial.  
+       Exemplo: “Maria de Souza Lima”.
+
+     - 📱 Telefone  
+       Descrição: Número de telefone principal para contato.  
+       Exemplo: “(11) 91234-5678”.
+
+     - 💾 Botão “Salvar”  
+       Descrição: Grava as informações no banco de dados.  
+       Exemplo: Use após preencher todos os campos obrigatórios.
+
+7) Fluxo de Uso (Mini-História)
+   - Criar uma historinha curta mostrando o uso típico da tela.
+   - Exemplo:
+
+     “Ana, analista de atendimento, recebe um cliente novo chamado Carlos.  
+      Ela acessa Menu > Cadastros > Clientes, preenche nome, telefone, e-mail e CPF, confere os dados e clica em ‘Salvar’.  
+      O sistema confirma o cadastro e Carlos está pronto para utilizar os serviços.”
+
+8) Cuidados Importantes
+   - Destacar alertas e boas práticas, por exemplo:
+     - “⚠️ Verifique sempre o CPF antes de salvar.”  
+     - “⚠️ Alterações indevidas podem afetar relatórios e decisões de risco.”
+
+Repita esse padrão para TODAS as telas descobertas na análise do projeto.
+
+----------------------------------------------------------------------
+🤖 8. SEÇÃO “FEATURES DE MACHINE LEARNING”
+----------------------------------------------------------------------
+
+8.1. Objetivo:
+   - Explicar, de forma extremamente clara, o que são as “features” utilizadas nos modelos de ML da solução e como elas contribuem para as decisões.
+
+8.2. O que são Features (explicação didática):
+   - Explique em termos simples:
+     - “Features são as características/variáveis que o modelo analisa para tomar decisões.”
+   - Use analogia:
+     - “Assim como um médico analisa sintomas (febre, pressão, dor), o modelo analisa features (valor da transação, horário, país, histórico do cliente, etc.).”
+
+8.3. Como identificar as features na solução:
+   - Analise:
+     - Código de preparação de dados.
+     - Pipelines de ML.
+     - Classes de DTO usadas para predição.
+     - Scripts/notebooks de treinamento (se existirem).
+   - Monte uma LISTA estruturada das principais features.
+
+8.4. Documentação das features (padrão por feature):
+
+Para cada feature relevante, crie um bloco com:
+
+- Nome técnico da feature (ex.: valor_transacao)  
+- Nome amigável em português (ex.: “Valor da Transação”)  
+- Descrição humana:  
+  “Valor em reais da transação realizada pelo cliente.”  
+- Exemplo real:  
+  “R$ 150,00 em uma compra no cartão de crédito em um supermercado.”  
+- Por que é importante para o modelo:  
+  “Transações com valores atípicos, em determinados contextos, podem indicar risco maior.”
+
+8.5. Exemplos de features típicas (adapte para o sistema real):
+
+- valor_transacao  
+- horario_transacao  
+- pais_origem  
+- canal_transacao (APP, web, POS, etc.)  
+- historico_chargeback_cliente  
+- quantidade_transacoes_ultimos_5_minutos  
+- dispositivo_id  
+- tipo_estabelecimento  
+
+Para cada uma, produza:
+- Descrição
+- Exemplo do dia a dia
+- Relação com o risco ou com o objetivo do modelo
+
+----------------------------------------------------------------------
+🧾 9. SEÇÃO “DATASETS UTILIZADOS”
+----------------------------------------------------------------------
+
+9.1. Objetivo:
+   - Explicar claramente quais DATASETS existem na solução, de onde vêm e para que servem.
+
+9.2. O que é um Dataset (explicação didática):
+   - “Um dataset é um conjunto organizado de dados, como se fosse uma grande planilha, onde cada linha é um registro e cada coluna é uma informação (campo/feature).”
+   - Use analogia:
+     - “Pense em um enorme fichário com milhões de fichas, cada uma representando uma transação ou um cliente.”
+
+9.3. Como identificar datasets na solução:
+   - Verificar:
+     - Scripts/notebooks de treinamento.
+     - Jobs de ETL/ELT.
+     - Consultas em bancos de dados (tabelas e views).
+     - Arquivos CSV/Parquet/JSON usados em treinamento ou inferência.
+
+9.4. Documentação de cada dataset principal:
+
+Para cada dataset relevante, documentar:
+
+- Nome lógico do dataset (nome claro)  
+- Origem dos dados (banco X, tabela Y, arquivo Z, API W)  
+- Tipo de registros (ex.: “cada linha representa uma transação”, “cada linha representa um cliente”)  
+- Campos principais (pelo menos os mais importantes)  
+- Papel na solução:
+  - Treinamento de modelo
+  - Validação
+  - Teste
+  - Monitoramento em produção
+
+9.5. Exemplos de datasets típicos:
+
+- Dataset de histórico de transações  
+- Dataset de clientes  
+- Dataset de labels (fraude / não fraude, aprovado / negado)  
+- Dataset de monitoramento de modelo (predições + resultado real posterior)
+
+Para cada um, criar exemplos narrativos do tipo:
+
+“Cada linha deste dataset representa uma transação, com informações como data, hora, valor, canal, país, cliente e se aquela transação foi ou não marcada como fraude posteriormente.”
+
+----------------------------------------------------------------------
+🧬 10. SEÇÃO “TRANSFER LEARNING EXPLICADO DE FORMA SIMPLES”
+----------------------------------------------------------------------
+
+10.1. Objetivo:
+   - Explicar o que é Transfer Learning, se e como ele é usado na solução, e por que isso é útil.
+
+10.2. Explicação didática de Transfer Learning:
+   - Analogia:
+     - “Transfer Learning é como alguém que já sabe tocar violão e, por isso, aprende guitarra muito mais rápido.”
+   - Em ML:
+     - “É quando pegamos um modelo pré-treinado em um problema parecido e o ajustamos para o nosso problema específico, reaproveitando conhecimento que ele já aprendeu.”
+
+10.3. Análise da solução:
+   - Verifique se:
+     - Existe uso de modelos pré-treinados.
+     - Existem embeddings ou redes pré-treinadas.
+     - Há etapas de fine-tuning para o problema do sistema.
+
+10.4. Documentar Transfer Learning na solução:
+
+Se houver, documente:
+
+- Qual modelo base é utilizado (ou tipo de modelo).  
+- Em que problema ele foi treinado originalmente.  
+- Como foi adaptado (fine-tuning) para o contexto atual.  
+- Que tipo de dado é usado nessa adaptação.  
+- Que benefícios isso trouxe (desempenho, menos dados, menor tempo de treinamento).
+
+10.5. Caso ainda não exista Transfer Learning:
+   - Explique, mesmo assim, como ele poderia ser integrado futuramente na solução, de forma didática.
+
+----------------------------------------------------------------------
+🔁 11. SEÇÃO “FLUXO PONTA A PONTA: DO DADO À DECISÃO”
+----------------------------------------------------------------------
+
+11.1. Objetivo:
+   - Mostrar, de forma visual e didática, como os dados entram no sistema, são processados, passam por ML (se houver), aparecem nas telas e geram decisões.
+
+11.2. Diagrama ASCII sugerido (adapte para a solução):
+
+[ Entradas de Dados (Cadastros / Integrações / Arquivos) ]
+              ↓
+[ Datasets (Histórico de Transações, Clientes, Labels, etc.) ]
+              ↓
+[ Engenharia de Features (transformações, agregações, normalizações) ]
+              ↓
+[ Modelos de Machine Learning (com ou sem Transfer Learning) ]
+              ↓
+[ Scores / Previsões / Classificações ]
+              ↓
+[ Telas do Sistema (Dashboard, Análise, Relatórios) ]
+              ↓
+[ Decisões de Negócio (aprovar, revisar, bloquear, notificar) ]
+
+11.3. Narrativa de exemplo:
+   - Conte uma história real explicando esse fluxo, por exemplo:
+     - Uma transação é criada → entra no dataset → vira features → alimenta o modelo → gera score → aparece em uma tela → analista decide.
+
+----------------------------------------------------------------------
+💡 12. SEÇÃO “DICAS DE USO, BOAS PRÁTICAS E CUIDADOS”
+----------------------------------------------------------------------
+
+12.1. Forneça dicas práticas, como:
+   - “Sempre conferir dados antes de salvar.”
+   - “Usar filtros nas telas de consulta para encontrar informações mais rápido.”
+   - “Observar scores de risco com cuidado e cruzar com outras informações quando necessário.”
+
+12.2. Destaque riscos:
+   - “⚠️ Dados incorretos na entrada podem comprometer a qualidade dos modelos.”
+   - “⚠️ Alterar configurações sem entender o impacto pode afetar decisões críticas.”
+
+----------------------------------------------------------------------
+❓ 13. SEÇÃO “FAQ DIDÁTICO”
+----------------------------------------------------------------------
+
+13.1. Crie uma lista de Perguntas e Respostas, por exemplo:
+
+- “Onde encontro o cadastro de novos clientes?”
+- “Como vejo o score de risco de uma transação específica?”
+- “O que significa o score de risco alto, médio ou baixo?”
+- “Qual é a diferença entre tela de consulta e tela de relatório?”
+
+13.2. Responda com linguagem simples, direta e sem termos técnicos não explicados.
+
+----------------------------------------------------------------------
+🧱 14. ESTILO DO TEXTO DO MANUAL (OBRIGATÓRIO)
+----------------------------------------------------------------------
+
+- Idioma: português do Brasil.
+- Ortografia: correta e validada.
+- Frases: curtas, diretas, objetivas.
+- Parágrafos: curtos, com boa legibilidade.
+- Evitar jargões não explicados:
+  - Quando usar palavras como “feature”, “dataset”, “score”, “Transfer Learning”, sempre explicar logo em seguida com linguagem simples.
+- Tom:
+  - Amigável
+  - Profissional
+  - Não agressivo
+  - Não infantil
+
+----------------------------------------------------------------------
+✅ 15. DOUBLE CHECK E CONSISTÊNCIA (OBRIGATÓRIO)
+----------------------------------------------------------------------
+
+Antes de considerar o trabalho concluído, você deve realizar um DOUBLE CHECK rigoroso em:
+
+15.1. Cobertura
+   - Todas as telas reais do sistema estão documentadas?
+   - Todos os módulos aparecem no mapa visual?
+   - Todas as partes críticas (cadastros, consultas, relatórios, configurações, ML) têm explicação?
+
+15.2. Coerência funcional
+   - O que está descrito no manual condiz com o comportamento atual do código?
+   - Nomes de campos, botões e rotas batem com o que é usado na aplicação?
+
+15.3. Qualidade pedagógica
+   - O conteúdo está realmente fácil de entender para alguém que nunca viu o sistema?
+   - As metáforas, exemplos e histórias ajudam (e não atrapalham) a compreensão?
+
+15.4. Linguagem e ortografia
+   - Todo o texto está em português do Brasil?
+   - Existem erros gramaticais, de acentuação ou concordância?
+   - Os termos técnicos estão explicados?
+
+15.5. Restrições
+   - Não há exercícios, quizzes, desafios ou listas “faça você mesmo”?
+   - Todo o conteúdo é puramente explicativo?
+
+----------------------------------------------------------------------
+📦 16. SAÍDA FINAL ESPERADA DO REPLIT
+----------------------------------------------------------------------
+
+Ao final da execução deste prompt, espero que você me entregue:
+
+1) Uma tela /manual totalmente implementada (HTML/JS/React/Vue ou conforme o projeto):
+   - Com todas as seções descritas.
+   - Com conteúdo estático completo.
+   - Com layout organizado, limpo e legível.
+
+2) Um Manual:
+   - Extremamente detalhado, claro e didático.
+   - Capaz de explicar:
+     - Cada tela
+     - Cada feature de ML relevante
+     - Cada dataset importante
+     - O uso (ou potencial uso) de Transfer Learning
+     - O fluxo ponta a ponta do sistema
+
+3) Todo o conteúdo:
+   - Em português do Brasil.
+   - Sem erros de ortografia.
+   - Sem exercícios para o usuário.
+   - Com aplicação consistente de todas as metodologias de aprendizado citadas.
+
+USE ESTE PROMPT COMO ESPECIFICAÇÃO MÁXIMA E NÃO SIMPLIFIQUE NENHUMA PARTE.
