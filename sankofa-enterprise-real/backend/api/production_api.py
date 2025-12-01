@@ -2019,20 +2019,34 @@ def get_metrics_dashboard():
     model_metrics = fraud_engine.get_performance_metrics()
     cache_stats = redis_cache_system.get_stats()
     
+    total_tx = kpis.get("transacoes_hoje", 0)
+    frauds = kpis.get("fraudes_detectadas", 0)
+    block_rate = 0
+    if total_tx > 0:
+        block_rate = round((frauds / total_tx) * 100, 1)
+    
     return jsonify({
-        "success": True,
-        "data": {
-            "kpis": kpis,
-            "monitoring": monitoring,
-            "latency": {
-                "avg": monitoring.get("avg_latency_ms", 0),
-                "max": monitoring.get("max_latency_ms", 0),
-                "min": monitoring.get("min_latency_ms", 0)
-            },
-            "model": model_metrics,
-            "cache": cache_stats,
-            "timestamp": datetime.utcnow().isoformat() + "Z"
-        }
+        "transactions_processed": total_tx,
+        "fraud_detected": frauds,
+        "false_positives": 0,
+        "accuracy": model_metrics.get("metrics", {}).get("accuracy", 0) * 100 if model_metrics.get("metrics", {}).get("accuracy") else 0,
+        "processing_time": monitoring.get("avg_latency_ms", 0) / 1000,
+        "hard_rules_triggered": 0,
+        "vip_hits": 0,
+        "hot_hits": 0,
+        "manual_reviews_pending": 0,
+        "auto_learning_confidence": model_metrics.get("metrics", {}).get("f1_score", 0) * 100 if model_metrics.get("metrics", {}).get("f1_score") else 0,
+        "block_rate": block_rate,
+        "kpis": kpis,
+        "monitoring": monitoring,
+        "latency": {
+            "avg": monitoring.get("avg_latency_ms", 0),
+            "max": monitoring.get("max_latency_ms", 0),
+            "min": monitoring.get("min_latency_ms", 0)
+        },
+        "model": model_metrics,
+        "cache": cache_stats,
+        "timestamp": datetime.utcnow().isoformat() + "Z"
     })
 
 

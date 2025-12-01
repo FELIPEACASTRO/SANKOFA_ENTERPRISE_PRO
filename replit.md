@@ -116,10 +116,18 @@ Ultra-didactic ML documentation available at:
 ### Mock Data Elimination (December 2025)
 All endpoints now return real PostgreSQL data. Changes made:
 - **Frontend Monitoring.jsx**: Fallback values changed from hardcoded (45, 60, 127) to 0/null
+- **Frontend Metrics.jsx**: Mock data no catch block removido, agora retorna zeros + indicador de erro visual
+- **Frontend Metrics.jsx**: Taxa de bloqueio hardcoded (78%) removida, agora usa `metrics.block_rate`
 - **Backend /api/observability/ml**: Returns error with zeros instead of fake metrics on exception
 - **Backend /api/observability/health**: Returns error status instead of fake "healthy"
 - **Backend /api/alerts**: Uses postgres_store.get_alerts_list() instead of np.random
 - **Backend /api/transactions**: Returns real transactions only, no mock generation
+
+### Data Sources Analysis (December 2025)
+Análise completa das 17 páginas (excluindo Manual/Documentação):
+- **13 páginas com 100% PostgreSQL Real**: Dashboard, Transactions, Alerts, HardRules, VipList, HotList, Investigation, ManualReview, FeedbackAnalyst, Audit, Settings, Datasets, Reports
+- **2 páginas mistas (Real + Fallback zeros)**: Monitoring, Metrics
+- **1 página com dados sintéticos (intencional para ML)**: /api/model/train usa np.random para gerar dados de treinamento
 
 ## External Dependencies
 

@@ -35,16 +35,17 @@ const Metrics = () => {
     } catch (error) {
       console.error('Erro ao carregar métricas:', error);
       setMetrics({
-        transactions_processed: 15420,
-        fraud_detected: 89,
-        false_positives: 12,
-        accuracy: 94.2,
-        processing_time: 0.15,
-        hard_rules_triggered: 45,
-        vip_hits: 23,
-        hot_hits: 8,
-        manual_reviews_pending: 5,
-        auto_learning_confidence: 87.5
+        transactions_processed: 0,
+        fraud_detected: 0,
+        false_positives: 0,
+        accuracy: 0,
+        processing_time: 0,
+        hard_rules_triggered: 0,
+        vip_hits: 0,
+        hot_hits: 0,
+        manual_reviews_pending: 0,
+        auto_learning_confidence: 0,
+        error: true
       });
     } finally {
       setLoading(false);
@@ -72,6 +73,16 @@ const Metrics = () => {
           </Button>
         </div>
       </div>
+
+      {metrics.error && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center gap-2">
+          <AlertTriangle className="h-5 w-5 text-yellow-600" />
+          <span className="text-yellow-800">Erro ao carregar métricas. Exibindo valores zerados. Tente novamente.</span>
+          <Button onClick={loadMetrics} variant="outline" size="sm" className="ml-auto">
+            Tentar Novamente
+          </Button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
@@ -124,7 +135,7 @@ const Metrics = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Taxa de Bloqueio</span>
-              <span className="font-bold text-red-600">78%</span>
+              <span className="font-bold text-red-600">{metrics.block_rate || 0}%</span>
             </div>
           </div>
         </div>
