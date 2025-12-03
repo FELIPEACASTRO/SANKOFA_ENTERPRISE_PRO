@@ -672,7 +672,7 @@ class TestIntegrationNewComponents:
             assert len(run_id) == 12
     
     def test_bahnsen_feature_training(self):
-        """Testa treino com features Bahnsen e split temporal"""
+        """Testa treino com features Bahnsen e split temporal estrito"""
         import pandas as pd
         import numpy as np
         from ml_engine.production_fraud_engine import ProductionFraudEngine
@@ -726,6 +726,38 @@ class TestIntegrationNewComponents:
         
         print(f"Bahnsen training completed with {len(engine.feature_names)} features")
         print(f"Metrics: Acc={engine.metrics.accuracy:.3f}, P={engine.metrics.precision:.3f}, R={engine.metrics.recall:.3f}, F1={engine.metrics.f1_score:.3f}")
+    
+    def test_bahnsen_no_timestamp_fallback(self):
+        """Testa fallback para stratified split quando não há timestamps válidos"""
+        import pandas as pd
+        import numpy as np
+        from ml_engine.production_fraud_engine import ProductionFraudEngine
+        
+        np.random.seed(42)
+        n_samples = 300
+        fraud_rate = 0.15
+        
+        is_fraud = np.random.random(n_samples) < fraud_rate
+        
+        data = {
+            'user_id': [f'user_{i % 30}' for i in range(n_samples)],
+            'amount': np.random.exponential(500, n_samples),
+            'hour': np.random.choice(range(24), n_samples),
+            'channel': np.random.choice(['PIX', 'TED'], n_samples),
+        }
+        
+        X = pd.DataFrame(data)
+        y = is_fraud.astype(int)
+        
+        engine = ProductionFraudEngine()
+        engine.train_with_bahnsen_features(
+            X, y,
+            timestamp_col='created_at',
+            use_temporal_split=True
+        )
+        
+        assert engine.is_trained == True
+        assert engine.metrics is not None
 
 
 if __name__ == "__main__":
