@@ -273,12 +273,36 @@ const HardRules = () => {
   };
 
   const openDialog = (rule = null) => {
+    console.log('openDialog chamado com:', rule);
     if (rule) {
-      const conditions = rule.conditions_json && rule.conditions_json.length > 0
-        ? rule.conditions_json
-        : [{ field: '', operator: '', value: '' }];
+      let conditions = [{ field: '', operator: '', value: '' }];
       
-      setFormData({
+      if (rule.conditions_json) {
+        if (Array.isArray(rule.conditions_json) && rule.conditions_json.length > 0) {
+          conditions = rule.conditions_json.map(c => ({
+            field: c.field || '',
+            operator: c.operator || '',
+            value: String(c.value || '')
+          }));
+        } else if (typeof rule.conditions_json === 'string') {
+          try {
+            const parsed = JSON.parse(rule.conditions_json);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              conditions = parsed.map(c => ({
+                field: c.field || '',
+                operator: c.operator || '',
+                value: String(c.value || '')
+              }));
+            }
+          } catch (e) {
+            console.error('Erro ao parsear conditions_json:', e);
+          }
+        }
+      }
+      
+      console.log('Condições processadas:', conditions);
+      
+      const newFormData = {
         name: rule.name || '',
         description: rule.description || '',
         conditions: conditions,
@@ -288,7 +312,10 @@ const HardRules = () => {
         rule_type: rule.rule_type || 'blocking',
         priority: rule.priority || 1,
         enabled: rule.enabled !== false
-      });
+      };
+      
+      console.log('FormData a ser definido:', newFormData);
+      setFormData(newFormData);
       setEditingRule(rule);
     } else {
       resetForm();

@@ -952,17 +952,28 @@ def serve_docs(filename):
 
 @app.route("/<path:path>", methods=["GET"])
 def serve_static(path):
-    """Serve static files from React build"""
+    """Serve static files from React build with cache control"""
+    from flask import Response, make_response
+    
     if path.startswith("api/"):
         return jsonify({"error": {"code": "NOT_FOUND", "message": "Endpoint not found", "available_endpoints": ["/api/health", "/api/status", "/api/fraud/predict", "/api/dashboard/kpis"]}, "success": False}), 404
     
     file_path = STATIC_FOLDER / path
     if file_path.exists() and file_path.is_file():
-        return send_from_directory(STATIC_FOLDER, path)
+        response = make_response(send_from_directory(STATIC_FOLDER, path))
+        if path.endswith('.js') or path.endswith('.css'):
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+        return response
     static_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.ico', '.css', '.js', '.json', '.woff', '.woff2', '.ttf', '.eot', '.map', '.md')
     if path.lower().endswith(static_extensions):
         return jsonify({"error": "File not found", "path": path}), 404
-    return send_from_directory(STATIC_FOLDER, "index.html")
+    response = make_response(send_from_directory(STATIC_FOLDER, "index.html"))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route("/api/info", methods=["GET"])
 def api_info():
