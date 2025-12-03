@@ -463,7 +463,8 @@ class EnterpriseSecuritySystem:
             "type": "access",
         }
 
-        return jwt.encode(payload, self.jwt_secret, algorithm="HS256")
+        jwt_key = self.jwt_secret if self.jwt_secret else ""
+        return jwt.encode(payload, jwt_key, algorithm="HS256")
 
     def _generate_refresh_token(self) -> str:
         """Gera token de refresh"""
@@ -472,7 +473,8 @@ class EnterpriseSecuritySystem:
     def verify_token(self, token: str) -> Dict[str, Any]:
         """Verifica e decodifica token JWT"""
         try:
-            payload = jwt.decode(token, self.jwt_secret, algorithms=["HS256"])
+            jwt_key = self.jwt_secret if self.jwt_secret else ""
+            payload = jwt.decode(token, jwt_key, algorithms=["HS256"])
 
             # Verifica se é token de acesso
             if payload.get("type") != "access":
@@ -531,8 +533,8 @@ class EnterpriseSecuritySystem:
         action: str,
         resource: str,
         details: str,
-        ip_address: str = None,
-        user_agent: str = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
         success: bool = True,
     ):
         """Registra evento na trilha de auditoria"""

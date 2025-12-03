@@ -670,6 +670,62 @@ class TestIntegrationNewComponents:
             
             assert run_id is not None
             assert len(run_id) == 12
+    
+    def test_bahnsen_feature_training(self):
+        """Testa treino com features Bahnsen e split temporal"""
+        import pandas as pd
+        import numpy as np
+        from ml_engine.production_fraud_engine import ProductionFraudEngine
+        
+        np.random.seed(42)
+        n_samples = 500
+        fraud_rate = 0.15
+        
+        dates = pd.date_range('2024-01-01', periods=n_samples, freq='h')
+        
+        is_fraud = np.random.random(n_samples) < fraud_rate
+        
+        amounts = np.where(
+            is_fraud,
+            np.random.uniform(5000, 50000, n_samples),
+            np.random.exponential(500, n_samples)
+        )
+        
+        hours = np.where(
+            is_fraud,
+            np.random.choice([0, 1, 2, 3, 23], n_samples),
+            np.random.choice(range(8, 22), n_samples)
+        )
+        
+        data = {
+            'user_id': [f'user_{i % 50}' for i in range(n_samples)],
+            'amount': amounts,
+            'hour': hours,
+            'channel': np.random.choice(['PIX', 'TED', 'BOLETO'], n_samples),
+            'created_at': dates
+        }
+        
+        X = pd.DataFrame(data)
+        y = is_fraud.astype(int)
+        
+        engine = ProductionFraudEngine()
+        engine.train_with_bahnsen_features(
+            X, y,
+            timestamp_col='created_at',
+            use_temporal_split=True
+        )
+        
+        assert engine.is_trained == True
+        assert engine.metrics is not None
+        assert len(engine.feature_names) >= 20, f"Expected 20+ features, got {len(engine.feature_names)}"
+        
+        assert hasattr(engine.metrics, 'accuracy')
+        assert hasattr(engine.metrics, 'precision')
+        assert hasattr(engine.metrics, 'recall')
+        assert hasattr(engine.metrics, 'f1_score')
+        
+        print(f"Bahnsen training completed with {len(engine.feature_names)} features")
+        print(f"Metrics: Acc={engine.metrics.accuracy:.3f}, P={engine.metrics.precision:.3f}, R={engine.metrics.recall:.3f}, F1={engine.metrics.f1_score:.3f}")
 
 
 if __name__ == "__main__":

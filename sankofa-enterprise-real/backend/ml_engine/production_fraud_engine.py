@@ -702,6 +702,173 @@ class ProductionFraudEngine:
             Self (permite chaining)
         """
         return self.fit(X, y)
+    
+    def train_with_bahnsen_features(
+        self,
+        X: pd.DataFrame,
+        y: np.ndarray,
+        timestamp_col: str = 'created_at',
+        use_temporal_split: bool = True,
+        train_ratio: float = 0.7,
+        val_ratio: float = 0.15
+    ) -> "ProductionFraudEngine":
+        """
+        Treina modelo com features Bahnsen completas e split temporal.
+        
+        Implementa as melhores praticas de ML para fraude:
+        - 62+ features do framework Bahnsen 2016
+        - Split temporal (evita data leakage)
+        - Validacao robusta
+        
+        Args:
+            X: DataFrame com transacoes
+            y: Labels (0 = legitimo, 1 = fraude)
+            timestamp_col: Coluna de timestamp
+            use_temporal_split: Se True, usa split por tempo
+            train_ratio: Proporcao de dados para treino
+            val_ratio: Proporcao para validacao
+            
+        Returns:
+            Self (permite chaining)
+        """
+        from ml_engine.bahnsen_feature_engineering import BahnsenFeatureEngineering
+        
+        logger.info(
+            "Training with Bahnsen features",
+            samples=len(X),
+            fraud_rate=round(y.mean() * 100, 2),
+            temporal_split=use_temporal_split
+        )
+        
+        bahnsen = BahnsenFeatureEngineering()
+        
+        if 'user_id' not in X.columns:
+            X = X.copy()
+            X['user_id'] = 'default_user'
+        
+        if timestamp_col not in X.columns:
+            X = X.copy()
+            X[timestamp_col] = pd.Timestamp.now()
+        
+        amount_col_name = 'amount' if 'amount' in X.columns else str(X.columns[0])
+        X_enhanced = bahnsen.transform_dataframe(
+            X,
+            user_col='user_id',
+            amount_col=amount_col_name,
+            timestamp_col=timestamp_col,
+            channel_col='channel' if 'channel' in X.columns else None
+        )
+        
+        if use_temporal_split and timestamp_col in X_enhanced.columns:
+            X_enhanced = X_enhanced.sort_values(timestamp_col).reset_index(drop=True)
+            y_sorted = y[X_enhanced.index] if hasattr(y, '__getitem__') else y
+            
+            n = len(X_enhanced)
+            train_end = int(n * train_ratio)
+            val_end = int(n * (train_ratio + val_ratio))
+            
+            X_train = X_enhanced.iloc[:train_end]
+            X_val = X_enhanced.iloc[train_end:val_end]
+            X_test = X_enhanced.iloc[val_end:]
+            
+            y_train = np.array(y_sorted[:train_end]) if hasattr(y_sorted, '__getitem__') else np.array(y)[:train_end]
+            y_val = np.array(y_sorted[train_end:val_end]) if hasattr(y_sorted, '__getitem__') else np.array(y)[train_end:val_end]
+            y_test = np.array(y_sorted[val_end:]) if hasattr(y_sorted, '__getitem__') else np.array(y)[val_end:]
+            
+            if len(np.unique(y_train)) < 2:
+                logger.warning("Only one class in training set, adding samples from other splits")
+                minority_class = 1 if np.sum(y_train == 1) == 0 else 0
+                
+                minority_val_idx = np.where(y_val == minority_class)[0]
+                minority_test_idx = np.where(y_test == minority_class)[0]
+                
+                n_add_val = min(5, len(minority_val_idx))
+                n_add_test = min(5, len(minority_test_idx))
+                
+                if n_add_val > 0:
+                    add_idx_val = minority_val_idx[:n_add_val]
+                    X_train = pd.concat([X_train, X_val.iloc[add_idx_val]], ignore_index=True)
+                    y_train = np.concatenate([y_train, y_val[add_idx_val]])
+                
+                if n_add_test > 0:
+                    add_idx_test = minority_test_idx[:n_add_test]
+                    X_train = pd.concat([X_train, X_test.iloc[add_idx_test]], ignore_index=True)
+                    y_train = np.concatenate([y_train, y_test[add_idx_test]])
+            
+            logger.info(
+                "Temporal split applied",
+                train_size=len(X_train),
+                val_size=len(X_val),
+                test_size=len(X_test),
+                train_fraud_rate=round(float(np.mean(y_train)) * 100, 2)
+            )
+        else:
+            X_train, X_temp, y_train, y_temp = train_test_split(
+                X_enhanced, y, test_size=(1-train_ratio), random_state=42, stratify=y
+            )
+            X_val, X_test, y_val, y_test = train_test_split(
+                X_temp, y_temp, test_size=0.5, random_state=42, stratify=y_temp
+            )
+        
+        X_train_df = X_train if isinstance(X_train, pd.DataFrame) else pd.DataFrame(X_train)
+        X_val_df = X_val if isinstance(X_val, pd.DataFrame) else pd.DataFrame(X_val)
+        X_test_df = X_test if isinstance(X_test, pd.DataFrame) else pd.DataFrame(X_test)
+        
+        numeric_cols = X_train_df.select_dtypes(include=[np.number]).columns.tolist()
+        non_feature_cols = ['user_id', 'transaction_id', 'id', 'is_fraud', timestamp_col]
+        feature_cols = [c for c in numeric_cols if c not in non_feature_cols]
+        
+        X_train_features = X_train_df[feature_cols].fillna(0)
+        X_val_features = X_val_df[feature_cols].fillna(0)
+        X_test_features = X_test_df[feature_cols].fillna(0)
+        
+        X_train_scaled = self.scaler.fit_transform(X_train_features)
+        X_val_scaled = self.scaler.transform(X_val_features)
+        X_test_scaled = self.scaler.transform(X_test_features)
+        
+        self.feature_names = feature_cols
+        
+        logger.info(f"Training ensemble with {len(feature_cols)} Bahnsen features...")
+        self.ensemble.fit(X_train_scaled, y_train)
+        
+        logger.info("Calibrating probabilities...")
+        self.calibrated_model = CalibratedClassifierCV(self.ensemble, cv=3, method="isotonic")
+        self.calibrated_model.fit(X_train_scaled, y_train)
+        
+        self.threshold = self._calibrate_threshold(
+            np.asarray(X_val_scaled), 
+            np.asarray(y_val)
+        )
+        
+        y_test_proba = self.calibrated_model.predict_proba(X_test_scaled)[:, 1]
+        y_test_pred = (y_test_proba >= self.threshold).astype(int)
+        
+        self.metrics = ModelMetrics(
+            accuracy=float(accuracy_score(y_test, y_test_pred)),
+            precision=float(precision_score(y_test, y_test_pred, zero_division="warn")),
+            recall=float(recall_score(y_test, y_test_pred, zero_division="warn")),
+            f1_score=float(f1_score(y_test, y_test_pred, zero_division="warn")),
+            roc_auc=float(roc_auc_score(y_test, y_test_proba)) if len(np.unique(y_test)) > 1 else 0.5,
+            threshold=self.threshold,
+            timestamp=datetime.utcnow().isoformat() + "Z",
+        )
+        
+        self.is_trained = True
+        
+        if hasattr(self.ensemble, 'named_estimators_'):
+            self.loaded_models = dict(self.ensemble.named_estimators_)
+        
+        logger.info(
+            "Bahnsen model training completed",
+            features=len(feature_cols),
+            accuracy=round(self.metrics.accuracy, 3),
+            precision=round(self.metrics.precision, 3),
+            recall=round(self.metrics.recall, 3),
+            f1_score=round(self.metrics.f1_score, 3),
+            roc_auc=round(self.metrics.roc_auc, 3),
+        )
+        
+        return self
 
     def _validate_required_features(self, X: pd.DataFrame) -> List[str]:
         """

@@ -1,0 +1,31 @@
+{
+  "run_id": "5be754c5-14f",
+  "experiment_name": "integration_test",
+  "run_name": "test_model_20251203_233535",
+  "status": "COMPLETED",
+  "start_time": "2025-12-03T23:35:35.115399Z",
+  "end_time": "2025-12-03T23:35:35.136012Z",
+  "parameters": {
+    "n_estimators": 100,
+    "max_depth": 5
+  },
+  "metrics": [
+    {
+      "name": "accuracy",
+      "value": 0.95,
+      "step": 0,
+      "timestamp": "2025-12-03T23:35:35.135960Z"
+    },
+    {
+      "name": "f1_score",
+      "value": 0.92,
+      "step": 0,
+      "timestamp": "2025-12-03T23:35:35.136001Z"
+    }
+  ],
+  "artifacts": [],
+  "tags": {},
+  "git_commit": "5215e5ec",
+  "user": "runner",
+  "description": "Training run for test_model"
+}
