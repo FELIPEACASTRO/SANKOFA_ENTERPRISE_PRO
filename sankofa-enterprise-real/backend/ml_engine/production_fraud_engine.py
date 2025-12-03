@@ -711,7 +711,8 @@ class ProductionFraudEngine:
         use_temporal_split: bool = True,
         train_ratio: float = 0.7,
         val_ratio: float = 0.15,
-        max_fraud_rate: float = 0.30
+        max_fraud_rate: float = 0.30,
+        strict_temporal: bool = False
     ) -> "ProductionFraudEngine":
         """
         Treina modelo com features Bahnsen completas e split temporal seguro.
@@ -719,11 +720,9 @@ class ProductionFraudEngine:
         Implementa as melhores praticas de ML para fraude:
         - 62+ features do framework Bahnsen 2016
         - Split temporal ESTRITO (evita data leakage)
-        - class_weight para desbalanceamento (sem copiar dados futuros)
+        - sample_weight para desbalanceamento (sem copiar dados futuros)
         - Scaler ajustado APENAS no conjunto de treino
-        
-        IMPORTANTE: Para split temporal, o dataset DEVE ter timestamps válidos.
-        Se não houver, será usado stratified split (menos rigoroso).
+        - Downsampling se fraud_rate > max_fraud_rate
         
         Args:
             X: DataFrame com transacoes (deve conter timestamp_col)
@@ -733,26 +732,46 @@ class ProductionFraudEngine:
             train_ratio: Proporcao de dados para treino
             val_ratio: Proporcao para validacao
             max_fraud_rate: Taxa maxima de fraude aceitavel (default 30%)
+            strict_temporal: Se True, aborta se timestamps invalidos (default False)
             
         Returns:
             Self (permite chaining)
             
         Raises:
-            ValueError: Se use_temporal_split=True mas timestamp_col não existe
+            ValueError: Se strict_temporal=True e não houver timestamps válidos
+            ValueError: Se temporal split resultar em apenas uma classe
+            ValueError: Se dataset não contiver ambas as classes
         """
         from ml_engine.bahnsen_feature_engineering import BahnsenFeatureEngineering
         from datetime import datetime, timezone
         
         X = X.copy()
+        X['_original_idx'] = np.arange(len(X))
         y = np.array(y)
+        
+        if len(np.unique(y)) < 2:
+            raise ValueError("Dataset must contain both fraud (1) and legitimate (0) samples")
         
         actual_fraud_rate = float(np.mean(y))
         if actual_fraud_rate > max_fraud_rate:
             logger.warning(
-                "High fraud rate detected - may not reflect production",
+                "High fraud rate detected - downsampling fraud class",
                 fraud_rate=round(actual_fraud_rate * 100, 2),
                 max_allowed=round(max_fraud_rate * 100, 2)
             )
+            
+            fraud_idx = np.where(y == 1)[0]
+            legit_idx = np.where(y == 0)[0]
+            n_target_fraud = int(len(legit_idx) * max_fraud_rate / (1 - max_fraud_rate))
+            
+            if n_target_fraud < len(fraud_idx):
+                np.random.seed(42)
+                keep_fraud_idx = np.random.choice(fraud_idx, n_target_fraud, replace=False)
+                keep_idx = np.sort(np.concatenate([legit_idx, keep_fraud_idx]))
+                X = X.iloc[keep_idx].reset_index(drop=True)
+                y = y[keep_idx]
+                actual_fraud_rate = float(np.mean(y))
+                logger.info(f"Downsampled to {len(X)} samples, fraud rate: {actual_fraud_rate*100:.2f}%")
         
         logger.info(
             "Training with Bahnsen features",
@@ -767,8 +786,14 @@ class ProductionFraudEngine:
         )
         
         if use_temporal_split and not has_valid_timestamps:
+            if strict_temporal:
+                raise ValueError(
+                    f"strict_temporal=True but no valid timestamps in column '{timestamp_col}'. "
+                    "Provide datetime column or set strict_temporal=False to use stratified split."
+                )
             logger.warning(
-                "Temporal split requested but no valid timestamps found",
+                "CAUTION: Temporal split requested but no valid timestamps found. "
+                "Falling back to stratified split - this may cause data leakage in time-series data.",
                 column=timestamp_col,
                 falling_back="stratified_split"
             )
@@ -789,9 +814,13 @@ class ProductionFraudEngine:
         )
         
         if use_temporal_split:
-            sorted_indices = X_enhanced[timestamp_col].argsort()
-            X_enhanced = X_enhanced.iloc[sorted_indices].reset_index(drop=True)
-            y = y[sorted_indices]
+            X_enhanced = X_enhanced.sort_values(
+                by=[timestamp_col, '_original_idx'], 
+                kind='stable'
+            ).reset_index(drop=True)
+            
+            sorted_orig_idx = X_enhanced['_original_idx'].values
+            y = np.array([y[int(i)] if i < len(y) else y[-1] for i in sorted_orig_idx])
             
             n = len(X_enhanced)
             train_end = int(n * train_ratio)
@@ -808,25 +837,29 @@ class ProductionFraudEngine:
             if len(np.unique(y_train)) < 2:
                 logger.error(
                     "Only one class in training set with temporal split. "
-                    "Dataset may have insufficient fraud samples in early period."
+                    "Dataset has insufficient fraud samples in early period."
                 )
                 raise ValueError(
                     "Temporal split resulted in only one class in training set. "
-                    "Consider using use_temporal_split=False for this dataset or "
-                    "ensure fraud samples are distributed across time periods."
+                    "This dataset requires use_temporal_split=False or needs fraud samples "
+                    "distributed across time periods. Cannot proceed."
+                )
+            
+            if len(np.unique(y_val)) < 2 or len(np.unique(y_test)) < 2:
+                logger.warning(
+                    "Validation or test set has only one class. Metrics may be unreliable.",
+                    val_classes=len(np.unique(y_val)),
+                    test_classes=len(np.unique(y_test))
                 )
             
             logger.info(
-                "Temporal split applied (strict, no data leakage)",
+                "Temporal split applied (strict chronological, stable sort, no data leakage)",
                 train_size=len(X_train),
                 val_size=len(X_val),
                 test_size=len(X_test),
                 train_fraud_rate=round(float(np.mean(y_train)) * 100, 2)
             )
         else:
-            if len(np.unique(y)) < 2:
-                raise ValueError("Dataset must contain both fraud and legitimate samples")
-            
             X_train, X_temp, y_train, y_temp = train_test_split(
                 X_enhanced, y, test_size=(1-train_ratio), random_state=42, stratify=y
             )
@@ -835,7 +868,7 @@ class ProductionFraudEngine:
             )
             
             logger.info(
-                "Stratified split applied",
+                "Stratified split applied (NOT temporal - potential leakage in time-series)",
                 train_size=len(X_train),
                 val_size=len(X_val),
                 test_size=len(X_test),
@@ -847,7 +880,7 @@ class ProductionFraudEngine:
         X_test_df = X_test if isinstance(X_test, pd.DataFrame) else pd.DataFrame(X_test)
         
         numeric_cols = X_train_df.select_dtypes(include=[np.number]).columns.tolist()
-        non_feature_cols = ['user_id', 'transaction_id', 'id', 'is_fraud', timestamp_col]
+        non_feature_cols = ['user_id', 'transaction_id', 'id', 'is_fraud', timestamp_col, '_original_idx']
         feature_cols = [c for c in numeric_cols if c not in non_feature_cols]
         
         X_train_features = X_train_df[feature_cols].fillna(0)
@@ -862,14 +895,16 @@ class ProductionFraudEngine:
         
         n_fraud = int(np.sum(y_train == 1))
         n_legit = int(np.sum(y_train == 0))
-        class_weight = {0: 1.0, 1: max(1.0, n_legit / max(1, n_fraud))}
+        weight_ratio = max(1.0, n_legit / max(1, n_fraud))
         
         logger.info(
             f"Training ensemble with {len(feature_cols)} Bahnsen features...",
-            class_weight_fraud=round(class_weight[1], 2)
+            fraud_weight=round(weight_ratio, 2),
+            n_fraud_train=n_fraud,
+            n_legit_train=n_legit
         )
         
-        sample_weights = np.array([class_weight[int(yi)] for yi in y_train])
+        sample_weights = np.where(y_train == 1, weight_ratio, 1.0)
         self.ensemble.fit(X_train_scaled, y_train, sample_weight=sample_weights)
         
         logger.info("Calibrating probabilities...")
