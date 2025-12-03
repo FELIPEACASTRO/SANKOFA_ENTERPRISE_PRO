@@ -35,7 +35,7 @@ class HardRulePrediction:
     model_version: str
     detection_reason: List[str]
     timestamp: str
-    triggered_rules: List[Dict] = None
+    triggered_rules: Optional[List[Dict[str, Any]]] = None
     source: str = "HARD_RULES"
 
     def to_dict(self) -> Dict[str, Any]:
@@ -212,8 +212,9 @@ class HardRulesEngine:
                 f"Rule '{rule.get('name')}' triggered",
                 f"Conditions: {', '.join(matched_conditions)}",
             ]
-            if rule.get("description"):
-                reasons.append(rule.get("description")[:100])
+            description = rule.get("description")
+            if description:
+                reasons.append(str(description)[:100])
             return True, reasons
         
         return False, []

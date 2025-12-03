@@ -42,7 +42,7 @@ class UserBehaviorProfile:
     fraud_count: int = 0
     
     def update(self, amount: float, timestamp: datetime, 
-               channel: str = None, location: str = None):
+               channel: Optional[str] = None, location: Optional[str] = None):
         """Atualiza perfil com nova transação"""
         n = self.total_transactions
         if n == 0:
@@ -488,7 +488,8 @@ class BahnsenFeatureEngineering:
         for idx, row in df.iterrows():
             user_id = str(row[user_col])
             amount = float(row[amount_col])
-            timestamp = row.get(timestamp_col, datetime.now())
+            raw_timestamp = row.get(timestamp_col)
+            timestamp: datetime = raw_timestamp if isinstance(raw_timestamp, datetime) else datetime.now()
             channel = row.get(channel_col) if channel_col and channel_col in df.columns else None
             txn_type = row.get(type_col) if type_col and type_col in df.columns else None
             

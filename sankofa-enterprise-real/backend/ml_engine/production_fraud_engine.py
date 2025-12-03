@@ -182,6 +182,10 @@ class ProductionFraudEngine:
         
         # Features da última predição (para explicabilidade)
         self.last_features = None
+        
+        # Cache de predições para latência sub-50ms
+        self._prediction_cache = None
+        self._cache_enabled = True
 
         # Tentar carregar modelo pré-treinado
         self._try_load_pretrained_model()
@@ -764,14 +768,76 @@ class ProductionFraudEngine:
             logger.error("Prediction failed", exception=e)
             raise
 
+    def _get_cache(self):
+        """Obtém instância do cache (lazy loading)"""
+        if self._prediction_cache is None and self._cache_enabled:
+            try:
+                from cache.prediction_cache import PredictionCache
+                self._prediction_cache = PredictionCache(
+                    max_size=10000,
+                    default_ttl_seconds=300,
+                    high_risk_ttl_seconds=60,
+                    low_risk_ttl_seconds=600
+                )
+                logger.info("Prediction cache initialized")
+            except ImportError:
+                logger.warning("PredictionCache not available, caching disabled")
+                self._cache_enabled = False
+        return self._prediction_cache
+    
+    def _check_cache(self, transaction: Dict[str, Any]) -> Optional[FraudPrediction]:
+        """Verifica se transação está no cache"""
+        cache = self._get_cache()
+        if cache is None:
+            return None
+        
+        cached = cache.get(transaction)
+        if cached is not None:
+            return FraudPrediction(
+                transaction_id=str(transaction.get('transaction_id', transaction.get('id', ''))),
+                is_fraud=cached.is_fraud,
+                fraud_probability=cached.fraud_probability,
+                risk_score=cached.risk_score,
+                risk_level=cached.risk_level,
+                confidence=cached.confidence,
+                processing_time_ms=0.5,
+                model_version=cached.model_version,
+                detection_reason=cached.detection_reason,
+                timestamp=cached.cached_at
+            )
+        return None
+    
+    def _cache_prediction(self, transaction: Dict[str, Any], prediction: FraudPrediction):
+        """Armazena predição no cache"""
+        cache = self._get_cache()
+        if cache is not None:
+            cache.set(
+                transaction=transaction,
+                is_fraud=prediction.is_fraud,
+                fraud_probability=prediction.fraud_probability,
+                risk_score=prediction.risk_score,
+                risk_level=prediction.risk_level,
+                confidence=prediction.confidence,
+                model_version=prediction.model_version,
+                detection_reason=prediction.detection_reason
+            )
+    
+    def get_cache_stats(self) -> Dict[str, Any]:
+        """Retorna estatísticas do cache"""
+        cache = self._get_cache()
+        if cache is not None:
+            return cache.get_stats()
+        return {"status": "disabled"}
+
     @log_execution_time(logger)
-    def predict_detailed(self, X: pd.DataFrame, apply_rules: bool = True) -> List[FraudPrediction]:
+    def predict_detailed(self, X: pd.DataFrame, apply_rules: bool = True, use_cache: bool = True) -> List[FraudPrediction]:
         """
         Faz predições detalhadas de fraude com metadados completos
 
         Args:
             X: DataFrame com features
             apply_rules: Se True, aplica regras de precision boosting
+            use_cache: Se True, usa cache para otimizar latência
 
         Returns:
             Lista de predições detalhadas com risk levels, razões, etc.
@@ -785,20 +851,49 @@ class ProductionFraudEngine:
         try:
             start_time = time.time()
             
-            missing_features = self._validate_required_features(X)
+            predictions = []
+            cache_hits = 0
+            rows_to_process = []
+            cached_predictions = {}
+            original_rows = {}
+            
+            for idx in range(len(X)):
+                row = X.iloc[idx]
+                original_rows[idx] = row.to_dict()
+            
+            if use_cache and self._cache_enabled:
+                for idx in range(len(X)):
+                    txn_dict = original_rows[idx]
+                    cached = self._check_cache(txn_dict)
+                    if cached is not None:
+                        cached_predictions[idx] = cached
+                        cache_hits += 1
+                    else:
+                        rows_to_process.append(idx)
+                
+                if cache_hits > 0:
+                    logger.info(f"Cache hits: {cache_hits}/{len(X)}")
+            else:
+                rows_to_process = list(range(len(X)))
+            
+            if not rows_to_process:
+                final_preds = [cached_predictions[idx] for idx in range(len(X))]
+                return final_preds
+            
+            X_uncached = X.iloc[rows_to_process].reset_index(drop=True)
+            
+            missing_features = self._validate_required_features(X_uncached)
             if missing_features:
                 logger.warning(
                     "Missing features in predict_detailed",
                     missing=missing_features,
-                    provided=list(X.columns)
+                    provided=list(X_uncached.columns)
                 )
 
-            X_processed = self._preprocess_data(X, fit_transform=False)
+            X_processed = self._preprocess_data(X_uncached, fit_transform=False)
             
-            # Armazenar features para explicabilidade
             self.last_features = X_processed
 
-            # Usar modelos carregados se disponíveis
             if self.loaded_models:
                 probas = []
                 weights = []
@@ -829,35 +924,33 @@ class ProductionFraudEngine:
                 raise ValueError("No model available. Train or load a model first.")
 
             if apply_rules:
-                y_proba = self._apply_precision_rules(X, y_proba)
+                y_proba = self._apply_precision_rules(X_uncached, np.asarray(y_proba))
 
-            # Tempo total
+            y_proba_array = np.asarray(y_proba)
+            
             total_time = (time.time() - start_time) * 1000
-            avg_time = total_time / len(X)
+            avg_time = total_time / len(X_uncached) if len(X_uncached) > 0 else 0
 
-            # Criar predições
-            predictions = []
+            new_predictions = {}
             lazy_ensemble = _get_lazy_integrated_ensemble()
             
-            for idx, proba in enumerate(y_proba):
+            for proba_idx, proba in enumerate(y_proba_array):
+                orig_idx = rows_to_process[proba_idx]
                 base_proba = proba
                 final_proba = proba
                 ensemble_info = None
                 
-                # Integrar CatBoost/GNN se disponível
                 if lazy_ensemble is not None:
                     try:
-                        row = X.iloc[idx]
-                        # Construir payload estruturado para ensemble
+                        row = X_uncached.iloc[proba_idx]
                         txn_dict = {
-                            'transaction_id': f"TXN_{idx}",
+                            'transaction_id': f"TXN_{orig_idx}",
                             'customer_id': str(row.get('customer_id', row.get('cliente_cpf', ''))),
                             'amount': float(row.get('amount', row.get('valor', 0))),
                             'receiver_id': str(row.get('receiver_id', row.get('conta_recebedor', ''))),
                             'device_id': str(row.get('device_id', '')),
                             'ip_address': str(row.get('ip_address', '')),
                         }
-                        # Adicionar todas as features como backup
                         for col in row.index:
                             if col not in txn_dict:
                                 txn_dict[col] = row[col]
@@ -869,12 +962,11 @@ class ProductionFraudEngine:
                             'gnn_patterns': ensemble_result.gnn_suspicious_patterns,
                         }
                     except Exception as e:
-                        logger.warning(f"Ensemble integration failed for idx {idx}: {e}")
+                        logger.warning(f"Ensemble integration failed for idx {orig_idx}: {e}")
                         final_proba = base_proba
                 
                 is_fraud = final_proba >= self.threshold
 
-                # Determinar risk level
                 if final_proba >= 0.95:
                     risk_level = "CRITICAL"
                 elif final_proba >= 0.80:
@@ -884,20 +976,19 @@ class ProductionFraudEngine:
                 else:
                     risk_level = "LOW"
 
-                # Razões de detecção
                 reasons = []
                 if is_fraud:
                     reasons.append(f"High fraud probability: {final_proba:.2%}")
                     if apply_rules:
-                        row = X.iloc[idx]
-                        if "amount" in X.columns and "hour" in X.columns:
+                        row = X_uncached.iloc[proba_idx]
+                        if "amount" in X_uncached.columns and "hour" in X_uncached.columns:
                             if row["amount"] >= 50000 and row["hour"] in [0, 1, 2, 3, 4, 23]:
                                 reasons.append("Extreme amount in suspicious hour")
                     if ensemble_info and ensemble_info.get('gnn_patterns'):
                         reasons.extend(ensemble_info['gnn_patterns'][:3])
 
                 prediction = FraudPrediction(
-                    transaction_id=str(idx),
+                    transaction_id=str(orig_idx),
                     is_fraud=bool(is_fraud),
                     fraud_probability=float(final_proba),
                     risk_score=float(final_proba),
@@ -909,16 +1000,27 @@ class ProductionFraudEngine:
                     timestamp=datetime.utcnow().isoformat() + "Z",
                 )
 
-                predictions.append(prediction)
+                new_predictions[orig_idx] = prediction
+                
+                if use_cache and self._cache_enabled:
+                    self._cache_prediction(original_rows[orig_idx], prediction)
+            
+            final_predictions = []
+            for idx in range(len(X)):
+                if idx in cached_predictions:
+                    final_predictions.append(cached_predictions[idx])
+                elif idx in new_predictions:
+                    final_predictions.append(new_predictions[idx])
 
             logger.info(
                 "Detailed predictions completed",
-                num_predictions=len(predictions),
-                num_frauds=sum(1 for p in predictions if p.is_fraud),
+                num_predictions=len(final_predictions),
+                num_frauds=sum(1 for p in final_predictions if p.is_fraud),
                 avg_time_ms=round(avg_time, 2),
+                cache_hits=cache_hits,
             )
 
-            return predictions
+            return final_predictions
 
         except Exception as e:
             logger.error("Detailed prediction failed", exception=e)
