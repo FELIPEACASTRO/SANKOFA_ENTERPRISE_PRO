@@ -124,8 +124,17 @@ The system incorporates techniques from 12+ academic datasets analyzed:
 4. **GraphGuard (2024)**: Contrastive learning for fraud - Graph patterns supported
 
 ### Quality Assurance Validation
+- **Military 5X QA Catalogue: 63/63 tests passing (100%)**
+  - ISTQB Levels: Unit, Component, Integration, System, Acceptance
+  - Functional Types: Smoke, Sanity, Regression, Requirements-based
+  - Non-Functional ISO 25010: Performance (<50ms latency), Security, Reliability
+  - Database: PostgreSQL connection, table existence, transactions, cache fallback
+  - ML/IA: Data quality, metrics validation, fairness, explainability, drift detection
+  - Compliance: LGPD audit trails, PCI DSS guardrails, BACEN regulations
+  - Banking-Specific: PIX fraud journeys, nighttime detection, high-value limits, HA
 - **43+ integration tests passing** (PostgreSQL, Cache, Performance, Advanced Modules)
-- **100% module functionality** (Bahnsen, PIX Taxonomy, NLP, Production Engine, Advanced ML)
+- **30/30 Hard Rules tests passing**
+- **37/38 ML Metrics tests passing** (1 skipped)
 - **Sub-50ms latency** verified with prediction cache
 - **Cache 10x+ faster** than database confirmed
 - **5 advanced modules** successfully integrated with staged enrichment pipeline
