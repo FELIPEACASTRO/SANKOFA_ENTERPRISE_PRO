@@ -1,0 +1,386 @@
+# ðŸ´â€â˜ ï¸ VERSÃƒO MILITAR **1000X**  
+## SUPER MANUAL DE TESTES & AUDITORIA TOTAL (BACKEND, FRONTEND, DB, REDIS, ML/IA, SEGURANÃ‡A, OBSERVABILIDADE)
+
+> Este documento Ã© feito para uma IA de desenvolvimento (ex: Replit, Devin) atuar como  
+> **UM EXÃ‰RCITO DE 10.000 ESPECIALISTAS** em QA, Arquitetura, SeguranÃ§a, MLOps, SRE e Bancos.  
+> A ordem Ã© simples: **NENHUM RISCO SEM TESTE. NENHUM TESTE SEM EVIDÃŠNCIA.**
+
+
+---
+
+## 0. REGRAS DE OURO DA ANÃLISE 1000X
+
+A IA **NÃƒO PODE SER SUPERFICIAL**. Ela deve seguir estas regras em TODO o processo:
+
+1. **Rastreamento total**  
+   - Nenhuma rota, classe, funÃ§Ã£o, tabela, Ã­ndice, feature, fila, modelo ou pipeline pode ficar sem anÃ¡lise.
+   - Nenhum requisito de negÃ³cio pode ficar sem mapeamento para pelo menos 1 teste.
+
+2. **Cross-check em mÃºltiplas fontes**  
+   - CÃ³digo-fonte.
+   - DocumentaÃ§Ã£o.
+   - ConfiguraÃ§Ãµes.
+   - Scripts de banco.
+   - Pipelines.
+   - Logs / mÃ©tricas (se existirem).
+   - Commits e histÃ³rico de mudanÃ§as (git).
+
+3. **Duplo e triplo check automÃ¡tico**  
+   Para cada conclusÃ£o da IA:
+   - Validar com pelo menos 2 evidÃªncias (ex: cÃ³digo + teste, config + logs).
+   - Revalidar em pastas diferentes (ex: `src/` x `tests/` x `infra/`).
+
+4. **Zero suposiÃ§Ã£o silenciosa**  
+   - Se algo nÃ£o estÃ¡ claro, a IA **deve sinalizar explicitamente** como:
+     - `"INCERTO" | "NÃƒO EVIDENCIADO" | "POTENCIAL RISCO OCULTO"`  
+   - E sugerir testes/documentaÃ§Ã£o necessÃ¡rios.
+
+5. **SaÃ­da sempre estruturada**  
+   - Por componente.
+   - Por tipo de teste.
+   - Por risco.
+
+6. **Tudo com evidÃªncia apontÃ¡vel**  
+   - Sempre informar:
+     - Arquivo (path).
+     - Linha aproximada ou bloco lÃ³gico.
+     - Tipo de teste ou lacuna.
+
+---
+
+## 1. INVENTÃRIO GLOBAL (ANTES DE QUALQUER COISA)
+
+A IA deve criar (e salvar em `/reports/`) um inventÃ¡rio com:
+
+- **Componentes de NegÃ³cio**  
+  - ServiÃ§os: decisÃµes de fraude, crÃ©dito, pagamentos, PIX, etc.
+  - Fluxos principais (diagramados em texto/markdown).
+
+- **Componentes TÃ©cnicos**  
+  - Backend: mÃ³dulos/pacotes, controllers, services, use cases, repos, clients.
+  - Frontend: pÃ¡ginas, componentes, hooks, estados globais.
+  - DB: tabelas, views, funÃ§Ãµes, Ã­ndices, constraints.
+  - Redis: padrÃµes de key, TTLs, locks, caches, streams.
+  - ML: scripts de treino, modelos salvos, features, pipelines.
+  - Filas: SQS/Kafka/Rabbit, DLQs, reprocessamento.
+  - Infra: Docker, Kubernetes, Terraform, CI/CD, monitoria, logs, mÃ©tricas.
+
+Esse inventÃ¡rio deve gerar pelo menos:
+
+- `reports/inventory-components.json`
+- `reports/inventory-tests.json` (mapeando testes existentes por pasta/tecnologia).
+
+---
+
+## 2. MATRIZ DE RASTREABILIDADE 1000X
+
+A IA deve criar uma **MATRIZ DE RASTREABILIDADE COMPLETA**:
+
+- Requisito â†’ Regras â†’ CÃ³digo â†’ DB/Redis/ML â†’ Testes â†’ EvidÃªncias.
+
+Formato sugerido (YAML):
+
+```yaml
+- requirement: "TransaÃ§Ã£o PIX <= R$ 500 aprovadas automaticamente se perfil seguro"
+  business_domain: "PIX"
+  rules:
+    - "Regra X de negÃ³cio"
+  implementation:
+    - file: "src/main/.../PixDecisionService.java"
+      line_hint: 120-200
+  data:
+    postgres:
+      - table: "pix_transactions"
+      - table: "customers"
+    redis:
+      - key_pattern: "risk:profile:{customer_id}"
+  ml_models:
+    - name: "pix_risk_model_v3"
+      path: "ml/models/pix_risk_model_v3.onnx"
+  tests:
+    existing:
+      - "tests/unit/.../PixDecisionServiceTest.java"
+    missing:
+      - "tests/integration/.../PixDecisionIntegrationTest.java"
+      - "tests/perf/k6/pix_decision_load.js"
+  risk_if_missing: "ALTA"
+  notes: "Sem teste de latÃªncia e sem teste de drift de perfil."
+```
+
+---
+
+## 3. NÃVEIS DE TESTE â€” ANÃLISE DETALHADA 1000X
+
+### 3.1 Unit Test
+
+A IA deve:
+
+1. Listar TODAS as classes/mÃ©todos potenciais para unit test.
+2. Para cada classe:
+   - Ver se hÃ¡ teste especÃ­fico.
+   - Ver se a cobertura Ã© razoÃ¡vel.
+   - Sugerir casos faltantes (ex: exceÃ§Ãµes, bordas, nulos, valores extremos).
+
+### 3.2 Componente
+
+- Backend: adapters (REST, MQ, DB, Redis), mappers.
+- Frontend: componentes complexos com estado, formulÃ¡rios, componentes de tabela/lista.
+
+A IA deve validar:
+
+- InteraÃ§Ãµes internas do componente.
+- Props e estados no frontend.
+- ConfiguraÃ§Ã£o de clients no backend (timeouts, retries).
+
+### 3.3 IntegraÃ§Ã£o
+
+A IA deve:
+
+- Mapear todas as **integraÃ§Ãµes internas** (dentro da soluÃ§Ã£o) e **externas** (FICO, serviÃ§os de terceiros).
+- Validar:
+  - Se hÃ¡ testes que sobem o contexto com DB/Redis fake ou real (testcontainers, em memÃ³ria).
+  - Se as chamadas reais estÃ£o sob controle (mocks ou ambientes de teste).
+
+### 3.4 Sistema
+
+- Verificar se existem testes cobrindo **cenÃ¡rios crÃ­ticos de negÃ³cio**, usando a aplicaÃ§Ã£o quase como um black box.
+
+### 3.5 AceitaÃ§Ã£o
+
+- Conferir se existem cenÃ¡rios escritos em termos de negÃ³cio (ex: BDD / Gherkin).
+- Verificar se esses cenÃ¡rios sÃ£o executÃ¡veis (via Cucumber/Behave/etc.).
+
+---
+
+## 4. CATÃLOGO DE TESTES FUNCIONAIS â€” NÃVEL CIRÃšRGICO
+
+### 4.1 Regras de negÃ³cio crÃ­ticas
+
+A IA deve identificar regras como:
+
+- AprovaÃ§Ã£o automÃ¡tica.
+- Bloqueio automÃ¡tico.
+- Limites por canal.
+- Regras de exceÃ§Ã£o.
+- InteraÃ§Ãµes com cadastro, blacklist, whitelist.
+
+Para cada regra:
+
+- Identificar se hÃ¡ **ao menos**:
+  - 1 teste feliz.
+  - 1 teste de borda inferior.
+  - 1 teste de borda superior.
+  - 1 teste negativo.
+  - 1 teste com dados inconsistentes ou incompletos.
+
+### 4.2 API â€” Detalhamento por endpoint
+
+A IA deve gerar para cada endpoint:
+
+- Tabela de cenÃ¡rios mÃ­nimos:
+
+```markdown
+| CenÃ¡rio                    | Tipo      | Esperado                     |
+|---------------------------|----------|------------------------------|
+| Request vÃ¡lido            | Positivo | 2xx + body consistente       |
+| Campos obrigatÃ³rios faltam| Negativo | 4xx + mensagem clara         |
+| Token invÃ¡lido            | SeguranÃ§a| 401                          |
+| Sem permissÃ£o             | SeguranÃ§a| 403                          |
+| Timeout em serviÃ§o externo| ResiliÃªncia | 5xx controlado / fallback |
+| Payload grande            | Stress   | 4xx ou 2xx conforme regra    |
+```
+
+- Criar testes automatizados que cubram todos esses cenÃ¡rios.
+
+### 4.3 Frontend
+
+- Validar:
+
+  - ValidaÃ§Ãµes de campos.
+  - Estados de loading, erro, vazio.
+  - NavegaÃ§Ã£o entre pÃ¡ginas.
+  - PersistÃªncia de estado (se houver).
+  - Comportamento com rede lenta.
+
+---
+
+## 5. NÃƒO-FUNCIONAIS â€” PERF, SEGURANÃ‡A, CONFIABILIDADE DETALHADOS
+
+### 5.1 Performance
+
+A IA deve:
+
+1. Identificar **rotas crÃ­ticas**:
+   - DecisÃ£o de fraude.
+   - AutorizaÃ§Ã£o de cartÃ£o.
+   - PIX.
+2. Criar scripts de carga (k6) com:
+   - PadrÃµes realistas de trÃ¡fego.
+   - Diversos perfis de payload.
+   - Mix de rotas.
+
+3. GeraÃ§Ã£o de relatÃ³rios com:
+   - LatÃªncia por rota (p50, p95, p99).
+   - Throughput mÃ©dio e mÃ¡ximo.
+   - Erros por tipo.
+
+### 5.2 SeguranÃ§a
+
+A IA precisa:
+
+- Rodar anÃ¡lise estÃ¡tica (SAST) em todo cÃ³digo.
+- Definir checklist de OWASP para verificaÃ§Ã£o manual (se necessÃ¡rio).
+- Criar testes para:
+  - Inputs maliciosos (XSS, SQLi, Path Traversal, etc.).
+  - Tokens invÃ¡lidos ou manipulados.
+  - Brute force (login/senha).
+
+---
+
+## 6. POSTGRES â€” CHECKLIST 1000X
+
+A IA deve fazer um **scan lÃ³gico** e gerar um relatÃ³rio tipo:
+
+```yaml
+postgres:
+  tables:
+    - name: "transactions"
+      pk: ["id"]
+      fks:
+        - "customer_id -> customers.id"
+      indexes:
+        - "idx_transactions_customer_id"
+      risks:
+        - "nÃ£o hÃ¡ Ã­ndice para coluna X usada em filtros crÃ­ticos"
+      tests_missing:
+        - "verificar integridade ao deletar customers"
+        - "testar transaÃ§Ãµes concorrentes sobre saldo"
+```
+
+### Itens adicionais obrigatÃ³rios:
+
+- Testes de **uniqueness lÃ³gica** (ex: transaÃ§Ã£o duplicada).
+- Testes de **consistÃªncia** entre saldos e lanÃ§amentos.
+- Testes de **reprocessamento** (rodar a mesma carga duas vezes e verificar se nÃ£o duplica).
+
+---
+
+## 7. REDIS â€” CHECKLIST 1000X
+
+- A IA deve construir um inventÃ¡rio de **todas as chaves** usadas pelo cÃ³digo:
+  - PadrÃ£o.
+  - TTL.
+  - Tipo.
+
+E entÃ£o gerar:
+
+- Lista de riscos:
+  - Chaves sem TTL.
+  - TTL muito alto (risco de usar dados velhos).
+  - Lock mal implementado.
+  - Armazenamento excessivo de payloads grandes.
+
+- Casos de teste que:
+  - Simulem floods de escrita/leitura.
+  - Testem evictions e sua consequÃªncia na aplicaÃ§Ã£o.
+
+---
+
+## 8. ML/IA â€” ANÃLISE 1000X
+
+A IA deve examinar:
+
+- Onde o modelo Ã© carregado/servido.
+- Como as features sÃ£o calculadas.
+- Como logs de prediÃ§Ã£o sÃ£o armazenados (para monitoraÃ§Ã£o).
+
+### 8.1 Testes obrigatÃ³rios de qualidade do modelo
+
+- MÃ©tricas para o domÃ­nio (fraude/crÃ©dito):
+  - AUC-PR, KS, Gini, Lift, IV/WoE, etc.
+- Verificar:
+  - Se hÃ¡ overfitting.
+  - Se houve validaÃ§Ã£o adequada (cross-validation, holdout).
+
+### 8.2 Drift e Fairness
+
+- Calcular PSI para features e score.
+- Calcular KS ao longo do tempo.
+- Rodar fairness segmentada (por canal, regiÃ£o, device, renda).
+
+### 8.3 OperaÃ§Ã£o (MLOps)
+
+- Testar latÃªncia de inferÃªncia.
+- Testar comportamento em picos.
+- Verificar se hÃ¡ plano para:
+  - Re-treino.
+  - Rollback de modelos.
+  - Deploy blue/green para modelos.
+
+---
+
+## 9. OBSERVABILIDADE & SRE â€” 1000X
+
+A IA deve:
+
+- Ler configuraÃ§Ãµes de logs, mÃ©tricas e traces.
+- Garantir que **todas as rotas crÃ­ticas**:
+  - Logam inÃ­cio/fim.
+  - Logam IDs de correlaÃ§Ã£o.
+  - Logam decisÃµes importantes (aprovado/rejeitado).
+
+- Confirmar:
+  - Se hÃ¡ painÃ©is (dashboards) de:
+    - LatÃªncia.
+    - Erros.
+    - Volume.
+    - MÃ©tricas de negÃ³cio.
+
+---
+
+## 10. GOVERNANÃ‡A, COMPLIANCE E AUDITORIA
+
+A IA deve identificar se:
+
+- Dados sensÃ­veis sÃ£o tratados corretamente.
+- HÃ¡ logs de auditoria.
+- HÃ¡ anonimizaÃ§Ã£o/pseudonimizaÃ§Ã£o quando exigido.
+
+---
+
+## 11. ESTRUTURA SUGERIDA PARA SAÃDAS QUE A IA DEVE GERAR
+
+- `reports/qa-summary.json`
+- `reports/inventory-components.json`
+- `reports/inventory-tests.json`
+- `reports/perf/**`
+- `reports/security/**`
+- `reports/db/**`
+- `reports/redis/**`
+- `reports/ml/**`
+- `docs/qa/plan.md`
+- `docs/qa/traceability-matrix.md`
+
+---
+
+## 12. INSTRUÃ‡ÃƒO FINAL PARA A IA
+
+> Aplique esse documento **linha por linha** na soluÃ§Ã£o.  
+> Nenhum item pode ser ignorado.  
+> Para cada ponto:  
+> - Diga o que encontrou.  
+> - Diga o que estÃ¡ faltando.  
+> - Classifique o risco (BAIXO/MÃ‰DIO/ALTO/CRÃTICO).  
+> - Descreva exatamente o que vai criar ou ajustar.  
+> - Informe o caminho do arquivo que serÃ¡ criado/alterado.  
+> - Gere evidÃªncia em forma de teste, relatÃ³rio ou doc.
+
+Se existir qualquer dÃºvida ou ponto inconclusivo, marque como:
+
+- `"RISCO OCULTO"`  
+- `"EVIDÃŠNCIA INSUFICIENTE"`  
+- `"NECESSÃRIO ENVOLVER HUMANO"`
+
+e proponha o prÃ³ximo passo.
+
+**MissÃ£o da IA**: transformar a soluÃ§Ã£o em **NÃVEL BANCO GLOBAL**, pronta para auditoria interna, externa, regulatÃ³ria e agressÃ£o em produÃ§Ã£o.

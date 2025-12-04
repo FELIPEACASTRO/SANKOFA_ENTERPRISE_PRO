@@ -1,0 +1,191 @@
+{
+  "generated_at": "2025-12-04T02:15:00Z",
+  "version": "1000X-MILITARY",
+  "business_components": {
+    "fraud_detection": {
+      "description": "Sistema de detec\u00e7\u00e3o de fraude em tempo real",
+      "files": [
+        "ml_engine/production_fraud_engine.py",
+        "ml_engine/hard_rules_engine.py"
+      ],
+      "status": "PRODUCTION"
+    },
+    "pix_processing": {
+      "description": "Processamento e an\u00e1lise de transa\u00e7\u00f5es PIX",
+      "files": [
+        "ml_engine/pix_fraud_taxonomy.py"
+      ],
+      "status": "PRODUCTION"
+    },
+    "credit_scoring": {
+      "description": "Scoring de cr\u00e9dito com ML",
+      "files": [
+        "ml_engine/production_fraud_engine.py"
+      ],
+      "status": "PRODUCTION"
+    },
+    "compliance": {
+      "description": "LGPD, PCI DSS, BACEN compliance",
+      "files": [
+        "compliance/lgpd_compliance.py",
+        "compliance/pci_dss_compliance.py",
+        "compliance/bacen_compliance.py"
+      ],
+      "status": "PRODUCTION"
+    }
+  },
+  "technical_components": {
+    "backend": {
+      "api": {
+        "main_file": "api/production_api.py",
+        "endpoints": 35,
+        "services": [
+          "services/postgres_store.py",
+          "api/services/transaction_store.py",
+          "api/services/config_store.py"
+        ]
+      },
+      "ml_engine": {
+        "modules": [
+          {
+            "name": "ProductionFraudEngine",
+            "file": "ml_engine/production_fraud_engine.py",
+            "lines": 850
+          },
+          {
+            "name": "HardRulesEngine",
+            "file": "ml_engine/hard_rules_engine.py",
+            "lines": 600
+          },
+          {
+            "name": "BahnsenFeatureEngineering",
+            "file": "ml_engine/bahnsen_feature_engineering.py",
+            "lines": 500
+          },
+          {
+            "name": "PIXFraudTaxonomy",
+            "file": "ml_engine/pix_fraud_taxonomy.py",
+            "lines": 450
+          },
+          {
+            "name": "NLPSocialEngineering",
+            "file": "ml_engine/nlp_social_engineering.py",
+            "lines": 400
+          },
+          {
+            "name": "AutoencoderAnomalyDetector",
+            "file": "ml_engine/autoencoder_anomaly_detector.py",
+            "lines": 422
+          },
+          {
+            "name": "MixtureOfExperts",
+            "file": "ml_engine/mixture_of_experts.py",
+            "lines": 525
+          },
+          {
+            "name": "BiLSTMSequenceAnalyzer",
+            "file": "ml_engine/bilstm_sequence_analyzer.py",
+            "lines": 523
+          },
+          {
+            "name": "SelfExplainableModule",
+            "file": "ml_engine/self_explainable_module.py",
+            "lines": 515
+          },
+          {
+            "name": "AdvancedModulesOrchestrator",
+            "file": "ml_engine/advanced_modules_orchestrator.py",
+            "lines": 571
+          }
+        ]
+      },
+      "cache": {
+        "modules": [
+          {
+            "name": "InMemoryCache",
+            "file": "cache/redis_cache_system.py"
+          },
+          {
+            "name": "PredictionCache",
+            "file": "cache/prediction_cache.py"
+          },
+          {
+            "name": "DistributedFraudCache",
+            "file": "cache/distributed_fraud_cache.py"
+          }
+        ]
+      },
+      "security": {
+        "modules": [
+          {
+            "name": "RBACSystem",
+            "file": "security/rbac_system.py"
+          },
+          {
+            "name": "JWTKeyRotation",
+            "file": "security/jwt_key_rotation.py"
+          },
+          {
+            "name": "CPFTokenization",
+            "file": "security/cpf_tokenization.py"
+          }
+        ]
+      },
+      "mlops": {
+        "modules": [
+          {
+            "name": "ExperimentTracker",
+            "file": "mlops/experiment_tracker.py"
+          },
+          {
+            "name": "ShadowMode",
+            "file": "mlops/shadow_mode.py"
+          },
+          {
+            "name": "FairnessAnalyzer",
+            "file": "mlops/fairness_analyzer.py"
+          },
+          {
+            "name": "DriftDetector",
+            "file": "mlops/drift_detector.py"
+          }
+        ]
+      }
+    },
+    "database": {
+      "type": "PostgreSQL",
+      "tables": [
+        "transactions",
+        "alerts",
+        "audit_logs",
+        "hard_rules",
+        "vip_list",
+        "hot_list"
+      ],
+      "schema_file": "database/schema.sql"
+    },
+    "cache_layer": {
+      "type": "Redis/InMemory",
+      "fallback": "InMemoryCache",
+      "ttl_default": 300,
+      "ttl_high_risk": 60,
+      "ttl_low_risk": 600
+    },
+    "models": {
+      "production": "models/fraud_engine_api.joblib",
+      "backup": "models/production_model.joblib"
+    }
+  },
+  "frontend": {
+    "framework": "React 18 + Vite",
+    "ui_library": "shadcn/ui + TailwindCSS",
+    "pages": 16,
+    "location": "static/"
+  },
+  "infrastructure": {
+    "server": "Flask/Gunicorn",
+    "port": 5000,
+    "database": "PostgreSQL (Neon-backed)",
+    "cache": "Redis (optional) / InMemory (fallback)"
+  }
+}

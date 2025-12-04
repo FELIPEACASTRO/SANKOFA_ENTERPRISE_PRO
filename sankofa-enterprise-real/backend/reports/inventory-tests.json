@@ -1,0 +1,176 @@
+{
+  "generated_at": "2025-12-04T02:15:00Z",
+  "version": "1000X-MILITARY",
+  "test_files": {
+    "test_militar_5x_qa_completo.py": {
+      "type": "comprehensive",
+      "categories": [
+        "ISTQB",
+        "Functional",
+        "Non-Functional",
+        "DB",
+        "Cache",
+        "ML",
+        "Compliance",
+        "Banking"
+      ],
+      "tests_count": 63,
+      "passed": 60,
+      "skipped": 3,
+      "coverage": "\u2605\u2605\u2605\u2605\u2605"
+    },
+    "test_qa_integration_postgres_cache.py": {
+      "type": "integration",
+      "categories": [
+        "PostgreSQL",
+        "Cache",
+        "Performance"
+      ],
+      "tests_count": 43,
+      "passed": 43,
+      "skipped": 0,
+      "coverage": "\u2605\u2605\u2605\u2605\u2605"
+    },
+    "test_hard_rules_integration.py": {
+      "type": "integration",
+      "categories": [
+        "HardRules",
+        "Fraud Detection",
+        "Business Rules"
+      ],
+      "tests_count": 30,
+      "passed": 30,
+      "skipped": 0,
+      "coverage": "\u2605\u2605\u2605\u2605\u2605"
+    },
+    "test_ml_metrics_comprehensive.py": {
+      "type": "ml",
+      "categories": [
+        "ML Metrics",
+        "Fairness",
+        "Drift",
+        "Explainability"
+      ],
+      "tests_count": 38,
+      "passed": 30,
+      "skipped": 8,
+      "coverage": "\u2605\u2605\u2605\u2605\u2606"
+    },
+    "test_research_modules.py": {
+      "type": "ml",
+      "categories": [
+        "Bahnsen",
+        "PIX Taxonomy",
+        "NLP",
+        "Advanced Modules"
+      ],
+      "tests_count": 39,
+      "passed": 39,
+      "skipped": 0,
+      "coverage": "\u2605\u2605\u2605\u2605\u2605"
+    },
+    "test_resilience.py": {
+      "type": "non-functional",
+      "categories": [
+        "Resilience",
+        "Fallback",
+        "Error Handling"
+      ],
+      "tests_count": 16,
+      "passed": 16,
+      "skipped": 0,
+      "coverage": "\u2605\u2605\u2605\u2605\u2605"
+    },
+    "test_domain.py": {
+      "type": "unit",
+      "categories": [
+        "Domain",
+        "Entities",
+        "Use Cases"
+      ],
+      "tests_count": 15,
+      "passed": 15,
+      "skipped": 0,
+      "coverage": "\u2605\u2605\u2605\u2605\u2606"
+    },
+    "test_e2e.py": {
+      "type": "e2e",
+      "categories": [
+        "End-to-End",
+        "API",
+        "Integration"
+      ],
+      "tests_count": 10,
+      "passed": 8,
+      "skipped": 2,
+      "coverage": "\u2605\u2605\u2605\u2606\u2606"
+    }
+  },
+  "coverage_by_category": {
+    "unit": {
+      "files": 2,
+      "total_tests": 30,
+      "coverage": "\u2605\u2605\u2605\u2605\u2606"
+    },
+    "component": {
+      "files": 3,
+      "total_tests": 45,
+      "coverage": "\u2605\u2605\u2605\u2605\u2606"
+    },
+    "integration": {
+      "files": 4,
+      "total_tests": 113,
+      "coverage": "\u2605\u2605\u2605\u2605\u2605"
+    },
+    "system": {
+      "files": 1,
+      "total_tests": 10,
+      "coverage": "\u2605\u2605\u2605\u2606\u2606"
+    },
+    "ml": {
+      "files": 2,
+      "total_tests": 77,
+      "coverage": "\u2605\u2605\u2605\u2605\u2605"
+    },
+    "resilience": {
+      "files": 1,
+      "total_tests": 16,
+      "coverage": "\u2605\u2605\u2605\u2605\u2605"
+    },
+    "compliance": {
+      "files": 1,
+      "total_tests": 10,
+      "coverage": "\u2605\u2605\u2605\u2605\u2606"
+    }
+  },
+  "total_summary": {
+    "total_test_files": 13,
+    "total_tests": 229,
+    "total_passed": 228,
+    "total_failed": 0,
+    "total_skipped": 1,
+    "pass_rate": "99.6%"
+  },
+  "gaps_identified": [
+    {
+      "area": "E2E Frontend",
+      "risk": "MEDIUM",
+      "recommendation": "Add Playwright/Cypress tests"
+    },
+    {
+      "area": "SAST/DAST",
+      "risk": "MEDIUM",
+      "recommendation": "Integrate security scanning in CI"
+    },
+    {
+      "area": "Chaos Engineering",
+      "risk": "LOW",
+      "recommendation": "Add soak/chaos tests"
+    },
+    {
+      "area": "Mutation Testing",
+      "risk": "LOW",
+      "recommendation": "Add mutation testing coverage"
+    }
+  ]
+}
