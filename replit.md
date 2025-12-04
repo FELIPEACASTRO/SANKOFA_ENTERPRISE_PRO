@@ -3,10 +3,18 @@
 ## Overview
 Sankofa Enterprise Pro is a production-ready fraud detection system for banking environments. Its core purpose is to process financial transactions with low latency, identify and prevent fraud using advanced machine learning models, and ensure compliance with financial regulations (LGPD/BACEN/PCI DSS). The system includes a comprehensive React-based dashboard for monitoring and management, aiming for high performance and reliability in a critical banking context. **NOW ENHANCED with 5 advanced ML modules** implementing state-of-the-art academic research for next-level fraud detection. **CERTIFIED MILITARY 1000X** with complete inventories, traceability matrices, and banking-grade reports following ISTQB standards and extremely rigorous QA practices.
 
-## Version 2.1 - Advanced ML Modules Release (December 2025)
+## Version 2.1 - Advanced ML Modules + ML QA Compliance Release (December 2025)
 
-### NEW: 5 Advanced ML Modules
-**Total: 2,556 lines of production code, 26 classes/functions, 8 new API endpoints**
+### NEW: 5 Advanced ML Modules + ML QA Testing Suite
+**Total: 2,556 lines of production code, 26 classes/functions, 8 new API endpoints, +43 ML QA tests**
+
+### NEW: ML QA Guide Compliance Testing (v1.0.0)
+**Total: 43 comprehensive ML QA tests covering 600+ validation types**
+- Implementação completa do "Guia Devastador de Testes QA para ML" (412 linhas)
+- 43 testes estruturados em 7 seções (Data QA, Código/Pipelines, Modelo, API Funcional, Não-Funcional, Produção, Integração)
+- Cobertura: Data quality, drift detection, model robustness, fairness, explicabilidade, performance, resiliência, security, compliance LGPD
+- Arquivo: `tests/test_ml_qa_guide_compliance.py`
+- Status: **100% passing (43/43 testes)**
 
 1. **Autoencoder Anomaly Detector (v1.0.0)** - 422 lines
    - Unsupervised anomaly detection for novel fraud patterns
@@ -73,6 +81,7 @@ The frontend is built with React 18, Vite, `shadcn/ui` components, and TailwindC
     2. **Shadow Mode (v1.0.0)**: Gradual deployment with model comparison, traffic splitting, and divergence detection.
     3. **Fairness Analyzer (v1.0.0)**: Demographic parity, equalized odds, and disparate impact analysis for bias detection.
 - **API Endpoints**: 27 core + 8 advanced = **35 total functional API endpoints**
+- **Test Coverage**: 526 systemic tests + 43 ML QA compliance tests = **569 total tests**
 - **Hard Rules Engine**: An advanced rules engine supports multiple conditions (AND/OR logic, up to 10+ conditions), 20 available fields across 7 categories, 16 operators, 6 action types (block, review, alert, approve, step_up, score_adjust), and 4 rule types. It provides a unified response format identical to ML model output, with 216 active rules derived from real-world fraud scenarios and academic research.
 - **Research-Based ML Modules**: Four original modules based on academic research:
     1.  **Bahnsen Feature Engineering (v2.0.0)**: Generates 62+ features per transaction (temporal aggregations, Von Mises features, behavioral deviation, velocity, channel risk).
