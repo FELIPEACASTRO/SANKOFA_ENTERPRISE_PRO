@@ -45,7 +45,7 @@ const ManualReview = () => {
           const text = await response.text();
           if (text) {
             const data = JSON.parse(text);
-            setReviews(data.reviews || []);
+            setReviews(data.data || []);
           } else {
             setReviews([]);
           }

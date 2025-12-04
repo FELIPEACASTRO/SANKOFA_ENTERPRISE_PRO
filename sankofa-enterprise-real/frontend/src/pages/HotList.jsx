@@ -23,7 +23,7 @@ const HotList = () => {
       const response = await fetch('/api/hot-list');
       if (response.ok) {
         const data = await response.json();
-        setEntries(data.entries || []);
+        setEntries(data.data || []);
       }
     } catch (error) {
       console.error('Erro ao carregar lista HOT:', error);

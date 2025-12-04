@@ -2458,7 +2458,6 @@ def get_vip_list():
     for vip in vips:
         if 'created_at' in vip and vip['created_at']:
             vip['added_at'] = vip['created_at'].isoformat() + "Z" if hasattr(vip['created_at'], 'isoformat') else str(vip['created_at'])
-    postgres_store.add_audit_log("VIP_LIST_VIEW", None, "Listed all VIP entries", request.remote_addr)
     return jsonify({"success": True, "data": vips})
 
 
@@ -2501,7 +2500,6 @@ def get_hot_list():
     for item in items:
         if 'created_at' in item and item['created_at']:
             item['added_at'] = item['created_at'].isoformat() + "Z" if hasattr(item['created_at'], 'isoformat') else str(item['created_at'])
-    postgres_store.add_audit_log("HOT_LIST_VIEW", None, "Listed all Hot List entries", request.remote_addr)
     return jsonify({"success": True, "data": items})
 
 
