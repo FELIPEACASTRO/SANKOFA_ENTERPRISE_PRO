@@ -1,191 +1,265 @@
 {
-  "generated_at": "2025-12-04T02:15:00Z",
-  "version": "1000X-MILITARY",
-  "business_components": {
-    "fraud_detection": {
-      "description": "Sistema de detec\u00e7\u00e3o de fraude em tempo real",
+  "meta": {
+    "generated_at": "2025-12-04",
+    "version": "1000X-SYSTEMIC",
+    "total_python_files": 102,
+    "total_lines_of_code": 50646,
+    "language": "Python 3.12+",
+    "framework": "Flask",
+    "database": "PostgreSQL",
+    "cache": "Redis (optional)",
+    "ml_framework": [
+      "scikit-learn",
+      "XGBoost",
+      "CatBoost",
+      "LightGBM"
+    ]
+  },
+  "architecture": {
+    "pattern": "Clean Architecture + Domain-Driven Design",
+    "layers": [
+      "Domain",
+      "Application",
+      "Infrastructure",
+      "Presentation"
+    ]
+  },
+  "components": {
+    "api": {
+      "path": "api/",
+      "description": "REST API endpoints (Flask)",
       "files": [
-        "ml_engine/production_fraud_engine.py",
-        "ml_engine/hard_rules_engine.py"
+        "production_api.py",
+        "unified_server.py"
       ],
-      "status": "PRODUCTION"
+      "endpoints_count": 35,
+      "critical": true
     },
-    "pix_processing": {
-      "description": "Processamento e an\u00e1lise de transa\u00e7\u00f5es PIX",
+    "ml_engine": {
+      "path": "ml_engine/",
+      "description": "Machine Learning models and feature engineering",
       "files": [
-        "ml_engine/pix_fraud_taxonomy.py"
+        "production_fraud_engine.py",
+        "hard_rules_engine.py",
+        "bahnsen_feature_engineering.py",
+        "pix_fraud_taxonomy.py",
+        "nlp_social_engineering.py",
+        "transfer_learning_pipeline.py",
+        "autoencoder_anomaly_detector.py",
+        "mixture_of_experts.py",
+        "bilstm_sequence_analyzer.py",
+        "self_explainable_module.py",
+        "advanced_modules_orchestrator.py",
+        "explainability_engine.py",
+        "gnn_fraud_detector.py",
+        "ensemble_integration.py",
+        "catboost_model.py"
       ],
-      "status": "PRODUCTION"
+      "models_count": 15,
+      "critical": true
     },
-    "credit_scoring": {
-      "description": "Scoring de cr\u00e9dito com ML",
+    "mlops": {
+      "path": "mlops/",
+      "description": "MLOps components for model lifecycle",
       "files": [
-        "ml_engine/production_fraud_engine.py"
+        "experiment_tracker.py",
+        "shadow_mode.py",
+        "fairness_analyzer.py",
+        "drift_detector.py",
+        "ab_testing_manager.py",
+        "canary_deployment_manager.py",
+        "feedback_integration.py",
+        "model_lifecycle_manager.py"
       ],
-      "status": "PRODUCTION"
+      "critical": true
+    },
+    "security": {
+      "path": "security/",
+      "description": "Authentication, authorization, encryption",
+      "files": [
+        "jwt_key_rotation.py",
+        "rbac_system.py",
+        "rbac_persistence.py",
+        "cpf_tokenization.py",
+        "cpf_persistence.py",
+        "enterprise_security_system.py",
+        "security_middleware.py",
+        "secure_config.py"
+      ],
+      "critical": true
     },
     "compliance": {
-      "description": "LGPD, PCI DSS, BACEN compliance",
+      "path": "compliance/",
+      "description": "Regulatory compliance (LGPD, BACEN, PCI DSS)",
       "files": [
-        "compliance/lgpd_compliance.py",
-        "compliance/pci_dss_compliance.py",
-        "compliance/bacen_compliance.py"
+        "lgpd_compliance.py",
+        "bacen_compliance.py",
+        "pci_dss_compliance.py",
+        "audit_trail.py",
+        "compliance_manager.py",
+        "bacen_reports.py"
       ],
-      "status": "PRODUCTION"
+      "critical": true
+    },
+    "cache": {
+      "path": "cache/",
+      "description": "Caching layer (Redis + In-Memory)",
+      "files": [
+        "redis_cache_system.py",
+        "prediction_cache.py",
+        "distributed_fraud_cache.py"
+      ],
+      "critical": true
+    },
+    "infrastructure": {
+      "path": "infrastructure/",
+      "description": "Database, Redis cluster, async processing",
+      "files": [
+        "database.py",
+        "redis_cluster.py",
+        "async_processor.py",
+        "security.py",
+        "repositories.py"
+      ],
+      "critical": true
+    },
+    "performance": {
+      "path": "performance/",
+      "description": "High-performance processing, load balancing",
+      "files": [
+        "high_performance_engine.py",
+        "high_performance_system.py",
+        "async_processor.py",
+        "load_balancer.py"
+      ],
+      "critical": true
+    },
+    "monitoring": {
+      "path": "monitoring/",
+      "description": "Observability, metrics, structured logging",
+      "files": [
+        "observability.py"
+      ],
+      "critical": true
+    },
+    "core": {
+      "path": "core/",
+      "description": "Domain entities and use cases",
+      "files": [
+        "entities.py",
+        "interfaces.py",
+        "use_cases.py"
+      ],
+      "critical": true
+    },
+    "services": {
+      "path": "services/",
+      "description": "PostgreSQL persistence layer",
+      "files": [
+        "postgres_store.py"
+      ],
+      "critical": true
+    },
+    "config": {
+      "path": "config/",
+      "description": "Application configuration",
+      "files": [
+        "settings.py"
+      ],
+      "critical": true
+    },
+    "utils": {
+      "path": "utils/",
+      "description": "Utilities (logging, error handling)",
+      "files": [
+        "structured_logging.py",
+        "error_handling.py"
+      ],
+      "critical": false
+    },
+    "tests": {
+      "path": "tests/",
+      "description": "Test suites",
+      "files_count": 13,
+      "test_types": [
+        "unit",
+        "integration",
+        "e2e",
+        "ml",
+        "performance",
+        "security"
+      ]
+    },
+    "frontend": {
+      "path": "../frontend/",
+      "description": "React 18 + Vite frontend",
+      "pages_count": 16,
+      "components_count": 12,
+      "framework": "React + TailwindCSS + shadcn/ui"
     }
   },
-  "technical_components": {
-    "backend": {
-      "api": {
-        "main_file": "api/production_api.py",
-        "endpoints": 35,
-        "services": [
-          "services/postgres_store.py",
-          "api/services/transaction_store.py",
-          "api/services/config_store.py"
-        ]
-      },
-      "ml_engine": {
-        "modules": [
-          {
-            "name": "ProductionFraudEngine",
-            "file": "ml_engine/production_fraud_engine.py",
-            "lines": 850
-          },
-          {
-            "name": "HardRulesEngine",
-            "file": "ml_engine/hard_rules_engine.py",
-            "lines": 600
-          },
-          {
-            "name": "BahnsenFeatureEngineering",
-            "file": "ml_engine/bahnsen_feature_engineering.py",
-            "lines": 500
-          },
-          {
-            "name": "PIXFraudTaxonomy",
-            "file": "ml_engine/pix_fraud_taxonomy.py",
-            "lines": 450
-          },
-          {
-            "name": "NLPSocialEngineering",
-            "file": "ml_engine/nlp_social_engineering.py",
-            "lines": 400
-          },
-          {
-            "name": "AutoencoderAnomalyDetector",
-            "file": "ml_engine/autoencoder_anomaly_detector.py",
-            "lines": 422
-          },
-          {
-            "name": "MixtureOfExperts",
-            "file": "ml_engine/mixture_of_experts.py",
-            "lines": 525
-          },
-          {
-            "name": "BiLSTMSequenceAnalyzer",
-            "file": "ml_engine/bilstm_sequence_analyzer.py",
-            "lines": 523
-          },
-          {
-            "name": "SelfExplainableModule",
-            "file": "ml_engine/self_explainable_module.py",
-            "lines": 515
-          },
-          {
-            "name": "AdvancedModulesOrchestrator",
-            "file": "ml_engine/advanced_modules_orchestrator.py",
-            "lines": 571
-          }
-        ]
-      },
-      "cache": {
-        "modules": [
-          {
-            "name": "InMemoryCache",
-            "file": "cache/redis_cache_system.py"
-          },
-          {
-            "name": "PredictionCache",
-            "file": "cache/prediction_cache.py"
-          },
-          {
-            "name": "DistributedFraudCache",
-            "file": "cache/distributed_fraud_cache.py"
-          }
-        ]
-      },
-      "security": {
-        "modules": [
-          {
-            "name": "RBACSystem",
-            "file": "security/rbac_system.py"
-          },
-          {
-            "name": "JWTKeyRotation",
-            "file": "security/jwt_key_rotation.py"
-          },
-          {
-            "name": "CPFTokenization",
-            "file": "security/cpf_tokenization.py"
-          }
-        ]
-      },
-      "mlops": {
-        "modules": [
-          {
-            "name": "ExperimentTracker",
-            "file": "mlops/experiment_tracker.py"
-          },
-          {
-            "name": "ShadowMode",
-            "file": "mlops/shadow_mode.py"
-          },
-          {
-            "name": "FairnessAnalyzer",
-            "file": "mlops/fairness_analyzer.py"
-          },
-          {
-            "name": "DriftDetector",
-            "file": "mlops/drift_detector.py"
-          }
-        ]
-      }
-    },
-    "database": {
+  "databases": {
+    "primary": {
       "type": "PostgreSQL",
       "tables": [
         "transactions",
+        "users",
         "alerts",
-        "audit_logs",
         "hard_rules",
+        "audit_logs",
         "vip_list",
-        "hot_list"
+        "hot_list",
+        "configuration",
+        "models",
+        "sessions"
       ],
-      "schema_file": "database/schema.sql"
+      "critical": true
     },
-    "cache_layer": {
-      "type": "Redis/InMemory",
-      "fallback": "InMemoryCache",
-      "ttl_default": 300,
-      "ttl_high_risk": 60,
-      "ttl_low_risk": 600
-    },
-    "models": {
-      "production": "models/fraud_engine_api.joblib",
-      "backup": "models/production_model.joblib"
+    "cache": {
+      "type": "Redis",
+      "usage": [
+        "Prediction cache",
+        "Session storage",
+        "Rate limiting",
+        "Distributed locks"
+      ],
+      "fallback": "InMemoryCache"
     }
   },
-  "frontend": {
-    "framework": "React 18 + Vite",
-    "ui_library": "shadcn/ui + TailwindCSS",
-    "pages": 16,
-    "location": "static/"
+  "integrations": {
+    "external": [
+      "PostgreSQL",
+      "Redis (optional)"
+    ],
+    "internal": [
+      "ML Engine",
+      "Hard Rules Engine",
+      "Compliance Module"
+    ]
   },
-  "infrastructure": {
-    "server": "Flask/Gunicorn",
-    "port": 5000,
-    "database": "PostgreSQL (Neon-backed)",
-    "cache": "Redis (optional) / InMemory (fallback)"
+  "risk_assessment": {
+    "critical_paths": [
+      "api/production_api.py - Main API (4247 lines)",
+      "ml_engine/production_fraud_engine.py - ML Engine",
+      "ml_engine/hard_rules_engine.py - 216 rules",
+      "services/postgres_store.py - Data persistence"
+    ],
+    "complexity_hotspots": [
+      {
+        "file": "api/production_api.py",
+        "lines": 4247,
+        "risk": "HIGH"
+      },
+      {
+        "file": "ml_engine/hard_rules_engine.py",
+        "lines": 1500,
+        "risk": "MEDIUM"
+      },
+      {
+        "file": "services/postgres_store.py",
+        "lines": 1054,
+        "risk": "MEDIUM"
+      }
+    ]
   }
 }
