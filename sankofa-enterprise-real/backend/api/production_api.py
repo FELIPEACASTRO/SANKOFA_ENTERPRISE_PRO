@@ -43,6 +43,13 @@ from utils.error_handling import (
 from ml_engine.production_fraud_engine import get_fraud_engine, FraudPrediction
 from ml_engine.explainability_engine import ExplainabilityEngine
 from ml_engine.ensemble_integration import get_integrated_ensemble
+
+try:
+    from ml_engine.advanced_modules_orchestrator import get_orchestrator, EnrichedPrediction
+    ADVANCED_ORCHESTRATOR_AVAILABLE = True
+except ImportError as e:
+    ADVANCED_ORCHESTRATOR_AVAILABLE = False
+    logger = None
 from cache.redis_cache_system import redis_cache_system, fraud_cache_manager
 from monitoring.observability import (
     observability_metrics,
@@ -3921,6 +3928,297 @@ def get_research_modules_status():
             }
         }
     })
+
+
+@app.route("/api/advanced/predict/enriched", methods=["POST"])
+@limiter.limit("200 per minute")
+def predict_enriched():
+    """
+    Predição enriquecida com todos os módulos avançados
+    
+    Usa staged enrichment pipeline:
+    - Baixo risco: Apenas modelo base
+    - Médio risco: + Autoencoder + MoE
+    - Alto risco: Todos os módulos (GNN, Sequence, Explainer)
+    """
+    if not ADVANCED_ORCHESTRATOR_AVAILABLE:
+        return jsonify({"success": False, "error": "Advanced modules not available"}), 503
+    
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    transaction = request.json.get("transaction", request.json)
+    user_id = request.json.get("user_id") or transaction.get("customer_id")
+    force_full = request.json.get("force_full_enrichment", False)
+    
+    base_prediction = fraud_engine.predict(transaction)
+    
+    orchestrator = get_orchestrator()
+    enriched = orchestrator.enrich_prediction(
+        transaction=transaction,
+        base_prediction=base_prediction.to_dict(),
+        user_id=user_id,
+        force_full_enrichment=force_full
+    )
+    
+    return jsonify({
+        "success": True,
+        "data": enriched.to_dict()
+    })
+
+
+@app.route("/api/advanced/modules/status", methods=["GET"])
+def get_advanced_modules_status():
+    """Retorna status dos módulos avançados de ML"""
+    if not ADVANCED_ORCHESTRATOR_AVAILABLE:
+        return jsonify({
+            "success": True,
+            "data": {
+                "orchestrator_available": False,
+                "message": "Advanced modules orchestrator not loaded"
+            }
+        })
+    
+    orchestrator = get_orchestrator()
+    status = orchestrator.get_module_status()
+    
+    return jsonify({
+        "success": True,
+        "data": status
+    })
+
+
+@app.route("/api/advanced/autoencoder/detect", methods=["POST"])
+@limiter.limit("100 per minute")
+def detect_anomaly():
+    """
+    Detecta anomalias usando Autoencoder
+    
+    Detecção não supervisionada - identifica transações 
+    com padrões incomuns mesmo sem histórico de fraude
+    """
+    if not ADVANCED_ORCHESTRATOR_AVAILABLE:
+        return jsonify({"success": False, "error": "Advanced modules not available"}), 503
+    
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    transaction = request.json.get("transaction", request.json)
+    
+    try:
+        from ml_engine.autoencoder_anomaly_detector import get_autoencoder_detector
+        detector = get_autoencoder_detector()
+        result = detector.detect_anomaly(transaction)
+        
+        return jsonify({
+            "success": True,
+            "data": {
+                "transaction_id": result.transaction_id,
+                "reconstruction_error": result.reconstruction_error,
+                "anomaly_score": result.anomaly_score,
+                "is_anomaly": result.is_anomaly,
+                "percentile_rank": result.percentile_rank,
+                "anomaly_type": result.anomaly_type,
+                "feature_contributions": result.feature_contributions,
+                "confidence": result.confidence,
+                "module_version": detector.VERSION
+            }
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/advanced/sequence/analyze", methods=["POST"])
+@limiter.limit("100 per minute")
+def analyze_sequence():
+    """
+    Analisa sequência de transações do usuário
+    
+    Usa Bi-LSTM para detectar padrões temporais e 
+    mudanças de comportamento suspeitas
+    """
+    if not ADVANCED_ORCHESTRATOR_AVAILABLE:
+        return jsonify({"success": False, "error": "Advanced modules not available"}), 503
+    
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    transaction = request.json.get("transaction", request.json)
+    user_id = request.json.get("user_id") or transaction.get("customer_id")
+    
+    if not user_id:
+        raise ValidationError("user_id is required for sequence analysis")
+    
+    try:
+        from ml_engine.bilstm_sequence_analyzer import get_bilstm_analyzer
+        analyzer = get_bilstm_analyzer()
+        result = analyzer.analyze_sequence(user_id, transaction)
+        
+        return jsonify({
+            "success": True,
+            "data": {
+                "transaction_id": result.transaction_id,
+                "sequence_risk_score": result.sequence_risk_score,
+                "temporal_anomaly_score": result.temporal_anomaly_score,
+                "velocity_anomaly_score": result.velocity_anomaly_score,
+                "pattern_breaks": result.pattern_breaks,
+                "detected_patterns": [
+                    {
+                        "type": p.pattern_type,
+                        "confidence": p.confidence,
+                        "description": p.description
+                    }
+                    for p in result.detected_patterns
+                ],
+                "is_suspicious": result.is_suspicious_sequence,
+                "recommendation": result.recommendation,
+                "module_version": analyzer.VERSION
+            }
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/advanced/moe/predict", methods=["POST"])
+@limiter.limit("100 per minute")
+def moe_predict():
+    """
+    Predição via Mixture of Experts
+    
+    Usa 8 especialistas para diferentes tipos de fraude:
+    - Transaction Pattern, Behavioral, Velocity
+    - Device Fingerprint, Social Engineering
+    - PIX Specific, High Value, Night Transaction
+    """
+    if not ADVANCED_ORCHESTRATOR_AVAILABLE:
+        return jsonify({"success": False, "error": "Advanced modules not available"}), 503
+    
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    transaction = request.json.get("transaction", request.json)
+    
+    try:
+        from ml_engine.mixture_of_experts import get_mixture_of_experts
+        moe = get_mixture_of_experts()
+        result = moe.predict(transaction)
+        
+        return jsonify({
+            "success": True,
+            "data": {
+                "transaction_id": result.transaction_id,
+                "final_prediction": result.final_prediction,
+                "final_probability": result.final_probability,
+                "consensus_level": result.consensus_level,
+                "routing_decision": result.routing_decision,
+                "expert_weights": result.expert_weights,
+                "expert_predictions": [
+                    {
+                        "expert": p.expert_type,
+                        "probability": p.fraud_probability,
+                        "confidence": p.confidence,
+                        "reasoning": p.reasoning
+                    }
+                    for p in result.expert_predictions
+                ],
+                "processing_time_ms": result.processing_time_ms,
+                "module_version": moe.VERSION
+            }
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/advanced/explain", methods=["POST"])
+@limiter.limit("100 per minute")
+def explain_prediction():
+    """
+    Gera explicação auto-interpretável para predição
+    
+    Conforme SEFraud (KDD 2024) - Usado em produção no ICBC
+    Gera audit trail para compliance LGPD
+    """
+    if not ADVANCED_ORCHESTRATOR_AVAILABLE:
+        return jsonify({"success": False, "error": "Advanced modules not available"}), 503
+    
+    if not request.json:
+        raise ValidationError("Request body is required")
+    
+    transaction = request.json.get("transaction", request.json)
+    prediction = request.json.get("prediction")
+    
+    try:
+        from ml_engine.self_explainable_module import get_self_explainer
+        explainer = get_self_explainer()
+        result = explainer.generate_explanation(transaction, prediction)
+        
+        return jsonify({
+            "success": True,
+            "data": {
+                "transaction_id": result.transaction_id,
+                "is_fraud": result.is_fraud,
+                "fraud_probability": result.fraud_probability,
+                "natural_language_explanation": result.natural_language_explanation,
+                "feature_importance": result.feature_importance,
+                "rule_triggers": result.rule_triggers,
+                "behavioral_deviations": result.behavioral_deviations,
+                "lgpd_audit_trail": result.lgpd_audit_trail,
+                "module_version": explainer.VERSION
+            }
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/advanced/lgpd/report/<transaction_id>", methods=["GET"])
+@limiter.limit("50 per minute")
+def get_lgpd_report(transaction_id: str):
+    """
+    Gera relatório LGPD para uma transação
+    
+    Inclui:
+    - Base legal do processamento
+    - Explicação da decisão automatizada
+    - Direitos do titular de dados
+    """
+    if not ADVANCED_ORCHESTRATOR_AVAILABLE:
+        return jsonify({"success": False, "error": "Advanced modules not available"}), 503
+    
+    try:
+        from ml_engine.self_explainable_module import get_self_explainer
+        explainer = get_self_explainer()
+        report = explainer.generate_lgpd_report(transaction_id)
+        
+        return jsonify({
+            "success": True,
+            "data": report
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/advanced/user/profile/<user_id>", methods=["GET"])
+@limiter.limit("100 per minute")
+def get_user_profile(user_id: str):
+    """
+    Obtém perfil comportamental do usuário
+    
+    Baseado no histórico de transações analisadas
+    """
+    if not ADVANCED_ORCHESTRATOR_AVAILABLE:
+        return jsonify({"success": False, "error": "Advanced modules not available"}), 503
+    
+    try:
+        from ml_engine.bilstm_sequence_analyzer import get_bilstm_analyzer
+        analyzer = get_bilstm_analyzer()
+        profile = analyzer.get_user_profile(user_id)
+        
+        return jsonify({
+            "success": True,
+            "data": profile
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 if __name__ == "__main__":
