@@ -184,7 +184,7 @@ class HardRulesEngine:
             import json
             try:
                 conditions_json = json.loads(conditions_json)
-            except:
+            except (json.JSONDecodeError, TypeError, ValueError):
                 return False, []
         
         if not conditions_json:

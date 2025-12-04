@@ -214,7 +214,7 @@ class TestEnsembleIntegration:
         """Inicializa ensemble para testes"""
         try:
             return IntegratedEnsemble()
-        except:
+        except Exception:
             return None
     
     def test_ensemble_initialization(self, ensemble):

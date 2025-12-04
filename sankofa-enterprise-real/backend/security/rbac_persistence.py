@@ -84,7 +84,7 @@ class RBACPersistence:
             if conn:
                 try:
                     conn.close()
-                except:
+                except Exception:
                     pass
     
     def load_role(self, role_name: str) -> Optional[Dict]:

@@ -86,7 +86,7 @@ class CPFPersistence:
             if conn:
                 try:
                     conn.close()
-                except:
+                except Exception:
                     pass
     
     def save_token(self, token: str, encrypted_cpf: bytes, cpf_hash: str,

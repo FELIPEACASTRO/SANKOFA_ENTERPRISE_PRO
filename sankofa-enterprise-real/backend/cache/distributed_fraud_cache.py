@@ -191,7 +191,7 @@ class DistributedFraudCache:
         """Calcula tamanho aproximado dos dados"""
         try:
             return len(json.dumps(data, default=str).encode("utf-8"))
-        except:
+        except (TypeError, ValueError, OverflowError):
             return len(str(data).encode("utf-8"))
 
     def _create_cache_entry(self, value: Any, ttl: int) -> CacheEntry:

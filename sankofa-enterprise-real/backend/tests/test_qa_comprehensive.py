@@ -569,7 +569,7 @@ class TestStressTesting:
                     timeout=60
                 )
                 return response.status_code
-            except:
+            except Exception:
                 return 500
         
         with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
@@ -633,7 +633,7 @@ class TestSpikeTesting:
             try:
                 response = requests.post(f"{BASE_URL}/api/fraud/predict", json=payload, headers=headers, timeout=60)
                 return response.status_code
-            except:
+            except Exception:
                 return 500
         
         with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
@@ -1383,7 +1383,7 @@ class TestMonkeyTesting:
                     timeout=10
                 )
                 assert response.status_code in [200, 401, 404]
-            except:
+            except Exception:
                 pass
         
         print("MONKEY: Random Endpoints - PASS")
@@ -1408,7 +1408,7 @@ class TestMonkeyTesting:
             try:
                 response = action()
                 assert response.status_code in [200, 400, 401, 404, 422]
-            except:
+            except Exception:
                 pass
         
         print("MONKEY: Random Actions - PASS")

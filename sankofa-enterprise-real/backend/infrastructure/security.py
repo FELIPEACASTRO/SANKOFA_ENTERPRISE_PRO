@@ -347,7 +347,7 @@ class AuditService:
                         if self._is_sensitive_field(key) and isinstance(value, str):
                             try:
                                 details[key] = self.encryption_service.decrypt(value)
-                            except:
+                            except (ValueError, TypeError, Exception):
                                 details[key] = "[ENCRYPTED]"
 
                     audit_trail.append(

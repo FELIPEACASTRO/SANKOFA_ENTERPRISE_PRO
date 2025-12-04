@@ -214,7 +214,8 @@ class AppConfig:
                             saved = json.load(f)
                             auto_jwt = saved.get("jwt_secret")
                             auto_enc = saved.get("encryption_key")
-                    except:
+                    except (json.JSONDecodeError, IOError, OSError) as e:
+                        logger.warning(f"Could not load dev secrets: {e}")
                         auto_jwt = None
                         auto_enc = None
                 else:

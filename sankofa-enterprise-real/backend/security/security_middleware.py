@@ -77,7 +77,7 @@ class SecurityMiddleware:
                     if str(ip) == trusted:
                         return True
             return False
-        except:
+        except (ValueError, TypeError):
             return False
 
     def rate_limit_check(self, ip_address: str) -> bool:

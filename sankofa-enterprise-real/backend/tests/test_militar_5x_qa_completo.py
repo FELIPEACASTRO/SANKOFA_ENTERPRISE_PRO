@@ -846,7 +846,7 @@ class TestObservabilidadeSRE:
             try:
                 response = requests.get("http://localhost:5000/api/health", timeout=5)
                 assert response.status_code == 200
-            except:
+            except Exception:
                 pytest.skip("API não disponível para teste de disponibilidade")
             
         def test_hard_rules_latency_slo(self):

@@ -463,7 +463,7 @@ class TestEnduranceSoakTesting:
                 )
                 if response.status_code != 200:
                     errors += 1
-            except:
+            except Exception:
                 errors += 1
             request_count += 1
         
@@ -637,7 +637,7 @@ class TestResilienceTesting:
                     timeout=30
                 )
                 assert response.status_code in [200, 400, 422, 500]
-            except:
+            except Exception:
                 pass
         
         health_response = requests.get(f"{BASE_URL}/api/health", timeout=10)
@@ -727,7 +727,7 @@ class TestFaultInjectionTesting:
                     timeout=30
                 )
                 assert response.status_code in [200, 400, 422, 500]
-            except:
+            except Exception:
                 pass
         
         print("FAULT INJECTION: Extreme Values Handled - PASS")
@@ -1021,7 +1021,7 @@ class TestChaosEngineeringTesting:
                     timeout=60
                 )
                 return response.status_code
-            except:
+            except Exception:
                 return 0
         
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:

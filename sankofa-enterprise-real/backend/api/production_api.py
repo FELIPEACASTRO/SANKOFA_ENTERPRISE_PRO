@@ -1068,7 +1068,7 @@ def get_user_from_db(username: str, max_retries: int = 3) -> Optional[Dict[str, 
             if conn:
                 try:
                     db_persistence._pool.putconn(conn, close=True)
-                except:
+                except Exception:
                     pass
             if attempt < max_retries - 1:
                 logger.warning(f"Database connection error (attempt {attempt + 1}/{max_retries}): {e}")
@@ -2374,12 +2374,12 @@ def explain_hard_rule():
         elif field == "amount" or field == "amount_24h":
             try:
                 value = f"R$ {float(value):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-            except:
+            except (ValueError, TypeError):
                 pass
         elif field == "risk_score" or field == "ml_confidence":
             try:
                 value = f"{float(value) * 100:.0f}%"
-            except:
+            except (ValueError, TypeError):
                 pass
         elif field in ["is_new_device", "is_first_transaction", "is_scheduled"]:
             value = "SIM" if str(value).lower() in ["true", "1", "sim"] else "NÃO"
@@ -2408,7 +2408,7 @@ def explain_hard_rule():
                     risk_analysis.append("Análise mostra 97% de fraudes neste horário")
                 elif h >= 20 and h <= 23:
                     risk_analysis.append("Horário noturno com taxa elevada de fraude (60-95%)")
-            except:
+            except (ValueError, TypeError):
                 pass
         elif field == "channel":
             if value.upper() == "PIX":
@@ -2424,7 +2424,7 @@ def explain_hard_rule():
                     risk_analysis.append("Faixa R$100-500 tem 97.2% de fraudes detectadas")
                 elif amt > 10000:
                     risk_analysis.append("Valores acima de R$10.000 têm 75.5% de fraudes")
-            except:
+            except (ValueError, TypeError):
                 pass
         elif field == "is_new_device":
             risk_analysis.append("Novos dispositivos têm correlação com fraudes (60% dos casos)")
@@ -3519,7 +3519,7 @@ def register_health_checks():
     def check_cache():
         try:
             return redis_cache_system.connection_manager._is_healthy
-        except:
+        except (AttributeError, RuntimeError):
             return False
     health_checker.register_component("cache", check_cache)
 
