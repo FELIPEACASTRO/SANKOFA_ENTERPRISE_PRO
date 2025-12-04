@@ -1,0 +1,31 @@
+{
+  "run_id": "250a2445-edb",
+  "experiment_name": "integration_test",
+  "run_name": "test_model_20251204_014043",
+  "status": "COMPLETED",
+  "start_time": "2025-12-04T01:40:43.619308Z",
+  "end_time": "2025-12-04T01:40:43.639892Z",
+  "parameters": {
+    "n_estimators": 100,
+    "max_depth": 5
+  },
+  "metrics": [
+    {
+      "name": "accuracy",
+      "value": 0.95,
+      "step": 0,
+      "timestamp": "2025-12-04T01:40:43.639853Z"
+    },
+    {
+      "name": "f1_score",
+      "value": 0.92,
+      "step": 0,
+      "timestamp": "2025-12-04T01:40:43.639881Z"
+    }
+  ],
+  "artifacts": [],
+  "tags": {},
+  "git_commit": "7dafef23",
+  "user": "runner",
+  "description": "Training run for test_model"
+}
