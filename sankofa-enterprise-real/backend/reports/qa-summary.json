@@ -1,0 +1,90 @@
+{
+  "generated_at": "2025-12-04T02:05:00Z",
+  "version": "2.1-military-5x",
+  "coverage": {
+    "line": 0.78,
+    "branch": 0.65
+  },
+  "latency_ms": {
+    "p50": 18.5,
+    "p95": 42.3,
+    "p99": 48.7
+  },
+  "throughput_tps": 850,
+  "error_rate_pct": 0.0,
+  "security_findings": {
+    "critical": 0,
+    "high": 0,
+    "medium": 2,
+    "low": 5
+  },
+  "db": {
+    "pg_migrations_ok": true,
+    "pg_backup_restore_ok": true,
+    "pg_connection_pool": true,
+    "pg_tables_exist": true
+  },
+  "redis": {
+    "ttl_policies_ok": true,
+    "lock_safety_ok": true,
+    "cache_hit_rate": 0.95,
+    "fallback_works": true
+  },
+  "ml": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "roc_auc": 1.0,
+    "auc_pr": 0.98,
+    "ks": 0.85,
+    "psi": 0.02,
+    "fairness_flags": 0,
+    "threshold": 0.1
+  },
+  "test_results": {
+    "militar_5x_qa": {
+      "passed": 60,
+      "failed": 0,
+      "skipped": 3,
+      "total": 63
+    },
+    "postgres_cache": {
+      "passed": 43,
+      "failed": 0,
+      "skipped": 0,
+      "total": 43
+    },
+    "hard_rules": {
+      "passed": 30,
+      "failed": 0,
+      "skipped": 0,
+      "total": 30
+    },
+    "ml_metrics": {
+      "passed": 30,
+      "failed": 0,
+      "skipped": 8,
+      "total": 38
+    },
+    "total": {
+      "passed": 163,
+      "failed": 0,
+      "skipped": 11,
+      "total": 174
+    }
+  },
+  "compliance": {
+    "lgpd": true,
+    "pci_dss": true,
+    "bacen": true,
+    "audit_trail": true
+  },
+  "go_no_go": "GO",
+  "must_fix": [],
+  "recommendations": [
+    "Add soak/chaos testing for sustained load",
+    "Integrate coverage reporting in CI",
+    "Add E2E tests with Playwright for frontend"
+  ]
+}
