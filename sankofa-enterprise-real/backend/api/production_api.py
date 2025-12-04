@@ -3952,12 +3952,17 @@ def predict_enriched():
     force_full = request.json.get("force_full_enrichment", False)
     
     transaction_df = pd.DataFrame([transaction])
-    base_prediction = fraud_engine.predict(transaction_df)
+    base_prediction_obj = fraud_engine.predict(transaction_df)
+    
+    if isinstance(base_prediction_obj, (list, tuple)):
+        base_prediction = base_prediction_obj[0].to_dict() if hasattr(base_prediction_obj[0], 'to_dict') else base_prediction_obj[0]
+    else:
+        base_prediction = base_prediction_obj.to_dict() if hasattr(base_prediction_obj, 'to_dict') else base_prediction_obj
     
     orchestrator = get_orchestrator()
     enriched = orchestrator.enrich_prediction(
         transaction=transaction,
-        base_prediction=base_prediction.to_dict(),
+        base_prediction=base_prediction,
         user_id=user_id,
         force_full_enrichment=force_full
     )
