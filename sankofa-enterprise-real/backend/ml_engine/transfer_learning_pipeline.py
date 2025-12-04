@@ -25,29 +25,23 @@ import json
 from pathlib import Path
 import hashlib
 
-try:
-    from sklearn.model_selection import train_test_split
-    from sklearn.preprocessing import StandardScaler, LabelEncoder
-    from sklearn.metrics import (
-        roc_auc_score, 
-        precision_recall_curve,
-        average_precision_score,
-        f1_score,
-        precision_score,
-        recall_score
-    )
-    SKLEARN_AVAILABLE = True
-except ImportError:
-    SKLEARN_AVAILABLE = False
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.metrics import (
+    roc_auc_score, 
+    precision_recall_curve,
+    average_precision_score,
+    f1_score,
+    precision_score,
+    recall_score
+)
+from sklearn.ensemble import (
+    GradientBoostingClassifier,
+    RandomForestClassifier
+)
 
-try:
-    from sklearn.ensemble import (
-        GradientBoostingClassifier,
-        RandomForestClassifier
-    )
-    ENSEMBLE_AVAILABLE = True
-except ImportError:
-    ENSEMBLE_AVAILABLE = False
+SKLEARN_AVAILABLE = True
+ENSEMBLE_AVAILABLE = True
 
 logger = logging.getLogger(__name__)
 
@@ -267,9 +261,10 @@ class TransferLearningPipeline:
                     self.encoders[col] = LabelEncoder()
                     X[col] = self.encoders[col].fit_transform(X[col].astype(str))
                 else:
-                    X[col] = X[col].apply(
-                        lambda x: self.encoders[col].transform([str(x)])[0] 
-                        if str(x) in self.encoders[col].classes_ else -1
+                    encoder = self.encoders[col]
+                    known_classes = set(encoder.classes_.tolist())
+                    X[col] = X[col].map(
+                        lambda x: encoder.transform([str(x)])[0] if str(x) in known_classes else -1
                     )
         
         X = X.fillna(0)
@@ -283,7 +278,7 @@ class TransferLearningPipeline:
         else:
             X[numeric_cols] = self.scalers[scaler_key].transform(X[numeric_cols])
         
-        return X, y
+        return pd.DataFrame(X), pd.Series(y)
     
     def train_base_model(
         self,
