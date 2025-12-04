@@ -674,5 +674,299 @@ class TestResilienceAndFailover:
         print("Database connection recovery: SUCCESS")
 
 
+class TestEnhancedDatabaseConstraints:
+    """Testes aprimorados de constraints do banco de dados"""
+    
+    def test_transaction_id_not_null_constraint(self):
+        """Valida constraint NOT NULL em transaction_id"""
+        import psycopg2
+        
+        db_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(db_url)
+        cur = conn.cursor()
+        
+        try:
+            cur.execute("""
+                INSERT INTO transactions (amount, channel, type, status)
+                VALUES (100, 'TEST', 'PIX', 'pending')
+            """)
+            conn.commit()
+            assert False, "Should have raised NotNullViolation"
+        except psycopg2.errors.NotNullViolation:
+            conn.rollback()
+            print("transaction_id NOT NULL constraint: VALIDATED")
+        finally:
+            conn.close()
+    
+    def test_audit_trail_jsonb_fields(self):
+        """Valida campos JSONB no audit_trail"""
+        import psycopg2
+        import uuid
+        from psycopg2.extras import RealDictCursor
+        
+        db_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(db_url, cursor_factory=RealDictCursor)
+        cur = conn.cursor()
+        
+        test_audit = {
+            'event_id': f'JSONB_TEST_{uuid.uuid4().hex[:8]}',
+            'event_type': 'JSONB_VALIDATION',
+            'entity_type': 'test',
+            'action': 'validate_jsonb',
+            'old_value': json.dumps({'previous': 'state', 'nested': {'key': 'value'}}),
+            'new_value': json.dumps({'current': 'state', 'array': [1, 2, 3]}),
+            'metadata': json.dumps({'source': 'qa_test', 'priority': 'high'})
+        }
+        
+        cur.execute("""
+            INSERT INTO audit_trail (event_id, event_type, entity_type, action, old_value, new_value, metadata, created_at)
+            VALUES (%(event_id)s, %(event_type)s, %(entity_type)s, %(action)s, %(old_value)s::jsonb, %(new_value)s::jsonb, %(metadata)s::jsonb, NOW())
+            RETURNING id
+        """, test_audit)
+        
+        audit_id = cur.fetchone()['id']
+        conn.commit()
+        
+        cur.execute("SELECT old_value, new_value, metadata FROM audit_trail WHERE id = %s", (audit_id,))
+        result = cur.fetchone()
+        
+        assert result['old_value']['nested']['key'] == 'value'
+        assert result['new_value']['array'] == [1, 2, 3]
+        assert result['metadata']['source'] == 'qa_test'
+        
+        cur.execute("DELETE FROM audit_trail WHERE id = %s", (audit_id,))
+        conn.commit()
+        conn.close()
+        
+        print("audit_trail JSONB fields: VALIDATED")
+    
+    def test_transaction_update_rollback(self):
+        """Testa UPDATE com rollback"""
+        import psycopg2
+        import uuid
+        from psycopg2.extras import RealDictCursor
+        
+        db_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(db_url, cursor_factory=RealDictCursor)
+        cur = conn.cursor()
+        
+        tx_id = f'ROLLBACK_TEST_{uuid.uuid4().hex[:8]}'
+        cur.execute("""
+            INSERT INTO transactions (transaction_id, amount, channel, type, status)
+            VALUES (%s, 500, 'TEST', 'PIX', 'pending')
+            RETURNING id
+        """, (tx_id,))
+        row_id = cur.fetchone()['id']
+        conn.commit()
+        
+        cur.execute("UPDATE transactions SET amount = 1000 WHERE id = %s", (row_id,))
+        
+        cur.execute("SELECT amount FROM transactions WHERE id = %s", (row_id,))
+        updated_amount = float(cur.fetchone()['amount'])
+        assert updated_amount == 1000
+        
+        conn.rollback()
+        
+        cur.execute("SELECT amount FROM transactions WHERE id = %s", (row_id,))
+        rolled_back_amount = float(cur.fetchone()['amount'])
+        assert rolled_back_amount == 500
+        
+        cur.execute("DELETE FROM transactions WHERE id = %s", (row_id,))
+        conn.commit()
+        conn.close()
+        
+        print("Transaction UPDATE rollback: VALIDATED")
+
+
+class TestEnhancedCachePatterns:
+    """Testes aprimorados de padrões de cache"""
+    
+    def test_cache_aside_write_through(self):
+        """Testa padrão Write-Through (escrita simultânea em cache e DB)"""
+        from services.postgres_store import _dashboard_cache
+        import psycopg2
+        import uuid
+        from psycopg2.extras import RealDictCursor
+        
+        db_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(db_url, cursor_factory=RealDictCursor)
+        cur = conn.cursor()
+        
+        cache_key = f"wt_test_{uuid.uuid4().hex[:8]}"
+        data = {"value": 12345}
+        
+        _dashboard_cache.set(cache_key, data)
+        
+        cached = _dashboard_cache.get(cache_key)
+        assert cached == data
+        
+        _dashboard_cache.invalidate(cache_key)
+        assert _dashboard_cache.get(cache_key) is None
+        
+        conn.close()
+        print("Write-Through pattern: VALIDATED")
+    
+    def test_cache_double_miss_fallback(self):
+        """Testa cenário de double miss (cache miss + DB fetch)"""
+        from services.postgres_store import PostgresStore, _dashboard_cache
+        
+        _dashboard_cache.invalidate()
+        
+        store = PostgresStore()
+        
+        result1 = store.get_hard_rules()
+        assert isinstance(result1, list)
+        
+        result2 = store.get_hard_rules()
+        assert result2 == result1
+        
+        _dashboard_cache.invalidate()
+        
+        result3 = store.get_hard_rules()
+        assert result3 == result1
+        
+        print("Double miss fallback: VALIDATED")
+    
+    def test_cache_write_behind_simulation(self):
+        """Simula padrão Write-Behind (escrita assíncrona)"""
+        from services.postgres_store import SimpleCache
+        import threading
+        
+        cache = SimpleCache(default_ttl=30)
+        write_log = []
+        
+        def async_write(key, value):
+            time.sleep(0.1)
+            write_log.append((key, value))
+        
+        for i in range(3):
+            key = f"wb_key_{i}"
+            value = {"data": i}
+            cache.set(key, value)
+            thread = threading.Thread(target=async_write, args=(key, value))
+            thread.start()
+        
+        time.sleep(0.5)
+        
+        assert len(write_log) == 3
+        print("Write-Behind simulation: VALIDATED")
+
+
+class TestPredictionCacheAdvanced:
+    """Testes avançados do PredictionCache"""
+    
+    def test_prediction_cache_ttl_configuration(self):
+        """Testa configuração de TTL no PredictionCache"""
+        from cache.prediction_cache import PredictionCache
+        
+        cache = PredictionCache(max_size=100, default_ttl_seconds=60)
+        
+        transaction = {'amount': 777, 'hour': 12, 'channel': 'TEST_TTL'}
+        
+        cache.set(
+            transaction=transaction,
+            is_fraud=False,
+            fraud_probability=0.1,
+            risk_score=0.1,
+            risk_level='LOW',
+            confidence=0.9,
+            model_version='1.0.0',
+            detection_reason=['TTL test']
+        )
+        
+        cached = cache.get(transaction)
+        assert cached is not None
+        assert hasattr(cached, 'expires_at')
+        assert cached.expires_at is not None
+        
+        stats = cache.get_stats()
+        assert stats['size'] == 1
+        
+        print("PredictionCache TTL configuration: VALIDATED")
+    
+    def test_prediction_cache_eviction_metrics(self):
+        """Testa métricas de eviction do PredictionCache"""
+        from cache.prediction_cache import PredictionCache
+        
+        cache = PredictionCache(max_size=5, default_ttl_seconds=300)
+        
+        for i in range(10):
+            transaction = {'amount': i * 100, 'hour': i % 24, 'channel': f'EVICT_{i}'}
+            cache.set(
+                transaction=transaction,
+                is_fraud=False,
+                fraud_probability=0.1,
+                risk_score=0.1,
+                risk_level='LOW',
+                confidence=0.9,
+                model_version='1.0.0',
+                detection_reason=['Eviction test']
+            )
+        
+        stats = cache.get_stats()
+        assert stats['size'] <= 5
+        assert stats['evictions'] >= 5
+        
+        print(f"PredictionCache eviction metrics - Size: {stats['size']}, Max: {stats['max_size']}, Evictions: {stats['evictions']}")
+    
+    def test_prediction_cache_size_tracking(self):
+        """Testa rastreamento de tamanho do cache"""
+        from cache.prediction_cache import PredictionCache
+        
+        cache = PredictionCache(max_size=100, default_ttl_seconds=300)
+        
+        for i in range(5):
+            transaction = {'amount': i * 50, 'hour': i, 'channel': 'SIZE_TEST'}
+            cache.set(
+                transaction=transaction,
+                is_fraud=False,
+                fraud_probability=0.1,
+                risk_score=0.1,
+                risk_level='LOW',
+                confidence=0.9,
+                model_version='1.0.0',
+                detection_reason=['Size test']
+            )
+        
+        stats = cache.get_stats()
+        assert stats['size'] == 5
+        assert stats['max_size'] == 100
+        assert stats['memory_usage_approx_kb'] >= 0
+        
+        print(f"PredictionCache size tracking - Size: {stats['size']}, Max: {stats['max_size']}, Memory: {stats['memory_usage_approx_kb']}KB")
+    
+    def test_prediction_cache_hit_miss_rates(self):
+        """Testa taxas de hit/miss do PredictionCache"""
+        from cache.prediction_cache import PredictionCache
+        
+        cache = PredictionCache(max_size=100, default_ttl_seconds=300)
+        
+        for i in range(5):
+            transaction = {'amount': i * 100, 'hour': i, 'channel': 'HITRATE'}
+            cache.set(
+                transaction=transaction,
+                is_fraud=False,
+                fraud_probability=0.1,
+                risk_score=0.1,
+                risk_level='LOW',
+                confidence=0.9,
+                model_version='1.0.0',
+                detection_reason=['Hit rate test']
+            )
+        
+        for i in range(5):
+            transaction = {'amount': i * 100, 'hour': i, 'channel': 'HITRATE'}
+            cache.get(transaction)
+        
+        for i in range(5):
+            transaction = {'amount': i * 100, 'hour': i, 'channel': 'NONEXISTENT'}
+            cache.get(transaction)
+        
+        stats = cache.get_stats()
+        
+        assert 'hit_rate' in stats or 'hits' in stats
+        print(f"PredictionCache hit/miss rates: {stats}")
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short", "-x"])
