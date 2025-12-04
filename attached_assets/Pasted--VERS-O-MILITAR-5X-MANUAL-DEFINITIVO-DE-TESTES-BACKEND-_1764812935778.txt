@@ -1,0 +1,614 @@
+# ðŸ´â€â˜ ï¸ VERSÃƒO MILITAR 5X++  
+## MANUAL DEFINITIVO DE TESTES (BACKEND, FRONTEND, ML/IA, REDIS, POSTGRES, DEVOPS, SEGURANÃ‡A, DADOS, OBSERVABILIDADE)
+
+Este arquivo **.md** foi feito para ser usado diretamente como **PROMPT + CHECKLIST** em IAs de desenvolvimento (Replit, Devin, etc.) e tambÃ©m como **documento oficial de QA** da soluÃ§Ã£o.
+
+A ideia Ã© que a IA atue como um **exÃ©rcito de 10.000 especialistas** em:
+- QA / Testes
+- Arquitetura / MicroserviÃ§os
+- SeguranÃ§a / AppSec / SecDevOps
+- SRE / Observabilidade / Performance
+- MLOps / Data Science / ML de ProduÃ§Ã£o
+- Banco de Dados (Postgres)
+- Cache / Alta Performance (Redis)
+- Sistemas BancÃ¡rios CrÃ­ticos (CrÃ©dito, DÃ©bito, PIX, Fraude)
+
+---
+
+## 0. MODO DE OPERAÃ‡ÃƒO DA IA (REPLIT / DEVIN / OUTRO AGENTE)
+
+1. **Leia TUDO**:
+   - CÃ³digo-fonte (backend, frontend, workers, lambdas, jobs, pipelines, scripts).
+   - ConfiguraÃ§Ãµes (YAML/JSON/env/properties, feature flags, toggles).
+   - Scripts de banco (Postgres), migraÃ§Ãµes, seeds.
+   - IntegraÃ§Ãµes (FICO, antifraude, mensageria, APIs externas).
+   - Infraestrutura (Terraform, CloudFormation, Docker, Helm, etc.).
+   - DocumentaÃ§Ã£o (README, ADRs, diagramas, coleÃ§Ãµes de API, etc.).
+
+2. **Monte um inventÃ¡rio estruturado de componentes**:
+   - `backend/` (APIs, services, use cases, domain, infra).
+   - `frontend/` (pÃ¡ginas, componentes, hooks, estados globais).
+   - `db/` (Postgres â€“ tabelas, views, Ã­ndices, constraints, funÃ§Ãµes).
+   - `redis/` (tipos de chaves, TTLs, locks, consumidores).
+   - `ml/` (pipelines, modelos, feature store, mÃ©tricas).
+   - `infra/` (CI/CD, IaC, observabilidade, secrets).
+
+3. **Crie uma MATRIZ DE RASTREABILIDADE**:
+   - Requisitos de negÃ³cio â†” regras â†” endpoints â†” bancos â†” modelos ML â†” testes existentes â†” lacunas.
+
+4. **Diagnostique o estado atual de testes**:
+   - Descubra todos os tipos de teste jÃ¡ presentes (unit, integration, e2e, perf, security, DB, Redis, ML).
+   - Rode a suÃ­te e capture:
+     - Falhas.
+     - Cobertura (linha, branch, mutation, se existir).
+     - Tempo total de execuÃ§Ã£o.
+   - Classifique a maturidade: `â˜…` a `â˜…â˜…â˜…â˜…â˜…` por camada.
+
+5. **Proponha e/ou gere testes novos**:
+   - Sempre com base em risco de negÃ³cio, impacto financeiro, risco de fraude e impacto em produÃ§Ã£o.
+
+6. **Entregue SEMPRE**:
+   - CÃ³digo de testes.
+   - Checklists.
+   - Arquivos de configuraÃ§Ã£o de testes.
+   - Pipelines de CI/CD de testes.
+   - RelatÃ³rios (HTML, JSON, JUnit, LCOV, etc.).
+
+7. **Formato de resumo obrigatÃ³rio**:  
+   Criar o arquivo: `reports/qa-summary.json`
+
+```json
+{
+  "coverage": {"line": 0.00, "branch": 0.00},
+  "latency_ms": {"p50": 0, "p95": 0, "p99": 0},
+  "throughput_tps": 0,
+  "error_rate_pct": 0.0,
+  "security_findings": {"critical": 0, "high": 0, "medium": 0, "low": 0},
+  "db": {"pg_migrations_ok": true, "pg_backup_restore_ok": true},
+  "redis": {"ttl_policies_ok": true, "lock_safety_ok": true},
+  "ml": {"auc_pr": 0.0, "ks": 0.0, "psi": 0.0, "fairness_flags": 0},
+  "go_no_go": "GO | NO-GO",
+  "must_fix": ["..."]
+}
+```
+
+---
+
+## 1. NÃVEIS DE TESTE (ISTQB) â€” APLICAR A TUDO
+
+A IA deve garantir que **TODOS** os nÃ­veis abaixo existam (quando fizer sentido) para:  
+_backend, frontend, ML, Redis, Postgres, mensageria, integraÃ§Ãµes externas, infra._
+
+### 1.1 Teste de Unidade (Unit Tests)
+- Classes isoladas (services, use cases, domain entities, mappers, utils, validators).
+- Cobrir principalmente:
+  - Regras de fraude, crÃ©dito, limites, score.
+  - TransformaÃ§Ãµes de dados (normalizaÃ§Ã£o, parsing, agregaÃ§Ãµes).
+  - FunÃ§Ãµes puras (sem I/O).
+
+**Tarefas da IA**:
+- Mapear tudo que pode ser unit testable.
+- Criar testes com **arrangeâ€“actâ€“assert** claro.
+- Evitar mocks exagerados, focando isolamento correto.
+
+### 1.2 Teste de Componente
+- No backend: componentes de domÃ­nio, adaptadores, gateways (HTTP, DB, Redis, MQ).
+- No frontend: componentes de UI, containers, hooks, pÃ¡ginas.
+
+### 1.3 Teste de IntegraÃ§Ã£o
+- API â†” service â†” repos â†” Postgres.
+- Service â†” Redis (cache, lock, TTL).
+- Service â†” mensageria (SQS/Kafka/Rabbit).
+- Service â†” serviÃ§os externos (FICO, antifraude, outros backends).
+
+### 1.4 Teste de Sistema
+- Fluxos reais ponta a ponta (transaÃ§Ã£o completa).
+
+### 1.5 Teste de AceitaÃ§Ã£o (UAT/BAT)
+- Validado com critÃ©rios de aceite de negÃ³cio.
+- Simular cenÃ¡rio banca/cliente real.
+
+---
+
+## 2. TESTES FUNCIONAIS â€” BACKEND / FRONTEND / API / E2E
+
+### 2.1 Requisitos Funcionais de NegÃ³cio
+Para **cada requisito** (ex: aprovar/rejeitar transaÃ§Ã£o, score de crÃ©dito):
+- Teste **feliz** (happy path).
+- Testes **negativos** (inputs invÃ¡lidos, campos obrigatÃ³rios faltantes).
+- Testes de **bordas** (limites, valores extremos).
+- Testes de **idempotÃªncia** (especialmente em pagamentos/PIX/estorno).
+
+### 2.2 Testes de API (REST/SOAP/GraphQL)
+
+**A IA deve**:
+- Descobrir todas as rotas e contratos (OpenAPI/Swagger, classes Controller, routes).
+- Gerar testes para:
+  - Status codes corretos por cenÃ¡rio.
+  - Contratos de request e response (schema validation).
+  - AutenticaÃ§Ã£o (sem token, token invÃ¡lido, token expirado).
+  - AutorizaÃ§Ã£o (sem permissÃ£o, roles erradas).
+  - Rate limit (429 quando aplicÃ¡vel).
+  - IdempotÃªncia:
+    - RequisiÃ§Ã£o repetida com o mesmo `idempotency-key` nÃ£o pode duplicar efeito financeiro.
+
+**SugestÃ£o de estrutura**:  
+`tests/contract/api/` + coleÃ§Ãµes em `insomnia/` ou `postman/`.
+
+### 2.3 Testes de UI / Frontend
+
+Cobrir:
+- RenderizaÃ§Ã£o correta de telas, componentes e estados.
+- NavegaÃ§Ã£o entre telas (rotas protegidas, rotas pÃºblicas).
+- ValidaÃ§Ã£o de formulÃ¡rios (client-side + server-side).
+- Mensagens de erro amigÃ¡veis e claras.
+- Acessibilidade inicial:
+  - Foco, tabulaÃ§Ã£o, aria-labels, contraste.
+
+### 2.4 Testes E2E (Ponta a Ponta)
+
+A IA deve criar cenÃ¡rios E2E automatizados, por exemplo usando Playwright/Cypress:
+- Jornada PIX completa.
+- Jornada cartÃ£o presente e nÃ£o-presente.
+- Jornada crÃ©dito/dÃ©bito com diferentes perfis.
+- Jornada de login/cadastro/recuperaÃ§Ã£o de senha.
+- Jornada de falha: timeouts, integraÃ§Ãµes caindo, etc.
+
+Cada E2E deve gerar **evidÃªncia**:
+- Prints de tela.
+- Traces.
+- Logs correlacionados.
+
+### 2.5 Testes de RegressÃ£o, Smoke e Sanity
+
+- **Smoke**: mÃ­nimo para validar se sistema â€œlevantaâ€ apÃ³s deploy.
+- **Sanity**: checar partes especÃ­ficas apÃ³s pequenas mudanÃ§as.
+- **RegressÃ£o**: suÃ­te ampla executada em release ou nightly.
+
+---
+
+## 3. TESTES NÃƒO-FUNCIONAIS (ISO 25010) â€” PERFORMANCE, SEGURANÃ‡A, QUALIDADE
+
+### 3.1 Performance e Escalabilidade
+
+Ferramentas recomendadas: **k6, Locust, Gatling**.
+
+A IA deve definir e/ou validar testes para:
+- **Carga (Load)**: cenÃ¡rio normal de produÃ§Ã£o.
+- **Stress**: alÃ©m do limite esperado.
+- **Spike**: picos sÃºbitos de trÃ¡fego.
+- **Volume**: grande quantidade de dados (DB, filas).
+- **Endurance / Soak**: longa duraÃ§Ã£o, medindo memÃ³ria, vazamentos, degradaÃ§Ã£o.
+- Medir e reportar:
+  - LatÃªncia p50/p95/p99.
+  - Throughput (TPS).
+  - Taxa de erro (%) por rota.
+
+Criar:
+- `tests/perf/k6/` com scripts por fluxo.
+- RelatÃ³rios em `reports/perf/`.
+
+### 3.2 SeguranÃ§a (AppSec / API Security)
+
+Com SAST, DAST, scanners (ZAP, Burp) etc.
+
+A IA deve verificar e/ou propor testes para:
+- OWASP Top 10 (web e API).
+- SeguranÃ§a de autenticaÃ§Ã£o/autorizaÃ§Ã£o:
+  - Tokens, sessÃµes, cookies, JWT, OAuth2/OIDC.
+- ExposiÃ§Ã£o de segredos (env, commits, configs).
+- Criptografia em trÃ¢nsito:
+  - TLS, min. versÃ£o, ciphers.
+- Criptografia em repouso:
+  - Dados sensÃ­veis no banco ou em storage.
+- Endpoints sensÃ­veis:
+  - Rotas internas, admin, debug, health privilegiado.
+
+SaÃ­das em: `reports/security/`.
+
+### 3.3 Confiabilidade / ResiliÃªncia
+
+- Testes de **failover**: quando Postgres/Redis/filas caem.
+- Testes de **DR (Disaster Recovery)**: simular perda parcial de infra.
+- Testes de **retry / timeout / circuit breaker**.
+- **Chaos Engineering**:
+  - LatÃªncia artificial.
+  - Falhas em serviÃ§os externos.
+  - Queda de dependÃªncias.
+
+### 3.4 Usabilidade e Acessibilidade
+
+- Verificar:
+  - WCAG 2.x (A, AA, AAA quando exigido).
+  - HeurÃ­sticas de Nielsen.
+  - UX para TEA/TDAH (simplicidade, texto claro, ausÃªncia de poluiÃ§Ã£o visual).
+
+### 3.5 Manutenibilidade e Portabilidade
+
+- Qualidade de cÃ³digo (Sonar, linters):
+  - DuplicaÃ§Ã£o, complexidade, code smells.
+- Testes de mutaÃ§Ã£o (mutation testing).
+- Deploy/rollback entre ambientes diferentes (dev/homolog/prod).
+
+---
+
+## 4. POSTGRES â€” TESTES PROFUNDOS
+
+A IA deve **analisar o esquema completo** (DDL, migraÃ§Ãµes, ORM) e entÃ£o:
+
+### 4.1 Esquema e Integridade
+
+- Verificar:
+  - PK, FK, UNIQUE, NOT NULL, CHECK.
+  - NormalizaÃ§Ã£o e ausÃªncia de anomalias grossas.
+  - ConsistÃªncia entre tabelas relacionadas (ex: transaÃ§Ãµes â†” clientes â†” contas).
+
+### 4.2 ORM / RepositÃ³rios
+
+Para cada entidade:
+- Testar:
+  - `save`, `update`, `delete`, `findById`, `findAll`.
+  - Queries customizadas (com filtros, paginaÃ§Ã£o, ordenaÃ§Ã£o).
+- Verificar se todas as queries crÃ­ticas tÃªm testes.
+
+### 4.3 TransaÃ§Ãµes e ConcorrÃªncia
+
+- Simular:
+  - ExecuÃ§Ã£o concorrente de atualizaÃ§Ãµes.
+  - SituaÃ§Ãµes de deadlock.
+  - CenÃ¡rios com diferentes nÃ­veis de isolamento (Read Committed, Repeatable Read, Serializable).
+- Testar:
+  - Rolagem de transaÃ§Ãµes (rollback) em erros.
+  - IdempotÃªncia nas operaÃ§Ãµes financeiras.
+
+### 4.4 Performance de Queries
+
+- Rodar `EXPLAIN ANALYZE` nas N queries mais crÃ­ticas.
+- Verificar uso de Ã­ndices.
+- Avaliar se hÃ¡ full scans desnecessÃ¡rios.
+- Criar testes que:
+  - Compare tempos de execuÃ§Ã£o antes/depois de mudanÃ§as em Ã­ndice/esquema.
+
+### 4.5 MigraÃ§Ãµes (Flyway/Liquibase)
+
+- Testes de:
+  - AplicaÃ§Ã£o das migraÃ§Ãµes do zero.
+  - Rollback seguro quando possÃ­vel.
+  - ConsistÃªncia de dados apÃ³s migraÃ§Ã£o.
+- CriaÃ§Ã£o de:
+  - Pipelines que aplicam migraÃ§Ãµes em banco vazio + banco com dados.
+
+### 4.6 Backup e Restore
+
+- Planejar e testar:
+  - `pg_dump` + `pg_restore`.
+  - RestauraÃ§Ã£o em ambiente de teste.
+  - VerificaÃ§Ã£o de integridade (contagem de registros crÃ­tica).
+
+### 4.7 SeguranÃ§a em Postgres
+
+- Roles e privilÃ©gios granulados.
+- Uso de TLS.
+- RLS (Row-Level Security) se aplicÃ¡vel.
+- Armazenamento seguro de dados sensÃ­veis.
+
+---
+
+## 5. REDIS â€” TESTES EXTREMAMENTE RIGOROSOS
+
+### 5.1 Modelagem de Chaves
+
+- PadrÃ£o de nomes (`namespace:dominio:...`).
+- Risco de colisÃ£o de chaves.
+- Avaliar tipos usados (strings, hashes, sets, zsets, streams).
+
+### 5.2 TTL e ExpiraÃ§Ã£o
+
+- Todas as chaves sensÃ­veis tÃªm TTL?
+- O TTL Ã© compatÃ­vel com a polÃ­tica de negÃ³cio?
+- Os testes devem:
+  - Criar chaves com TTL.
+  - Verificar expiraÃ§Ã£o no tempo esperado.
+  - Impedir uso de dados expirados em decisÃµes.
+
+### 5.3 ConsistÃªncia Cache â†” Fonte de Verdade
+
+- Testar:
+  - CenÃ¡rios de cache hit/miss.
+  - EstratÃ©gias write-through / write-back.
+  - Mecanismos de invalidaÃ§Ã£o de cache.
+- Validar:
+  - NÃ£o existÃªncia de dados â€œstaleâ€ que causem decisÃ£o errada.
+
+### 5.4 Locks e ConcorrÃªncia
+
+- Se houver locking:
+  - Testar `SETNX`, Redlock ou equivalentes.
+  - Testar expiramento de lock.
+  - Testar corrida entre mÃºltiplas threads/instÃ¢ncias.
+- Garantir:
+  - LiberaÃ§Ã£o correta de lock em caso de exceÃ§Ã£o/timeout.
+  - AusÃªncia de starvation.
+
+### 5.5 Performance e MemÃ³ria
+
+- Testar:
+  - LatÃªncia mÃ©dia e p95 de operaÃ§Ãµes Redis.
+  - Throughput sob carga.
+  - Memory leaks ou thrashing de memÃ³ria.
+
+### 5.6 PersistÃªncia
+
+- Se usando RDB/AOF:
+  - Testar recuperaÃ§Ã£o pÃ³s-restart.
+  - Medir risco/impacto de perda de dados em crash.
+
+### 5.7 SeguranÃ§a
+
+- AutenticaÃ§Ã£o (AUTH).
+- Binding correto da interface (sem exposiÃ§Ã£o direta pÃºblica).
+- SegregaÃ§Ã£o por banco lÃ³gico (se fizer sentido).
+- NÃ£o armazenar dados sensÃ­veis em texto puro (salvo estratÃ©gia explÃ­cita).
+
+---
+
+## 6. MACHINE LEARNING, DEEP LEARNING E PREDIÃ‡ÃƒO
+
+### 6.1 Qualidade de Dados
+
+- Testar:
+  - Valores nulos, tipos, ranges, duplicados.
+  - Desbalanceamento de classes.
+  - ViÃ©s estrutural (regiÃ£o, renda, canal, device).
+  - Data leakage (uso de dados futuros no treino).
+
+### 6.2 Feature Store
+
+- Testar:
+  - Freshness (dados no tempo certo).
+  - ConsistÃªncia offline vs online.
+  - Drift de distribuiÃ§Ã£o de features.
+  - IdempotÃªncia de transformaÃ§Ãµes.
+
+### 6.3 Treinamento de Modelos
+
+- Testar:
+  - ConvergÃªncia.
+  - Overfitting/underfitting.
+  - Estabilidade ao variar seeds.
+  - Reprodutibilidade (dados + cÃ³digo + env).
+  - Impacto de hiperparÃ¢metros.
+
+### 6.4 MÃ©tricas â€“ ClassificaÃ§Ã£o BinÃ¡ria
+
+- Accuracy.
+- Precision, Recall, F1.
+- Sensibilidade, especificidade.
+- Balanced Accuracy.
+- AUC-ROC, AUC-PR.
+- Log Loss, Brier Score.
+- Calibration, Expected Calibration Error (ECE).
+
+**BancÃ¡rio**:
+- KS (Kolmogorovâ€“Smirnov).
+- Gini.
+- CAP, Lift, Gain.
+- IV/WoE.
+- Approval Rate, Decline Rate, Bad Rate.
+
+### 6.5 MÃ©tricas â€“ RegressÃ£o
+
+- MSE, RMSE, MAE.
+- RÂ², RÂ² ajustado.
+- MAPE, SMAPE.
+- Huber Loss.
+
+### 6.6 SÃ©ries Temporais
+
+- Walk-forward / backtesting.
+- RMSE/MAE/MAPE/SMAPE.
+- Teste de Dieboldâ€“Mariano.
+- Pinball Loss (quantis).
+
+### 6.7 Deep Learning
+
+**VisÃ£o Computacional**:
+- IoU, mAP.
+- Dice Coefficient.
+- Focal Loss.
+
+**NLP**:
+- BLEU, ROUGE, METEOR, BERTScore.
+- Perplexity.
+
+**Modelos Generativos**:
+- FID.
+- Inception Score.
+- CLIPScore.
+- MÃ©tricas de toxicidade e viÃ©s.
+
+### 6.8 Robustez / Adversarial
+
+- Testes adversariais (FGSM/PGD em conceito).
+- RuÃ­do nas entradas.
+- OclusÃ£o parcial.
+- Inputs extremos.
+
+### 6.9 Drift
+
+- PSI, KS, KL/JS, EMD/Wasserstein.
+- Detectores: DDM, EDDM, ADWIN, KSWIN, Page-Hinkley.
+
+### 6.10 Fairness
+
+- Demographic Parity.
+- Equal Opportunity.
+- Equalized Odds.
+- Predictive Parity.
+- Disparate Impact.
+- Erro segmentado por grupo (canal, device, regiÃ£o, renda, etc.).
+
+### 6.11 Explainability (XAI)
+
+- LIME, SHAP.
+- Feature importance (global/local).
+- PDP, ICE.
+- GradCAM, Integrated Gradients (DL).
+
+### 6.12 OperaÃ§Ã£o (MLOps)
+
+- LatÃªncia de inferÃªncia.
+- Throughput e uso de GPU/CPU.
+- Autoscaling.
+- Shadow mode (modelo novo vs antigo).
+- Champion/Challenger.
+- Monitoramento contÃ­nuo de:
+  - AcurÃ¡cia.
+  - Drift.
+  - Fairness.
+  - Custo computacional.
+
+---
+
+## 7. OBSERVABILIDADE E SRE
+
+A IA deve analisar toda a stack de observabilidade e:
+
+- Verificar se logs sÃ£o:
+  - Estruturados (JSON ou similar).
+  - Correlacionados (traceId, spanId, userId, transactionId).
+
+- MÃ©tricas:
+  - TÃ©cnicas (CPU, memÃ³ria, latÃªncia, erros).
+  - De negÃ³cio (taxa de aprovaÃ§Ã£o, fraude, volume por canal).
+
+- Tracing:
+  - HTTP/gRPC.
+  - mensageria.
+  - chamadas a ML/DB/Redis.
+
+- Alertas:
+  - Thresholds coerentes.
+  - Pouco ruÃ­do (poucos falsos positivos).
+  - Limites para SLOs crÃ­ticos.
+
+---
+
+## 8. GOVERNANÃ‡A, COMPLIANCE E AUDITORIA
+
+- LGPD/GDPR: consentimento, minimizaÃ§Ã£o, anonimizaÃ§Ã£o, direito ao esquecimento.
+- PCI DSS: se houver dados de cartÃ£o.
+- SOX: trilhas de auditoria, logs inviolÃ¡veis.
+- SegregaÃ§Ã£o de FunÃ§Ãµes (SoD).
+- Logs de auditoria com:
+  - Quem fez.
+  - O quÃª.
+  - Quando.
+  - Onde (origem).
+
+---
+
+## 9. ARQUITETURA MODERNA, MICROSERVIÃ‡OS E MENSAGERIA
+
+### 9.1 MicreserviÃ§os
+
+Testes de:
+- Contratos consumer-driven.
+- Versionamento compatÃ­vel.
+- Circuit breaker / retry / timeout.
+- PadrÃµes SAGA/Choreography.
+- ConsistÃªncia eventual.
+
+### 9.2 Mensageria (Kafka / SQS / Rabbit)
+
+- PublicaÃ§Ã£o/consumo corretos.
+- Ordering (quando necessÃ¡rio).
+- IdempotÃªncia.
+- DLQ (Dead Letter Queue).
+- Retries com backoff.
+
+---
+
+## 10. ESTRUTURA DE PASTAS SUGERIDA PARA TESTES
+
+```text
+/tests/unit/**
+/tests/integration/**
+/tests/contract/**
+/tests/e2e/**
+/tests/perf/k6/**
+/tests/security/**
+/tests/db/postgres/**
+/tests/cache/redis/**
+/tests/ml/**
+
+/reports/**
+/docs/qa/**
+/.github/workflows/**
+```
+
+---
+
+## 11. CRITÃ‰RIOS DE GO/NO-GO (EXEMPLO)
+
+- Cobertura linha backend â‰¥ 80%, frontend â‰¥ 70%.
+- p95 das rotas crÃ­ticas â‰¤ X ms (definir por canal).
+- Erro total < 0,5% em 1h de carga nominal.
+- Zero vulnerabilidades crÃ­ticas/altas.
+- MigraÃ§Ãµes/rollback/backup-restore OK.
+- Redis com TTL/locks/eviction validados.
+- ML com mÃ©tricas mÃ­nimas atingidas (AUC-PR, KS, PSI etc.).
+- SLI/SLO atendidos.
+
+---
+
+## 12. TEMPLATES PRÃTICOS PARA A IA
+
+### 12.1 Caso de teste em YAML
+
+```yaml
+- name: "API /decidir â€“ payload aprovado"
+  level: "integration"
+  type: "functional"
+  risk: "ALTA"
+  steps:
+    - call: "POST /decidir"
+      payload_ref: "data/payloads/aprovado.json"
+      expect_status: 200
+      expect_schema: "schemas/decisao.json"
+      expect_latency_p95_ms: 80
+  evidence:
+    - "reports/junit.xml"
+    - "reports/traces/decidir.aprovado.json"
+```
+
+### 12.2 Exemplo BDD (Gherkin)
+
+```gherkin
+Feature: DecisÃ£o de transaÃ§Ã£o em tempo real
+
+  Scenario Outline: DecisÃ£o com diferentes canais, devices e valores
+    Given um payload "<canal>" "<device>" "<valor>"
+    When eu envio para a API "/decidir"
+    Then o sistema deve responder com status "<status>"
+    And a latÃªncia p95 deve ser menor ou igual a "<p95_ms>" ms
+
+  Examples:
+    | canal | device | valor | status    | p95_ms |
+    | web   | novo   | 100   | aprovado  | 50     |
+    | app   | novo   | 4000  | suspeito  | 80     |
+    | pos   | known  | 8000  | rejeitado | 80     |
+```
+
+---
+
+**INSTRUÃ‡ÃƒO FINAL Ã€ IA**:  
+> Aplique **TODO** o conteÃºdo deste documento Ã  soluÃ§Ã£o.  
+> NÃ£o ignore nenhuma seÃ§Ã£o.  
+> Para cada item, diga:
+> - O que existe hoje.
+> - O que falta.
+> - O nÃ­vel de risco da ausÃªncia.
+> - O que vocÃª vai criar/modificar.
+> - Onde ficarÃ¡ o cÃ³digo/arquivo/pipeline.
+> - Qual evidÃªncia serÃ¡ gerada.
