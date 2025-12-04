@@ -3951,7 +3951,8 @@ def predict_enriched():
     user_id = request.json.get("user_id") or transaction.get("customer_id")
     force_full = request.json.get("force_full_enrichment", False)
     
-    base_prediction = fraud_engine.predict(transaction)
+    transaction_df = pd.DataFrame([transaction])
+    base_prediction = fraud_engine.predict(transaction_df)
     
     orchestrator = get_orchestrator()
     enriched = orchestrator.enrich_prediction(
