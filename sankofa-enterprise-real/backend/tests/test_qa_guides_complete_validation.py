@@ -151,7 +151,7 @@ class TestGuia2_PostgreSQL:
         cursor.close()
     
     def test_2_2_tables_exist(self, db_connection):
-        """2.2.1 Tabelas principais existem"""
+        """2.2.1 Tabelas principais existem - verificação estrutural"""
         cursor = db_connection.cursor()
         cursor.execute("""
             SELECT table_name 
@@ -160,10 +160,10 @@ class TestGuia2_PostgreSQL:
         """)
         tables = [row[0] for row in cursor.fetchall()]
         cursor.close()
-        assert len(tables) >= 0
+        assert len(tables) >= 1, "Banco deve ter pelo menos 1 tabela"
     
     def test_2_3_primary_keys_defined(self, db_connection):
-        """2.3.1 Primary keys definidas"""
+        """2.3.1 Primary keys definidas - integridade referencial"""
         cursor = db_connection.cursor()
         cursor.execute("""
             SELECT COUNT(*) FROM information_schema.table_constraints 
@@ -172,7 +172,7 @@ class TestGuia2_PostgreSQL:
         """)
         count = cursor.fetchone()[0]
         cursor.close()
-        assert count >= 0
+        assert count >= 1, "Tabelas devem ter primary keys definidas"
     
     def test_2_4_foreign_keys_valid(self, db_connection):
         """2.4.1 Foreign keys válidas"""
@@ -185,7 +185,7 @@ class TestGuia2_PostgreSQL:
         cursor.close()
     
     def test_2_5_indexes_exist(self, db_connection):
-        """2.5.1 Índices existem"""
+        """2.5.1 Índices existem para performance"""
         cursor = db_connection.cursor()
         cursor.execute("""
             SELECT COUNT(*) FROM pg_indexes 
@@ -193,7 +193,7 @@ class TestGuia2_PostgreSQL:
         """)
         count = cursor.fetchone()[0]
         cursor.close()
-        assert count >= 0
+        assert count >= 1, "Banco deve ter índices para performance"
     
     def test_2_6_transaction_rollback(self, db_connection):
         """2.6.1 Transação rollback funciona"""
@@ -287,21 +287,24 @@ class TestGuia5_Performance:
     """
     
     def test_5_1_latency_under_50ms(self):
-        """5.1.1 Latência de predição < 50ms (SLA BACEN)"""
+        """5.1.1 Latência de predição < 50ms (warm) (SLA BACEN)"""
         payload = {"transactions": [{"amount": 500.0}]}
         
+        for _ in range(3):
+            make_request("POST", "/api/fraud/predict", json=payload)
+        
         latencies = []
-        for _ in range(5):
+        for _ in range(10):
             start = time.time()
             response = make_request("POST", "/api/fraud/predict", json=payload)
             latencies.append((time.time() - start) * 1000)
             assert response.status_code == 200
         
         p50 = sorted(latencies)[len(latencies)//2]
-        assert p50 < 500
+        assert p50 < 50, f"Latência p50 ({p50:.1f}ms) deve ser < 50ms (SLA BACEN)"
     
     def test_5_2_throughput_basic(self):
-        """5.2.1 Throughput básico atende requisitos"""
+        """5.2.1 Throughput básico atende requisitos (>5 RPS)"""
         payload = {"transactions": [{"amount": 100.0}]}
         
         start = time.time()
@@ -313,7 +316,8 @@ class TestGuia5_Performance:
         elapsed = time.time() - start
         
         rps = success_count / elapsed if elapsed > 0 else 0
-        assert rps > 1
+        assert rps > 5, f"Throughput ({rps:.1f} RPS) deve ser > 5 RPS"
+        assert success_count == 10, "Todas requisições devem ter sucesso"
     
     def test_5_3_concurrent_requests(self):
         """5.3.1 Requisições concorrentes são tratadas"""
@@ -352,7 +356,7 @@ class TestGuia6_Seguranca:
     """
     
     def test_6_1_sql_injection_blocked(self):
-        """6.1.1 SQL injection é bloqueado"""
+        """6.1.1 SQL injection é bloqueado - não deve executar comandos SQL"""
         malicious_payloads = [
             {"transactions": [{"amount": "1; DROP TABLE users;--"}]},
             {"transactions": [{"amount": "' OR '1'='1"}]},
@@ -361,6 +365,9 @@ class TestGuia6_Seguranca:
         for payload in malicious_payloads:
             response = make_request("POST", "/api/fraud/predict", json=payload)
             assert response.status_code in [200, 400, 422, 500]
+            if response.status_code == 200:
+                data = response.json()
+                assert data.get("success") is True, "Sistema deve processar graciosamente"
     
     def test_6_2_xss_prevention(self):
         """6.2.1 XSS prevention ativo"""
