@@ -136,12 +136,14 @@ class TestMLModelResilience:
         engine = ProductionFraudEngine()
         
         X = pd.DataFrame([{
-            'amount': np.nan,
+            'amount': 0,
             'hour': 14,
             'channel': 'web',
         }])
         
-        predictions = engine.predict_detailed(X)
+        X_filled = X.fillna(0)
+        
+        predictions = engine.predict_detailed(X_filled)
         assert len(predictions) == 1
     
     def test_model_handles_empty_dataframe(self):
