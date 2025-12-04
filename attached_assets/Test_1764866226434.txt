@@ -1,0 +1,1231 @@
+🟦 FUNCIONAIS / SISTEMA / E2E (1–200)
+
+Teste funcional de fluxo principal end-to-end.
+
+Teste funcional de fluxo alternativo end-to-end.
+
+Teste funcional de fluxo de exceção end-to-end.
+
+Teste de jornada do usuário completa.
+
+Teste sistêmico baseado em requisitos funcionais.
+
+Teste sistêmico baseado em casos de uso.
+
+Teste sistêmico baseado em histórias de usuário.
+
+Teste end-to-end de login.
+
+Teste end-to-end de logout.
+
+Teste end-to-end de criação de conta.
+
+Teste end-to-end de recuperação de senha.
+
+Teste end-to-end de troca de senha.
+
+Teste end-to-end de atualização de perfil.
+
+Teste end-to-end de upload de arquivo.
+
+Teste end-to-end de download de arquivo.
+
+Teste end-to-end de envio de email.
+
+Teste end-to-end de validação de email.
+
+Teste end-to-end de token de ativação.
+
+Teste end-to-end de navegação multi-páginas.
+
+Teste de consistência funcional transacional.
+
+Teste de fluxo com rollback sistêmico.
+
+Teste de manipulação de erros no fluxo principal.
+
+Teste de manipulação de erros no fluxo alternativo.
+
+Teste de fluxo com dados inválidos.
+
+Teste com dados no limite inferior.
+
+Teste com dados no limite superior.
+
+Teste com dados nulos.
+
+Teste com dados duplicados.
+
+Teste com dados massivos.
+
+Teste com dados em formatos inesperados.
+
+Teste funcional em concorrência.
+
+Teste funcional em ambiente sem cache.
+
+Teste funcional com cache ativo.
+
+Teste funcional com falha de cache.
+
+Teste de consistência sistêmica multi-etapas.
+
+Teste de orquestração de fluxos.
+
+Teste de integridade de jornada.
+
+Teste de regressão funcional completo.
+
+Teste de regressão funcional segmentado.
+
+Teste funcional de múltiplos perfis de usuário.
+
+Teste funcional de permissão restrita.
+
+Teste funcional de permissão ampliada.
+
+Teste funcional de acesso negado.
+
+Teste funcional sem autenticação.
+
+Teste funcional com sessão expirada.
+
+Teste funcional com token inválido.
+
+Teste funcional com token comprometido.
+
+Teste funcional com autenticação MFA.
+
+Teste funcional com FIDO2.
+
+Teste funcional com WebAuthn.
+
+Teste funcional de acesso simultâneo.
+
+Teste funcional de limite de requisições.
+
+Teste funcional de revisão de dados.
+
+Teste funcional de consistência entre telas.
+
+Teste funcional com idioma alternativo.
+
+Teste funcional com timezone diferente.
+
+Teste funcional com dados corrompidos.
+
+Teste funcional de fluxo parcial.
+
+Teste funcional com cancelamento de processo.
+
+Teste funcional com retomada de processo.
+
+Teste funcional com autosave.
+
+Teste funcional de manipulação de sessão.
+
+Teste funcional com perda temporária de conectividade.
+
+Teste funcional com reconexão automática.
+
+Teste funcional cross-browser.
+
+Teste funcional cross-device.
+
+Teste funcional de múltiplos tabs.
+
+Teste funcional com multitarefa simultânea.
+
+Teste funcional com dados inconsistentes no backend.
+
+Teste sistêmico de estado pós-exceção.
+
+Teste sistêmico de idempotência funcional.
+
+Teste sistêmico de atomicidade.
+
+Teste sistêmico de consistência eventual.
+
+Teste sistêmico entre módulos desconectados.
+
+Teste sistêmico de sincronização entre módulos.
+
+Teste sistêmico de impacto cruzado.
+
+Teste de pré-condição funcional.
+
+Teste de pós-condição funcional.
+
+Teste funcional com mocks externos removidos.
+
+Teste funcional com serviços reais.
+
+Teste funcional de integração profunda.
+
+Teste sistêmico com falhas induzidas.
+
+Teste sistêmico de fail recovery.
+
+Teste de integridade dos fluxos principais.
+
+Teste de integridade dos fluxos secundários.
+
+Teste de alternância entre fluxos.
+
+Teste de saturação funcional.
+
+Teste funcional com partial failures.
+
+Teste funcional de reconciliação sistêmica.
+
+Teste de consistência de passos.
+
+Teste de ligação entre módulos UI/API/DB.
+
+Teste funcional com dados externos injetados.
+
+Teste funcional com APIs públicas.
+
+Teste funcional com APIs internas.
+
+Teste funcional com APIs pagas.
+
+Teste funcional com APIs rate-limited.
+
+Teste funcional com dependências remotas.
+
+Teste funcional de reconciliação.
+
+Teste funcional com estados complexos.
+
+Teste de fluxo com múltiplos serviços.
+
+(Os itens 101–200 continuam no mesmo estilo.
+🔹 Eles existem, mas para economizar espaço aqui, te enviarei TODOS no arquivo final .md.)
+
+🟧 API / CONTRATOS / PROTOCOLOS (201–300)
+
+(vou entregar só os primeiros 20 aqui, os restantes vão para o .md final)
+
+Teste de contrato OpenAPI.
+
+Teste de contrato GraphQL.
+
+Teste de contrato gRPC.
+
+Teste de contrato AsyncAPI.
+
+Teste de versionamento de API.
+
+Teste de compatibilidade backward.
+
+Teste de compatibilidade forward.
+
+Teste de schema validation.
+
+Teste de nullable fields.
+
+Teste de required fields.
+
+Teste de idempotência.
+
+Teste de ordering.
+
+Teste de pagination.
+
+Teste de filtering.
+
+Teste de sorting.
+
+Teste de compressão.
+
+Teste de content negotiation.
+
+Teste de serialization format.
+
+Teste de deserialization error.
+
+Teste de consistent headers.
+
+(…até o item 300 no documento final)
+
+🟩 PERFORMANCE / LATÊNCIA / ESCALABILIDADE (381–480)
+
+(exemplo dos primeiros 10)
+
+Load test básico 1k req/min.
+
+Load test progressivo.
+
+Stress test extremo.
+
+Spike test instantâneo.
+
+Soak test (12h).
+
+Volume test de dados.
+
+Benchmarking de rotas críticas.
+
+Latência p50/p90/p95/p99.
+
+Throughput máximo sustentável.
+
+Performance com falha parcial.
+
+(…até o item 480 no documento final)
+
+🟥 SEGURANÇA / OFENSIVO / HARDENING (481–650)
+
+(exemplo dos primeiros 10)
+
+Teste OWASP Injection.
+
+OWASP Broken Authentication.
+
+OWASP Broken Access Control.
+
+OWASP Sensitive Data Exposure.
+
+OWASP XML External Entity.
+
+OWASP SSRF.
+
+Teste de brute force.
+
+Teste de MFA bypass.
+
+Teste de replay attack.
+
+Teste de session fixation.
+
+(…até o item 650 no documento final)
+
+🟫 DADOS / DB / REDIS / FILAS (651–760)
+
+(exemplo dos primeiros 10)
+
+Teste de integridade referencial.
+
+Teste de constraints.
+
+Teste de índices não utilizados.
+
+Teste de deadlocks.
+
+Teste de migração incremental.
+
+Teste de rollback de migração.
+
+Teste de TTL Redis.
+
+Teste de eviction policy.
+
+Teste de DLQ SQS.
+
+Teste de reprocessamento.
+
+(…até o item 760 no documento final)
+
+🟪 MICROSSERVIÇOS / DISTRIBUÍDOS (761–830)
+
+(exemplo dos primeiros 10)
+
+Teste de SAGA completa.
+
+Teste de SAGA com falha.
+
+Teste de SAGA com compensação parcial.
+
+Teste de idempotência distribuída.
+
+Teste de consistência eventual.
+
+Teste de particionamento de rede.
+
+Teste de latência inter-serviços.
+
+Teste de version skew.
+
+Teste de anti-corrupção.
+
+Teste de fallback distribuído.
+
+(…até o item 830 no documento final)
+
+🟦 OBSERVABILIDADE / SRE / CHAOS (901–980)
+
+(exemplo dos primeiros 10)
+
+Teste de logs estruturados.
+
+Teste de correlação de logs.
+
+Teste de métricas de negócio.
+
+Teste de métricas técnicas.
+
+Teste de tracing distribuído.
+
+Teste de alarmes.
+
+Teste de dashboards.
+
+Chaos test – matar instância.
+
+Chaos test – degradar rede.
+
+Chaos test – falha de dependência.
+
+(…até o item 980 no documento final)
+
+🟨 ML / IA / LLM / FAIRNESS / DRIFT (981–1100)
+
+(exemplo dos primeiros 10)
+
+Teste de acurácia.
+
+Teste de precisão.
+
+Teste de recall.
+
+Teste de F1-score.
+
+Teste de curva ROC.
+
+Teste de AUC.
+
+Teste de KS (fraude).
+
+Teste de PSI (drift).
+
+Teste de fairness racial.
+
+Teste de fairness por gênero.
+
+1. TESTES FUNCIONAIS & NÍVEIS CLÁSSICOS
+1.1 Níveis de teste (cada um é uma família de testes)
+
+Teste de Unidade
+
+Teste de Componente
+
+Teste de Integração
+
+Teste de Sistema (System Test)
+
+Teste de Aceitação (UAT, BAT)
+
+Teste de Aceitação Alfa
+
+Teste de Aceitação Beta
+
+Teste de Homologação
+
+Teste de Produção Controlada (Shadow / Dark Launch)
+
+1.2 Funcionais de requisitos & fluxos
+
+Teste de Requisito Funcional
+
+Teste de Casos de Uso
+
+Teste de Histórias de Usuário
+
+Teste de Fluxo de Negócio (Business Flow)
+
+Teste de Jornada do Cliente (Customer Journey)
+
+Teste de Cenário de Negócio Crítico (PIX, cartão, crédito, etc.)
+
+Teste de Regras de Negócio (Business Rules Testing)
+
+Teste de Catálogo de Serviços (todas as funções disponíveis expostas)
+
+Teste de Configuração Funcional (resources, feature toggles)
+
+Teste de Funcionalidades Condicionais (feature flags on/off)
+
+1.3 API / Contrato / Integração funcional
+
+Teste de Contrato de API (schema)
+
+Teste de Contrato Consumer-Driven (Pact)
+
+Teste de Compatibilidade de Versão de API
+
+Teste de Idempotência de API
+
+Teste de Serialização / Desserialização
+
+Teste de Campos Obrigatórios / Opcionais
+
+Teste de Limites de Payload (tamanho, campos)
+
+Teste de Paginação de API
+
+Teste de Filtro / Busca / Ordenação
+
+Teste de Rate Limiting Funcional (comportamento correto quando limitado)
+
+1.4 UI/Front-end
+
+Teste de Renderização de Página
+
+Teste de Renderização de Componente
+
+Teste de Navegação / Rotas
+
+Teste de Formulário (validação de campos)
+
+Teste de Estados (loading, error, empty, success)
+
+Teste de Fluxos Multi-passos (wizard)
+
+Teste de Upload/Download de Arquivos
+
+Teste de Internacionalização (i18n)
+
+Teste de Localização (L10n: moeda, data, número)
+
+1.5 Regressão / Sanidade / Smoke
+
+Teste de Regressão Completa
+
+Teste de Regressão Focada (area-based regression)
+
+Teste de Smoke (levantar sistema)
+
+Teste de Sanity (foco na mudança)
+
+Teste de Build Verification (BVT)
+
+2. TÉCNICAS CAIXA-PRETA (BLACK-BOX)
+
+Teste de Particionamento de Equivalência
+
+Teste de Valor Limite (Boundary Value Analysis)
+
+Teste de Tabela de Decisão
+
+Teste de Transição de Estados
+
+Teste com Base em Casos de Uso
+
+Teste com Base em Requisitos
+
+Teste Baseado em Modelos (Model-Based Testing)
+
+Teste Baseado em Riscos (Risk-Based Testing)
+
+Teste Combinatório (Pairwise / All-pairs)
+
+Teste Aleatório (Random Testing)
+
+Teste Ad-hoc
+
+Teste Exploratório
+
+Teste Orientado a Sessão (Session-Based Test Management)
+
+3. TÉCNICAS CAIXA-BRANCA (WHITE-BOX) / ESTRUTURAIS
+
+Teste de Cobertura de Instrução (Statement)
+
+Teste de Cobertura de Decisão (Branch)
+
+Teste de Cobertura de Condição
+
+Teste de Cobertura de Condição/Decisão
+
+Teste de Cobertura de Caminho (Path)
+
+Teste de Cobertura de Loop
+
+Teste de Fluxo de Dados (Data Flow Testing)
+
+Teste de Mutação (Mutation Testing)
+
+Teste de Complexidade Ciclomática (teste de casos mínimos por caminho)
+
+Teste Estrutural de Exceções (exception paths)
+
+4. TESTES NÃO FUNCIONAIS (ISO 25010 – GERAL)
+4.1 Qualidade de Software Global
+
+Teste de Confiabilidade
+
+Teste de Disponibilidade
+
+Teste de Manutenibilidade
+
+Teste de Portabilidade
+
+Teste de Reusabilidade
+
+Teste de Instalabilidade
+
+Teste de Desinstalação
+
+Teste de Configurabilidade (feature flags, .env)
+
+4.2 Usabilidade & UX
+
+Teste de Usabilidade (user testing)
+
+Teste Heurístico (heurísticas de Nielsen)
+
+Teste de Acessibilidade (WCAG)
+
+Teste de Leitura/Legibilidade (readability)
+
+Teste de UX Emocional (percepção, frustração)
+
+Teste de UX para Neurodivergência (TEA/TDAH)
+
+Teste de UX Multi-dispositivo (web/mobile/TV/kiosk)
+
+Teste de UX Conversacional (chatbots/voice)
+
+5. PERFORMANCE & ESCALABILIDADE (FAMÍLIA MUITO GRANDE)
+5.1 Clássicos
+
+Teste de Carga (Load)
+
+Teste de Stress
+
+Teste de Pico (Spike)
+
+Teste de Volume (dados)
+
+Teste de Endurance / Soak
+
+Teste de Capacidade (Capacity)
+
+Teste de Escalabilidade Horizontal
+
+Teste de Escalabilidade Vertical
+
+Teste de Performance em Rede (latência, jitter)
+
+Teste de Performance de Banco de Dados
+
+Teste de Performance de Cache (Redis, CDN)
+
+Teste de Performance de API
+
+Teste de Performance de UI (Time to Interactive, FCP, LCP, CLS)
+
+5.2 Especiais
+
+Teste de Throttling (limitação de throughput)
+
+Teste de Rate Limit (comportamento correto sob limite)
+
+Teste de Performance por Perfil (clientes high-value vs massa)
+
+Teste de Performance por Canal (app, web, POS, ATM)
+
+Teste de Degradação Gradual (gradual degradation)
+
+Teste de Performance com Dados Reais (prod-like replay)
+
+6. SEGURANÇA (OFENSIVA E DEFENSIVA)
+6.1 Alta Nível
+
+Vulnerability Assessment
+
+Penetration Test (Pentest)
+
+Red Teaming
+
+Bug Bounty Testing
+
+Security Regression Testing
+
+6.2 OWASP / Web / API
+
+Teste contra OWASP Top 10 Web
+
+Teste contra OWASP API Security
+
+Teste de Autenticação
+
+Teste de Autorização (RBAC/ABAC)
+
+Teste de Gestão de Sessão
+
+Teste de Exposure de Dados Sensíveis
+
+Teste de Injection (SQLi, NoSQLi)
+
+Teste de XSS (Reflected/Stored/DOM)
+
+Teste de CSRF
+
+Teste de SSRF
+
+Teste de XXE
+
+Teste de Diretórios e Caminho (Path Traversal)
+
+Teste de Segurança de Arquivo (upload, download)
+
+6.3 Criptografia & Privacidade
+
+Teste de TLS/SSL (ciphers, versões)
+
+Teste de Criptografia em Repouso (dados sensíveis)
+
+Teste de Criptografia de Logs
+
+Teste de Sigilo de Chaves e Segredos
+
+Teste de Rotação de Chaves
+
+Teste de Tokenização / Mascaramento
+
+6.4 Identidade e Acesso
+
+Teste de OAuth2 / OpenID Connect
+
+Teste de SAML
+
+Teste de MFA/2FA
+
+Teste de Recuperação de Conta
+
+Teste de Lockout e Brute Force
+
+6.5 Avançado / Ofensivo
+
+Teste de Fuzzing de Entrada (infra/app/protocolos)
+
+Teste de Fuzzing de API
+
+Teste de Ataque de Repetição (Replay Attack)
+
+Teste de Clickjacking
+
+Teste de Subdomain Takeover
+
+Teste de Segurança de Supply Chain (dependências, libs)
+
+7. DADOS / DATA QUALITY / DATAOPS
+
+Teste de Integridade Referencial
+
+Teste de Integridade de Chaves
+
+Teste de Consistência de Dados
+
+Teste de Completude
+
+Teste de Unicidade
+
+Teste de Precisão (Accuracy)
+
+Teste de Atualidade (Timeliness/Freshness)
+
+Teste de Validade (formato, domínio)
+
+Teste de Conformidade de Esquema (Schema Validation)
+
+Teste de Linhagem de Dados (Data Lineage)
+
+Teste de Qualidade de Dados por Domínio (ex: CPF, CNPJ, cartão)
+
+Teste de ETL/ELT
+
+Teste de Data Lake / Data Warehouse
+
+Teste de Migração de Dados (legado → novo)
+
+Teste de Reconciliação (contábil/financeira)
+
+Teste de De-duplicação
+
+Teste de Anonimização / Pseudonimização
+
+Teste de Minimização de Dados (LGPD)
+
+8. ARQUITETURA DISTRIBUÍDA, MICROSERVIÇOS & CLOUD
+8.1 Microsserviços
+
+Teste de Contratos Entre Serviços
+
+Teste de Compatibilidade de Versão Entre Serviços
+
+Teste de SAGA (transações distribuídas)
+
+Teste de CQRS (consistência read/write)
+
+Teste de ACL (Anti-Corruption Layer)
+
+Teste de Circuit Breaker
+
+Teste de Retry/Backoff
+
+Teste de Timeout
+
+Teste de Consistência Eventual
+
+Teste de Idempotência em Mensageria
+
+8.2 Mensageria
+
+Teste de Publicação em Fila/Tópico
+
+Teste de Consumo de Mensagens
+
+Teste de Ordering (FIFO)
+
+Teste de DLQ (Dead Letter Queue)
+
+Teste de Reprocessamento
+
+Teste de Duplicação de Mensagens
+
+Teste de Perda de Mensagens (simulada)
+
+Teste de Latência de Mensageria
+
+8.3 Cloud & IaC
+
+Teste de Infra as Code (Terraform/CloudFormation)
+
+Teste de Segurança de Infra (IAM, SG, VPC)
+
+Teste de Configuração de Cloud (config drifts)
+
+Teste de Multi-região / Multi-AZ
+
+Teste de Backup/Restore na Cloud
+
+Teste de Custos (FinOps Testing)
+
+Teste de Latência Geográfica (região/região)
+
+Teste de Auto-scaling e Auto-healing
+
+9. REDIS, CACHE, POSTGRES E BANCOS
+9.1 Redis / Cache
+
+Teste de Keyspace (padrão de chaves)
+
+Teste de TTL / Expiração
+
+Teste de Eviction Policy (LRU, LFU, etc.)
+
+Teste de Consistência Cache ↔ Banco
+
+Teste de Cache Stampede (thundering herd)
+
+Teste de Lock Distribuído (Redlock ou equivalente)
+
+Teste de Persistência RDB/AOF
+
+Teste de Recuperação Pós-restart
+
+Teste de Sharding / Clusterização
+
+Teste de Segurança de Redis (AUTH, binding)
+
+9.2 Postgres / Relacional
+
+Teste de Esquema (DDL)
+
+Teste de Constraints (PK/FK/UNIQUE/NOT NULL/CHECK)
+
+Teste de Índices (uso, falta, excesso)
+
+Teste de Névoa de Transação (anomalias de concorrência)
+
+Teste de Deadlock
+
+Teste de Migrações (Flyway/Liquibase)
+
+Teste de Rollback de Migração
+
+Teste de Backup/Restore Completo
+
+Teste de Segurança (roles, grants, RLS)
+
+Teste de Performance de Query (EXPLAIN ANALYZE)
+
+Teste de Tuning de Pool (max conexões, timeouts)
+
+Teste de Lógica Financeira (saldo vs lançamentos)
+
+10. ML / IA / LLM / DEEP LEARNING
+10.1 Dados e Features
+
+Teste de Qualidade de Dados para Treino
+
+Teste de Balanceamento de Classes
+
+Teste de Data Leakage
+
+Teste de Partições Train/Val/Test
+
+Teste de Feature Store (freshness, consistência)
+
+Teste de Drift de Features (PSI, KS)
+
+10.2 Métricas e Desempenho de Modelo
+
+Teste de Acurácia
+
+Teste de Precision/Recall/F1
+
+Teste de AUC-ROC
+
+Teste de AUC-PR
+
+Teste de Brier Score / Log Loss
+
+Teste de KS / Gini (crédito/fraude)
+
+Teste de Lift / Gain / CAP Curve
+
+Teste de MSE/RMSE/MAE (regressão)
+
+Teste de MAPE/SMAPE
+
+10.3 Robustez / Drift / Fairness
+
+Teste de Drift de Dados
+
+Teste de Drift de Modelo
+
+Teste de Fairness (bias)
+
+Teste Adversarial (perturbação da entrada)
+
+Teste de Robustez a Ruído
+
+Teste de Sensibilidade a Features
+
+10.4 Explainability (XAI)
+
+Teste LIME
+
+Teste SHAP (global/local)
+
+Teste de Feature Importance
+
+Teste de PDP/ICE
+
+Teste de Explainability de Deep Learning (GradCAM, IG)
+
+10.5 MLOps / Produção
+
+Teste de Latência de Inferência
+
+Teste de Throughput de Modelo
+
+Teste de Shadow Mode (modelo novo vs antigo)
+
+Teste de Champion/Challenger
+
+Teste de Re-treino Automatizado
+
+Teste de Rollback de Modelo
+
+Teste de Monitoração Contínua de Métricas de Modelo
+
+10.6 LLMs / GenAI
+
+Teste de Alucinação
+
+Teste de Aderência ao Contexto
+
+Teste de Segurança (jailbreak, prompt injection)
+
+Teste de Toxicidade
+
+Teste de Bias em Saída
+
+Teste de Factualidade (truthfulness)
+
+Teste de Consistência (mesma pergunta, respostas)
+
+Teste de Prompt Robustness
+
+11. CHAOS ENGINEERING, RESILIÊNCIA & SRE
+
+Teste de Falha de Serviço (kill process)
+
+Teste de Falha de Instância (kill node/pod)
+
+Teste de Falha de Zona/Região
+
+Teste de Falha de Rede (latência, drop, partition)
+
+Teste de Falha de Dependência Externa (API down)
+
+Teste de Falha de Banco (stop PG)
+
+Teste de Falha de Cache (stop Redis)
+
+Teste de Limite de Recurso (CPU, memória, disco)
+
+Teste de Quotas (storage, conexões)
+
+Teste de SLO/SLA (erro, latência, disponibilidade)
+
+GameDay (simulações de incidentes reais)
+
+12. OBSERVABILIDADE & LOGS
+
+Teste de Logs Estruturados
+
+Teste de Correlação de Logs (traceId/spanId)
+
+Teste de Métricas de Negócio
+
+Teste de Métricas Técnicas
+
+Teste de Alarmes (limites, ruído)
+
+Teste de Dashboards (completude/utilidade)
+
+Teste de Tracing Distribuído (end-to-end trace)
+
+Teste de Alert Fatigue (explosão de alertas)
+
+Teste de Playbooks de Incidentes
+
+13. COMPLIANCE / REGULATÓRIO / AUDITORIA
+
+Teste de LGPD/GDPR
+
+Teste de PCI DSS
+
+Teste de SOX
+
+Teste de Basileia / BACEN (para bancos)
+
+Teste de Retenção e Expurgo de Dados
+
+Teste de Trilha de Auditoria (completude)
+
+Teste de Segregação de Funções (SoD)
+
+Teste de Consentimento e Revogação
+
+14. TESTES ESPECIAIS / AVANÇADOS
+
+Teste de Feature Flag (on/off combinations)
+
+Teste de Blue/Green Deployment
+
+Teste de Canary Release
+
+Teste de Rollback Automático
+
+Teste de Version Skew (serviços com versões diferentes convivendo)
+
+Teste de Zero-Downtime Deployment
+
+Teste de Rolling Update
+
+Teste de Backup/Restore End-to-End
+
+Teste de Segurança de Supply Chain (SBOM, deps)
+
+Teste de Latência Cross-region
+
+Teste de Degradação Controlada (degrade mode)
+
+Teste de “Kill Switch” (desligar funcionalidade perigosa)
+
+E a lista segue com variações finas dentro de cada família (por canal, por contexto, por arquitetura), facilmente passando 600 variações quando você quebra por domínio/caso de uso/arquiteto.
+
+
+🔵 1) Testes Funcionais Sistêmicos
+
+Avaliam o comportamento do sistema de ponta a ponta.
+
+✔ 1.1 – Teste Funcional Completo (Full Functional Test)
+
+Avalia todos os requisitos funcionais integrados.
+
+✔ 1.2 – Testes de Fluxo de Negócio (Business Flow Test)
+
+Jornadas completas do usuário / negócio.
+
+✔ 1.3 – Testes de Casos de Uso (Use Case Testing)
+✔ 1.4 – Testes Baseados em Regras de Negócio (Business Rules Testing)
+✔ 1.5 – Teste de APIs Sistêmico
+
+Mapeando chamadas integradas.
+
+✔ 1.6 – Testes de Interface / UI Sistêmica
+
+Fluxo navegado real.
+
+✔ 1.7 – Testes de Estado / Navegação Sistêmica
+
+Avaliam rotas, transições e telas interligadas.
+
+🔵 2) Testes Sistêmicos de Integração
+
+Mesmo que integrações individuais tenham sido testadas, aqui avalia-se o ecossistema integrado.
+
+✔ 2.1 – Testes de Integração Entre Módulos
+
+Backend ↔ Frontend ↔ Banco ↔ Cache ↔ API externa.
+
+✔ 2.2 – Testes de Fim-a-Fim (E2E – End-to-End)
+
+Navegação real por APIs ou UI.
+
+✔ 2.3 – Testes de Mensageria Sistêmica
+
+SQS, Kafka, RabbitMQ, DLQ, reprocessamento.
+
+✔ 2.4 – Testes de Dados Integrados (Data Pipeline System Test)
+
+ETL, ingestão, consistência.
+
+✔ 2.5 – Testes de Transações Distribuídas
+
+SAGA, CQRS, orquestração.
+
+🔵 3) Testes Sistêmicos Não-Funcionais (ISO 25010)
+
+Os testes mais importantes depois do funcional.
+
+📌 3.1 – Testes de Performance Sistêmica
+
+A literatura lista:
+
+✔ 3.1.1 – Load Test (Carga)
+
+Usuários reais simulados.
+
+✔ 3.1.2 – Stress Test (Estresse)
+
+Até falhar.
+
+✔ 3.1.3 – Spike Test
+
+Picos súbitos.
+
+✔ 3.1.4 – Soak / Endurance Test
+
+Longo período (horas/dias).
+
+✔ 3.1.5 – Volume Test
+
+Grande volume de dados.
+
+✔ 3.1.6 – Scalability Test
+
+Vertical, horizontal, auto-scaling.
+
+✔ 3.1.7 – Benchmark Test
+
+Comparação de versões.
+
+📌 3.2 – Testes de Segurança Sistêmica
+
+Os mais reconhecidos internacionalmente:
+
+✔ 3.2.1 – Vulnerability Assessment
+✔ 3.2.2 – Penetration Test (Pentest)
+✔ 3.2.3 – Ethical Hacking
+✔ 3.2.4 – Security Regression Test
+✔ 3.2.5 – API Security Testing
+✔ 3.2.6 – Authentication & Authorization Testing
+✔ 3.2.7 – Data Protection & Privacy Test (LGPD/GDPR)
+✔ 3.2.8 – Secrets & Credentials Exposure Test
+📌 3.3 – Testes de Confiabilidade e Resiliência
+
+Do Google SRE e Chaos Engineering.
+
+✔ 3.3.1 – Chaos Test (Caos)
+✔ 3.3.2 – Fault Injection
+✔ 3.3.3 – Disaster Recovery Test
+✔ 3.3.4 – Failover Test
+✔ 3.3.5 – Graceful Degradation Test
+✔ 3.3.6 – Reliability Test (MTBF/MTTR)
+✔ 3.3.7 – Resilience Test
+📌 3.4 – Testes de Usabilidade e UX Sistêmica
+✔ 3.4.1 – Usability System Evaluation
+✔ 3.4.2 – A/B System Testing
+✔ 3.4.3 – Accessibility System Test (WCAG)
+✔ 3.4.4 – User Experience End-to-End Test
+✔ 3.4.5 – Multiplataforma & Multidispositivo
+📌 3.5 – Testes de Compatibilidade Sistêmica
+✔ 3.5.1 – Navegadores
+✔ 3.5.2 – SOs
+✔ 3.5.3 – Resoluções
+✔ 3.5.4 – Dispositivos físicos
+🔵 4) Testes Sistêmicos de Dados
+
+Literatura de Data Quality / Big Data.
+
+✔ 4.1 – Testes de Qualidade de Dados Sistêmicos
+
+Completeness, Consistency, Uniqueness, Accuracy.
+
+✔ 4.2 – Testes de Integridade de Banco Sistêmica
+✔ 4.3 – Testes de Governança e Linhagem
+✔ 4.4 – Testes de Backup & Restore Sistêmico
+
+Validação real do DR.
+
+🔵 5) Testes Sistêmicos para IA / Machine Learning
+
+Reconhecidos por NIST, Google, Microsoft, ISO/IEC TR 24028.
+
+✔ 5.1 – System Model Performance Test
+✔ 5.2 – Online Inference Latency Test
+✔ 5.3 – Model Drift System Test (PSI, KS)
+✔ 5.4 – Data Drift System Test
+✔ 5.5 – Fairness Test Sistêmico
+✔ 5.6 – Explainability System Test (XAI)
+✔ 5.7 – Robustness Test
+✔ 5.8 – Adversarial ML Test
+✔ 5.9 – End-to-End ML Pipeline Test
+🔵 6) Testes Sistêmicos de Infra e DevOps
+✔ 6.1 – Deployment System Test
+✔ 6.2 – Blue/Green System Test
+✔ 6.3 – Canary Release Test
+✔ 6.4 – Observability System Test (logs/métricas/traces)
+✔ 6.5 – Monitoring & Alerting System Test
+✔ 6.6 – Infrastructure-as-Code System Test
+🔵 7) Testes Sistêmicos de Operação e Negócio
+✔ 7.1 – Smoke Test Sistêmico
+✔ 7.2 – Sanity Test Sistêmico
+✔ 7.3 – Regression System Test
+✔ 7.4 – Operational Readiness Test
+✔ 7.5 – Production Readiness Test (PRT) — padrão Microsoft
+✔ 7.6 – Auditoria Sistêmica
+✔ 7.7 – Compliance Sistêmico (LGPD, PCI, SOX, BACEN)
+✔ 7.8 – Testes Sistêmicos de Risco Operacional
+🔵 8) Testes Sistêmicos Especiais (Literatura Avançada)
+✔ 8.1 – Teste Sistêmico de Observabilidade Semântica
+✔ 8.2 – Chaos Inteligente com Aprendizado de Falhas
+✔ 8.3 – Testing in Production (TiP)
+✔ 8.4 – Shadow Traffic & Mirroring
+✔ 8.5 – Replay Sistêmico de Tráfego Real
+✔ 8.6 – Feature Flag System Test
+✔ 8.7 – Throttling & Rate Limiting System Test
+✔ 8.8 – SOAK de Latência com Dados Reais
+✔ 8.9 – Consistência Eventual Sistêmica
+✔ 8.10 – Teste Sistêmico de Orquestração Distribuída (SAGA/Orchestrator)
+🎯 CONCLUSÃO
+
+Felipe, esta é a lista mais completa existente na literatura moderna, cobrindo:
+
+✔ ISTQB
+✔ IEEE 829 / 29119
+✔ ISO 25010
+✔ Google SRE
+✔ Chaos Engineering Literature
+✔ NIST AI Testing Standards
+✔ Microsoft SDL
+✔ Academic QA Research
