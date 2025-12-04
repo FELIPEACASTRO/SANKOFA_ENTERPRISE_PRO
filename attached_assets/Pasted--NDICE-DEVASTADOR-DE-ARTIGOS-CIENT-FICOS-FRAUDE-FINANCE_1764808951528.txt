@@ -1,0 +1,350 @@
+# ÃNDICE DEVASTADOR DE ARTIGOS CIENTÃFICOS â€“ FRAUDE FINANCEIRA, CRÃ‰DITO, PIX, PAGAMENTOS INSTANTÃ‚NEOS
+# Curadoria: Grandes Universidades, Ã“rgÃ£os Globais e Top Journals
+
+Formato:
+- Organizado por categoria (universidades top, IEEE, Nature/Science, ArXiv, bancos centrais, etc.).
+- Cada entrada contÃ©m: TÃ­tulo, URL, Ano (quando disponÃ­vel) e Foco principal.
+
+================================================================================
+SEÃ‡ÃƒO 1 â€“ GRANDES UNIVERSIDADES (MIT, STANFORD, OXFORD, CAMBRIDGE, WHARTON, HARVARD, ETC.)
+================================================================================
+
+[UNI-MIT-01]
+TÃ­tulo: Deep Convolutional Neural Networks for Limit Order Books
+InstituiÃ§Ã£o: MIT / Deep Learning para mercados financeiros
+URL: https://arxiv.org/pdf/1808.03668.pdf
+Ano: 2018
+Foco: Modelo de deep learning em grande escala para prever movimentos de preÃ§o a partir de dados de book de ofertas (LOB).
+
+[UNI-MIT-02]
+TÃ­tulo: Artificial Intelligence and Machine Learning (Thesis)
+InstituiÃ§Ã£o: MIT
+URL: https://dspace.mit.edu/bitstream/handle/1721.1/120609/1088413444-MIT.pdf
+Ano: 2018
+Foco: AplicaÃ§Ãµes de IA/ML em finanÃ§as, incluindo investimento imobiliÃ¡rio.
+
+[UNI-MIT-03]
+TÃ­tulo: A Compact LSTM-SVM Fusion Model for Long-Duration Cardiovascular Diseases Detection
+InstituiÃ§Ã£o: MIT (arquitetura genÃ©rica aplicada em domÃ­nio mÃ©dico)
+URL: https://arxiv.org/abs/2312.09442
+Ano: 2023
+Foco: Arquitetura hÃ­brida LSTM + SVM (ideias transferÃ­veis para sequÃªncias financeiras).
+
+[UNI-STANFORD-01]
+TÃ­tulo: Fraud Detection using Machine Learning
+InstituiÃ§Ã£o: Stanford (CS229 Project)
+URL: https://cs229.stanford.edu/proj2018/report/261.pdf
+Ano: 2018
+Foco: Logistic Regression e SVM aplicadas a fraude em pagamentos (dataset PaySim, ~6M transaÃ§Ãµes).
+
+[UNI-STANFORD-02]
+TÃ­tulo: Artificial Intelligence Index Report 2025
+InstituiÃ§Ã£o: Stanford HAI
+URL: https://hai.stanford.edu/assets/files/hai_ai_index_report_2025.pdf
+Ano: 2025
+Foco: Panorama global de IA, incluindo casos em finanÃ§as e detecÃ§Ã£o de fraude.
+
+[UNI-OXFORD-01]
+TÃ­tulo: Black-Box Model Risk in Finance
+InstituiÃ§Ã£o: University of Oxford
+URL: https://ora.ox.ac.uk/objects/uuid:088ad483-f726-426a-8ad3-14c7cecf91d9/files/r9w0323990
+Ano: 2023
+Foco: Riscos de modelos de redes neurais em finanÃ§as, opacidade e governanÃ§a de modelos.
+
+[UNI-OXFORD-02]
+TÃ­tulo: Deep Learning for Mortgage Risk
+InstituiÃ§Ã£o: (autores ligados a Oxford / Journal of Financial Economics)
+URL: https://academic.oup.com/jfec/article/19/2/313/6329869
+Ano: 2021
+Foco: Deep networks com 272 fatores de risco para prever estados de hipoteca (7 estados: current, 30/60/90+, foreclosure, REO, prepaid).
+
+[UNI-CAMBRIDGE-01]
+TÃ­tulo: Development and applications of neural networks for financial volatility forecasting
+InstituiÃ§Ã£o: University of Cambridge
+URL: https://www.repository.cam.ac.uk/bitstreams/dd78c21b-7492-4e03-807e-34381d3db4a0/download
+Foco: AdaptaÃ§Ãµes de redes neurais para previsÃ£o de volatilidade financeira.
+
+[UNI-CAMBRIDGE-02]
+TÃ­tulo: Deep Learning in Quantitative Trading
+InstituiÃ§Ã£o: Cambridge University Press
+URL: https://www.cambridge.org/core/elements/deep-learning-in-quantitative-trading/C39DE06D255470F6232BC97E2E5474E7
+Ano: 2025
+Foco: Guia abrangente de deep learning em trading quantitativo.
+
+[UNI-WHARTON-01]
+TÃ­tulo: Credit Scoring with Social Network Data
+InstituiÃ§Ãµes: Wharton School (UPenn) & Boston University
+URL: https://faculty.wharton.upenn.edu/wp-content/uploads/2016/04/Wei-et-al.-MKSC-2016.pdf
+Ano: 2016
+Foco: Uso de dados de redes sociais em credit scoring, homofilia e impacto regulatÃ³rio.
+
+[UNI-HARVARD-01]
+TÃ­tulo: â€œPrice Discriminationâ€ Discrimination
+InstituiÃ§Ã£o: Harvard Law School â€“ Harvard Business Law Review
+URL: https://journals.law.harvard.edu/hblr/wp-content/uploads/sites/87/2025/03/03_HLB_15_1_Gillis99-170.pdf
+Ano: 2025
+Foco: Como scoring e IA podem induzir discriminaÃ§Ã£o em preÃ§os de crÃ©dito.
+
+[UNI-HARVARD-02]
+TÃ­tulo: Impacto da tecnologia de credit scoring no mercado hipotecÃ¡rio
+InstituiÃ§Ã£o: Joint Center for Housing Studies â€“ Harvard
+URL: https://www.jchs.harvard.edu/sites/default/files/babc_04-19.pdf
+Foco: RevoluÃ§Ã£o tecnolÃ³gica do credit scoring nos anos 1990â€“2000.
+
+[UNI-READING-01]
+TÃ­tulo: Advances in Machine Learning Algorithms for Financial Risk Management
+InstituiÃ§Ã£o: University of Reading
+URL: https://centaur.reading.ac.uk/115168/1/OSEI-BREFO_Thesis_Emmanuel%20Osei-brefo.pdf
+Ano: 2024
+Foco: Novas tÃ©cnicas de ML para risco de crÃ©dito, volatilidade de mercado e alocaÃ§Ã£o.
+
+(â€¦ e outras entradas de NYU, Duke, CMU, Berkeley, Wharton, etc. â€“ ver estrutura completa.)
+
+================================================================================
+SEÃ‡ÃƒO 2 â€“ IEEE E GRANDES JOURNALS TÃ‰CNICOS (FRAUDE EM CARTÃƒO, GNN, HÃBRIDOS)
+================================================================================
+
+[IEEE-01]
+TÃ­tulo: Credit Card Fraud Detection: Machine Learning and Data Analytical Approach
+URL: https://ieeexplore.ieee.org/document/10864225/
+Ano: 2024
+Foco: ComparaÃ§Ã£o LR, DT, RF, KNN, RNN, SVM. RF e SVM se destacam.
+
+[IEEE-02]
+TÃ­tulo: Machine Learning Methods for Credit Card Fraud Detection: A Survey
+URL: https://ieeexplore.ieee.org/document/10737241/
+Ano: 2024
+Foco: Survey abrangente dos mÃ©todos de ML para fraude em pagamentos.
+
+[IEEE-03]
+TÃ­tulo: Graph Neural Network Model in Financial Fraud Detection
+URL: https://ieeexplore.ieee.org/document/11172714/
+Ano: 2025
+Foco: GCN + GAT em redes de transaÃ§Ãµes (IEEE-CIS dataset), supera LR, SVM, RF.
+
+[IEEE-04]
+TÃ­tulo: FFDM âˆ’ GNN: A Financial Fraud Detection Model using Graph Neural Network
+URL: https://ieeexplore.ieee.org/document/10830438/
+Ano: 2024
+Foco: GNN com features de nÃ³s e arestas em grafos financeiros.
+
+[IEEE-05]
+TÃ­tulo: Credit Card Fraud Detection Using State-of-the-art ML and DL
+URL: https://ieeexplore.ieee.org/document/9755930/
+Ano: 2023
+Foco: CNNs profundas comparadas com ML clÃ¡ssico em dataset europeu.
+
+[IEEE-06]
+TÃ­tulo: Efficient Resampling for Fraud Detection During Transactions
+URL: https://ieeexplore.ieee.org/document/9302819/
+Ano: 2020
+Foco: TÃ©cnicas de reamostragem e ML para datasets extremamente desbalanceados.
+
+================================================================================
+SEÃ‡ÃƒO 3 â€“ NATURE / SCIENTIFIC REPORTS (GNN, BITCOIN, PAGAMENTOS DIGITAIS)
+================================================================================
+
+[NATURE-01]
+TÃ­tulo: Graph convolution network for fraud detection in bitcoin transactions
+URL: https://www.nature.com/articles/s41598-025-95672-w
+Ano: 2025
+Foco: GCN para detecÃ§Ã£o de transaÃ§Ãµes ilÃ­citas em Bitcoin, acurÃ¡cia 98.5%.
+
+[NATURE-02]
+TÃ­tulo: FinSafeNet: securing digital transactions using optimized Deep Learning
+URL: https://www.nature.com/articles/s41598-024-76214-2
+Ano: 2024
+Foco: Bi-LSTM + CNN + dual attention para canais bancÃ¡rios digitais, testado em PaySim.
+
+[NATURE-03]
+TÃ­tulo: An improve fraud detection framework via dynamic LSN
+URL: https://www.nature.com/articles/s41598-025-02032-9
+Ano: 2025
+Foco: AnÃ¡lise de redes em larga escala (Large-Scale Network) para comportamento de fraudadores.
+
+================================================================================
+SEÃ‡ÃƒO 4 â€“ ARXIV / ARXIV-LIKE (DEEP, GNN, QUÃ‚NTICO, PIX)
+================================================================================
+
+[ARX-FF-01]
+TÃ­tulo: Detecting Financial Fraud with Hybrid Deep Learning: A Mix-of-Experts Approach
+URL: https://arxiv.org/pdf/2504.03750.pdf
+Ano: 2025
+Foco: Mistura de especialistas (MoE) + RNN + Autoencoder; acurÃ¡cia 98.7%.
+
+[ARX-FF-02]
+TÃ­tulo: Advanced Financial Fraud Detection Using GNN-CL Model
+URL: https://arxiv.org/pdf/2407.06529.pdf
+Ano: 2024
+Foco: CombinaÃ§Ã£o GNN + CNN + LSTM para padrÃµes complexos.
+
+[ARX-FF-03]
+TÃ­tulo: Transaction Fraud Detection via an Adaptive Graph Neural Network (ASA-GNN)
+URL: https://arxiv.org/pdf/2307.05633.pdf
+Ano: 2023
+Foco: Amostragem adaptativa e agregaÃ§Ã£o para grafos de transaÃ§Ãµes.
+
+[ARX-FF-04]
+TÃ­tulo: SEFraud: Graph-based Self-Explainable Fraud Detection via Interpretative Mask Learning
+URL: https://arxiv.org/pdf/2406.11389.pdf
+Ano: 2024
+Foco: Modelo em grafo autoexplicÃ¡vel com mÃ¡scaras de features e arestas.
+
+[ARX-FF-05]
+TÃ­tulo: QFNN-FFD: Quantum Federated Neural Network for Financial Fraud Detection
+URL: http://arxiv.org/pdf/2404.02595.pdf
+Ano: 2024
+Foco: JunÃ§Ã£o de Quantum ML com Federated Learning para fraude.
+
+[ARX-FF-06]
+TÃ­tulo: detectGNN: Harnessing Graph Neural Networks for Enhanced Fraud Detection
+URL: http://arxiv.org/pdf/2503.22681.pdf
+Ano: 2025
+Foco: GNN com padrÃµes temporais e atualizaÃ§Ã£o dinÃ¢mica.
+
+[ARX-PIX-01]
+TÃ­tulo: A Taxonomy of Pix Fraud in Brazil
+URL: https://arxiv.org/html/2511.20902v1
+Ano: 2025
+Foco: Taxonomia de golpes Pix e metodologias de ataque.
+
+================================================================================
+SEÃ‡ÃƒO 5 â€“ REVIEWS E SURVEYS ESTRATÃ‰GICOS
+================================================================================
+
+[REVIEW-01]
+TÃ­tulo: Financial Fraud: A Review of Anomaly Detection Techniques
+URL: https://www.sciencedirect.com/science/article/pii/S0957417421017164
+Ano: 2022
+Foco: RevisÃ£o de tÃ©cnicas de detecÃ§Ã£o de anomalia aplicadas a fraude financeira (762+ citaÃ§Ãµes).
+
+[REVIEW-02]
+TÃ­tulo: Financial Fraud Detection Based on Machine Learning: A Systematic Literature Review
+URL: https://www.mdpi.com/2076-3417/12/19/9637/pdf
+Ano: 2022
+Foco: SLR (Kitchenham) sobre ML em fraude; SVM e ANN dominantes.
+
+[REVIEW-03]
+TÃ­tulo: Machine Learning for Fraud Detection in Digital Banking: A Systematic Literature Review
+URL: https://arxiv.org/abs/2510.05167
+Ano: 2025
+Foco: 118 estudos, PRISMA, cobre supervised, unsupervised e deep.
+
+[REVIEW-04]
+TÃ­tulo: Financial Fraud Detection Based on Machine and Deep Learning: A Review
+URL: http://ijcs.net/ijcs/index.php/ijcs/article/view/4059
+Ano: 2024
+Foco: RevisÃ£o de ML e DL, incluindo integraÃ§Ã£o com blockchain e IoT.
+
+[REVIEW-05]
+TÃ­tulo: Boosting credit risk models
+URL: https://www.sciencedirect.com/science/article/abs/pii/S0890838923000884
+Ano: 2023
+Foco: B. Baesens â€“ 20 anos de pesquisa em risco de crÃ©dito, IFRS 9 e Basel.
+
+================================================================================
+SEÃ‡ÃƒO 6 â€“ PIX, UPI E PAGAMENTOS INSTANTÃ‚NEOS (WORLD BANK, ZETTA, BCB, ETC.)
+================================================================================
+
+[PIX-01]
+TÃ­tulo: FRAUD RISKS IN FAST PAYMENTS
+InstituiÃ§Ã£o: World Bank
+URL: https://fastpayments.worldbank.org/sites/default/files/2023-10/Fraud%20in%20Fast%20Payments_Final.pdf
+Ano: 2023
+Foco: Riscos de fraude em FPS (Pix, UPI, etc.). Inclui exemplos concretos de golpes Pix.
+
+[PIX-02]
+TÃ­tulo: Pix: The new gold standard for Fast Payment Systems
+InstituiÃ§Ã£o: Zetta
+URL: https://somoszetta.org.br/wp-content/uploads/2025/08/Zetta_Pix2025_V4-1.pdf
+Ano: 2025
+Foco: Arquitetura do Pix, DICT, SPI, taxas de fraude (<0.01% em 2023), comparaÃ§Ã£o com cartÃµes.
+
+[PIX-03]
+TÃ­tulo: Pagamentos InstantÃ¢neos, Pix e Unified Payments Interface (UPI)
+URL: https://pdf.blucher.com.br/engineeringproceedings/vi-enei/830.pdf
+Autor: T.S. Camacho et al.
+Foco: Estudo macroeconÃ´mico UPI (Ãndia) vs. Pix (Brasil).
+
+[PIX-04]
+TÃ­tulo: Instant payments and Brazilian Pix: lessons from the Indian UPI
+URL: https://www.braziliankeynesianreview.org/BKR/article/view/336
+Ano: 2024
+Foco: InovaÃ§Ã£o financeira, inclusÃ£o, uso de mobile banking.
+
+[PIX-05]
+TÃ­tulo: The rise of instant payments: a cross-country comparison
+URL: https://www.emerald.com/cemj/article/33/4/575/1248919/The-rise-of-instant-payments-a-cross-country
+Ano: 2025
+Foco: Casos de Brasil (Pix), Ãndia (UPI), EUA (RTP) e outros.
+
+================================================================================
+SEÃ‡ÃƒO 7 â€“ RISCO DE CRÃ‰DITO (IMF, BIS, WORLD BANK, JOURNAL OF CREDIT RISK)
+================================================================================
+
+[CRED-01]
+TÃ­tulo: Credit Risk Modeling for Financial Institutions
+URL: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5204526
+Ano: 2025
+Foco: Tratado completo de PD, LGD, EAD, modelos estruturais e de intensidade, normalizing flows.
+
+[CRED-02]
+TÃ­tulo: Recent Advances in Credit Risk Modeling
+InstituiÃ§Ã£o: IMF
+URL: https://www.imf.org/en/Publications/WP/Issues/2016/12/31/Recent-Advances-in-Credit-Risk-Modeling-23125
+Ano: 2016
+Foco: ExtensÃµes de modelos estruturais (Merton) e aplicaÃ§Ãµes.
+
+[CRED-03]
+TÃ­tulo: Credit Risk Modelling: Current Practices and Applications
+InstituiÃ§Ã£o: BIS
+URL: https://www.bis.org/publ/bcbs49.pdf
+Foco: PrÃ¡ticas atuais, Basel, modelos internos, model risk.
+
+[CRED-04]
+TÃ­tulo: CREDIT SCORING APPROACHES GUIDELINES
+InstituiÃ§Ã£o: World Bank
+URL: https://thedocs.worldbank.org/en/doc/935891585869698451-0130022020/original/CREDITSCORINGAPPROACHESGUIDELINESFINALWEB.pdf
+Foco: Diretrizes para scoring, explainability, governanÃ§a de modelos, polÃ­tica pÃºblica.
+
+[CRED-05]
+TÃ­tulo: Journal of Credit Risk â€“ Journal Homepage
+URL: https://www.ssrn.com/index.cfm/en/journal-of-credit-risk1/
+Foco: PeriÃ³dico dedicado a mediÃ§Ã£o e gestÃ£o do risco de crÃ©dito.
+
+================================================================================
+SEÃ‡ÃƒO 8 â€“ OUTROS PAPERS RELEVANTES (FRAUDE GERAL, SEGUROS, BLOCKCHAIN)
+================================================================================
+
+[GEN-01]
+TÃ­tulo: Financial Fraud Detection Based on Machine Learning: A Systematic Literature Review
+URL: https://www.mdpi.com/2076-3417/12/19/9637/pdf
+
+[GEN-02]
+TÃ­tulo: Deep Fraud Net: A Deep Learning Approach for Cyber Security and Financial Fraud Detection
+URL: https://jisis.org/wp-content/uploads/2023/12/2023.I4.010.pdf
+
+[GEN-03]
+TÃ­tulo: Enhancing fraud detection in auto insurance and credit card transactions
+URL: https://peerj.com/articles/cs-2088
+
+[GEN-04]
+TÃ­tulo: Machine Learning and Corporate Fraud Detection
+URL: https://escholarship.org/uc/item/49j5s99x
+
+[GEN-05]
+TÃ­tulo: Financial Stability Implications of Artificial Intelligence
+InstituiÃ§Ã£o: FSB
+URL: https://www.fsb.org/uploads/P14112024.pdf
+
+================================================================================
+NOTAS FINAIS
+================================================================================
+
+- Esta lista consolida ~70 artigos e documentos de alto impacto.
+- A partir dos hubs (surveys, reviews, relatÃ³rios de organismos globais), vocÃª chega facilmente a centenas de referÃªncias adicionais.
+- Foco em:
+  * DetecÃ§Ã£o de fraude em cartÃ£o, banco digital, blockchain, Bitcoin.
+  * Risco de crÃ©dito (PD, LGD, EAD, Basel, IFRS 9).
+  * Pix, UPI e pagamentos instantÃ¢neos.
+  * GovernanÃ§a de modelos, explainable AI e riscos de modelos "caixa-preta".
