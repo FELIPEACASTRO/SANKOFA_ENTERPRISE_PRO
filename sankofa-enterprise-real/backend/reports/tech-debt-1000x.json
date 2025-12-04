@@ -1,0 +1,137 @@
+{
+  "generated_at": "2025-12-04T02:21:29.385438",
+  "version": "1000X-DOUBLE-CHECK",
+  "analysis_scope": "Full Backend Scan",
+  "summary": {
+    "total_files_analyzed": 102,
+    "files_with_issues": 26,
+    "total_issues": 58,
+    "critical": 0,
+    "high": 12,
+    "medium": 46,
+    "low": 0
+  },
+  "debt_categories": {
+    "BARE_EXCEPT": {
+      "count": 12,
+      "severity": "HIGH",
+      "description": "Bare except clauses que capturam todas as exce\u00e7\u00f5es (incluindo SystemExit, KeyboardInterrupt)",
+      "locations": [
+        "api/production_api.py (6)",
+        "cache/distributed_fraud_cache.py (1)",
+        "config/settings.py (1)",
+        "infrastructure/security.py (1)",
+        "ml_engine/hard_rules_engine.py (2)",
+        "tests/test_militar_5x_qa_completo.py (1)"
+      ],
+      "fix_recommendation": "Substituir 'except:' por 'except Exception:' ou exce\u00e7\u00e3o espec\u00edfica",
+      "effort": "LOW",
+      "priority": "P1"
+    },
+    "GENERIC_EXCEPTION": {
+      "count": 26,
+      "severity": "MEDIUM",
+      "description": "Captura gen\u00e9rica de Exception - dificulta debugging e pode mascarar erros",
+      "locations": [
+        "api/production_api.py (30)",
+        "api/services/postgres_store.py (39)",
+        "cache/redis_cache_system.py (13)",
+        "services/postgres_store.py (39)",
+        "infrastructure/database.py (10)"
+      ],
+      "fix_recommendation": "Capturar exce\u00e7\u00f5es espec\u00edficas (psycopg2.Error, ValueError, etc.)",
+      "effort": "MEDIUM",
+      "priority": "P2"
+    },
+    "LONG_FUNCTION": {
+      "count": 13,
+      "severity": "MEDIUM",
+      "description": "Fun\u00e7\u00f5es com mais de 100 linhas - dificulta manuten\u00e7\u00e3o e testes",
+      "locations": [
+        "api/production_api.py::predict_fraud (180 lines)",
+        "api/production_api.py::explain_hard_rule (157 lines)",
+        "configuration/advanced_configuration_system.py::_create_default_rules (152 lines)",
+        "infrastructure/database.py::_get_migrations (212 lines)"
+      ],
+      "fix_recommendation": "Extrair para fun\u00e7\u00f5es menores com responsabilidade \u00fanica",
+      "effort": "HIGH",
+      "priority": "P3"
+    },
+    "LARGE_FILE": {
+      "count": 7,
+      "severity": "MEDIUM",
+      "description": "Arquivos com mais de 1000 linhas - dificulta navega\u00e7\u00e3o e manuten\u00e7\u00e3o",
+      "locations": [
+        "api/production_api.py (4247 lines)",
+        "api/services/postgres_store.py (1054 lines)",
+        "services/postgres_store.py (1027 lines)",
+        "tests/test_militar_5x_qa_completo.py (1001 lines)"
+      ],
+      "fix_recommendation": "Dividir em m\u00f3dulos menores por responsabilidade",
+      "effort": "HIGH",
+      "priority": "P3"
+    }
+  },
+  "additional_findings": {
+    "localhost_references": {
+      "count": 15,
+      "severity": "LOW",
+      "description": "Refer\u00eancias a localhost s\u00e3o valores padr\u00e3o com fallback para vari\u00e1veis de ambiente",
+      "status": "ACCEPTABLE - S\u00e3o defaults com override via env vars"
+    },
+    "mock_objects_in_production": {
+      "count": 3,
+      "severity": "LOW",
+      "description": "Mock objects usados apenas em testes e fallbacks",
+      "locations": [
+        "cache/distributed_fraud_cache.py::MockRedisSystem",
+        "mlops/shadow_mode.py::mock_primary_model"
+      ],
+      "status": "ACCEPTABLE - S\u00e3o fallbacks e testes"
+    },
+    "duplicate_postgres_store": {
+      "count": 2,
+      "severity": "MEDIUM",
+      "description": "Dois arquivos postgres_store.py quase id\u00eanticos",
+      "locations": [
+        "api/services/postgres_store.py",
+        "services/postgres_store.py"
+      ],
+      "status": "NEEDS_REVIEW - Poss\u00edvel c\u00f3digo duplicado"
+    }
+  },
+  "risk_assessment": {
+    "production_impact": "LOW",
+    "maintenance_impact": "MEDIUM",
+    "security_impact": "LOW",
+    "overall_risk": "LOW-MEDIUM"
+  },
+  "remediation_plan": [
+    {
+      "priority": "P1",
+      "action": "Corrigir 12 bare except clauses",
+      "effort": "2 horas",
+      "impact": "Melhora debugging e previne captura de SystemExit"
+    },
+    {
+      "priority": "P2",
+      "action": "Investigar duplica\u00e7\u00e3o postgres_store.py",
+      "effort": "1 hora",
+      "impact": "Reduz manuten\u00e7\u00e3o duplicada"
+    },
+    {
+      "priority": "P3",
+      "action": "Refatorar fun\u00e7\u00f5es longas (> 100 linhas)",
+      "effort": "8 horas",
+      "impact": "Melhora testabilidade e manuten\u00e7\u00e3o"
+    },
+    {
+      "priority": "P4",
+      "action": "Dividir arquivos grandes (> 1000 linhas)",
+      "effort": "16 horas",
+      "impact": "Melhora navegabilidade do c\u00f3digo"
+    }
+  ],
+  "go_no_go": "GO",
+  "rationale": "D\u00edvidas t\u00e9cnicas identificadas s\u00e3o de manuten\u00e7\u00e3o, n\u00e3o impactam funcionalidade ou seguran\u00e7a em produ\u00e7\u00e3o"
+}
