@@ -81,7 +81,7 @@ The frontend is built with React 18, Vite, `shadcn/ui` components, and TailwindC
     2. **Shadow Mode (v1.0.0)**: Gradual deployment with model comparison, traffic splitting, and divergence detection.
     3. **Fairness Analyzer (v1.0.0)**: Demographic parity, equalized odds, and disparate impact analysis for bias detection.
 - **API Endpoints**: 27 core + 8 advanced = **35 total functional API endpoints**
-- **Test Coverage**: 569 existing tests + 53 Ultimate Perfection Suite = **622 total tests**
+- **Test Coverage**: **681 total tests** (59 QA Guides Validation + 63 Militar 5X + 43 ML QA + 53 Ultimate Perfection + 463 existing suites) - **100% passing**
 - **Hard Rules Engine**: An advanced rules engine supports multiple conditions (AND/OR logic, up to 10+ conditions), 20 available fields across 7 categories, 16 operators, 6 action types (block, review, alert, approve, step_up, score_adjust), and 4 rule types. It provides a unified response format identical to ML model output, with 216 active rules derived from real-world fraud scenarios and academic research.
 - **Research-Based ML Modules**: Four original modules based on academic research:
     1.  **Bahnsen Feature Engineering (v2.0.0)**: Generates 62+ features per transaction (temporal aggregations, Von Mises features, behavioral deviation, velocity, channel risk).
