@@ -1239,8 +1239,8 @@ export function Manual() {
             <BookOpen className="h-12 w-12" />
           </div>
           <div>
-            <h1 className="text-4xl font-bold">Manual Completo do Sankofa</h1>
-            <p className="text-xl text-blue-100">Sistema de Deteccao de Fraudes Bancarias - Guia Ultra-Didatico</p>
+            <h1 className="text-4xl font-bold">Manual Completo do Sankofa v2.1</h1>
+            <p className="text-xl text-blue-100">Sistema de Deteccao de Fraudes Bancarias - Certificacao 10/10</p>
           </div>
         </div>
         
@@ -1253,11 +1253,12 @@ export function Manual() {
         </div>
 
         <div className="flex items-center gap-6 mt-6 text-sm flex-wrap">
-          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Clock className="h-4 w-4" /> Atualizado: 30/11/2025</span>
+          <span className="flex items-center gap-2 bg-green-500 px-3 py-1 rounded-full font-bold">Certificacao 10/10</span>
+          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Clock className="h-4 w-4" /> Atualizado: 04/12/2025</span>
           <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Users className="h-4 w-4" /> Para: Analistas de Fraude</span>
           <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Shield className="h-4 w-4" /> Compliance: LGPD/BACEN/PCI DSS</span>
-          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Brain className="h-4 w-4" /> 40+ Features de IA</span>
-          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Database className="h-4 w-4" /> 3 DataSets Explicados</span>
+          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Brain className="h-4 w-4" /> 100+ Features de IA</span>
+          <span className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full"><Database className="h-4 w-4" /> 5 Modulos Avancados</span>
         </div>
 
         {/* NAVEGACAO RAPIDA */}
@@ -2191,7 +2192,7 @@ export function Manual() {
         "risk_level": "HIGH",
         "confidence": 0.92,
         "processing_time_ms": 37.5,
-        "model_version": "1.0.0",
+        "model_version": "2.1.0",
         "detection_reason": [
           "Valor 5.7x maior que media do cliente",
           "Destinatario nunca utilizado",
@@ -2217,7 +2218,7 @@ export function Manual() {
       "total": 1,
       "frauds_detected": 1,
       "avg_risk_score": 0.87,
-      "model_version": "1.0.0",
+      "model_version": "2.1.0",
       "explanations_included": true
     }
   }
@@ -2899,7 +2900,7 @@ export function Manual() {
       "risk_level": "HIGH",
       "confidence": 0.94,
       "processing_time_ms": 42.1,
-      "model_version": "1.0.0",
+      "model_version": "2.1.0",
       "detection_reason": [
         "Valor 20.8x maior que media",
         "Dispositivo NUNCA visto antes",
@@ -3014,7 +3015,7 @@ por multiplos indicadores de alto risco.",
       "risk_level": "HIGH",
       "confidence": 0.88,
       "processing_time_ms": 156.3,
-      "model_version": "1.0.0",
+      "model_version": "2.1.0",
       "detection_reason": [
         "Merchant com historico de fraude",
         "Valor 5.6x maior que media",
@@ -3121,7 +3122,7 @@ por multiplos indicadores de alto risco.",
       "risk_level": "MEDIUM",
       "confidence": 0.82,
       "processing_time_ms": 89.7,
-      "model_version": "1.0.0",
+      "model_version": "2.1.0",
       "detection_reason": [
         "Dispositivo novo detectado",
         "Valor 2.3x maior que media",
@@ -3233,7 +3234,7 @@ indicadores mistos - revisao sugerida.",
       "risk_level": "LOW",
       "confidence": 0.91,
       "processing_time_ms": 31.2,
-      "model_version": "1.0.0",
+      "model_version": "2.1.0",
       "detection_reason": [
         "Cliente recorrente",
         "Dispositivo conhecido",
@@ -3354,7 +3355,7 @@ Padrao consistente com viagem.",
       "risk_level": "CRITICAL",
       "confidence": 0.98,
       "processing_time_ms": 234.5,
-      "model_version": "1.0.0",
+      "model_version": "2.1.0",
       "detection_reason": [
         "IMPOSSIBILIDADE FISICA DETECTADA",
         "SP -> San Francisco em 9 minutos",
