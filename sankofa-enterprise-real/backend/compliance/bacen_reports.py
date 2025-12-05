@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 class ReportType(Enum):
     """Tipos de relatórios BACEN"""
+
     FRAUDES_PIX = "fraudes_pix"
     FRAUDES_TED = "fraudes_ted"
     FRAUDES_CARTAO = "fraudes_cartao"
@@ -30,6 +31,7 @@ class ReportType(Enum):
 
 class ReportStatus(Enum):
     """Status do relatório"""
+
     DRAFT = "draft"
     GENERATED = "generated"
     VALIDATED = "validated"
@@ -41,6 +43,7 @@ class ReportStatus(Enum):
 @dataclass
 class FraudIncident:
     """Incidente de fraude para relatório"""
+
     incident_id: str
     transaction_id: str
     incident_date: datetime
@@ -58,6 +61,7 @@ class FraudIncident:
 @dataclass
 class BACENReport:
     """Relatório BACEN"""
+
     report_id: str
     report_type: ReportType
     period_start: date
@@ -69,7 +73,7 @@ class BACENReport:
     incidents: List[FraudIncident] = field(default_factory=list)
     summary: Dict[str, Any] = field(default_factory=dict)
     checksum: str = ""
-    
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "report_id": self.report_id,
@@ -81,101 +85,105 @@ class BACENReport:
             "submitted_at": self.submitted_at.isoformat() if self.submitted_at else None,
             "data": self.data,
             "summary": self.summary,
-            "checksum": self.checksum
+            "checksum": self.checksum,
         }
 
 
 class BACENReportGenerator:
     """
     Gerador de relatórios BACEN
-    
+
     Implementa os requisitos de:
     - Resolução BCB nº 6/2023
     - Circular BCB nº 4.001/2020
     - Normativa BCB nº 491/2024 (PIX)
     """
-    
+
     def __init__(
         self,
         institution_code: str = "00000000",
         institution_name: str = "Sankofa Bank",
-        output_dir: str = "./reports/bacen"
+        output_dir: str = "./reports/bacen",
     ):
         self.institution_code = institution_code
         self.institution_name = institution_name
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         self.generated_reports: List[BACENReport] = []
-        
+
         logger.info(f"BACEN Report Generator initialized for {institution_name}")
-    
+
     def _generate_report_id(self, report_type: ReportType, period: date) -> str:
         """Gera ID único para relatório"""
         base = f"{self.institution_code}_{report_type.value}_{period.strftime('%Y%m')}"
         hash_suffix = hashlib.md5(f"{base}_{datetime.now().timestamp()}".encode()).hexdigest()[:8]
         return f"BACEN_{base}_{hash_suffix}".upper()
-    
+
     def _calculate_checksum(self, data: Dict) -> str:
         """Calcula checksum do relatório"""
         json_str = json.dumps(data, sort_keys=True, default=str)
         return hashlib.sha256(json_str.encode()).hexdigest()
-    
+
     def generate_fraud_report(
         self,
         transactions: List[Dict],
         period_start: date,
         period_end: date,
-        report_type: ReportType = ReportType.FRAUDES_PIX
+        report_type: ReportType = ReportType.FRAUDES_PIX,
     ) -> BACENReport:
         """
         Gera relatório de fraudes
-        
+
         Args:
             transactions: Lista de transações fraudulentas
             period_start: Início do período
             period_end: Fim do período
             report_type: Tipo de relatório
-            
+
         Returns:
             Relatório BACEN gerado
         """
         report_id = self._generate_report_id(report_type, period_start)
-        
+
         incidents = []
         total_amount = 0.0
         total_recovered = 0.0
-        
+
         for txn in transactions:
-            if txn.get('is_fraud', False):
+            if txn.get("is_fraud", False):
                 incident = FraudIncident(
                     incident_id=f"INC_{txn.get('transaction_id', '')}",
-                    transaction_id=str(txn.get('transaction_id', '')),
-                    incident_date=txn.get('timestamp', datetime.now()),
-                    detection_date=txn.get('detection_date', datetime.now()),
-                    amount=float(txn.get('amount', 0)),
+                    transaction_id=str(txn.get("transaction_id", "")),
+                    incident_date=txn.get("timestamp", datetime.now()),
+                    detection_date=txn.get("detection_date", datetime.now()),
+                    amount=float(txn.get("amount", 0)),
                     fraud_type=self._classify_fraud_type(txn),
-                    channel=txn.get('canal', 'UNKNOWN'),
+                    channel=txn.get("canal", "UNKNOWN"),
                     victim_type=self._classify_victim_type(txn),
-                    status=txn.get('fraud_status', 'CONFIRMED'),
-                    recovery_amount=float(txn.get('recovered_amount', 0)),
-                    description=txn.get('fraud_description', '')
+                    status=txn.get("fraud_status", "CONFIRMED"),
+                    recovery_amount=float(txn.get("recovered_amount", 0)),
+                    description=txn.get("fraud_description", ""),
                 )
                 incidents.append(incident)
                 total_amount += incident.amount
                 total_recovered += incident.recovery_amount
-        
+
         fraud_by_channel = {}
         fraud_by_type = {}
         fraud_by_day = {}
-        
+
         for incident in incidents:
             fraud_by_channel[incident.channel] = fraud_by_channel.get(incident.channel, 0) + 1
             fraud_by_type[incident.fraud_type] = fraud_by_type.get(incident.fraud_type, 0) + 1
-            
-            day_key = incident.incident_date.strftime('%Y-%m-%d') if isinstance(incident.incident_date, datetime) else str(incident.incident_date)
+
+            day_key = (
+                incident.incident_date.strftime("%Y-%m-%d")
+                if isinstance(incident.incident_date, datetime)
+                else str(incident.incident_date)
+            )
             fraud_by_day[day_key] = fraud_by_day.get(day_key, 0) + 1
-        
+
         summary = {
             "total_incidents": len(incidents),
             "total_amount": total_amount,
@@ -186,7 +194,7 @@ class BACENReportGenerator:
             "by_day": fraud_by_day,
             "avg_amount": total_amount / len(incidents) if incidents else 0,
         }
-        
+
         report_data = {
             "institution": {
                 "code": self.institution_code,
@@ -199,9 +207,9 @@ class BACENReportGenerator:
             "incidents": [asdict(i) for i in incidents],
             "summary": summary,
             "generated_at": datetime.now().isoformat(),
-            "version": "1.0"
+            "version": "1.0",
         }
-        
+
         report = BACENReport(
             report_id=report_id,
             report_type=report_type,
@@ -210,54 +218,55 @@ class BACENReportGenerator:
             status=ReportStatus.GENERATED,
             data=report_data,
             incidents=incidents,
-            summary=summary
+            summary=summary,
         )
-        
+
         report.checksum = self._calculate_checksum(report_data)
-        
+
         self.generated_reports.append(report)
         logger.info(f"Generated BACEN report: {report_id} with {len(incidents)} incidents")
-        
+
         return report
-    
+
     def generate_suspicious_operations_report(
-        self,
-        transactions: List[Dict],
-        period_start: date,
-        period_end: date
+        self, transactions: List[Dict], period_start: date, period_end: date
     ) -> BACENReport:
         """
         Gera relatório de operações suspeitas (COAF/UIF)
-        
+
         Requisito: Circular BCB 3.978/2020
         """
         report_id = self._generate_report_id(ReportType.OPERACOES_SUSPEITAS, period_start)
-        
+
         suspicious_ops = []
-        
+
         for txn in transactions:
-            risk_score = float(txn.get('risk_score', 0) or txn.get('fraud_score', 0))
-            amount = float(txn.get('amount', 0))
-            
+            risk_score = float(txn.get("risk_score", 0) or txn.get("fraud_score", 0))
+            amount = float(txn.get("amount", 0))
+
             if risk_score >= 0.7 or amount >= 50000:
-                suspicious_ops.append({
-                    "transaction_id": txn.get('transaction_id', ''),
-                    "date": str(txn.get('timestamp', '')),
-                    "amount": amount,
-                    "risk_score": risk_score,
-                    "channel": txn.get('canal', ''),
-                    "indicators": self._identify_suspicious_indicators(txn),
-                    "recommendation": self._get_recommendation(risk_score, amount)
-                })
-        
+                suspicious_ops.append(
+                    {
+                        "transaction_id": txn.get("transaction_id", ""),
+                        "date": str(txn.get("timestamp", "")),
+                        "amount": amount,
+                        "risk_score": risk_score,
+                        "channel": txn.get("canal", ""),
+                        "indicators": self._identify_suspicious_indicators(txn),
+                        "recommendation": self._get_recommendation(risk_score, amount),
+                    }
+                )
+
         summary = {
             "total_suspicious": len(suspicious_ops),
-            "total_amount": sum(op['amount'] for op in suspicious_ops),
-            "high_risk_count": sum(1 for op in suspicious_ops if op['risk_score'] >= 0.9),
-            "structuring_suspected": sum(1 for op in suspicious_ops if 'STRUCTURING' in op['indicators']),
-            "smurfing_suspected": sum(1 for op in suspicious_ops if 'SMURFING' in op['indicators']),
+            "total_amount": sum(op["amount"] for op in suspicious_ops),
+            "high_risk_count": sum(1 for op in suspicious_ops if op["risk_score"] >= 0.9),
+            "structuring_suspected": sum(
+                1 for op in suspicious_ops if "STRUCTURING" in op["indicators"]
+            ),
+            "smurfing_suspected": sum(1 for op in suspicious_ops if "SMURFING" in op["indicators"]),
         }
-        
+
         report_data = {
             "institution": {
                 "code": self.institution_code,
@@ -270,9 +279,9 @@ class BACENReportGenerator:
             "suspicious_operations": suspicious_ops,
             "summary": summary,
             "compliance_officer_review_required": len(suspicious_ops) > 0,
-            "generated_at": datetime.now().isoformat()
+            "generated_at": datetime.now().isoformat(),
         }
-        
+
         report = BACENReport(
             report_id=report_id,
             report_type=ReportType.OPERACOES_SUSPEITAS,
@@ -280,27 +289,24 @@ class BACENReportGenerator:
             period_end=period_end,
             status=ReportStatus.GENERATED,
             data=report_data,
-            summary=summary
+            summary=summary,
         )
-        
+
         report.checksum = self._calculate_checksum(report_data)
         self.generated_reports.append(report)
-        
+
         return report
-    
+
     def generate_model_metrics_report(
-        self,
-        metrics: Dict[str, Any],
-        period_start: date,
-        period_end: date
+        self, metrics: Dict[str, Any], period_start: date, period_end: date
     ) -> BACENReport:
         """
         Gera relatório de métricas do modelo de ML
-        
+
         Requisito: Resolução BCB 6/2023 - Transparência algorítmica
         """
         report_id = self._generate_report_id(ReportType.METRICAS_MODELO, period_start)
-        
+
         report_data = {
             "institution": {
                 "code": self.institution_code,
@@ -311,47 +317,47 @@ class BACENReportGenerator:
                 "end": period_end.isoformat(),
             },
             "model_info": {
-                "name": metrics.get('model_name', 'Sankofa Fraud Engine'),
-                "version": metrics.get('model_version', '1.0.0'),
-                "type": metrics.get('model_type', 'Ensemble (RF+GB+LR)'),
-                "last_trained": metrics.get('last_trained', ''),
+                "name": metrics.get("model_name", "Sankofa Fraud Engine"),
+                "version": metrics.get("model_version", "1.0.0"),
+                "type": metrics.get("model_type", "Ensemble (RF+GB+LR)"),
+                "last_trained": metrics.get("last_trained", ""),
             },
             "performance_metrics": {
-                "accuracy": metrics.get('accuracy', 0),
-                "precision": metrics.get('precision', 0),
-                "recall": metrics.get('recall', 0),
-                "f1_score": metrics.get('f1_score', 0),
-                "roc_auc": metrics.get('roc_auc', 0),
-                "false_positive_rate": metrics.get('false_positive_rate', 0),
-                "false_negative_rate": metrics.get('false_negative_rate', 0),
+                "accuracy": metrics.get("accuracy", 0),
+                "precision": metrics.get("precision", 0),
+                "recall": metrics.get("recall", 0),
+                "f1_score": metrics.get("f1_score", 0),
+                "roc_auc": metrics.get("roc_auc", 0),
+                "false_positive_rate": metrics.get("false_positive_rate", 0),
+                "false_negative_rate": metrics.get("false_negative_rate", 0),
             },
             "operational_metrics": {
-                "total_predictions": metrics.get('total_predictions', 0),
-                "fraud_detected": metrics.get('fraud_detected', 0),
-                "fraud_blocked": metrics.get('fraud_blocked', 0),
-                "amount_protected": metrics.get('amount_protected', 0),
-                "avg_latency_ms": metrics.get('avg_latency_ms', 0),
-                "p95_latency_ms": metrics.get('p95_latency_ms', 0),
+                "total_predictions": metrics.get("total_predictions", 0),
+                "fraud_detected": metrics.get("fraud_detected", 0),
+                "fraud_blocked": metrics.get("fraud_blocked", 0),
+                "amount_protected": metrics.get("amount_protected", 0),
+                "avg_latency_ms": metrics.get("avg_latency_ms", 0),
+                "p95_latency_ms": metrics.get("p95_latency_ms", 0),
             },
             "fairness_metrics": {
-                "demographic_parity": metrics.get('demographic_parity', 1.0),
-                "equal_opportunity": metrics.get('equal_opportunity', 1.0),
-                "calibration_error": metrics.get('calibration_error', 0),
+                "demographic_parity": metrics.get("demographic_parity", 1.0),
+                "equal_opportunity": metrics.get("equal_opportunity", 1.0),
+                "calibration_error": metrics.get("calibration_error", 0),
             },
             "explainability": {
                 "lgpd_compliant": True,
                 "explanation_available": True,
-                "top_features": metrics.get('top_features', []),
+                "top_features": metrics.get("top_features", []),
             },
-            "generated_at": datetime.now().isoformat()
+            "generated_at": datetime.now().isoformat(),
         }
-        
+
         summary = {
-            "model_healthy": metrics.get('accuracy', 0) >= 0.9,
-            "sla_compliant": metrics.get('avg_latency_ms', 0) < 100,
-            "fairness_acceptable": metrics.get('demographic_parity', 1.0) >= 0.8,
+            "model_healthy": metrics.get("accuracy", 0) >= 0.9,
+            "sla_compliant": metrics.get("avg_latency_ms", 0) < 100,
+            "fairness_acceptable": metrics.get("demographic_parity", 1.0) >= 0.8,
         }
-        
+
         report = BACENReport(
             report_id=report_id,
             report_type=ReportType.METRICAS_MODELO,
@@ -359,20 +365,16 @@ class BACENReportGenerator:
             period_end=period_end,
             status=ReportStatus.GENERATED,
             data=report_data,
-            summary=summary
+            summary=summary,
         )
-        
+
         report.checksum = self._calculate_checksum(report_data)
         self.generated_reports.append(report)
-        
+
         return report
-    
+
     def generate_monthly_compliance_report(
-        self,
-        transactions: List[Dict],
-        metrics: Dict[str, Any],
-        year: int,
-        month: int
+        self, transactions: List[Dict], metrics: Dict[str, Any], year: int, month: int
     ) -> BACENReport:
         """
         Gera relatório mensal consolidado de compliance
@@ -382,13 +384,13 @@ class BACENReportGenerator:
             period_end = date(year + 1, 1, 1) - timedelta(days=1)
         else:
             period_end = date(year, month + 1, 1) - timedelta(days=1)
-        
+
         report_id = self._generate_report_id(ReportType.COMPLIANCE_MENSAL, period_start)
-        
+
         total_txn = len(transactions)
-        fraud_txn = [t for t in transactions if t.get('is_fraud', False)]
-        blocked_txn = [t for t in transactions if t.get('status') == 'BLOCKED']
-        
+        fraud_txn = [t for t in transactions if t.get("is_fraud", False)]
+        blocked_txn = [t for t in transactions if t.get("status") == "BLOCKED"]
+
         report_data = {
             "institution": {
                 "code": self.institution_code,
@@ -402,18 +404,18 @@ class BACENReportGenerator:
             },
             "transaction_summary": {
                 "total_transactions": total_txn,
-                "total_amount": sum(float(t.get('amount', 0)) for t in transactions),
+                "total_amount": sum(float(t.get("amount", 0)) for t in transactions),
                 "fraud_count": len(fraud_txn),
-                "fraud_amount": sum(float(t.get('amount', 0)) for t in fraud_txn),
+                "fraud_amount": sum(float(t.get("amount", 0)) for t in fraud_txn),
                 "blocked_count": len(blocked_txn),
-                "blocked_amount": sum(float(t.get('amount', 0)) for t in blocked_txn),
+                "blocked_amount": sum(float(t.get("amount", 0)) for t in blocked_txn),
                 "fraud_rate": len(fraud_txn) / total_txn * 100 if total_txn > 0 else 0,
             },
             "model_performance": {
-                "accuracy": metrics.get('accuracy', 0),
-                "precision": metrics.get('precision', 0),
-                "recall": metrics.get('recall', 0),
-                "f1_score": metrics.get('f1_score', 0),
+                "accuracy": metrics.get("accuracy", 0),
+                "precision": metrics.get("precision", 0),
+                "recall": metrics.get("recall", 0),
+                "f1_score": metrics.get("f1_score", 0),
             },
             "compliance_status": {
                 "lgpd_compliant": True,
@@ -431,15 +433,15 @@ class BACENReportGenerator:
                 "lgpd_training_completed": True,
                 "security_awareness_completed": True,
             },
-            "generated_at": datetime.now().isoformat()
+            "generated_at": datetime.now().isoformat(),
         }
-        
+
         summary = {
             "overall_compliance": "COMPLIANT",
             "risk_level": "LOW" if len(fraud_txn) / max(total_txn, 1) < 0.01 else "MEDIUM",
             "action_required": False,
         }
-        
+
         report = BACENReport(
             report_id=report_id,
             report_type=ReportType.COMPLIANCE_MENSAL,
@@ -447,66 +449,66 @@ class BACENReportGenerator:
             period_end=period_end,
             status=ReportStatus.GENERATED,
             data=report_data,
-            summary=summary
+            summary=summary,
         )
-        
+
         report.checksum = self._calculate_checksum(report_data)
         self.generated_reports.append(report)
-        
+
         return report
-    
+
     def _classify_fraud_type(self, txn: Dict) -> str:
         """Classifica tipo de fraude"""
-        amount = float(txn.get('amount', 0))
-        channel = txn.get('canal', '').upper()
-        
-        if channel == 'PIX':
+        amount = float(txn.get("amount", 0))
+        channel = txn.get("canal", "").upper()
+
+        if channel == "PIX":
             if amount > 10000:
                 return "PIX_HIGH_VALUE"
             return "PIX_STANDARD"
-        elif channel in ['CARTAO_CREDITO', 'CARTAO_DEBITO']:
-            if txn.get('is_new_device'):
+        elif channel in ["CARTAO_CREDITO", "CARTAO_DEBITO"]:
+            if txn.get("is_new_device"):
                 return "CARD_NEW_DEVICE"
             return "CARD_UNAUTHORIZED"
-        elif channel in ['TED', 'DOC']:
+        elif channel in ["TED", "DOC"]:
             return "TRANSFER_UNAUTHORIZED"
-        
+
         return "OTHER"
-    
+
     def _classify_victim_type(self, txn: Dict) -> str:
         """Classifica tipo de vítima"""
-        account_age = txn.get('account_age_days', 365)
-        
+        account_age = txn.get("account_age_days", 365)
+
         if account_age < 30:
             return "NEW_ACCOUNT"
         elif account_age > 3650:
             return "SENIOR_ACCOUNT"
-        
+
         return "STANDARD"
-    
+
     def _identify_suspicious_indicators(self, txn: Dict) -> List[str]:
         """Identifica indicadores de operação suspeita"""
         indicators = []
-        amount = float(txn.get('amount', 0))
-        
+        amount = float(txn.get("amount", 0))
+
         if 9000 <= amount <= 10000:
             indicators.append("STRUCTURING")
-        
-        velocity = txn.get('transactions_last_1h', 0)
+
+        velocity = txn.get("transactions_last_1h", 0)
         if velocity > 10:
             indicators.append("VELOCITY_BURST")
-        
-        if txn.get('is_new_receiver'):
+
+        if txn.get("is_new_receiver"):
             indicators.append("NEW_RECEIVER")
-        
-        if txn.get('is_night') and amount > 5000:
+
+        if txn.get("is_night") and amount > 5000:
             indicators.append("NIGHT_HIGH_VALUE")
-        
-        if txn.get('location_risk_score', 0) > 0.8:
+
+        if txn.get("location_risk_score", 0) > 0.8:
             indicators.append("HIGH_RISK_LOCATION")
-        
+
         return indicators
-    
+
     def _get_recommendation(self, risk_score: float, amount: float) -> str:
         """Gera recomendação baseada no risco"""
         if risk_score >= 0.95:
@@ -517,60 +519,57 @@ class BACENReportGenerator:
             return "ENHANCED_MONITORING"
         elif amount >= 50000:
             return "STANDARD_MONITORING"
-        
+
         return "NO_ACTION_REQUIRED"
-    
+
     def save_report(self, report: BACENReport, format: str = "json") -> str:
         """
         Salva relatório em arquivo
-        
+
         Args:
             report: Relatório a ser salvo
             format: Formato (json, xml)
-            
+
         Returns:
             Caminho do arquivo salvo
         """
         filename = f"{report.report_id}.{format}"
         filepath = self.output_dir / filename
-        
+
         if format == "json":
-            with open(filepath, 'w', encoding='utf-8') as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(report.to_dict(), f, indent=2, ensure_ascii=False, default=str)
-        
+
         logger.info(f"Report saved: {filepath}")
         return str(filepath)
-    
+
     def get_report(self, report_id: str) -> Optional[BACENReport]:
         """Recupera relatório por ID"""
         for report in self.generated_reports:
             if report.report_id == report_id:
                 return report
         return None
-    
+
     def list_reports(
-        self,
-        report_type: Optional[ReportType] = None,
-        status: Optional[ReportStatus] = None
+        self, report_type: Optional[ReportType] = None, status: Optional[ReportStatus] = None
     ) -> List[BACENReport]:
         """Lista relatórios com filtros"""
         reports = self.generated_reports
-        
+
         if report_type:
             reports = [r for r in reports if r.report_type == report_type]
-        
+
         if status:
             reports = [r for r in reports if r.status == status]
-        
+
         return reports
 
 
 def create_bacen_generator(
-    institution_code: str = None,
-    institution_name: str = None
+    institution_code: str = None, institution_name: str = None
 ) -> BACENReportGenerator:
     """Factory function para criar gerador de relatórios BACEN"""
     return BACENReportGenerator(
         institution_code=institution_code or os.getenv("BACEN_INSTITUTION_CODE", "00000000"),
-        institution_name=institution_name or os.getenv("INSTITUTION_NAME", "Sankofa Bank")
+        institution_name=institution_name or os.getenv("INSTITUTION_NAME", "Sankofa Bank"),
     )
