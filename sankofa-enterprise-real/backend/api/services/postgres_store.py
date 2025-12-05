@@ -7,7 +7,7 @@ import os
 import json
 import time
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Dict, List, Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
 

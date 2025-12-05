@@ -12,7 +12,7 @@ import time
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify, g, send_from_directory
+from flask import Flask, request, jsonify, g, send_from_directory, Response, make_response
 from flask_cors import CORS
 from typing import Dict, Any, List, Optional
 import json
@@ -36,16 +36,12 @@ from utils.error_handling import (
     DatabaseError,
     MLModelError,
     handle_error,
-    with_error_handling,
-    ErrorCategory,
-    ErrorSeverity,
 )
-from ml_engine.production_fraud_engine import get_fraud_engine, FraudPrediction
+from ml_engine.production_fraud_engine import get_fraud_engine
 from ml_engine.explainability_engine import ExplainabilityEngine
-from ml_engine.ensemble_integration import get_integrated_ensemble
 
 try:
-    from ml_engine.advanced_modules_orchestrator import get_orchestrator, EnrichedPrediction
+    from ml_engine.advanced_modules_orchestrator import get_orchestrator
 
     ADVANCED_ORCHESTRATOR_AVAILABLE = True
 except ImportError as e:
@@ -57,7 +53,6 @@ from monitoring.observability import (
     alert_manager,
     health_checker,
     start_observability,
-    SLAConfig,
 )
 from infrastructure.async_processor import (
     async_task_queue,
@@ -70,9 +65,7 @@ config = get_config()
 logger = get_structured_logger("production_api", config.monitoring.log_level)
 
 try:
-    from security.rbac_system import get_rbac_system, Permission, initialize_rbac_with_users
-    from security.cpf_tokenization import get_tokenization_service
-    from compliance.bacen_reports import create_bacen_generator
+    import security.rbac_system  # noqa: F401
 
     ADVANCED_SECURITY_AVAILABLE = True
     logger.info("Advanced security modules loaded successfully")
@@ -1028,8 +1021,6 @@ def serve_frontend():
 @app.route("/docs/<path:filename>", methods=["GET"])
 def serve_docs(filename):
     """Serve documentation files (markdown and images) with proper content types"""
-    from flask import Response
-
     docs_path = DOCS_FOLDER / filename
 
     if not docs_path.exists() or not docs_path.is_file():
@@ -1085,8 +1076,6 @@ def serve_docs(filename):
 @app.route("/<path:path>", methods=["GET"])
 def serve_static(path):
     """Serve static files from React build with cache control"""
-    from flask import Response, make_response
-
     if path.startswith("api/"):
         return (
             jsonify(
