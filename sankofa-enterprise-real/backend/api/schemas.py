@@ -188,13 +188,14 @@ class HardRuleCreate(BaseModel):
     @field_validator('action')
     @classmethod
     def normalize_action(cls, v):
-        """Normaliza action para uppercase e valida"""
+        """Valida action (aceita uppercase e lowercase)"""
         if not v:
             raise ValueError("Action is required")
-        v = v.upper()
+        v_upper = v.upper()
         allowed = ['BLOCK', 'REVIEW', 'STEP_UP', 'ALLOW', 'SCORE']
-        if v not in allowed:
+        if v_upper not in allowed:
             raise ValueError(f"Action must be one of: {', '.join(allowed)}")
+        # Retorna original (lowercase ou uppercase) para compatibilidade
         return v
 
     # Whitelist de campos permitidos em conditions SQL
@@ -278,7 +279,7 @@ class VipListCreate(BaseModel):
     identifier: Optional[Annotated[str, Field(pattern=r'^\d{11}$', description="CPF (11 dígitos)")]] = None
     cpf: Optional[Annotated[str, Field(pattern=r'^\d{11}$', description="CPF (11 dígitos) - alias")]] = None
     type: Annotated[str, Field(pattern=r'^(cpf|cnpj|email)$')] = "cpf"
-    reason: Annotated[str, Field(min_length=5, max_length=200, description="Motivo da inclusão")]
+    reason: Annotated[str, Field(min_length=3, max_length=200, description="Motivo da inclusão")]
 
     def model_post_init(self, __context):
         """Normalize identifier and cpf"""
@@ -306,7 +307,7 @@ class HotListCreate(BaseModel):
     identifier: Optional[Annotated[str, Field(pattern=r'^\d{11}$', description="CPF (11 dígitos)")]] = None
     cpf: Optional[Annotated[str, Field(pattern=r'^\d{11}$', description="CPF (11 dígitos) - alias")]] = None
     type: Annotated[str, Field(pattern=r'^(cpf|cnpj|email)$')] = "cpf"
-    reason: Annotated[str, Field(min_length=5, max_length=500, description="Motivo da inclusão")]
+    reason: Annotated[str, Field(min_length=3, max_length=500, description="Motivo da inclusão")]
     severity: Annotated[str, Field(pattern=r'^(LOW|MEDIUM|HIGH|CRITICAL)$')] = "HIGH"
 
     def model_post_init(self, __context):
@@ -322,8 +323,8 @@ class HotListCreate(BaseModel):
     @classmethod
     def validate_reason_length(cls, v):
         """Valida comprimento mínimo do motivo"""
-        if len(v.strip()) < 10:
-            raise ValueError('Reason must have at least 10 characters')
+        if len(v.strip()) < 3:
+            raise ValueError('Reason must have at least 3 characters')
         return v
 
 
