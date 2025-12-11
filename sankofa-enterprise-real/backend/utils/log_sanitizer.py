@@ -169,6 +169,20 @@ def mask_token(token: str) -> str:
     return f"{token_str[:4]}...{token_str[-4:]}"
 
 
+# Alias for JWT tokens
+def mask_jwt_token(token: str) -> str:
+    """Alias for mask_token to mask JWT tokens specifically"""
+    # JWT tokens have format: header.payload.signature
+    if '.' in token:
+        parts = token.split('.')
+        if len(parts) == 3:
+            # Mask header and signature, show partial payload
+            return f"***.{parts[1][:20] if len(parts[1]) > 20 else parts[1]}.***"
+
+    # Fallback to generic token masking
+    return mask_token(token)
+
+
 def hash_value(value: str) -> str:
     """
     Cria hash SHA-256 de um valor para logs

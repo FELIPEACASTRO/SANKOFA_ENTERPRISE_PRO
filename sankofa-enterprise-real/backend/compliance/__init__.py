@@ -1,1 +1,1 @@
-
+"""LGPD Compliance Module"""
