@@ -151,7 +151,7 @@ class MetricsDecorator:
                 self._metrics.record_histogram(
                     f"{metric_name}_duration_ms",
                     duration_ms,
-                    tags={'function': func.__name__', 'status': 'success'}
+                    tags={'function': func.__name__, 'status': 'success'}
                 )
 
                 return result
@@ -161,12 +161,12 @@ class MetricsDecorator:
                 duration_ms = (time.time() - start_time) * 1000
                 self._metrics.increment_counter(
                     f"{metric_name}_failure",
-                    tags={'function': func.__name__', 'error_type': type(e).__name__}
+                    tags={'function': func.__name__, 'error_type': type(e).__name__}
                 )
                 self._metrics.record_histogram(
                     f"{metric_name}_duration_ms",
                     duration_ms,
-                    tags={'function': func.__name__', 'status': 'error'}
+                    tags={'function': func.__name__, 'status': 'error'}
                 )
 
                 raise

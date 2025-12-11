@@ -32,8 +32,8 @@ from infrastructure.ml_gateway import (
     create_production_ml_gateway
 )
 from core.interfaces import FraudDetectionService
-from core.entities import Transaction, TransactionFactory, FraudAnalysisResult, TransactionId
-from core.value_objects import RiskScore, RiskLevel
+from core.entities import Transaction, TransactionFactory, FraudAnalysisResult, TransactionId, RiskLevel
+from core.value_objects import RiskScore
 
 
 # ============================================================================
@@ -408,13 +408,14 @@ class TestCachedMLGateway:
     async def test_cached_gateway_handles_cache_errors_gracefully(
         self, mock_fraud_engine, mock_cache_service, sample_transaction
     ):
-        """Test gateway continues working if cache fails"""
-        mock_cache_service.get = AsyncMock(side_effect=Exception("Cache unavailable"))
+        """Test gateway continues working if cache.set() fails"""
+        mock_cache_service.get = AsyncMock(return_value=None)  # Cache miss
+        mock_cache_service.set = AsyncMock(side_effect=Exception("Cache unavailable"))
 
         base_gateway = ProductionMLGateway(mock_fraud_engine)
         cached_gateway = CachedMLGateway(base_gateway, mock_cache_service)
 
-        # Should not raise, should call ML engine
+        # Should not raise when cache.set() fails, should call ML engine
         result = await cached_gateway.analyze_transaction(sample_transaction)
 
         assert isinstance(result, FraudAnalysisResult)

@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from datetime import datetime, timedelta
 
-from .entities import Transaction, RiskLevel
+from .entities import Transaction, RiskLevel, Money
 from .value_objects import CPF, Amount, RiskScore, TimeWindow
 
 
@@ -116,7 +116,7 @@ class RuleBasedScoring(FraudScoringStrategy):
         risk_factors = []
 
         # Rule 1: High value transactions - O(1)
-        if transaction.is_high_value(Amount(Decimal("5000"))):
+        if transaction.is_high_value(Money(Decimal("5000"))):
             score += 0.3
             risk_factors.append("high_value_transaction")
 
@@ -128,7 +128,7 @@ class RuleBasedScoring(FraudScoringStrategy):
 
         # Rule 3: New customer with high value - O(1)
         customer_txn_count = context.get('customer_transaction_count', 0)
-        if customer_txn_count < 5 and transaction.is_high_value(Amount(Decimal("1000"))):
+        if customer_txn_count < 5 and transaction.is_high_value(Money(Decimal("1000"))):
             score += 0.25
             risk_factors.append("new_customer_high_value")
 
