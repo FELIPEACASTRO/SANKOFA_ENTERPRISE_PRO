@@ -4,6 +4,7 @@
 **Data da Análise:** Dezembro 2025  
 **Metodologia:** Revisão arquivo por arquivo, código por código  
 **Imparcialidade:** Análise técnica sem viés, destacando pontos fortes E fracos
+**Escopo:** Avaliação da solução versionada e integrada ao GitHub (backend, frontend e docs) com foco em evidências reais presentes no repositório
 
 ---
 
