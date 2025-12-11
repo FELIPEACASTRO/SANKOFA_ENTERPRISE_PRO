@@ -27,7 +27,7 @@ ALLOWED_ORIGINS_STAGING: List[str] = [
 ALLOWED_ORIGINS_DEVELOPMENT: List[str] = [
     "http://localhost:3000",
     "http://localhost:5000",
-    "http://localhost:5173",  # Vite dev server
+    "http://localhost:5173",  # Common frontend dev servers (Vite, etc.)
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5000",
     "http://127.0.0.1:5173",

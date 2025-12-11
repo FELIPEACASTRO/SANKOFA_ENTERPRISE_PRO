@@ -189,8 +189,8 @@ const useApiStore = create((set, get) => ({
                 if (
                     error.name === 'AbortError' ||
                     error.message.includes('Session expired') ||
-                    response?.status === 400 ||
-                    response?.status === 403
+                    error.message.includes('Bad Request') ||
+                    error.message.includes('Forbidden')
                 ) {
                     break;
                 }
