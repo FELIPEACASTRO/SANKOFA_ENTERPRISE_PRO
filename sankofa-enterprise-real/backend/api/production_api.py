@@ -118,8 +118,8 @@ class PostgreSQLPersistence:
                 logger.warning("DATABASE_URL not set, persistence disabled (dev mode)")
                 return
 
-            pool_min = int(os.getenv("DB_POOL_MIN", "2"))
-            pool_max = int(os.getenv("DB_POOL_MAX", "20"))
+            pool_min = int(os.getenv("DB_POOL_MIN", "10"))
+            pool_max = int(os.getenv("DB_POOL_MAX", "100"))
 
             self._pool = pool.ThreadedConnectionPool(
                 minconn=pool_min, maxconn=pool_max, dsn=database_url

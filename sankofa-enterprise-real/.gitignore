@@ -19,6 +19,9 @@ secrets/
 *.pfx
 credentials.json
 service-account.json
+*.dev_secrets.json
+.dev_secrets.json
+backend/data/.dev_secrets.json
 
 # Python
 __pycache__/
