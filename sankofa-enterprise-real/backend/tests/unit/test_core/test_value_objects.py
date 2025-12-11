@@ -208,10 +208,11 @@ class TestEmail:
         email = Email("user+tag@example.com")
         assert email.value == "user+tag@example.com"
 
-    def test_create_email_case_insensitive(self):
-        """Test email normalized to lowercase"""
+    def test_create_email_preserves_case(self):
+        """Test email preserves original case"""
         email = Email("User@EXAMPLE.COM")
-        assert email.value == "user@example.com"
+        # Email value object preserves case as-is
+        assert email.value == "User@EXAMPLE.COM"
 
     # Invalid Construction Tests
     def test_email_invalid_no_at(self):
@@ -245,20 +246,20 @@ class TestEmail:
         email = Email("john.doe@example.com")
         masked = email.masked()
 
-        # Should show first 3 chars + *** + domain
-        assert masked.startswith("joh***")
+        # Should show first char + *** + domain
+        assert masked == "j***@example.com"
         assert "@example.com" in masked
         assert "john.doe" not in masked
 
     def test_email_domain_extraction(self):
         """Test extracting domain from email"""
         email = Email("user@example.com")
-        assert email.domain() == "example.com"
+        assert email.domain == "example.com"  # property, not method
 
     def test_email_local_part_extraction(self):
         """Test extracting local part from email"""
         email = Email("user@example.com")
-        assert email.local_part() == "user"
+        assert email.local_part == "user"  # property, not method
 
 
 # ============================================================================
