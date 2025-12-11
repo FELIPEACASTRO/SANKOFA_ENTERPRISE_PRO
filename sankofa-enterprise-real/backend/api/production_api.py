@@ -37,8 +37,23 @@ from utils.error_handling import (
     MLModelError,
     handle_error,
 )
+from utils.log_sanitizer import sanitize_log_data
 from ml_engine.production_fraud_engine import get_fraud_engine
 from ml_engine.explainability_engine import ExplainabilityEngine
+
+try:
+    from api.schemas import (
+        TransactionRequest,
+        FraudPredictionBatchRequest,
+        HardRuleCreate,
+        HardRuleUpdate,
+        VipListCreate,
+        HotListCreate
+    )
+    from pydantic import ValidationError as PydanticValidationError
+    PYDANTIC_AVAILABLE = True
+except ImportError:
+    PYDANTIC_AVAILABLE = False
 
 try:
     from ml_engine.advanced_modules_orchestrator import get_orchestrator
@@ -252,7 +267,7 @@ CORS(app)
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
-    default_limits=["1000 per minute", "50000 per hour"],
+    default_limits=["100 per minute", "1000 per hour"],
     storage_uri="memory://",
     strategy="fixed-window",
 )
@@ -311,13 +326,6 @@ def require_auth(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        if (
-            config.environment == "development"
-            and os.getenv("SKIP_AUTH", "false").lower() == "true"
-        ):
-            g.user = {"id": "dev_user", "role": "admin", "roles": ["admin"]}
-            return f(*args, **kwargs)
-
         auth_header = request.headers.get("Authorization", "")
         if not auth_header.startswith("Bearer "):
             return (
@@ -347,13 +355,6 @@ def require_permission(permission: str):
     def decorator(f):
         @wraps(f)
         def decorated(*args, **kwargs):
-            if (
-                config.environment == "development"
-                and os.getenv("SKIP_AUTH", "false").lower() == "true"
-            ):
-                g.user = {"id": "dev_user", "role": "admin", "roles": ["admin"]}
-                return f(*args, **kwargs)
-
             auth_header = request.headers.get("Authorization", "")
             if not auth_header.startswith("Bearer "):
                 return (
@@ -1283,7 +1284,7 @@ def is_account_locked(locked_until) -> bool:
 
 
 @app.route("/api/auth/login", methods=["POST"])
-@limiter.limit("100 per minute")
+@limiter.limit("5 per minute")
 def login():
     """Autenticação de usuário com bcrypt e PostgreSQL"""
     if not request.json:
@@ -1468,31 +1469,60 @@ def predict_fraud():
     - Com explicação rápida (fast_mode=True): < 50ms
     - Com explicação SHAP (fast_mode=False): ~2500ms (NÃO RECOMENDADO para tempo real)
     """
-    if not request.json:
-        raise ValidationError(
-            "Request body is required", context={"endpoint": "/api/fraud/predict"}
-        )
+    # Pydantic Validation
+    try:
+        if not request.json:
+            raise ValidationError(
+                "Request body is required", context={"endpoint": "/api/fraud/predict"}
+            )
 
-    transactions_data = request.json.get("transactions")
+        # Validar request com Pydantic
+        if PYDANTIC_AVAILABLE:
+            validated_request = FraudPredictionBatchRequest(**request.json)
+            transactions_data = validated_request.transactions
+            include_explanation = validated_request.include_explanation
+            include_compliance = validated_request.include_compliance_report
+            fast_mode = validated_request.fast_mode
+        else:
+            # Fallback para validação manual se Pydantic não disponível
+            transactions_data = request.json.get("transactions")
+            if not transactions_data:
+                raise ValidationError("transactions field is required", context={"body": request.json})
+            if not isinstance(transactions_data, list):
+                raise ValidationError(
+                    "transactions must be a list", context={"type": type(transactions_data).__name__}
+                )
+            include_explanation = request.json.get("include_explanation")
+            include_compliance = request.json.get("include_compliance_report", False)
+            fast_mode = request.json.get("fast_mode", True)
+
+    except PydanticValidationError as e:
+        logger.warning(
+            "Pydantic validation failed",
+            extra=sanitize_log_data({
+                'endpoint': '/api/fraud/predict',
+                'errors': e.errors()
+            })
+        )
+        return jsonify({
+            'success': False,
+            'error': 'Validation failed',
+            'details': e.errors()
+        }), 400
+
     channel = transactions_data[0].get("channel", "PIX") if transactions_data else "PIX"
     is_pix = channel.upper() == "PIX"
-    include_explanation = request.json.get("include_explanation", not is_pix)
-    include_compliance = request.json.get("include_compliance_report", False)
-    fast_mode = request.json.get("fast_mode", True)
+
+    # Ajustar defaults baseado no canal
+    if include_explanation is None:
+        include_explanation = not is_pix
 
     if is_pix:
         fast_mode = True
-        include_explanation = request.json.get("include_explanation", False)
+        if include_explanation is None:
+            include_explanation = False
 
     skip_db_write = is_pix and fast_mode
-
-    if not transactions_data:
-        raise ValidationError("transactions field is required", context={"body": request.json})
-
-    if not isinstance(transactions_data, list):
-        raise ValidationError(
-            "transactions must be a list", context={"type": type(transactions_data).__name__}
-        )
 
     try:
         df = pd.DataFrame(transactions_data)
@@ -1501,9 +1531,11 @@ def predict_fraud():
 
     logger.info(
         "Starting fraud predictions",
-        request_id=g.request_id,
-        num_transactions=len(df),
-        fast_mode=fast_mode,
+        extra=sanitize_log_data({
+            'request_id': g.request_id,
+            'num_transactions': len(df),
+            'fast_mode': fast_mode,
+        })
     )
 
     if not fraud_engine.is_trained:
@@ -1624,10 +1656,12 @@ def predict_fraud():
 
     logger.info(
         "Fraud predictions completed",
-        request_id=g.request_id,
-        num_predictions=len(results),
-        num_frauds=sum(1 for p in predictions if p.is_fraud),
-        explanations_generated=len(explanations),
+        extra=sanitize_log_data({
+            'request_id': g.request_id,
+            'num_predictions': len(results),
+            'num_frauds': sum(1 for p in predictions if p.is_fraud),
+            'explanations_generated': len(explanations),
+        })
     )
 
     return jsonify(
