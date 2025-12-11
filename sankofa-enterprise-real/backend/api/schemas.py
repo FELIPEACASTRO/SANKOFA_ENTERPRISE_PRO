@@ -2,10 +2,11 @@
 Pydantic Schemas para Validação de Input
 Implementa validação robusta para TODOS os endpoints da API
 Previne SQL Injection, XSS, e outros ataques de input
+Compatível com Pydantic v2.x
 """
 
-from pydantic import BaseModel, Field, validator, EmailStr, constr
-from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, Field, field_validator, EmailStr
+from typing import Optional, List, Dict, Any, Annotated, ClassVar
 from datetime import datetime
 from decimal import Decimal
 import re
@@ -24,23 +25,15 @@ class TransactionRequest(BaseModel):
         le=1000000,
         description="Valor da transação em BRL"
     )
-    cpf: constr(regex=r'^\d{11}$') = Field(
-        ...,
-        description="CPF do cliente (somente números, 11 dígitos)"
-    )
-    channel: constr(regex=r'^(PIX|TED|DOC|BOLETO|CARTAO_CREDITO|CARTAO_DEBITO|APP|WEB|ATM)$') = Field(
-        ...,
-        description="Canal da transação"
-    )
-    tipo_transacao: Optional[str] = Field(
-        None,
-        regex=r'^(PIX|TED|DOC|CARTAO_CREDITO|CARTAO_DEBITO|TRANSFERENCIA|PAGAMENTO)$'
-    )
-    location: Optional[str] = Field(None, max_length=200)
-    device_id: Optional[str] = Field(None, max_length=100)
-    ip_address: Optional[str] = Field(None, regex=r'^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$')
+    cpf: Annotated[str, Field(pattern=r'^\d{11}$', description="CPF do cliente (somente números, 11 dígitos)")]
+    channel: Annotated[str, Field(pattern=r'^(PIX|TED|DOC|BOLETO|CARTAO_CREDITO|CARTAO_DEBITO|APP|WEB|ATM)$', description="Canal da transação")]
+    tipo_transacao: Optional[Annotated[str, Field(pattern=r'^(PIX|TED|DOC|CARTAO_CREDITO|CARTAO_DEBITO|TRANSFERENCIA|PAGAMENTO)$')]] = None
+    location: Optional[Annotated[str, Field(max_length=200)]] = None
+    device_id: Optional[Annotated[str, Field(max_length=100)]] = None
+    ip_address: Optional[Annotated[str, Field(pattern=r'^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$')]] = None
 
-    @validator('amount')
+    @field_validator('amount')
+    @classmethod
     def validate_amount(cls, v):
         """Validação adicional de amount"""
         if v <= 0:
@@ -50,7 +43,8 @@ class TransactionRequest(BaseModel):
             pass
         return round(v, 2)
 
-    @validator('cpf')
+    @field_validator('cpf')
+    @classmethod
     def validate_cpf(cls, v):
         """Valida CPF com dígitos verificadores"""
         # Remove formatação
@@ -81,8 +75,8 @@ class TransactionRequest(BaseModel):
 
         return cpf
 
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "amount": 1500.50,
                 "cpf": "12345678901",
@@ -90,6 +84,7 @@ class TransactionRequest(BaseModel):
                 "location": "São Paulo, SP"
             }
         }
+    }
 
 
 class FraudPredictionBatchRequest(BaseModel):
@@ -97,8 +92,8 @@ class FraudPredictionBatchRequest(BaseModel):
 
     transactions: List[Dict[str, Any]] = Field(
         ...,
-        min_items=1,
-        max_items=1000,
+        min_length=1,
+        max_length=1000,
         description="Lista de transações para análise"
     )
     include_explanation: Optional[bool] = Field(
@@ -114,7 +109,8 @@ class FraudPredictionBatchRequest(BaseModel):
         description="Usar fallback rápido em vez de SHAP (< 50ms)"
     )
 
-    @validator('transactions')
+    @field_validator('transactions')
+    @classmethod
     def validate_transactions(cls, v):
         """Valida estrutura básica das transações"""
         if not v:
@@ -131,8 +127,8 @@ class FraudPredictionBatchRequest(BaseModel):
 
         return v
 
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "transactions": [
                     {
@@ -146,6 +142,7 @@ class FraudPredictionBatchRequest(BaseModel):
                 "fast_mode": True
             }
         }
+    }
 
 
 class TransactionFilterRequest(BaseModel):
@@ -155,16 +152,17 @@ class TransactionFilterRequest(BaseModel):
     offset: int = Field(0, ge=0, description="Offset para paginação")
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
-    channel: Optional[str] = Field(None, regex=r'^(PIX|TED|DOC|BOLETO|CARTAO_CREDITO|CARTAO_DEBITO|APP|WEB|ATM)$')
+    channel: Optional[Annotated[str, Field(pattern=r'^(PIX|TED|DOC|BOLETO|CARTAO_CREDITO|CARTAO_DEBITO|APP|WEB|ATM)$')]] = None
     is_fraud: Optional[bool] = None
     min_amount: Optional[float] = Field(None, ge=0)
     max_amount: Optional[float] = Field(None, le=10000000)
 
-    @validator('end_date')
-    def validate_date_range(cls, v, values):
+    @field_validator('end_date')
+    @classmethod
+    def validate_date_range(cls, v, info):
         """Valida que end_date > start_date"""
-        if v and 'start_date' in values and values['start_date']:
-            if v < values['start_date']:
+        if v and info.data.get('start_date'):
+            if v < info.data['start_date']:
                 raise ValueError('end_date must be after start_date')
         return v
 
@@ -176,13 +174,20 @@ class TransactionFilterRequest(BaseModel):
 class HardRuleCreate(BaseModel):
     """Schema para criação de hard rule"""
 
-    name: constr(min_length=3, max_length=100) = Field(..., description="Nome da regra")
+    name: Annotated[str, Field(min_length=3, max_length=100, description="Nome da regra")]
     condition: Optional[str] = Field(None, max_length=500, description="Condição SQL")
-    action: constr(regex=r'^(BLOCK|REVIEW|STEP_UP|ALLOW)$') = Field(..., description="Ação")
+    action: Annotated[str, Field(pattern=r'^(BLOCK|REVIEW|STEP_UP|ALLOW)$', description="Ação")]
     enabled: bool = Field(True, description="Regra ativa?")
     priority: Optional[int] = Field(None, ge=0, le=100)
 
-    @validator('condition')
+    # Whitelist de campos permitidos em conditions SQL
+    ALLOWED_FIELDS: ClassVar[set] = {
+        'amount', 'channel', 'location', 'device_id', 'customer_id',
+        'merchant_id', 'risk_score', 'timestamp', 'ip_address'
+    }
+
+    @field_validator('condition')
+    @classmethod
     def validate_condition(cls, v):
         """Valida que a condição não contém SQL perigoso"""
         if not v:
@@ -201,30 +206,33 @@ class HardRuleCreate(BaseModel):
 
         return v
 
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
-                "name": "Bloqueio Alto Valor",
-                "condition": "amount > 50000",
+                "name": "Block high amount PIX",
+                "condition": "amount > 50000 AND channel = 'PIX'",
                 "action": "BLOCK",
-                "enabled": True
+                "enabled": True,
+                "priority": 10
             }
         }
+    }
 
 
 class HardRuleUpdate(BaseModel):
-    """Schema para atualização de hard rule - apenas campos permitidos"""
+    """Schema para atualização de hard rule"""
 
-    # WHITELIST DE CAMPOS PERMITIDOS - Previne SQL injection
-    ALLOWED_FIELDS = {'name', 'condition', 'action', 'enabled', 'priority'}
-
-    name: Optional[constr(min_length=3, max_length=100)] = None
+    name: Optional[Annotated[str, Field(min_length=3, max_length=100)]] = None
     condition: Optional[str] = Field(None, max_length=500)
-    action: Optional[constr(regex=r'^(BLOCK|REVIEW|STEP_UP|ALLOW)$')] = None
+    action: Optional[Annotated[str, Field(pattern=r'^(BLOCK|REVIEW|STEP_UP|ALLOW)$')]] = None
     enabled: Optional[bool] = None
     priority: Optional[int] = Field(None, ge=0, le=100)
 
-    @validator('condition')
+    # Same whitelist as create
+    ALLOWED_FIELDS: ClassVar[set] = HardRuleCreate.ALLOWED_FIELDS
+
+    @field_validator('condition')
+    @classmethod
     def validate_condition(cls, v):
         """Valida que a condição não contém SQL perigoso"""
         if not v:
@@ -242,140 +250,128 @@ class HardRuleUpdate(BaseModel):
 
         return v
 
-    def get_safe_fields(self) -> Dict[str, Any]:
-        """Retorna apenas campos permitidos que foram definidos"""
-        data = self.dict(exclude_unset=True)
-        return {k: v for k, v in data.items() if k in self.ALLOWED_FIELDS}
-
 
 # ============================================================================
 # VIP/HOT LIST SCHEMAS
 # ============================================================================
 
 class VipListCreate(BaseModel):
-    """Schema para adicionar CPF à lista VIP"""
+    """Schema para adicionar à VIP list"""
 
-    identifier: constr(regex=r'^\d{11}$') = Field(..., description="CPF (11 dígitos)")
-    type: constr(regex=r'^(cpf|cnpj|email)$') = Field("cpf", description="Tipo de identificador")
-    reason: constr(min_length=5, max_length=200) = Field(..., description="Motivo da inclusão")
+    identifier: Annotated[str, Field(pattern=r'^\d{11}$', description="CPF (11 dígitos)")]
+    type: Annotated[str, Field(pattern=r'^(cpf|cnpj|email)$')] = "cpf"
+    reason: Annotated[str, Field(min_length=5, max_length=200, description="Motivo da inclusão")]
 
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "identifier": "12345678901",
                 "type": "cpf",
-                "reason": "Cliente premium com histórico limpo"
+                "reason": "Cliente premium verificado"
             }
         }
+    }
 
 
 class HotListCreate(BaseModel):
-    """Schema para adicionar CPF à lista negra"""
+    """Schema para adicionar à Hot list"""
 
-    identifier: constr(regex=r'^\d{11}$') = Field(..., description="CPF (11 dígitos)")
-    type: constr(regex=r'^(cpf|cnpj|email)$') = Field("cpf", description="Tipo de identificador")
-    reason: constr(min_length=10, max_length=500) = Field(..., description="Motivo da inclusão")
-    severity: constr(regex=r'^(LOW|MEDIUM|HIGH|CRITICAL)$') = Field("HIGH", description="Severidade")
+    identifier: Annotated[str, Field(pattern=r'^\d{11}$', description="CPF (11 dígitos)")]
+    type: Annotated[str, Field(pattern=r'^(cpf|cnpj|email)$')] = "cpf"
+    reason: Annotated[str, Field(min_length=10, max_length=500, description="Motivo da inclusão")]
+    severity: Annotated[str, Field(pattern=r'^(LOW|MEDIUM|HIGH|CRITICAL)$')] = "HIGH"
 
-    @validator('reason')
-    def validate_reason(cls, v):
-        """Motivo deve ser detalhado para hot list"""
-        if len(v) < 10:
-            raise ValueError('Motivo deve ter pelo menos 10 caracteres para hot list')
+    @field_validator('reason')
+    @classmethod
+    def validate_reason_length(cls, v):
+        """Valida comprimento mínimo do motivo"""
+        if len(v.strip()) < 10:
+            raise ValueError('Reason must have at least 10 characters')
         return v
 
 
 # ============================================================================
-# USER & AUTH SCHEMAS
+# USER SCHEMAS
 # ============================================================================
 
 class UserLogin(BaseModel):
-    """Schema para login"""
+    """Schema para login de usuário"""
 
-    username: constr(min_length=3, max_length=50, regex=r'^[a-zA-Z0-9_-]+$') = Field(
-        ...,
-        description="Username (apenas letras, números, _ e -)"
-    )
-    password: constr(min_length=8, max_length=100) = Field(..., description="Password")
+    username: Annotated[str, Field(min_length=3, max_length=50, pattern=r'^[a-zA-Z0-9_-]+$', description="Username")]
+    password: Annotated[str, Field(min_length=8, max_length=100, description="Password")]
 
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "username": "analyst_user",
-                "password": "SecureP@ssw0rd"
+                "password": "SecurePass123!"
             }
         }
+    }
 
 
 class UserCreate(BaseModel):
     """Schema para criação de usuário"""
 
-    username: constr(min_length=3, max_length=50, regex=r'^[a-zA-Z0-9_-]+$')
+    username: Annotated[str, Field(min_length=3, max_length=50, pattern=r'^[a-zA-Z0-9_-]+$')]
     email: EmailStr
-    password: constr(min_length=8, max_length=100)
-    role: constr(regex=r'^(admin|analyst|operator|viewer|system)$')
+    password: Annotated[str, Field(min_length=8, max_length=100)]
+    role: Annotated[str, Field(pattern=r'^(admin|analyst|operator|viewer|system)$')]
 
-    @validator('password')
+    @field_validator('password')
+    @classmethod
     def validate_password_strength(cls, v):
         """Valida força da senha"""
         if len(v) < 8:
-            raise ValueError('Senha deve ter no mínimo 8 caracteres')
-
-        if not re.search(r'[A-Z]', v):
-            raise ValueError('Senha deve conter pelo menos uma letra maiúscula')
-
-        if not re.search(r'[a-z]', v):
-            raise ValueError('Senha deve conter pelo menos uma letra minúscula')
-
-        if not re.search(r'\d', v):
-            raise ValueError('Senha deve conter pelo menos um número')
-
-        if not re.search(r'[!@#$%^&*()_+\-=\[\]{};:\'",.<>?/\\|`~]', v):
-            raise ValueError('Senha deve conter pelo menos um caractere especial')
-
+            raise ValueError('Password must be at least 8 characters')
+        if not any(c.isupper() for c in v):
+            raise ValueError('Password must contain at least one uppercase letter')
+        if not any(c.islower() for c in v):
+            raise ValueError('Password must contain at least one lowercase letter')
+        if not any(c.isdigit() for c in v):
+            raise ValueError('Password must contain at least one digit')
         return v
 
 
 # ============================================================================
-# INVESTIGATION SCHEMAS
+# ALERT SCHEMAS
 # ============================================================================
 
-class InvestigationCreate(BaseModel):
-    """Schema para criar investigação"""
+class AlertCreate(BaseModel):
+    """Schema para criação de alerta"""
 
-    transaction_id: constr(min_length=5, max_length=100)
-    priority: constr(regex=r'^(LOW|MEDIUM|HIGH|CRITICAL)$') = Field("MEDIUM")
+    transaction_id: Annotated[str, Field(min_length=5, max_length=100)]
+    priority: Annotated[str, Field(pattern=r'^(LOW|MEDIUM|HIGH|CRITICAL)$')] = "MEDIUM"
     assigned_to: Optional[str] = Field(None, max_length=100)
-    notes: Optional[str] = Field(None, max_length=2000)
+    notes: Optional[str] = Field(None, max_length=1000)
 
 
-class InvestigationUpdate(BaseModel):
-    """Schema para atualizar investigação"""
+class AlertUpdate(BaseModel):
+    """Schema para atualização de alerta"""
 
-    status: Optional[constr(regex=r'^(OPEN|IN_PROGRESS|RESOLVED|CLOSED)$')] = None
+    status: Optional[Annotated[str, Field(pattern=r'^(OPEN|IN_PROGRESS|RESOLVED|CLOSED)$')]] = None
     assigned_to: Optional[str] = Field(None, max_length=100)
-    notes: Optional[str] = Field(None, max_length=2000)
-    resolution: Optional[str] = Field(None, max_length=1000)
+    resolution_notes: Optional[str] = Field(None, max_length=1000)
 
 
 # ============================================================================
 # MANUAL REVIEW SCHEMAS
 # ============================================================================
 
-class ManualReviewDecision(BaseModel):
-    """Schema para decisão de revisão manual"""
+class ManualReviewCreate(BaseModel):
+    """Schema para criação de revisão manual"""
 
-    transaction_id: constr(min_length=5, max_length=100)
-    decision: constr(regex=r'^(APPROVE|REJECT|ESCALATE)$')
-    reviewer_notes: constr(min_length=10, max_length=1000)
-    reviewed_by: constr(min_length=3, max_length=100)
+    transaction_id: Annotated[str, Field(min_length=5, max_length=100)]
+    decision: Annotated[str, Field(pattern=r'^(APPROVE|REJECT|ESCALATE)$')]
+    reviewer_notes: Annotated[str, Field(min_length=10, max_length=1000)]
+    reviewed_by: Annotated[str, Field(min_length=3, max_length=100)]
 
-    @validator('reviewer_notes')
-    def validate_notes(cls, v, values):
-        """Notas são obrigatórias e detalhadas para REJECT"""
-        if 'decision' in values and values['decision'] == 'REJECT':
-            if len(v) < 20:
-                raise ValueError('Notas devem ser detalhadas para rejeição (mín. 20 caracteres)')
+    @field_validator('reviewer_notes')
+    @classmethod
+    def validate_notes(cls, v):
+        """Valida que as notas não estão vazias"""
+        if not v.strip():
+            raise ValueError('Reviewer notes cannot be empty')
         return v
 
 
@@ -383,36 +379,35 @@ class ManualReviewDecision(BaseModel):
 # FEEDBACK SCHEMAS
 # ============================================================================
 
-class FeedbackSubmit(BaseModel):
-    """Schema para feedback de analista"""
+class FeedbackCreate(BaseModel):
+    """Schema para feedback de predição"""
 
-    transaction_id: constr(min_length=5, max_length=100)
+    transaction_id: Annotated[str, Field(min_length=5, max_length=100)]
     is_fraud_correct: bool = Field(..., description="Predição estava correta?")
     actual_fraud: bool = Field(..., description="Transação é fraude?")
-    feedback_notes: constr(min_length=10, max_length=1000)
-    analyst_id: constr(min_length=3, max_length=100)
+    feedback_notes: Annotated[str, Field(min_length=10, max_length=1000)]
+    analyst_id: Annotated[str, Field(min_length=3, max_length=100)]
     confidence: int = Field(..., ge=0, le=100, description="Confiança da decisão (0-100)")
 
 
 # ============================================================================
-# CALIBRATION SCHEMAS
+# MODEL CONFIGURATION SCHEMAS
 # ============================================================================
 
-class CalibrationUpdate(BaseModel):
-    """Schema para atualizar calibração de modelos"""
+class ModelConfigUpdate(BaseModel):
+    """Schema para atualização de configuração de modelo"""
 
-    model_name: constr(
-        regex=r'^(ruleBasedEngine|blacklistLookup|velocityChecks|geolocationValidation|randomForest|xgboost|neuralNetwork|gnn)$'
-    )
-    enabled: Optional[bool] = None
+    model_name: Annotated[str, Field(pattern=r'^(ruleBasedEngine|blacklistLookup|velocityChecks|geolocationValidation|randomForest|xgboost|neuralNetwork|gnn)$')]
     threshold: Optional[float] = Field(None, ge=0, le=1)
     weight: Optional[float] = Field(None, ge=0, le=1)
+    enabled: Optional[bool] = None
 
-    @validator('threshold', 'weight')
+    @field_validator('threshold', 'weight')
+    @classmethod
     def validate_probability(cls, v):
-        """Valida que valores são probabilidades válidas"""
+        """Valida que threshold/weight estão entre 0 e 1"""
         if v is not None and (v < 0 or v > 1):
-            raise ValueError('Valor deve estar entre 0 e 1')
+            raise ValueError('Value must be between 0 and 1')
         return v
 
 
@@ -420,105 +415,64 @@ class CalibrationUpdate(BaseModel):
 # DATASET SCHEMAS
 # ============================================================================
 
-class DatasetUpload(BaseModel):
-    """Schema para upload de dataset"""
+class DatasetCreate(BaseModel):
+    """Schema para criação de dataset"""
 
-    name: constr(min_length=3, max_length=100, regex=r'^[a-zA-Z0-9_-]+$')
-    description: constr(min_length=10, max_length=500)
-    source: constr(regex=r'^(PRODUCTION|MANUAL|EXTERNAL|SYNTHETIC)$')
+    name: Annotated[str, Field(min_length=3, max_length=100, pattern=r'^[a-zA-Z0-9_-]+$')]
+    description: Annotated[str, Field(min_length=10, max_length=500)]
+    source: Annotated[str, Field(pattern=r'^(PRODUCTION|MANUAL|EXTERNAL|SYNTHETIC)$')]
     size_mb: Optional[float] = Field(None, ge=0, le=1000)
 
 
 # ============================================================================
-# QUERY PARAMETER SCHEMAS
+# DSR (DATA SUBJECT RIGHTS) SCHEMAS - LGPD Compliance
 # ============================================================================
 
-class PaginationParams(BaseModel):
-    """Schema para parâmetros de paginação"""
+class DSRAccessRequest(BaseModel):
+    """Schema para solicitação de acesso a dados (LGPD Art. 18, I)"""
 
-    page: int = Field(1, ge=1, le=10000, description="Número da página")
-    per_page: int = Field(100, ge=1, le=1000, description="Itens por página")
+    cpf: Annotated[str, Field(pattern=r'^\d{11}$', description="CPF do titular dos dados")]
+    request_reason: Annotated[str, Field(min_length=20, max_length=500, description="Motivo da solicitação")]
+    requester_email: EmailStr = Field(..., description="Email para envio do relatório")
 
-    @property
-    def offset(self) -> int:
-        """Calcula offset para query"""
-        return (self.page - 1) * self.per_page
+    @field_validator('cpf')
+    @classmethod
+    def validate_cpf(cls, v):
+        """Valida CPF com dígitos verificadores"""
+        cpf = re.sub(r'\D', '', v)
+        if len(cpf) != 11:
+            raise ValueError('CPF deve ter 11 dígitos')
+        if cpf == cpf[0] * 11:
+            raise ValueError('CPF inválido')
+        return cpf
 
-    @property
-    def limit(self) -> int:
-        """Retorna limit para query"""
-        return self.per_page
 
+class DSRDeletionRequest(BaseModel):
+    """Schema para solicitação de exclusão de dados (Right to be forgotten)"""
 
-class DateRangeParams(BaseModel):
-    """Schema para parâmetros de range de datas"""
+    cpf: Annotated[str, Field(pattern=r'^\d{11}$', description="CPF do titular dos dados")]
+    deletion_reason: Annotated[str, Field(min_length=30, max_length=1000, description="Justificativa para exclusão")]
+    confirmed: bool = Field(..., description="Confirmação de que entende as consequências")
 
-    start_date: datetime
-    end_date: datetime
-
-    @validator('end_date')
-    def validate_range(cls, v, values):
-        """Valida range de datas"""
-        if 'start_date' in values:
-            if v < values['start_date']:
-                raise ValueError('end_date deve ser após start_date')
-
-            # Máximo de 1 ano de range
-            delta = v - values['start_date']
-            if delta.days > 365:
-                raise ValueError('Range máximo de 1 ano')
-
+    @field_validator('confirmed')
+    @classmethod
+    def validate_confirmation(cls, v):
+        """Valida que usuário confirmou"""
+        if not v:
+            raise ValueError('User must confirm deletion request')
         return v
 
 
 # ============================================================================
-# RESPONSE SCHEMAS
-# ============================================================================
-
-class FraudPredictionResponse(BaseModel):
-    """Schema para resposta de predição de fraude"""
-
-    transaction_id: str
-    is_fraud: bool
-    fraud_probability: float
-    risk_score: float
-    risk_level: str
-    confidence: float
-    processing_time_ms: float
-    model_version: str
-    detection_reason: List[str]
-    timestamp: str
-    lgpd_explanation: Optional[str] = None
-
-
-class SuccessResponse(BaseModel):
-    """Schema para resposta de sucesso genérica"""
-
-    success: bool = True
-    message: str
-    data: Optional[Dict[str, Any]] = None
-
-
-class ErrorResponse(BaseModel):
-    """Schema para resposta de erro"""
-
-    success: bool = False
-    error: str
-    code: Optional[str] = None
-    details: Optional[Dict[str, Any]] = None
-
-
-# ============================================================================
-# UTILITY FUNCTIONS
+# SQL INJECTION PREVENTION HELPER
 # ============================================================================
 
 def validate_sql_fields(fields: List[str], allowed_fields: set) -> List[str]:
     """
-    Valida que apenas campos permitidos estão sendo usados em queries SQL
-    Previne SQL injection através de field names maliciosos
+    Valida campos SQL contra whitelist
 
     Args:
-        fields: Lista de campos a validar
+        fields: Lista de campos fornecidos pelo usuário
         allowed_fields: Set de campos permitidos
 
     Returns:
@@ -527,40 +481,8 @@ def validate_sql_fields(fields: List[str], allowed_fields: set) -> List[str]:
     Raises:
         ValueError: Se algum campo não está na whitelist
     """
-    safe_fields = []
+    invalid_fields = set(fields) - allowed_fields
+    if invalid_fields:
+        raise ValueError(f"Invalid fields: {', '.join(invalid_fields)}. Allowed: {', '.join(sorted(allowed_fields))}")
 
-    for field in fields:
-        # Remove espaços
-        field = field.strip()
-
-        # Verifica se está na whitelist
-        if field not in allowed_fields:
-            raise ValueError(f'Campo não permitido: {field}')
-
-        # Verifica caracteres perigosos
-        if not re.match(r'^[a-zA-Z0-9_]+$', field):
-            raise ValueError(f'Campo contém caracteres inválidos: {field}')
-
-        safe_fields.append(field)
-
-    return safe_fields
-
-
-def sanitize_sql_value(value: Any) -> Any:
-    """
-    Sanitiza valores para uso em queries SQL
-
-    Args:
-        value: Valor a sanitizar
-
-    Returns:
-        Valor sanitizado
-    """
-    if isinstance(value, str):
-        # Remove caracteres perigosos
-        dangerous_chars = ["'", '"', ';', '--', '/*', '*/', 'xp_', 'sp_']
-        for char in dangerous_chars:
-            if char in value:
-                raise ValueError(f'Caractere perigoso detectado: {char}')
-
-    return value
+    return [f for f in fields if f in allowed_fields]

@@ -7,6 +7,7 @@ Compliance com OWASP Top 10
 import secrets
 import hashlib
 import time
+import re
 from functools import wraps
 from typing import Optional, Dict, Any, Callable
 from flask import request, g, jsonify, session, Response
