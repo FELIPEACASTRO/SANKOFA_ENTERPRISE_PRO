@@ -464,6 +464,81 @@ class DSRDeletionRequest(BaseModel):
 
 
 # ============================================================================
+# SETTINGS AND CONFIGURATION SCHEMAS
+# ============================================================================
+
+class SettingsUpdate(BaseModel):
+    """Schema para atualização de configurações do sistema"""
+
+    fraud_threshold: Optional[float] = Field(None, ge=0, le=1, description="Threshold de fraude")
+    auto_block_enabled: Optional[bool] = None
+    email_notifications: Optional[bool] = None
+    slack_notifications: Optional[bool] = None
+
+
+class RefreshTokenRequest(BaseModel):
+    """Schema para refresh de token JWT"""
+
+    refresh_token: Annotated[str, Field(min_length=32, description="Refresh token")]
+
+
+class InvestigationCreate(BaseModel):
+    """Schema para criação de investigação"""
+
+    transaction_id: Annotated[str, Field(min_length=5, max_length=100)]
+    investigation_type: Annotated[str, Field(pattern=r'^(FRAUD|COMPLIANCE|SECURITY|OTHER)$')]
+    description: Annotated[str, Field(min_length=20, max_length=2000)]
+    priority: Annotated[str, Field(pattern=r'^(LOW|MEDIUM|HIGH|CRITICAL)$')] = "MEDIUM"
+    assigned_to: Optional[str] = Field(None, max_length=100)
+
+
+class CalibrationUpdate(BaseModel):
+    """Schema para atualização de calibração do modelo"""
+
+    model_id: str
+    calibration_method: Annotated[str, Field(pattern=r'^(PLATT|ISOTONIC|BETA)$')]
+    parameters: Dict[str, float]
+
+    @field_validator('parameters')
+    @classmethod
+    def validate_parameters(cls, v):
+        """Valida que parâmetros são numéricos"""
+        for key, value in v.items():
+            if not isinstance(value, (int, float)):
+                raise ValueError(f'Parameter {key} must be numeric')
+        return v
+
+
+class BatchProcessRequest(BaseModel):
+    """Schema para processamento em lote"""
+
+    transaction_ids: List[str] = Field(..., min_length=1, max_length=1000)
+    process_type: Annotated[str, Field(pattern=r'^(REPROCESS|REVIEW|EXPORT)$')]
+    options: Optional[Dict[str, Any]] = None
+
+
+class ExportRequest(BaseModel):
+    """Schema para exportação de dados"""
+
+    export_format: Annotated[str, Field(pattern=r'^(CSV|JSON|EXCEL|PDF)$')]
+    start_date: datetime
+    end_date: datetime
+    filters: Optional[Dict[str, Any]] = None
+
+    @field_validator('end_date')
+    @classmethod
+    def validate_date_range(cls, v, info):
+        """Valida que end_date > start_date"""
+        if v and info.data.get('start_date'):
+            if v < info.data['start_date']:
+                raise ValueError('end_date must be after start_date')
+            # Máximo 1 ano de range
+            if (v - info.data['start_date']).days > 365:
+                raise ValueError('Date range cannot exceed 365 days')
+        return v
+
+
+# ============================================================================
 # SQL INJECTION PREVENTION HELPER
 # ============================================================================
 

@@ -85,7 +85,7 @@ try:
     ADVANCED_SECURITY_AVAILABLE = True
     logger.info("Advanced security modules loaded successfully")
 except ImportError as e:
-    logger.warning(f"Advanced security modules not available: {e}")
+    logger.warning("Advanced security modules not available:", extra=sanitize_log_data({'e': e}))
     ADVANCED_SECURITY_AVAILABLE = False
 
 
@@ -131,7 +131,7 @@ class PostgreSQLPersistence:
         except psycopg2.Error as e:
             if self._fail_closed:
                 raise DatabaseError(f"Failed to initialize database: {e}")
-            logger.error(f"Failed to initialize PostgreSQL pool: {e}")
+            logger.error("Failed to initialize PostgreSQL pool:", extra=sanitize_log_data({'e': e}))
             self._initialized = False
 
     @property
@@ -193,7 +193,7 @@ class PostgreSQLPersistence:
                     continue
                 return False
             except Exception as e:
-                logger.error(f"Failed to save transaction: {e}")
+                logger.error("Failed to save transaction:", extra=sanitize_log_data({'e': e}))
                 if conn:
                     try:
                         conn.rollback()
@@ -221,7 +221,7 @@ class PostgreSQLPersistence:
                 result = cur.fetchone()
                 return result[0] if result else 0
         except Exception as e:
-            logger.error(f"Failed to count transactions: {e}")
+            logger.error("Failed to count transactions:", extra=sanitize_log_data({'e': e}))
             return 0
         finally:
             if conn and self._pool:
@@ -460,7 +460,7 @@ class MetricsCollector:
                         self._archive_yesterday(saved_date, data)
 
         except Exception as e:
-            logger.warning(f"Could not load persisted metrics: {e}")
+            logger.warning("Could not load persisted metrics:", extra=sanitize_log_data({'e': e}))
 
     def _archive_yesterday(self, yesterday_date: str, data: Dict):
         """Arquiva dados do dia anterior no histórico"""
@@ -501,7 +501,7 @@ class MetricsCollector:
             with open(metrics_file, "w") as f:
                 json.dump(data, f)
         except Exception as e:
-            logger.warning(f"Could not persist metrics: {e}")
+            logger.warning("Could not persist metrics:", extra=sanitize_log_data({'e': e}))
 
     def record_transaction(
         self, transaction: Dict, is_fraud: bool, latency_ms: float, channel: str = "PIX"
@@ -804,7 +804,7 @@ class ConfigStore:
                     saved = json.load(f)
                     default_config.update(saved)
         except Exception as e:
-            logger.warning(f"Could not load config: {e}")
+            logger.warning("Could not load config:", extra=sanitize_log_data({'e': e}))
 
         return default_config
 
@@ -814,7 +814,7 @@ class ConfigStore:
             with open(self._config_file, "w") as f:
                 json.dump(self._config, f, indent=2, default=str)
         except Exception as e:
-            logger.error(f"Could not save config: {e}")
+            logger.error("Could not save config:", extra=sanitize_log_data({'e': e}))
 
     def get(self, key: str, default: Any = None) -> Any:
         return self._config.get(key, default)
@@ -862,7 +862,7 @@ except ImportError as e:
         POSTGRES_STORE_AVAILABLE = True
         logger.info("PostgreSQL store loaded from services module")
     except ImportError as e2:
-        logger.warning(f"PostgreSQL store not available: {e2}. Using fallback.")
+        logger.warning("PostgreSQL store not available: . Using fallback.", extra=sanitize_log_data({'e2': e2}))
         postgres_store = None
         POSTGRES_STORE_AVAILABLE = False
 
@@ -1230,7 +1230,7 @@ def get_user_from_db(username: str, max_retries: int = 3) -> Optional[Dict[str, 
 
                 time.sleep(0.1 * (attempt + 1))
                 continue
-            logger.error(f"Database error fetching user after {max_retries} attempts: {e}")
+            logger.error("Database error fetching user after attempts:", extra=sanitize_log_data({'max_retries': max_retries, 'e': e}))
             return None
     return None
 
@@ -1262,7 +1262,7 @@ def update_login_attempt(user_id: int, username: str, success: bool):
         cursor.close()
         db_persistence._pool.putconn(conn)
     except Exception as e:
-        logger.error(f"Database error updating login attempt: {e}")
+        logger.error("Database error updating login attempt:", extra=sanitize_log_data({'e': e}))
 
 
 def verify_password(password: str, password_hash: str) -> bool:
@@ -1287,11 +1287,37 @@ def is_account_locked(locked_until) -> bool:
 @limiter.limit("5 per minute")
 def login():
     """Autenticação de usuário com bcrypt e PostgreSQL"""
-    if not request.json:
-        raise ValidationError("Request body is required")
+    # Pydantic Validation
+    try:
+        if not request.json:
+            raise ValidationError(
+                "Request body is required",
+                context={"endpoint": "/api/auth/login"}
+            )
 
-    username = request.json.get("username", "").strip().lower()
-    password = request.json.get("password", "")
+        # Validar request com Pydantic
+        if PYDANTIC_AVAILABLE:
+            validated_request = UserLogin(**request.json)
+            username = validated_request.username.strip().lower()
+            password = validated_request.password
+        else:
+            # Fallback para validação manual
+            username = request.json.get("username", "").strip().lower()
+            password = request.json.get("password", "")
+
+    except PydanticValidationError as e:
+        logger.warning(
+            "Pydantic validation failed on login",
+            extra=sanitize_log_data({
+                'endpoint': '/api/auth/login',
+                'errors': e.errors()
+            })
+        )
+        return jsonify({
+            'success': False,
+            'error': 'Validation failed',
+            'details': e.errors()
+        }), 400
 
     if not username or not password:
         return (
@@ -1572,7 +1598,7 @@ def predict_fraud():
                         )
                     explanations.append(explanation)
         except Exception as e:
-            logger.warning(f"Could not generate explanations: {e}")
+            logger.warning("Could not generate explanations:", extra=sanitize_log_data({'e': e}))
 
     for i, pred in enumerate(predictions):
         txn_id = f"TXN{int(time.time()*1000)}{i:03d}"
@@ -1608,7 +1634,7 @@ def predict_fraud():
                     priority=TaskPriority.LOW,
                 )
             except Exception as e:
-                logger.warning(f"Failed to submit DB write for PIX transaction: {e}")
+                logger.warning("Failed to submit DB write for PIX transaction:", extra=sanitize_log_data({'e': e}))
                 db_persistence.save_transaction(txn_data, pred_data)
         else:
             db_persistence.save_transaction(txn_data, pred_data)
@@ -1685,11 +1711,39 @@ def predict_fraud():
 @limiter.limit("100 per minute")
 def predict_fraud_batch():
     """Processa lote grande de transações com otimização (rate limited: 100/min)"""
-    if not request.json or "transactions" not in request.json:
-        raise ValidationError("transactions field is required")
+    # Pydantic Validation
+    try:
+        if not request.json:
+            raise ValidationError(
+                "Request body is required",
+                context={"endpoint": "/api/fraud/batch"}
+            )
 
-    transactions_data = request.json["transactions"]
-    batch_size = request.json.get("batch_size", config.ml.batch_size)
+        # Validar request com Pydantic
+        if PYDANTIC_AVAILABLE:
+            validated_request = FraudPredictionBatchRequest(**request.json)
+            transactions_data = validated_request.transactions
+            batch_size = request.json.get("batch_size", config.ml.batch_size)
+        else:
+            # Fallback para validação manual
+            if "transactions" not in request.json:
+                raise ValidationError("transactions field is required")
+            transactions_data = request.json["transactions"]
+            batch_size = request.json.get("batch_size", config.ml.batch_size)
+
+    except PydanticValidationError as e:
+        logger.warning(
+            "Pydantic validation failed on batch predict",
+            extra=sanitize_log_data({
+                'endpoint': '/api/fraud/batch',
+                'errors': e.errors()
+            })
+        )
+        return jsonify({
+            'success': False,
+            'error': 'Validation failed',
+            'details': e.errors()
+        }), 400
 
     df = pd.DataFrame(transactions_data)
 
@@ -1779,7 +1833,7 @@ def get_feature_importance():
             }
         )
     except Exception as e:
-        logger.error(f"Feature importance retrieval failed: {e}")
+        logger.error("Feature importance retrieval failed:", extra=sanitize_log_data({'e': e}))
         return jsonify({"success": False, "error": {"message": str(e)}}), 500
 
 
@@ -1845,7 +1899,7 @@ def explain_transaction():
         return jsonify({"success": True, "data": response_data})
 
     except Exception as e:
-        logger.error(f"Explanation generation failed: {e}")
+        logger.error("Explanation generation failed:", extra=sanitize_log_data({'e': e}))
         raise MLModelError(f"Explanation failed: {str(e)}")
 
 
@@ -1910,7 +1964,7 @@ def train_model():
         )
 
     except Exception as e:
-        logger.error(f"Model training failed: {e}")
+        logger.error("Model training failed:", extra=sanitize_log_data({'e': e}))
         raise MLModelError(f"Training failed: {str(e)}")
 
 
@@ -2246,11 +2300,37 @@ def flag_transaction(transaction_id):
 @app.route("/api/investigations", methods=["POST"])
 def create_investigation():
     """Cria nova investigação para uma transação"""
-    if not request.json:
-        raise ValidationError("Request body is required")
+    # Pydantic Validation
+    try:
+        if not request.json:
+            raise ValidationError(
+                "Request body is required",
+                context={"endpoint": "/api/investigations"}
+            )
 
-    transaction_id = request.json.get("transaction_id")
-    priority = request.json.get("priority", "medium")
+        # Validar request com Pydantic
+        if PYDANTIC_AVAILABLE:
+            validated_request = InvestigationCreate(**request.json)
+            transaction_id = validated_request.transaction_id
+            priority = validated_request.priority.lower()
+        else:
+            # Fallback para validação manual
+            transaction_id = request.json.get("transaction_id")
+            priority = request.json.get("priority", "medium")
+
+    except PydanticValidationError as e:
+        logger.warning(
+            "Pydantic validation failed on investigation create",
+            extra=sanitize_log_data({
+                'endpoint': '/api/investigations',
+                'errors': e.errors()
+            })
+        )
+        return jsonify({
+            'success': False,
+            'error': 'Validation failed',
+            'details': e.errors()
+        }), 400
 
     investigation = {
         "id": f"INV-{datetime.utcnow().strftime('%Y%m%d')}-{np.random.randint(1000, 9999)}",
@@ -2349,14 +2429,40 @@ def get_manual_review_queue():
 @app.route("/api/manual-review", methods=["POST"])
 def add_to_manual_review():
     """Adiciona transação à fila de revisão manual (requer autenticação)"""
-    if not request.json:
-        raise ValidationError("Request body is required")
+    # Pydantic Validation
+    try:
+        if not request.json:
+            raise ValidationError(
+                "Request body is required",
+                context={"endpoint": "/api/manual-review"}
+            )
 
-    transaction_id = request.json.get("transaction_id")
-    reason = request.json.get("reason", "Manual review requested")
+        # Validar request com Pydantic
+        if PYDANTIC_AVAILABLE:
+            validated_request = ManualReviewCreate(**request.json)
+            transaction_id = validated_request.transaction_id
+            reason = validated_request.comments or "Manual review requested"
+        else:
+            # Fallback para validação manual
+            transaction_id = request.json.get("transaction_id")
+            reason = request.json.get("reason", "Manual review requested")
 
-    if not transaction_id:
-        raise ValidationError("transaction_id is required")
+            if not transaction_id:
+                raise ValidationError("transaction_id is required")
+
+    except PydanticValidationError as e:
+        logger.warning(
+            "Pydantic validation failed on manual review add",
+            extra=sanitize_log_data({
+                'endpoint': '/api/manual-review',
+                'errors': e.errors()
+            })
+        )
+        return jsonify({
+            'success': False,
+            'error': 'Validation failed',
+            'details': e.errors()
+        }), 400
 
     success = postgres_store.add_to_manual_review(transaction_id, reason)
     if success:
@@ -2444,19 +2550,53 @@ def get_hard_rules():
 @app.route("/api/hard-rules", methods=["POST"])
 def add_hard_rule():
     """Adiciona nova regra de negócio com suporte a condições múltiplas"""
-    if not request.json:
-        raise ValidationError("Request body is required")
+    # Pydantic Validation
+    try:
+        if not request.json:
+            raise ValidationError(
+                "Request body is required",
+                context={"endpoint": "/api/hard-rules"}
+            )
 
-    name = request.json.get("name")
-    condition = request.json.get("condition", "")
-    conditions_json = request.json.get("conditions_json", [])
-    logic_operator = request.json.get("logic_operator", "AND")
-    action = request.json.get("action", "block")
-    action_config = request.json.get("action_config", {})
-    rule_type = request.json.get("rule_type", "blocking")
-    priority = request.json.get("priority", 1)
-    description = request.json.get("description")
-    enabled = request.json.get("enabled", True)
+        # Validar request com Pydantic
+        if PYDANTIC_AVAILABLE:
+            validated_request = HardRuleCreate(**request.json)
+            name = validated_request.name
+            condition = validated_request.condition or ""
+            conditions_json = validated_request.conditions_json or []
+            logic_operator = validated_request.logic_operator
+            action = validated_request.action
+            action_config = validated_request.action_config or {}
+            rule_type = validated_request.rule_type
+            priority = validated_request.priority
+            description = validated_request.description
+            enabled = validated_request.enabled
+        else:
+            # Fallback para validação manual
+            name = request.json.get("name")
+            condition = request.json.get("condition", "")
+            conditions_json = request.json.get("conditions_json", [])
+            logic_operator = request.json.get("logic_operator", "AND")
+            action = request.json.get("action", "block")
+            action_config = request.json.get("action_config", {})
+            rule_type = request.json.get("rule_type", "blocking")
+            priority = request.json.get("priority", 1)
+            description = request.json.get("description")
+            enabled = request.json.get("enabled", True)
+
+    except PydanticValidationError as e:
+        logger.warning(
+            "Pydantic validation failed on hard rule create",
+            extra=sanitize_log_data({
+                'endpoint': '/api/hard-rules',
+                'errors': e.errors()
+            })
+        )
+        return jsonify({
+            'success': False,
+            'error': 'Validation failed',
+            'details': e.errors()
+        }), 400
 
     if not name:
         raise ValidationError("name is required")
@@ -2915,15 +3055,42 @@ def get_vip_list():
 @app.route("/api/vip-list", methods=["POST"])
 def add_to_vip_list():
     """Adiciona cliente à lista VIP (requer autenticação)"""
-    if not request.json:
-        raise ValidationError("Request body is required")
+    # Pydantic Validation
+    try:
+        if not request.json:
+            raise ValidationError(
+                "Request body is required",
+                context={"endpoint": "/api/vip-list"}
+            )
 
-    identifier = request.json.get("identifier")
-    identifier_type = request.json.get("type", "cpf")
-    reason = request.json.get("reason", "VIP Customer")
+        # Validar request com Pydantic
+        if PYDANTIC_AVAILABLE:
+            validated_request = VipListCreate(**request.json)
+            identifier = validated_request.cpf
+            identifier_type = "cpf"
+            reason = validated_request.reason
+        else:
+            # Fallback para validação manual
+            identifier = request.json.get("identifier")
+            identifier_type = request.json.get("type", "cpf")
+            reason = request.json.get("reason", "VIP Customer")
 
-    if not identifier:
-        raise ValidationError("identifier is required")
+            if not identifier:
+                raise ValidationError("identifier is required")
+
+    except PydanticValidationError as e:
+        logger.warning(
+            "Pydantic validation failed on VIP list add",
+            extra=sanitize_log_data({
+                'endpoint': '/api/vip-list',
+                'errors': e.errors()
+            })
+        )
+        return jsonify({
+            'success': False,
+            'error': 'Validation failed',
+            'details': e.errors()
+        }), 400
 
     result = postgres_store.add_vip(identifier, identifier_type, reason)
     if "created_at" in result and result["created_at"]:
@@ -2972,15 +3139,42 @@ def get_hot_list():
 @app.route("/api/hot-list", methods=["POST"])
 def add_to_hot_list():
     """Adiciona entidade à hotlist (requer autenticação)"""
-    if not request.json:
-        raise ValidationError("Request body is required")
+    # Pydantic Validation
+    try:
+        if not request.json:
+            raise ValidationError(
+                "Request body is required",
+                context={"endpoint": "/api/hot-list"}
+            )
 
-    identifier = request.json.get("identifier")
-    identifier_type = request.json.get("type", "cpf")
-    reason = request.json.get("reason", "Fraud confirmed")
+        # Validar request com Pydantic
+        if PYDANTIC_AVAILABLE:
+            validated_request = HotListCreate(**request.json)
+            identifier = validated_request.cpf
+            identifier_type = "cpf"
+            reason = validated_request.reason
+        else:
+            # Fallback para validação manual
+            identifier = request.json.get("identifier")
+            identifier_type = request.json.get("type", "cpf")
+            reason = request.json.get("reason", "Fraud confirmed")
 
-    if not identifier:
-        raise ValidationError("identifier is required")
+            if not identifier:
+                raise ValidationError("identifier is required")
+
+    except PydanticValidationError as e:
+        logger.warning(
+            "Pydantic validation failed on Hot list add",
+            extra=sanitize_log_data({
+                'endpoint': '/api/hot-list',
+                'errors': e.errors()
+            })
+        )
+        return jsonify({
+            'success': False,
+            'error': 'Validation failed',
+            'details': e.errors()
+        }), 400
 
     result = postgres_store.add_hot(identifier, identifier_type, reason)
     if "created_at" in result and result["created_at"]:
@@ -3022,11 +3216,38 @@ def get_settings():
 @app.route("/api/settings", methods=["PUT"])
 def update_settings():
     """Atualiza configurações do sistema (requer autenticação)"""
-    if not request.json:
-        raise ValidationError("Request body is required")
+    # Pydantic Validation
+    try:
+        if not request.json:
+            raise ValidationError(
+                "Request body is required",
+                context={"endpoint": "/api/settings"}
+            )
+
+        # Validar request com Pydantic
+        if PYDANTIC_AVAILABLE:
+            validated_request = SettingsUpdate(**request.json)
+            settings_data = validated_request.model_dump(exclude_unset=True)
+        else:
+            # Fallback para validação manual
+            settings_data = request.json
+
+    except PydanticValidationError as e:
+        logger.warning(
+            "Pydantic validation failed on settings update",
+            extra=sanitize_log_data({
+                'endpoint': '/api/settings',
+                'errors': e.errors()
+            })
+        )
+        return jsonify({
+            'success': False,
+            'error': 'Validation failed',
+            'details': e.errors()
+        }), 400
 
     current_settings = postgres_store.get_settings()
-    current_settings.update(request.json)
+    current_settings.update(settings_data)
     updated = postgres_store.update_settings(current_settings)
 
     if "fraud_threshold" in request.json:
@@ -3719,15 +3940,42 @@ def get_investigation(transaction_id: str):
 @app.route("/api/feedback", methods=["POST"])
 def submit_feedback():
     """Submete feedback sobre uma predição"""
-    if not request.json:
-        raise ValidationError("Request body is required")
+    # Pydantic Validation
+    try:
+        if not request.json:
+            raise ValidationError(
+                "Request body is required",
+                context={"endpoint": "/api/feedback"}
+            )
 
-    transaction_id = request.json.get("transaction_id")
-    is_fraud = request.json.get("is_fraud", False)
-    notes = request.json.get("notes", "")
+        # Validar request com Pydantic
+        if PYDANTIC_AVAILABLE:
+            validated_request = FeedbackCreate(**request.json)
+            transaction_id = validated_request.transaction_id
+            is_fraud = validated_request.correct_label == "fraud"
+            notes = validated_request.comments or ""
+        else:
+            # Fallback para validação manual
+            transaction_id = request.json.get("transaction_id")
+            is_fraud = request.json.get("is_fraud", False)
+            notes = request.json.get("notes", "")
 
-    if not transaction_id:
-        raise ValidationError("transaction_id is required")
+            if not transaction_id:
+                raise ValidationError("transaction_id is required")
+
+    except PydanticValidationError as e:
+        logger.warning(
+            "Pydantic validation failed on feedback submit",
+            extra=sanitize_log_data({
+                'endpoint': '/api/feedback',
+                'errors': e.errors()
+            })
+        )
+        return jsonify({
+            'success': False,
+            'error': 'Validation failed',
+            'details': e.errors()
+        }), 400
 
     result = postgres_store.add_feedback(transaction_id, is_fraud, notes, None)
     if "created_at" in result and result["created_at"]:
@@ -4025,7 +4273,7 @@ def get_observability_health():
             }
         )
     except Exception as e:
-        logger.error(f"Error checking health: {e}")
+        logger.error("Error checking health:", extra=sanitize_log_data({'e': e}))
         return (
             jsonify(
                 {
@@ -4072,7 +4320,7 @@ def get_observability_ml():
             }
         )
     except Exception as e:
-        logger.error(f"Error getting ML metrics: {e}")
+        logger.error("Error getting ML metrics:", extra=sanitize_log_data({'e': e}))
         return (
             jsonify(
                 {
@@ -4293,7 +4541,7 @@ try:
         "Research modules loaded successfully (Bahnsen, PIX Taxonomy, NLP, Transfer Learning)"
     )
 except ImportError as e:
-    logger.warning(f"Research modules not available: {e}")
+    logger.warning("Research modules not available:", extra=sanitize_log_data({'e': e}))
     RESEARCH_MODULES_AVAILABLE = False
     bahnsen_engineer = None
     pix_taxonomy = None
