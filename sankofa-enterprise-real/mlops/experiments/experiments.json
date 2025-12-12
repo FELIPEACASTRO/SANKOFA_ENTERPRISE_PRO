@@ -1,0 +1,11 @@
+{
+  "integration_test": {
+    "experiment_id": "ef92354b",
+    "name": "integration_test",
+    "description": "",
+    "created_at": "2025-12-12T18:31:54.492342+00:00Z",
+    "runs": [
+      "6c01b7e2-3a9"
+    ]
+  }
+}

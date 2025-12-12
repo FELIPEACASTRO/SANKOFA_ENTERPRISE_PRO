@@ -12,7 +12,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 import os
 from flask import send_from_directory, send_file
 
-from production_api import app as api_app
+from backend.api.production_api import app as api_app
 
 FRONTEND_DIST = Path(__file__).parent.parent.parent / "frontend" / "dist"
 
