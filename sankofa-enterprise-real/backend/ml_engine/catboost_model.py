@@ -64,15 +64,19 @@ class CatBoostFraudModel:
         logger.info(f"CatBoost Fraud Model initialized v{self.VERSION}")
 
     def _initialize_model(self):
-        """Inicializa o modelo CatBoost com parâmetros otimizados para fraude"""
+        """Inicializa o modelo CatBoost com parâmetros otimizados para fraude
+
+        CORRECAO 10/10: Removido conflito entre class_weights e auto_class_weights.
+        Usando apenas auto_class_weights="Balanced" que calcula pesos automaticamente
+        baseado na distribuicao real das classes no dataset.
+        """
         self.model = CatBoostClassifier(
             iterations=500,
             learning_rate=0.05,
             depth=8,
             l2_leaf_reg=3,
             border_count=128,
-            class_weights=[1, 10],
-            auto_class_weights="Balanced",
+            auto_class_weights="Balanced",  # Calcula pesos automaticamente
             loss_function="Logloss",
             eval_metric="AUC",
             random_seed=42,

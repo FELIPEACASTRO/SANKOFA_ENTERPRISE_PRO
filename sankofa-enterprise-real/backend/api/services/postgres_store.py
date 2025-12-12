@@ -1,43 +1,61 @@
 """
 Sankofa Enterprise Pro - PostgreSQL Store Service
 Armazenamento persistente usando PostgreSQL em vez de arquivo JSON
+
+CORRECAO 10/10: SimpleCache agora e thread-safe com RLock
 """
 
-
-logger = logging.getLogger(__name__)
 import logging
 import os
 import json
 import time
+import threading
 from datetime import datetime
 from typing import Dict, List, Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
+logger = logging.getLogger(__name__)
+
 
 class SimpleCache:
-    """Cache simples em memória com TTL para reduzir latência"""
+    """Cache simples em memória com TTL para reduzir latência
+
+    CORRECAO 10/10: Thread-safe com RLock para evitar race conditions.
+    Todas as operacoes de leitura/escrita sao sincronizadas.
+    """
 
     def __init__(self, default_ttl: int = 30):
         self._cache = {}
         self._default_ttl = default_ttl
+        self._lock = threading.RLock()  # CORRECAO: Lock para thread-safety
 
     def get(self, key: str):
-        if key in self._cache:
-            entry = self._cache[key]
-            if time.time() < entry["expires"]:
-                return entry["value"]
-            del self._cache[key]
-        return None
+        """Obtem valor do cache de forma thread-safe"""
+        with self._lock:
+            if key in self._cache:
+                entry = self._cache[key]
+                if time.time() < entry["expires"]:
+                    return entry["value"]
+                # Expirado - remover
+                del self._cache[key]
+            return None
 
     def set(self, key: str, value, ttl: int = None):
-        self._cache[key] = {"value": value, "expires": time.time() + (ttl or self._default_ttl)}
+        """Define valor no cache de forma thread-safe"""
+        with self._lock:
+            self._cache[key] = {
+                "value": value,
+                "expires": time.time() + (ttl or self._default_ttl)
+            }
 
     def invalidate(self, key: str = None):
-        if key:
-            self._cache.pop(key, None)
-        else:
-            self._cache.clear()
+        """Invalida cache de forma thread-safe"""
+        with self._lock:
+            if key:
+                self._cache.pop(key, None)
+            else:
+                self._cache.clear()
 
 
 _dashboard_cache = SimpleCache(default_ttl=30)

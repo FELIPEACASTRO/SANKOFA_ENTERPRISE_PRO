@@ -1,14 +1,17 @@
 """
 Sankofa Enterprise Pro - Graph Neural Network Fraud Detector
 Detecção de fraude baseada em relacionamentos entre entidades
+
+CORRECAO 10/10: Cache eviction com TTL e limite de tamanho (LRU)
 """
 
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Any, Optional, Tuple, Set
 from dataclasses import dataclass, field
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 import logging
+import threading
 from datetime import datetime, timedelta
 import hashlib
 
@@ -81,6 +84,10 @@ class TransactionGraph:
     - at_location: Transação em localização
     """
 
+    # CORRECAO 10/10: Constantes para cache management
+    MAX_CACHE_SIZE = 100000  # Maximo de nodes no cache
+    CACHE_TTL_DAYS = 30  # TTL de 30 dias
+
     def __init__(self):
         if not NETWORKX_AVAILABLE:
             raise ImportError("NetworkX not installed. Run: pip install networkx")
@@ -91,7 +98,82 @@ class TransactionGraph:
         self.community_cache: Dict[str, int] = {}
         self._last_community_update: Optional[datetime] = None
 
-        logger.info("Transaction Graph initialized")
+        # CORRECAO 10/10: Cache eviction structures
+        self._node_timestamps: Dict[str, datetime] = {}  # Quando cada node foi acessado
+        self._cache_lock = threading.RLock()  # Lock para operacoes de cache
+
+        logger.info("Transaction Graph initialized with cache eviction (TTL=30d, max=100k)")
+
+    def _evict_stale_nodes(self) -> int:
+        """CORRECAO 10/10: Remove nodes mais antigos que o TTL
+
+        Returns:
+            Numero de nodes removidos
+        """
+        now = datetime.now()
+        ttl_threshold = now - timedelta(days=self.CACHE_TTL_DAYS)
+        removed = 0
+
+        with self._cache_lock:
+            nodes_to_remove = [
+                node_id for node_id, ts in self._node_timestamps.items()
+                if ts < ttl_threshold
+            ]
+
+            for node_id in nodes_to_remove:
+                self._remove_node_safely(node_id)
+                removed += 1
+
+        if removed > 0:
+            logger.info(f"Cache eviction: removed {removed} stale nodes (TTL expired)")
+
+        return removed
+
+    def _enforce_size_limits(self) -> int:
+        """CORRECAO 10/10: Garante que cache nao excede tamanho maximo (LRU)
+
+        Returns:
+            Numero de nodes removidos
+        """
+        with self._cache_lock:
+            if len(self.node_cache) <= self.MAX_CACHE_SIZE:
+                return 0
+
+            # Ordenar por timestamp (mais antigos primeiro)
+            sorted_nodes = sorted(
+                self._node_timestamps.items(),
+                key=lambda x: x[1]
+            )
+
+            # Remover os mais antigos ate atingir 90% do limite
+            target_size = int(self.MAX_CACHE_SIZE * 0.9)
+            to_remove = len(self.node_cache) - target_size
+            removed = 0
+
+            for node_id, _ in sorted_nodes[:to_remove]:
+                self._remove_node_safely(node_id)
+                removed += 1
+
+            if removed > 0:
+                logger.info(f"Cache eviction: removed {removed} nodes (size limit enforcement)")
+
+            return removed
+
+    def _remove_node_safely(self, node_id: str):
+        """Remove um node de todos os caches de forma segura"""
+        # Remover do grafo
+        if self.graph.has_node(node_id):
+            self.graph.remove_node(node_id)
+
+        # Remover dos caches
+        self.node_cache.pop(node_id, None)
+        self.fraud_nodes.discard(node_id)
+        self.community_cache.pop(node_id, None)
+        self._node_timestamps.pop(node_id, None)
+
+    def _update_node_access_time(self, node_id: str):
+        """Atualiza timestamp de acesso do node (para LRU)"""
+        self._node_timestamps[node_id] = datetime.now()
 
     def _generate_node_id(self, node_type: str, identifier: str) -> str:
         """Gera ID único para nó"""
@@ -113,6 +195,8 @@ class TransactionGraph:
         """
         Adiciona transação ao grafo
 
+        CORRECAO 10/10: Agora inclui cache eviction automatico
+
         Args:
             transaction_id: ID da transação
             customer_id: ID do cliente
@@ -125,8 +209,14 @@ class TransactionGraph:
             is_fraud: Se é fraude conhecida
             timestamp: Data/hora da transação
         """
+        # CORRECAO 10/10: Eviction periodico (a cada 1000 transacoes)
+        if len(self.node_cache) > 0 and len(self.node_cache) % 1000 == 0:
+            self._evict_stale_nodes()
+            self._enforce_size_limits()
+
         customer_node = self._generate_node_id("customer", customer_id)
         self._add_or_update_node(customer_node, "customer", {"original_id": customer_id})
+        self._update_node_access_time(customer_node)  # CORRECAO: Track access time
 
         if is_fraud:
             self.fraud_nodes.add(customer_node)

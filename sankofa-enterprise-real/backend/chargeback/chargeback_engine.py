@@ -1,9 +1,12 @@
 """
 Chargeback Engine - Automated Dispute Management
 ML-based decision making for representment vs accept
+
+CORRECAO 10/10: Thread-safe singleton e metricas com locks
 """
 
 import logging
+import threading
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, timedelta
 from dataclasses import dataclass
@@ -77,10 +80,16 @@ class ChargebackEngine:
     REPRESENTMENT_FEE = 100.0
 
     def __init__(self):
-        """Initialize chargeback engine"""
+        """Initialize chargeback engine
+
+        CORRECAO 10/10: Adicionado lock para metricas thread-safe
+        """
         self.cases_processed = 0
         self.decisions_made = 0
         self.win_rate = 0.0
+
+        # CORRECAO 10/10: Lock para operacoes de metricas
+        self._metrics_lock = threading.Lock()
 
         # ML model (placeholder - em produção seria modelo treinado)
         self._ml_model = None
@@ -145,8 +154,10 @@ class ChargebackEngine:
                 decision=decision
             )
 
-            self.cases_processed += 1
-            self.decisions_made += 1
+            # CORRECAO 10/10: Incremento thread-safe de metricas
+            with self._metrics_lock:
+                self.cases_processed += 1
+                self.decisions_made += 1
 
             return {
                 'case_id': chargeback.case_id,
@@ -421,24 +432,32 @@ class ChargebackEngine:
         }
 
     def get_metrics(self) -> Dict[str, Any]:
-        """Retorna métricas do engine"""
-        return {
-            'cases_processed': self.cases_processed,
-            'decisions_made': self.decisions_made,
-            'current_win_rate': self.win_rate,
-            'target_win_rate': 0.85
-        }
+        """Retorna métricas do engine de forma thread-safe"""
+        with self._metrics_lock:
+            return {
+                'cases_processed': self.cases_processed,
+                'decisions_made': self.decisions_made,
+                'current_win_rate': self.win_rate,
+                'target_win_rate': 0.85
+            }
 
 
-# Singleton
+# Singleton com double-checked locking (CORRECAO 10/10)
 _engine_instance: Optional[ChargebackEngine] = None
+_engine_lock = threading.Lock()
 
 
 def get_chargeback_engine() -> ChargebackEngine:
-    """Returns singleton chargeback engine"""
+    """Returns thread-safe singleton chargeback engine
+
+    CORRECAO 10/10: Double-checked locking para evitar race condition
+    na inicializacao do singleton.
+    """
     global _engine_instance
 
-    if _engine_instance is None:
-        _engine_instance = ChargebackEngine()
+    if _engine_instance is None:  # Primeiro check (otimizacao)
+        with _engine_lock:
+            if _engine_instance is None:  # Segundo check (seguranca)
+                _engine_instance = ChargebackEngine()
 
     return _engine_instance

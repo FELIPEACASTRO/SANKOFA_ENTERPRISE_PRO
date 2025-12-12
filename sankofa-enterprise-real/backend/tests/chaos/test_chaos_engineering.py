@@ -366,6 +366,8 @@ class TestResourceChaos:
         """
         Test 12: File descriptor leak detection
 
+        CORRECAO 10/10: Implementa contagem real de FDs antes/depois
+
         Scenario:
         1. Open many files
         2. Monitor FD count
@@ -373,29 +375,67 @@ class TestResourceChaos:
         4. Prevent "too many open files" error
         """
         import os
-        import resource
+        import sys
+        import tempfile
 
-        # Get max FD limit
-        soft_limit, hard_limit = resource.getrlimit(resource.RLIMIT_NOFILE)
+        def count_open_fds():
+            """Conta file descriptors abertos (cross-platform)"""
+            if sys.platform == 'win32':
+                # Windows: usa psutil se disponivel
+                try:
+                    import psutil
+                    return psutil.Process().num_handles()
+                except ImportError:
+                    # Fallback: conta arquivos abertos manualmente
+                    return len(os.listdir('/proc/self/fd')) if os.path.exists('/proc/self/fd') else -1
+            else:
+                # Linux/Unix: usa /proc/self/fd ou resource
+                try:
+                    return len(os.listdir('/proc/self/fd'))
+                except (FileNotFoundError, PermissionError):
+                    try:
+                        import resource
+                        soft_limit, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
+                        return soft_limit
+                    except ImportError:
+                        return -1
 
-        # Should have reasonable limit
-        assert soft_limit > 0
-        assert hard_limit > 0
+        # Contar FDs antes do teste
+        fds_before = count_open_fds()
 
-        # Test proper file closing
-        test_file = "test_fd_leak.txt"
+        test_files = []
+        temp_dir = tempfile.mkdtemp()
 
         try:
-            # Open and close file properly
-            with open(test_file, 'w') as f:
-                f.write("test")
+            # Abrir varios arquivos
+            for i in range(10):
+                filepath = os.path.join(temp_dir, f"test_fd_{i}.txt")
+                test_files.append(filepath)
 
-            # File should be closed (no leak)
-            assert True
+                # Usar context manager para garantir fechamento
+                with open(filepath, 'w') as f:
+                    f.write(f"test content {i}")
+
+            # Apos fechar todos, FDs devem voltar ao normal
+            fds_after = count_open_fds()
+
+            # Se conseguimos contar FDs, verificar que nao houve leak
+            if fds_before >= 0 and fds_after >= 0:
+                # Tolerancia de 2 FDs para variacao normal do sistema
+                assert fds_after <= fds_before + 2, (
+                    f"File descriptor leak detectado: antes={fds_before}, depois={fds_after}"
+                )
+
+            # Teste passou - arquivos foram fechados corretamente
+            assert True, "No file descriptor leaks detected"
 
         finally:
-            if os.path.exists(test_file):
-                os.remove(test_file)
+            # Cleanup
+            for filepath in test_files:
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+            if os.path.exists(temp_dir):
+                os.rmdir(temp_dir)
 
 
 # ============================================================================

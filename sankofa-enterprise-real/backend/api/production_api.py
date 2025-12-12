@@ -764,10 +764,15 @@ class TransactionStore:
 
 
 class ConfigStore:
-    """Armazena configurações do sistema"""
+    """Armazena configurações do sistema
+
+    CORRECAO 10/10: Thread-safe com RLock para todas as operacoes
+    e escrita atomica de arquivos.
+    """
 
     def __init__(self):
         self._config_file = DATA_DIR / "system_config.json"
+        self._lock = threading.RLock()  # CORRECAO 10/10: Lock para thread-safety
         self._config: Dict[str, Any] = self._load_config()
 
     def _load_config(self) -> Dict[str, Any]:
@@ -836,41 +841,72 @@ class ConfigStore:
         return default_config
 
     def _save_config(self):
-        """Salva configuração no arquivo"""
+        """Salva configuração no arquivo de forma atômica
+
+        CORRECAO 10/10: Escrita atomica - escreve em arquivo temp e depois renomeia
+        """
         try:
-            with open(self._config_file, "w") as f:
-                json.dump(self._config, f, indent=2, default=str)
+            import tempfile
+            # Escrever em arquivo temporario primeiro
+            temp_fd, temp_path = tempfile.mkstemp(
+                dir=str(self._config_file.parent),
+                suffix=".tmp"
+            )
+            try:
+                with os.fdopen(temp_fd, 'w') as f:
+                    json.dump(self._config, f, indent=2, default=str)
+
+                # Atomic rename (no Windows, precisa remover destino primeiro)
+                if os.name == 'nt' and self._config_file.exists():
+                    os.replace(temp_path, str(self._config_file))
+                else:
+                    os.rename(temp_path, str(self._config_file))
+            except Exception:
+                # Limpar arquivo temp em caso de erro
+                if os.path.exists(temp_path):
+                    os.unlink(temp_path)
+                raise
         except Exception as e:
             logger.error("Could not save config:", extra=sanitize_log_data({'e': e}))
 
     def get(self, key: str, default: Any = None) -> Any:
-        return self._config.get(key, default)
+        """CORRECAO 10/10: Thread-safe get"""
+        with self._lock:
+            return self._config.get(key, default)
 
     def set(self, key: str, value: Any):
-        self._config[key] = value
-        self._save_config()
+        """CORRECAO 10/10: Thread-safe set"""
+        with self._lock:
+            self._config[key] = value
+            self._save_config()
 
     def update(self, key: str, item_id: int, data: Dict):
-        items = self._config.get(key, [])
-        for i, item in enumerate(items):
-            if item.get("id") == item_id:
-                items[i].update(data)
-                break
-        self._save_config()
+        """CORRECAO 10/10: Thread-safe update"""
+        with self._lock:
+            items = self._config.get(key, [])
+            for i, item in enumerate(items):
+                if item.get("id") == item_id:
+                    items[i].update(data)
+                    break
+            self._save_config()
 
     def add(self, key: str, item: Dict):
-        items = self._config.get(key, [])
-        max_id = max([it.get("id", 0) for it in items], default=0)
-        item["id"] = max_id + 1
-        items.append(item)
-        self._config[key] = items
-        self._save_config()
-        return item
+        """CORRECAO 10/10: Thread-safe add"""
+        with self._lock:
+            items = self._config.get(key, [])
+            max_id = max([it.get("id", 0) for it in items], default=0)
+            item["id"] = max_id + 1
+            items.append(item)
+            self._config[key] = items
+            self._save_config()
+            return item
 
     def delete(self, key: str, item_id: int):
-        items = self._config.get(key, [])
-        self._config[key] = [it for it in items if it.get("id") != item_id]
-        self._save_config()
+        """CORRECAO 10/10: Thread-safe delete"""
+        with self._lock:
+            items = self._config.get(key, [])
+            self._config[key] = [it for it in items if it.get("id") != item_id]
+            self._save_config()
 
 
 metrics_collector = MetricsCollector()

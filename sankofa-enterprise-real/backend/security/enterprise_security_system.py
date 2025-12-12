@@ -23,6 +23,7 @@ import logging
 from functools import wraps
 from flask import request, jsonify, current_app
 import json
+import threading
 
 # PostgreSQL em vez de SQLite (V001 FIX)
 try:
@@ -49,9 +50,13 @@ class EnterpriseSecuritySystem:
 
     V001 FIX: Usa PostgreSQL em vez de SQLite
     V006 FIX: Encryption key é carregada de variável de ambiente
+    CORRECAO 10/10: Thread-safe com RLock para operacoes sensiveis
     """
 
     def __init__(self):
+        # CORRECAO 10/10: Lock para operacoes thread-safe
+        self._security_lock = threading.RLock()
+
         # JWT Secret - DEVE ser configurado em produção
         self.jwt_secret = os.environ.get("SANKOFA_JWT_SECRET") or os.environ.get("JWT_SECRET")
         self._is_production = os.environ.get("ENVIRONMENT", "development") == "production"
@@ -325,56 +330,60 @@ class EnterpriseSecuritySystem:
     def create_user(
         self, username: str, email: str, password: str, role_name: str
     ) -> Dict[str, Any]:
-        """Cria novo usuário no sistema"""
-        password_hash, salt = self.hash_password(password)
+        """Cria novo usuário no sistema
 
-        if not self._use_postgres:
-            # Fallback in-memory para desenvolvimento
-            if role_name not in self._in_memory_roles:
-                raise ValueError(f"Role '{role_name}' não encontrada")
-            user_id = len(self._in_memory_users) + 1
-            self._in_memory_users[user_id] = {
-                "id": user_id, "username": username, "email": email,
-                "password_hash": password_hash, "role": role_name
-            }
-            return {"user_id": user_id, "username": username, "role": role_name}
+        CORRECAO 10/10: Thread-safe com lock
+        """
+        with self._security_lock:
+            password_hash, salt = self.hash_password(password)
 
-        try:
-            with self._get_connection() as conn:
-                with conn.cursor() as cursor:
-                    # Busca role_id
-                    cursor.execute(
-                        "SELECT id FROM security_roles WHERE name = %s",
-                        (role_name,)
-                    )
-                    role_result = cursor.fetchone()
-                    if not role_result:
-                        raise ValueError(f"Role '{role_name}' não encontrada")
+            if not self._use_postgres:
+                # Fallback in-memory para desenvolvimento
+                if role_name not in self._in_memory_roles:
+                    raise ValueError(f"Role '{role_name}' não encontrada")
+                user_id = len(self._in_memory_users) + 1
+                self._in_memory_users[user_id] = {
+                    "id": user_id, "username": username, "email": email,
+                    "password_hash": password_hash, "role": role_name
+                }
+                return {"user_id": user_id, "username": username, "role": role_name}
 
-                    role_id = role_result["id"]
+            try:
+                with self._get_connection() as conn:
+                    with conn.cursor() as cursor:
+                        # Busca role_id
+                        cursor.execute(
+                            "SELECT id FROM security_roles WHERE name = %s",
+                            (role_name,)
+                        )
+                        role_result = cursor.fetchone()
+                        if not role_result:
+                            raise ValueError(f"Role '{role_name}' não encontrada")
 
-                    # Cria usuário
-                    cursor.execute("""
-                        INSERT INTO security_users
-                        (username, email, password_hash, salt, role_id)
-                        VALUES (%s, %s, %s, %s, %s)
-                        RETURNING id
-                    """, (username, email, password_hash, salt, role_id))
+                        role_id = role_result["id"]
 
-                    user_id = cursor.fetchone()["id"]
-                    conn.commit()
+                        # Cria usuário
+                        cursor.execute("""
+                            INSERT INTO security_users
+                            (username, email, password_hash, salt, role_id)
+                            VALUES (%s, %s, %s, %s, %s)
+                            RETURNING id
+                        """, (username, email, password_hash, salt, role_id))
 
-                    self._log_audit(
-                        user_id, "user_created", "users",
-                        f"Usuário {username} criado com role {role_name}"
-                    )
+                        user_id = cursor.fetchone()["id"]
+                        conn.commit()
 
-                    logger.info(f"Usuário {username} criado com sucesso")
-                    return {"user_id": user_id, "username": username, "role": role_name}
+                        self._log_audit(
+                            user_id, "user_created", "users",
+                            f"Usuário {username} criado com role {role_name}"
+                        )
 
-        except Exception as e:
-            logger.error(f"Erro ao criar usuário: {e}")
-            raise
+                        logger.info(f"Usuário {username} criado com sucesso")
+                        return {"user_id": user_id, "username": username, "role": role_name}
+
+            except Exception as e:
+                logger.error(f"Erro ao criar usuário: {e}")
+                raise
 
     def authenticate_user(
         self, username: str, password: str, ip_address: str, user_agent: str
@@ -594,12 +603,16 @@ class EnterpriseSecuritySystem:
         user_agent: Optional[str] = None,
         success: bool = True,
     ):
-        """Registra evento na trilha de auditoria"""
+        """Registra evento na trilha de auditoria
+
+        CORRECAO 10/10: Thread-safe para fallback in-memory
+        """
         if not self._use_postgres:
-            self._in_memory_audit.append({
-                "user_id": user_id, "action": action, "resource": resource,
-                "details": details, "success": success
-            })
+            with self._security_lock:
+                self._in_memory_audit.append({
+                    "user_id": user_id, "action": action, "resource": resource,
+                    "details": details, "success": success
+                })
             return
 
         try:
