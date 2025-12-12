@@ -5,16 +5,256 @@ Implements real database connections, migrations, and ACID transactions
 
 import asyncio
 import logging
+import threading
+import time
 from typing import Optional, Dict, Any, List
-from contextlib import asynccontextmanager
-import asyncpg
-from asyncpg import Pool, Connection
-import redis.asyncio as redis
-from datetime import datetime
-import json
+from contextlib import asynccontextmanager, contextmanager
 import uuid
 
+# Tentar importar asyncpg
+try:
+    import asyncpg
+    from asyncpg import Pool, Connection
+    ASYNCPG_AVAILABLE = True
+except ImportError:
+    ASYNCPG_AVAILABLE = False
+    Pool = None
+    Connection = None
+
+# Tentar importar redis
+try:
+    import redis.asyncio as redis
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
+    redis = None
+
+# Tentar importar psycopg2 para conexões síncronas
+try:
+    import psycopg2
+    from psycopg2 import pool as psycopg2_pool
+    PSYCOPG2_AVAILABLE = True
+except ImportError:
+    PSYCOPG2_AVAILABLE = False
+
+from datetime import datetime
+import json
+
 logger = logging.getLogger(__name__)
+
+
+# ============================================================================
+# CLASSES DE COMPATIBILIDADE PARA TESTES
+# ============================================================================
+
+class DatabaseConnection:
+    """
+    Wrapper de conexão de banco de dados para compatibilidade com testes.
+
+    Suporta tanto conexões síncronas (psycopg2) quanto assíncronas (asyncpg).
+    """
+
+    def __init__(
+        self,
+        host: str = "localhost",
+        port: int = 5432,
+        database: str = "sankofa",
+        user: str = "postgres",
+        password: str = "",
+        **kwargs
+    ):
+        self._host = host
+        self._port = port
+        self._database = database
+        self._user = user
+        self._password = password
+        self._kwargs = kwargs
+        self._connection = None
+        self._connected = False
+
+    def connect(self) -> bool:
+        """Estabelece conexão com o banco."""
+        if not PSYCOPG2_AVAILABLE:
+            logger.error("psycopg2 não disponível")
+            return False
+
+        try:
+            self._connection = psycopg2.connect(
+                host=self._host,
+                port=self._port,
+                database=self._database,
+                user=self._user,
+                password=self._password,
+                connect_timeout=10
+            )
+            self._connected = True
+            logger.info(f"DatabaseConnection: Conectado a {self._host}:{self._port}/{self._database}")
+            return True
+        except Exception as e:
+            logger.error(f"DatabaseConnection: Falha ao conectar: {e}")
+            self._connected = False
+            return False
+
+    def disconnect(self) -> None:
+        """Fecha a conexão."""
+        if self._connection:
+            self._connection.close()
+            self._connection = None
+            self._connected = False
+
+    def is_connected(self) -> bool:
+        """Verifica se está conectado."""
+        if not self._connected or not self._connection:
+            return False
+        try:
+            # Verificar se conexão ainda está ativa
+            with self._connection.cursor() as cur:
+                cur.execute("SELECT 1")
+            return True
+        except Exception:
+            self._connected = False
+            return False
+
+    def execute(self, query: str, params: tuple = None) -> Any:
+        """Executa uma query."""
+        if not self._connected:
+            raise RuntimeError("Não conectado ao banco")
+
+        with self._connection.cursor() as cur:
+            cur.execute(query, params)
+            if cur.description:
+                return cur.fetchall()
+            self._connection.commit()
+            return cur.rowcount
+
+    def __enter__(self):
+        self.connect()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.disconnect()
+
+
+class ConnectionPool:
+    """
+    Pool de conexões de banco de dados.
+
+    Gerencia um pool de conexões para reutilização eficiente.
+    """
+
+    def __init__(
+        self,
+        host: str = "localhost",
+        port: int = 5432,
+        database: str = "sankofa",
+        user: str = "postgres",
+        password: str = "",
+        min_connections: int = 5,
+        max_connections: int = 20,
+        **kwargs
+    ):
+        self._host = host
+        self._port = port
+        self._database = database
+        self._user = user
+        self._password = password
+        self._min_connections = min_connections
+        self._max_connections = max_connections
+        self._kwargs = kwargs
+        self._pool = None
+        self._lock = threading.RLock()
+        self._initialized = False
+
+        # Métricas
+        self._connections_created = 0
+        self._connections_in_use = 0
+
+    def initialize(self) -> bool:
+        """Inicializa o pool de conexões."""
+        if not PSYCOPG2_AVAILABLE:
+            logger.warning("psycopg2 não disponível - pool não inicializado")
+            return False
+
+        with self._lock:
+            if self._initialized:
+                return True
+
+            try:
+                self._pool = psycopg2_pool.ThreadedConnectionPool(
+                    minconn=self._min_connections,
+                    maxconn=self._max_connections,
+                    host=self._host,
+                    port=self._port,
+                    database=self._database,
+                    user=self._user,
+                    password=self._password
+                )
+                self._initialized = True
+                logger.info(
+                    f"ConnectionPool: Inicializado ({self._min_connections}-{self._max_connections} conexões)"
+                )
+                return True
+            except Exception as e:
+                logger.error(f"ConnectionPool: Falha ao inicializar: {e}")
+                return False
+
+    def get_connection(self):
+        """Obtém uma conexão do pool."""
+        if not self._initialized:
+            if not self.initialize():
+                raise RuntimeError("Pool não inicializado")
+
+        with self._lock:
+            try:
+                conn = self._pool.getconn()
+                self._connections_in_use += 1
+                return conn
+            except Exception as e:
+                logger.error(f"ConnectionPool: Erro ao obter conexão: {e}")
+                raise
+
+    def release_connection(self, conn) -> None:
+        """Devolve uma conexão ao pool."""
+        with self._lock:
+            if self._pool and conn:
+                self._pool.putconn(conn)
+                self._connections_in_use -= 1
+
+    @contextmanager
+    def connection(self):
+        """Context manager para obter e liberar conexão."""
+        conn = self.get_connection()
+        try:
+            yield conn
+        finally:
+            self.release_connection(conn)
+
+    def close(self) -> None:
+        """Fecha o pool."""
+        with self._lock:
+            if self._pool:
+                self._pool.closeall()
+                self._pool = None
+                self._initialized = False
+
+    def get_stats(self) -> Dict[str, Any]:
+        """Retorna estatísticas do pool."""
+        return {
+            "initialized": self._initialized,
+            "min_connections": self._min_connections,
+            "max_connections": self._max_connections,
+            "connections_in_use": self._connections_in_use,
+        }
+
+    @property
+    def size(self) -> int:
+        """Retorna número de conexões em uso."""
+        return self._connections_in_use
+
+    @property
+    def max_size(self) -> int:
+        """Retorna tamanho máximo do pool."""
+        return self._max_connections
 
 
 class DatabaseManager:

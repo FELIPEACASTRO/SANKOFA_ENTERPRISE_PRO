@@ -49,8 +49,24 @@ class CachedPrediction:
     
     def is_expired(self) -> bool:
         # CORRECAO 10/10: Usar timezone-aware comparison
+        # CORRECAO ADICIONAL: Tratar corretamente diferentes formatos de timestamp
         now = datetime.now(timezone.utc)
-        expires = datetime.fromisoformat(self.expires_at.replace('Z', '+00:00'))
+        expires_str = self.expires_at
+
+        # Normalizar o timestamp para parsing correto
+        # Pode vir como: '2025-12-12T15:10:56Z' ou '2025-12-12T15:10:56+00:00'
+        if expires_str.endswith('Z'):
+            expires_str = expires_str[:-1] + '+00:00'
+        elif not ('+' in expires_str or expires_str.endswith('Z')):
+            # Timestamp naive - assumir UTC
+            expires_str = expires_str + '+00:00'
+
+        try:
+            expires = datetime.fromisoformat(expires_str)
+        except ValueError:
+            # Fallback: se não conseguir parsear, considerar expirado
+            return True
+
         return now > expires
 
 
@@ -192,8 +208,11 @@ class PredictionCache:
             confidence=confidence,
             model_version=model_version,
             detection_reason=detection_reason,
-            cached_at=now.isoformat() + "Z",
-            expires_at=expires.isoformat() + "Z",
+            # CORRECAO: Usar formato consistente sem duplicar timezone
+            # datetime.now(timezone.utc).isoformat() já inclui +00:00
+            # Usar strftime para formato limpo com Z
+            cached_at=now.strftime('%Y-%m-%dT%H:%M:%S') + "Z",
+            expires_at=expires.strftime('%Y-%m-%dT%H:%M:%S') + "Z",
             hit_count=0
         )
         

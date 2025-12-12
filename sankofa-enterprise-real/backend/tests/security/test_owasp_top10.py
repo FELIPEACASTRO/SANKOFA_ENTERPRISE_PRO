@@ -149,8 +149,10 @@ class TestA01BrokenAccessControl:
             "C:\\Windows\\System32\\config\\sam"
         ]
 
+        from utils.file_utils import SecurityError
+
         for dangerous_path in dangerous_paths:
-            # Should raise ValueError or return False
+            # Should raise ValueError/SecurityError or return False
             try:
                 result = validate_safe_path(dangerous_path, allowed_base="/app/data")
                 assert result is False, f"Path traversal not prevented: {dangerous_path}"
@@ -616,12 +618,16 @@ class TestA07AuthenticationFailures:
         ]
 
         for weak in weak_passwords:
-            is_strong = validate_password_strength(weak)
+            result = validate_password_strength(weak)
+            # validate_password_strength returns dict with 'valid' key
+            is_strong = result["valid"] if isinstance(result, dict) else result
             assert is_strong is False, f"Weak password accepted: {weak}"
 
         # Strong password should pass
         strong = "SecureP@ssw0rd123"
-        assert validate_password_strength(strong) is True
+        result = validate_password_strength(strong)
+        is_strong = result["valid"] if isinstance(result, dict) else result
+        assert is_strong is True
 
 
 # ============================================================================
