@@ -13,8 +13,9 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, g, send_from_directory, Response, make_response
-from flask_cors import CORS
 from typing import Dict, Any, List, Optional
+from config.cors_config import apply_cors
+from api.middleware.security_headers import configure_security_headers
 import json
 import os
 import threading
@@ -262,7 +263,10 @@ def mask_pii_in_response(data: Any) -> Any:
 db_persistence = PostgreSQLPersistence()
 
 app = Flask(__name__)
-CORS(app)
+# Apply secure CORS configuration
+apply_cors(app)
+# Apply security headers
+configure_security_headers(app)
 
 limiter = Limiter(
     key_func=get_remote_address,

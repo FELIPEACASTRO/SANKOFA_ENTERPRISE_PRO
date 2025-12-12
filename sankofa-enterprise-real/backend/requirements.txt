@@ -38,9 +38,9 @@ requests==2.31.0
 urllib3==2.2.1
 
 # Data Validation & Serialization
-marshmallow==3.20.2
+marshmallow==3.21.0
 cerberus==1.3.5
-pydantic==2.7.0
+pydantic>=2.0.0,<3.0.0
 
 # Configuration & Environment
 python-dotenv==1.0.1
@@ -48,12 +48,12 @@ click==8.1.7
 python-dateutil==2.9.0
 
 # Production Server
-gunicorn==21.2.0
+gunicorn==22.0.0
 
 # Development & Code Quality
-pytest==8.2.0
+pytest==8.0.0
 pytest-cov==4.1.0
-black==24.3.0
+black==24.1.0
 flake8==7.0.0
 
 # Scientific Computing
@@ -71,5 +71,4 @@ greenlet==3.1.1
 # Code Quality & Security
 mypy==1.8.0
 bandit==1.7.5
-safety==3.0.1
 ruff==0.1.13
