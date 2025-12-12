@@ -1,0 +1,110 @@
+Quero que chame varios grupo com os profissionais abaixo ,Quero uma analise extremamente rigorosa de cada uma desses profissionais, depois quero que rode um modelo Randon Forest com o parece de cada um e No final quero um relatorio consolidado do que precisar ser feito para que a solução seja a top 1 DO MERCADO. 
+Quero que 10 dos maiores Especialista em Arquitetura de Negocio. 
+Quero que 10 dos maiores Especialista em  Arquiteto de Soluções.
+Quero que 10 dos maiores Especialista em  Arquiteto de Software.
+Quero que 10 dos maiores Especialista em  Desenvolvimento de Software.
+Quero que 10 dos maiores Especialista em  Especialista QA.
+Quero que 10 dos maiores Especialista em  Infra AWS.
+Quero que 10 dos maiores Especialista em  Matematica Avancada.
+Quero que 10 dos maiores Especialista em  Estatistica e probabilidade.
+Quero que 10 dos maiores Especialista em  Negocio e Estrategia de Fraudes Bancarias.
+Quero que 10 dos maiores Especialista em  em IA e Machine Learning.
+Quero que 10 dos maiores Especialista em  Especalista Dados.
+Quero que 10 dos maiores Especialista em  Especialista em UX e Jornada de navegação perfeita.
+Preciso tambem de mais 10 Profissionais das modalidades abaixo:
+Negócio de Fraude & Política
+
+Fraud Strategy Lead (PIX/Crédito/Débito) — tipologias, thresholds dinâmicos por segmento, alavancas de custo/benefício.
+
+Chargeback & MED Ops Lead — fluxos de representment e MED (PIX); fecha o loop de feedback para o modelo.
+
+Model Risk Management (MRM) Officer — governança de modelos, validação independente, conformidade a auditorias.
+
+Data Science, IA & Pesquisa
+
+Lead Data Scientist (Fraude) — owner do modelo campeão e das métricas de eficácia (AUC-PR, Recall@FPR, $Precision/$Recall).
+
+Senior ML Scientist (Tabular) — GBDT (LightGBM/XGBoost/CatBoost), calibração (Platt/Isotonic), tuning por custo.
+
+Graph ML Engineer — features/GNN para relações conta↔device↔IP↔merchant; risco propagado.
+
+Anomaly Detection Researcher — IsolationForest/Autoencoders para zero-day.
+
+RL/Bandits Scientist — multi-armed bandits para escolher STEP_UP ótimo (OTP/3DS/biometria) por contexto.
+
+Causal/Experimentation Scientist — A/B, CUPED, causal inference para decisões de política com evidência.
+
+Risk Data Analyst — BI/cohorting de perdas, cohort lag de rótulos, visão executiva.
+
+MLOps, Dados & Streaming
+
+ML Engineer (Serving/ONNX) — onnxruntime-java, profiling, cold-start, p99; deploy/canary/rollback.
+
+Feature Store Engineer — Redis/Flink, janelas 5m/1h/24h/7d/30d, idempotência, SLA de frescor.
+
+Streaming Data Engineer — Kafka/MSK, Flink/KStreams, materializações e replays para backtesting.
+
+Data Platform Engineer (Lakehouse) — S3/Delta, ETL/ELT, lineage, datasets de treino e rotulagem.
+
+Model Monitoring Engineer — PSI/KS/Brier, drift/alerting, champion–challenger contínuo.
+
+Backend Realtime & Graph
+
+Senior Backend Engineer (Java 21) — Orquestrador de Política (Spring Boot), Resilience4j, gRPC/REST, caches.
+
+Realtime Services Engineer — hot paths de featurização/scoring; budget de latência sob carga.
+
+Graph Engineer — modelagem/queries (Neo4j/TigerGraph/Janus), APIs de rede de vínculo.
+
+Frontend, UX & Jornada
+
+UX Lead (Risk & Backoffice) — jornadas low-friction, acessibilidade, taxonomia de explicações.
+
+Product Designer — design system, fluxos de STEP_UP/3DS, heurísticas para reduzir abandono.
+
+Frontend Engineer (React/Next) — backoffice (fila, case view, insights), dashboards, gráficos (Recharts/ECharts).
+
+Data Viz Engineer (opcional) — SHAP/decis por decil, grafos, timelines; narrativas visuais.
+
+Mobile Engineer (opcional) — SDKs de STEP_UP/MFA no app iOS/Android.
+
+SRE, Observabilidade & Performance
+
+SRE Lead — confiabilidade, SLOs, incident response; IaC.
+
+Observability Engineer — OpenTelemetry, Prometheus, logs estruturados, KPIs/alertas.
+
+Performance Engineer — testes de carga (k6/Gatling/JMH), caos de latência, budget p95/p99.
+
+Segurança, Privacidade & Red Team
+
+DevSecOps Engineer — SAST/DAST/SCA, secrets, pipelines e policies.
+
+Application Security Engineer — threat modeling, mTLS/OAuth2/3DS, pentests.
+
+Privacy Engineer (LGPD) — minimização/DSR, criptografia por campo, retenção.
+
+Adversarial ML / Anti-Abuse — evasão/probing ao modelo, canary tokens, mitigação.
+
+Compliance & Jurídico
+
+Compliance Officer (Bacen/LGPD/PCI) — políticas, auditorias, exigências regulatórias (PIX/DICT/MED, PCI DSS).
+
+Regulatory Affairs (PIX/DICT/MED) — interface com regulador e reportes.
+
+Qualidade & Dados
+
+QA Automation Engineer — testes API/UI, E2E, contratos; cobertura regressiva.
+
+Performance/Load Tester — testes de latência e throughput end-to-end.
+
+Data Quality Engineer — data contracts, Great Expectations/dbt, monitoramento de schemas.
+
+Operações & Enablement
+
+Fraud Operations Analysts (24/7) — revisão manual priorizada por valor esperado; dispositions e playbooks.
+
+Vendor Manager (Enrichments) — SLAs de device/IP/consórcio de fraude.
+
+Technical Writer / Enablement — documentação, runbooks, treinamento de times.
+Junte todos ,Quero um parecer tecnico sobre a solução, sugestoes de melhoria no FrontEnd e BackEnd, ML e Auto Learning.
