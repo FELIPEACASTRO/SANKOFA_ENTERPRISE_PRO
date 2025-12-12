@@ -38,6 +38,8 @@ class IntegratedEnsemble:
     - Base: RF + GB + LR (existente)
     - CatBoost: Para features categóricas
     - GNN: Para análise de relacionamentos
+
+    CORRECAO 10/10: Thread-safe com lock para atributos mutáveis
     """
 
     VERSION = "2.0.0"
@@ -45,7 +47,10 @@ class IntegratedEnsemble:
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
 
-        self.weights = {
+        # CORRECAO 10/10: Lock para proteger atributos mutáveis
+        self._weights_lock = threading.RLock()
+
+        self._weights = {
             "base_ensemble": 0.50,
             "catboost": 0.25,
             "gnn": 0.25,
@@ -57,6 +62,18 @@ class IntegratedEnsemble:
         self._gnn_available = False
 
         self._initialize_models()
+
+    @property
+    def weights(self) -> Dict[str, float]:
+        """Retorna pesos do ensemble de forma thread-safe"""
+        with self._weights_lock:
+            return self._weights.copy()
+
+    @weights.setter
+    def weights(self, value: Dict[str, float]):
+        """Define pesos do ensemble de forma thread-safe"""
+        with self._weights_lock:
+            self._weights = value.copy()
 
     def _initialize_models(self):
         """Inicializa modelos opcionais (CatBoost, GNN)"""

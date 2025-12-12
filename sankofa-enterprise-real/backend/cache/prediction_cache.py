@@ -267,13 +267,19 @@ class PredictionCache:
 
 
 _prediction_cache: Optional[PredictionCache] = None
+_prediction_cache_lock = threading.Lock()
 
 
 def get_prediction_cache() -> PredictionCache:
-    """Singleton para PredictionCache"""
+    """Singleton para PredictionCache
+
+    CORRECAO 10/10: Double-checked locking para thread-safety
+    """
     global _prediction_cache
     if _prediction_cache is None:
-        _prediction_cache = PredictionCache()
+        with _prediction_cache_lock:
+            if _prediction_cache is None:
+                _prediction_cache = PredictionCache()
     return _prediction_cache
 
 
@@ -390,13 +396,19 @@ class CachedFraudEngine:
 
 
 _cached_engine: Optional[CachedFraudEngine] = None
+_cached_engine_lock = threading.Lock()
 
 
 def get_cached_fraud_engine() -> CachedFraudEngine:
-    """Singleton para CachedFraudEngine"""
+    """Singleton para CachedFraudEngine
+
+    CORRECAO 10/10: Double-checked locking para thread-safety
+    """
     global _cached_engine
     if _cached_engine is None:
-        _cached_engine = CachedFraudEngine()
+        with _cached_engine_lock:
+            if _cached_engine is None:
+                _cached_engine = CachedFraudEngine()
     return _cached_engine
 
 

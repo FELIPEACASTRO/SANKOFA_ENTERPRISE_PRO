@@ -44,6 +44,16 @@ class PciDssCompliance:
     - Requirement 10.1-10.7: Audit trail (via audit_trail.py)
     """
 
+    # CORRECAO 10/10: Whitelist de tabelas permitidas para prevenir SQL Injection
+    ALLOWED_TABLES = frozenset({
+        'transactions',
+        'audit_logs',
+        'security_sessions',
+        'fraud_alerts',
+        'chargebacks',
+        'payment_logs'
+    })
+
     def __init__(self, retention_days: int = 90, database_url: Optional[str] = None):
         """
         Inicializa o módulo de compliance do PCI DSS.
@@ -78,11 +88,24 @@ class PciDssCompliance:
         Em modo simulação, apenas loga a operação.
 
         Args:
-            table_name: Nome da tabela para aplicar retenção
+            table_name: Nome da tabela para aplicar retenção (deve estar na whitelist)
 
         Returns:
             Dict com resultado da operação
+
+        Raises:
+            ValueError: Se table_name não estiver na whitelist (previne SQL Injection)
         """
+        # CORRECAO 10/10: Validar table_name contra whitelist para prevenir SQL Injection
+        if table_name not in self.ALLOWED_TABLES:
+            logger.error(
+                f"PCI-DSS SECURITY: Tentativa de acesso a tabela não permitida: {table_name}"
+            )
+            raise ValueError(
+                f"Tabela '{table_name}' não permitida. "
+                f"Tabelas válidas: {', '.join(sorted(self.ALLOWED_TABLES))}"
+            )
+
         retention_limit_date = datetime.utcnow() - timedelta(days=self.retention_days)
 
         logger.info(f"PCI-DSS: Aplicando política de retenção de dados...")
@@ -112,12 +135,15 @@ class PciDssCompliance:
                                 "mode": "production"
                             }
 
-                        # Executar política de retenção
-                        cursor.execute(f"""
-                            DELETE FROM {table_name}
+                        # CORRECAO 10/10: Usar psycopg2.sql para construção segura de queries
+                        # table_name já foi validado contra whitelist acima
+                        from psycopg2 import sql
+                        query = sql.SQL("""
+                            DELETE FROM {}
                             WHERE created_at < %s
                             AND is_archived = FALSE
-                        """, (retention_limit_date,))
+                        """).format(sql.Identifier(table_name))
+                        cursor.execute(query, (retention_limit_date,))
 
                         deleted_rows = cursor.rowcount
                         conn.commit()

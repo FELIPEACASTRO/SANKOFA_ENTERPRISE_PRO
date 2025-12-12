@@ -699,25 +699,25 @@ class ProductionFraudEngine:
                 "Starting model training", num_samples=len(X), fraud_rate=round(y.mean() * 100, 2)
             )
 
-            # Preprocessamento
-            X_processed = self._preprocess_data(X, fit_transform=True)
-
-            # CORRECAO 10/10: Split temporal para evitar data leakage
-            # Em producao, SEMPRE usar split temporal (dados do futuro nao devem treinar)
-            # Aqui usamos split sequencial simples pois os dados ja estao ordenados
-            n = len(X_processed)
+            # CORRECAO 10/10: Split temporal ANTES do preprocessamento para evitar data leakage
+            # O scaler deve ser fitado APENAS nos dados de treino
+            n = len(X)
             train_end = int(n * 0.8)
 
-            X_train = X_processed[:train_end]
-            X_val = X_processed[train_end:]
+            X_train_raw = X.iloc[:train_end] if hasattr(X, 'iloc') else X[:train_end]
+            X_val_raw = X.iloc[train_end:] if hasattr(X, 'iloc') else X[train_end:]
             y_train = y[:train_end]
             y_val = y[train_end:]
 
             logger.info(
-                "Temporal split applied (no future data leakage)",
+                "Temporal split applied BEFORE preprocessing (no data leakage)",
                 train_size=train_end,
                 val_size=n - train_end
             )
+
+            # Preprocessamento: fit_transform APENAS no treino, transform no val
+            X_train = self._preprocess_data(X_train_raw, fit_transform=True)
+            X_val = self._preprocess_data(X_val_raw, fit_transform=False)
 
             # Converter para arrays numpy se necessário
             X_val_array = np.asarray(X_val)
@@ -1434,11 +1434,17 @@ class ProductionFraudEngine:
 
 # Instância global (singleton)
 _engine_instance: Optional[ProductionFraudEngine] = None
+_engine_instance_lock = threading.Lock()
 
 
 def get_fraud_engine() -> ProductionFraudEngine:
-    """Factory para obter instância do engine"""
+    """Factory para obter instância do engine
+
+    CORRECAO 10/10: Double-checked locking para thread-safety
+    """
     global _engine_instance
     if _engine_instance is None:
-        _engine_instance = ProductionFraudEngine()
+        with _engine_instance_lock:
+            if _engine_instance is None:
+                _engine_instance = ProductionFraudEngine()
     return _engine_instance

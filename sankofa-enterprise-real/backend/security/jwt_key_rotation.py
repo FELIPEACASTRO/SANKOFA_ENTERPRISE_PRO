@@ -21,6 +21,11 @@ from cryptography.hazmat.backends import default_backend
 logger = logging.getLogger(__name__)
 
 
+class SecurityError(Exception):
+    """Exceção para erros de segurança críticos que não devem ser ignorados"""
+    pass
+
+
 @dataclass
 class JWTKey:
     """Chave JWT"""
@@ -290,17 +295,25 @@ class JWTKeyRotationSystem:
                 )
 
                 # CORRECAO 10/10: Decriptar chave privada antes de usar
+                # REMOVIDO FALLBACK INSEGURO - chaves DEVEM estar encriptadas
                 try:
                     private_key = self._decrypt_private_key(signing_key.private_key)
-                    # Serializar sem encriptacao para uso imediato
+                    # Serializar sem encriptacao para uso imediato (apenas em memória)
                     private_key_pem = private_key.private_bytes(
                         encoding=serialization.Encoding.PEM,
                         format=serialization.PrivateFormat.PKCS8,
                         encryption_algorithm=serialization.NoEncryption(),
                     ).decode("utf-8")
-                except Exception:
-                    # Fallback: chave pode nao estar encriptada (legacy)
-                    private_key_pem = signing_key.private_key
+                except Exception as decrypt_error:
+                    # CORRECAO 10/10: NÃO usar fallback inseguro - falhar de forma segura
+                    logger.error(
+                        f"❌ SECURITY: Falha ao decriptar chave privada: {decrypt_error}. "
+                        "Chaves DEVEM estar encriptadas. Recusando assinar token."
+                    )
+                    raise SecurityError(
+                        "Não foi possível decriptar chave privada. "
+                        "Verifique se ENCRYPTION_KEY está configurada corretamente."
+                    ) from decrypt_error
 
                 # Assinar token
                 token = jwt.encode(
