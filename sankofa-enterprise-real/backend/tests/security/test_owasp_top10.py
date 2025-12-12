@@ -153,22 +153,32 @@ class TestA01BrokenAccessControl:
             Returns:
                 True se o caminho é seguro, False caso contrário
             """
-            # Normalizar o caminho
+            # CORRECAO 10/10: Usar o path original para verificações antes de normalizar
+            # pois normpath pode alterar barras no Windows
+
+            # Verificar path traversal patterns no input original
+            if ".." in user_path:
+                return False
+
+            # Verificar caminhos absolutos perigosos (Linux e Windows)
+            dangerous_prefixes = [
+                "/etc", "/root", "/var", "/usr", "/bin", "/sbin",
+                "\\etc", "\\root",
+                "C:\\Windows", "C:\\System", "C:\\Program Files",
+                "c:\\windows", "c:\\system"
+            ]
+
+            for prefix in dangerous_prefixes:
+                if user_path.lower().startswith(prefix.lower()):
+                    return False
+
+            # Verificar se é caminho absoluto tentando sair do base
+            if user_path.startswith("/") and not user_path.startswith(allowed_base):
+                return False
+
+            # Normalizar e verificar novamente
             normalized = os.path.normpath(user_path)
-
-            # Verificar path traversal patterns
             if ".." in normalized:
-                return False
-
-            # Verificar caminhos absolutos perigosos
-            if normalized.startswith("/etc") or normalized.startswith("/root"):
-                return False
-
-            if normalized.startswith("C:\\Windows") or normalized.startswith("C:\\System"):
-                return False
-
-            # Verificar se está tentando sair do base
-            if normalized.startswith("/") and not normalized.startswith(allowed_base):
                 return False
 
             return True

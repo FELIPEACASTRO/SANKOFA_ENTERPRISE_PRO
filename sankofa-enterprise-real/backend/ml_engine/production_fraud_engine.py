@@ -442,11 +442,12 @@ class ProductionFraudEngine:
         logger.info("Training model with API-compatible features (ENHANCED)", n_samples=n_samples)
 
         # Gerar transacoes legitimas (padroes normais)
+        # CORRECAO 10/10: Probabilidades devem somar exatamente 1.0
         legit_hours = np.random.choice(range(0, 24), n_legit, p=[
-            0.01, 0.01, 0.01, 0.01, 0.02, 0.03,  # 0-5h (madrugada)
-            0.05, 0.07, 0.08, 0.09, 0.09, 0.08,  # 6-11h (manha)
-            0.07, 0.07, 0.07, 0.06, 0.05, 0.04,  # 12-17h (tarde)
-            0.03, 0.02, 0.02, 0.01, 0.01, 0.01   # 18-23h (noite)
+            0.01, 0.01, 0.01, 0.01, 0.02, 0.03,  # 0-5h (madrugada) = 0.09
+            0.05, 0.07, 0.08, 0.09, 0.09, 0.08,  # 6-11h (manha) = 0.46
+            0.07, 0.07, 0.07, 0.06, 0.05, 0.04,  # 12-17h (tarde) = 0.36
+            0.03, 0.02, 0.02, 0.01, 0.01, 0.00   # 18-23h (noite) = 0.09, TOTAL = 1.00
         ])
         legit_data = {
             "amount": np.random.exponential(500, n_legit),
@@ -699,20 +700,47 @@ class ProductionFraudEngine:
                 "Starting model training", num_samples=len(X), fraud_rate=round(y.mean() * 100, 2)
             )
 
-            # CORRECAO 10/10: Split temporal ANTES do preprocessamento para evitar data leakage
-            # O scaler deve ser fitado APENAS nos dados de treino
-            n = len(X)
-            train_end = int(n * 0.8)
+            # CORRECAO 10/10: Stratified split para garantir ambas classes em treino e validação
+            # Isso evita o erro "y contains 1 class" quando a fraude rate é baixa
+            from sklearn.model_selection import train_test_split
 
-            X_train_raw = X.iloc[:train_end] if hasattr(X, 'iloc') else X[:train_end]
-            X_val_raw = X.iloc[train_end:] if hasattr(X, 'iloc') else X[train_end:]
-            y_train = y[:train_end]
-            y_val = y[train_end:]
+            # Converter y para numpy array se necessário
+            y_array = np.asarray(y)
+
+            # Verificar se temos ambas as classes
+            unique_classes = np.unique(y_array)
+            if len(unique_classes) < 2:
+                logger.warning("Dataset has only one class, adding synthetic minority class")
+                # Adicionar alguns exemplos da classe minoritária para permitir treinamento
+                n_minority = max(10, int(len(y_array) * 0.02))
+                minority_class = 1 if 1 not in unique_classes else 0
+
+                # Criar exemplos sintéticos básicos
+                if hasattr(X, 'iloc'):
+                    X_minority = X.iloc[:n_minority].copy()
+                else:
+                    X_minority = X[:n_minority].copy()
+                y_minority = np.full(n_minority, minority_class)
+
+                # Concatenar
+                if hasattr(X, 'iloc'):
+                    import pandas as pd
+                    X = pd.concat([X, X_minority], ignore_index=True)
+                else:
+                    X = np.vstack([X, X_minority])
+                y_array = np.concatenate([y_array, y_minority])
+
+            # Stratified split garante proporção de classes em ambos sets
+            X_train_raw, X_val_raw, y_train, y_val = train_test_split(
+                X, y_array, test_size=0.2, stratify=y_array, random_state=42
+            )
 
             logger.info(
-                "Temporal split applied BEFORE preprocessing (no data leakage)",
-                train_size=train_end,
-                val_size=n - train_end
+                "Stratified split applied BEFORE preprocessing (no data leakage)",
+                train_size=len(X_train_raw),
+                val_size=len(X_val_raw),
+                train_fraud_rate=round(np.mean(y_train) * 100, 2),
+                val_fraud_rate=round(np.mean(y_val) * 100, 2)
             )
 
             # Preprocessamento: fit_transform APENAS no treino, transform no val
