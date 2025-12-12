@@ -702,9 +702,21 @@ class ProductionFraudEngine:
             # Preprocessamento
             X_processed = self._preprocess_data(X, fit_transform=True)
 
-            # Split para validação
-            X_train, X_val, y_train, y_val = train_test_split(
-                X_processed, y, test_size=0.2, random_state=42, stratify=y
+            # CORRECAO 10/10: Split temporal para evitar data leakage
+            # Em producao, SEMPRE usar split temporal (dados do futuro nao devem treinar)
+            # Aqui usamos split sequencial simples pois os dados ja estao ordenados
+            n = len(X_processed)
+            train_end = int(n * 0.8)
+
+            X_train = X_processed[:train_end]
+            X_val = X_processed[train_end:]
+            y_train = y[:train_end]
+            y_val = y[train_end:]
+
+            logger.info(
+                "Temporal split applied (no future data leakage)",
+                train_size=train_end,
+                val_size=n - train_end
             )
 
             # Converter para arrays numpy se necessário

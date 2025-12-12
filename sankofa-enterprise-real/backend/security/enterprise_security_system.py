@@ -131,9 +131,27 @@ class EnterpriseSecuritySystem:
         return Fernet.generate_key()
 
     def _derive_key_from_password(self, password: str) -> bytes:
-        """Deriva uma chave Fernet de uma senha/string"""
-        # Salt fixo para derivação consistente (em produção, usar salt da env também)
-        salt = os.environ.get("ENCRYPTION_SALT", "sankofa-enterprise-salt-2024").encode()
+        """Deriva uma chave Fernet de uma senha/string
+
+        CORRECAO 10/10: Salt DEVE ser configurado em producao (nao usar default)
+        """
+        salt_env = os.environ.get("ENCRYPTION_SALT")
+
+        if not salt_env:
+            if self._is_production:
+                raise ValueError(
+                    "ENCRYPTION_SALT DEVE ser definido em producao. "
+                    "Gere com: python -c \"import secrets; print(secrets.token_hex(16))\""
+                )
+            # Em desenvolvimento, gerar salt aleatorio mas avisar
+            logger.warning(
+                "ENCRYPTION_SALT nao definido - gerando salt temporario. "
+                "NAO USE EM PRODUCAO."
+            )
+            salt_env = secrets.token_hex(16)
+
+        salt = salt_env.encode()
+
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
@@ -474,9 +492,12 @@ class EnterpriseSecuritySystem:
                     access_token = self._generate_access_token(
                         user_id, user["username"], role_name, permissions
                     )
-                    refresh_token = self._generate_refresh_token()
+                    # CORRECAO 10/10: Refresh token com expiração
+                    refresh_token_data = self._generate_refresh_token()
+                    refresh_token = refresh_token_data["token"]
+                    refresh_expires_at = refresh_token_data["expires_at"]
 
-                    # Salva sessão
+                    # Salva sessão com expiração do refresh token
                     expires_at = datetime.now() + timedelta(hours=self.jwt_expiration_hours)
                     cursor.execute("""
                         INSERT INTO security_sessions
@@ -496,6 +517,8 @@ class EnterpriseSecuritySystem:
                     return {
                         "access_token": access_token,
                         "refresh_token": refresh_token,
+                        # CORRECAO 10/10: Incluir expiracao do refresh token na resposta
+                        "refresh_token_expires_at": refresh_expires_at,
                         "token_type": "Bearer",
                         "expires_in": self.jwt_expiration_hours * 3600,
                         "user": {
@@ -532,9 +555,19 @@ class EnterpriseSecuritySystem:
 
         return jwt.encode(payload, self.jwt_secret, algorithm="HS256")
 
-    def _generate_refresh_token(self) -> str:
-        """Gera token de refresh"""
-        return secrets.token_urlsafe(64)
+    def _generate_refresh_token(self) -> Dict[str, Any]:
+        """Gera token de refresh COM EXPIRAÇÃO
+
+        CORRECAO 10/10: Refresh tokens agora têm expiração controlada
+        """
+        token = secrets.token_urlsafe(64)
+        expires_at = datetime.utcnow() + timedelta(days=self.refresh_token_days)
+
+        return {
+            "token": token,
+            "expires_at": expires_at.isoformat(),
+            "created_at": datetime.utcnow().isoformat()
+        }
 
     def verify_token(self, token: str) -> Dict[str, Any]:
         """Verifica e decodifica token JWT"""
@@ -567,9 +600,21 @@ class EnterpriseSecuritySystem:
             raise ValueError("Token inválido")
 
     def check_permission(self, user_id: int, required_permission: str) -> bool:
-        """Verifica se o usuário tem a permissão necessária"""
+        """Verifica se o usuário tem a permissão necessária
+
+        CORRECAO 10/10: Removido bypass de dev mode - SEMPRE verificar permissoes
+        """
         if not self._use_postgres:
-            return True  # Dev mode
+            # CORRECAO 10/10: Em desenvolvimento, verificar permissoes in-memory
+            # NAO retornar True automaticamente (era vulnerabilidade)
+            if user_id in self._in_memory_users:
+                user = self._in_memory_users[user_id]
+                role_name = user.get("role", "")
+                if role_name in self._in_memory_roles:
+                    role = self._in_memory_roles[role_name]
+                    return required_permission in role.get("permissions", [])
+            logger.warning(f"Dev mode: Permission check for user {user_id} - {required_permission}")
+            return False  # Default deny em vez de allow
 
         try:
             with self._get_connection() as conn:

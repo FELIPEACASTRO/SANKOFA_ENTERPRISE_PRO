@@ -26,6 +26,9 @@ class SecurityHeadersMiddleware:
     Proteção contra: XSS, Clickjacking, MIME sniffing, etc.
     """
 
+    # CORRECAO 10/10: CSP sem unsafe-inline/unsafe-eval em producao
+    # Em APIs REST puras, nao precisamos de inline scripts/styles
+
     # Headers de segurança recomendados pela OWASP
     SECURITY_HEADERS = {
         # HSTS - Force HTTPS
@@ -40,17 +43,19 @@ class SecurityHeadersMiddleware:
         # XSS Protection (legacy, mas ainda útil para browsers antigos)
         'X-XSS-Protection': '1; mode=block',
 
-        # Content Security Policy - Previne XSS e data injection
+        # CORRECAO 10/10: Content Security Policy SEGURO - sem unsafe-inline/unsafe-eval
+        # Para APIs REST, CSP rigoroso é possivel e recomendado
         'Content-Security-Policy': (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-            "style-src 'self' 'unsafe-inline'; "
-            "img-src 'self' data: https:; "
-            "font-src 'self' data:; "
+            "default-src 'none'; "  # CORRECAO: Bloquear tudo por padrao
+            "script-src 'self'; "  # CORRECAO: Removido unsafe-inline e unsafe-eval
+            "style-src 'self'; "  # CORRECAO: Removido unsafe-inline
+            "img-src 'self' data:; "
+            "font-src 'self'; "
             "connect-src 'self'; "
             "frame-ancestors 'none'; "
             "base-uri 'self'; "
-            "form-action 'self'"
+            "form-action 'self'; "
+            "upgrade-insecure-requests"  # CORRECAO: Force upgrade para HTTPS
         ),
 
         # Referrer Policy - Controla informação de referrer

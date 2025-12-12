@@ -48,11 +48,26 @@ class KeyRotationEvent:
 
 
 class JWTKeyRotationSystem:
-    """Sistema de Rotação Automática de Chaves JWT"""
+    """Sistema de Rotação Automática de Chaves JWT
+
+    CORRECAO 10/10: Thread-safe com RLock e chaves privadas encriptadas
+    """
 
     def __init__(self, keys_dir: str = "jwt_keys", rotation_interval_hours: int = 24):
+        # CORRECAO 10/10: Lock para thread-safety
+        self._lock = threading.RLock()
+
         self.keys_dir = keys_dir
         self.rotation_interval_hours = rotation_interval_hours
+
+        # CORRECAO 10/10: Master password para encriptar chaves privadas
+        self._master_password = os.environ.get("JWT_MASTER_PASSWORD")
+        if not self._master_password:
+            # Em desenvolvimento, usar password padrao (NAO USAR EM PRODUCAO)
+            if os.environ.get("ENVIRONMENT") == "production":
+                raise ValueError("JWT_MASTER_PASSWORD DEVE ser definido em producao")
+            self._master_password = "dev-master-password-change-in-production"
+            logger.warning("JWT_MASTER_PASSWORD nao definido - usando senha de desenvolvimento")
 
         # Configurações de rotação
         self.rotation_config = {
@@ -78,7 +93,7 @@ class JWTKeyRotationSystem:
         if not self.active_keys:
             self._generate_initial_key()
 
-        logger.info("🔐 Sistema de Rotação de Chaves JWT inicializado")
+        logger.info("🔐 Sistema de Rotação de Chaves JWT inicializado (thread-safe)")
         logger.info(f"📁 Diretório de chaves: {self.keys_dir}")
         logger.info(f"⏰ Intervalo de rotação: {rotation_interval_hours}h")
 
@@ -130,65 +145,72 @@ class JWTKeyRotationSystem:
             logger.error(f"❌ Erro ao salvar chaves: {e}")
 
     def _generate_new_key(self, rotation_reason: str = "scheduled_rotation") -> JWTKey:
-        """Gera uma nova chave JWT"""
-        key_id = f"key_{int(time.time())}_{secrets.token_hex(4)}"
+        """Gera uma nova chave JWT
 
-        # Gerar par de chaves RSA
-        private_key = rsa.generate_private_key(
-            public_exponent=65537,
-            key_size=self.rotation_config["key_size"],
-            backend=default_backend(),
-        )
+        CORRECAO 10/10: Thread-safe e chave privada encriptada
+        """
+        with self._lock:
+            key_id = f"key_{int(time.time())}_{secrets.token_hex(4)}"
 
-        # Serializar chave privada
-        private_pem = private_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption(),
-        ).decode("utf-8")
+            # Gerar par de chaves RSA
+            private_key = rsa.generate_private_key(
+                public_exponent=65537,
+                key_size=self.rotation_config["key_size"],
+                backend=default_backend(),
+            )
 
-        # Serializar chave pública
-        public_key = private_key.public_key()
-        public_pem = public_key.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo,
-        ).decode("utf-8")
+            # CORRECAO 10/10: Serializar chave privada COM ENCRIPTACAO
+            # Usar BestAvailableEncryption com master password
+            private_pem = private_key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.PKCS8,
+                encryption_algorithm=serialization.BestAvailableEncryption(
+                    self._master_password.encode()
+                ),
+            ).decode("utf-8")
 
-        # Criar objeto JWTKey
-        jwt_key = JWTKey(
-            key_id=key_id,
-            algorithm=self.rotation_config["algorithm"],
-            private_key=private_pem,
-            public_key=public_pem,
-            created_at=datetime.now().isoformat(),
-            expires_at=(
-                datetime.now()
-                + timedelta(
-                    hours=self.rotation_config["rotation_interval_hours"]
-                    + self.rotation_config["key_overlap_hours"]
-                )
-            ).isoformat(),
-            status="active",
-        )
+            # Serializar chave pública
+            public_key = private_key.public_key()
+            public_pem = public_key.public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo,
+            ).decode("utf-8")
 
-        # Marcar chaves antigas como 'rotating'
-        for key in self.active_keys:
-            if key.status == "active":
-                key.status = "rotating"
+            # Criar objeto JWTKey
+            jwt_key = JWTKey(
+                key_id=key_id,
+                algorithm=self.rotation_config["algorithm"],
+                private_key=private_pem,
+                public_key=public_pem,
+                created_at=datetime.now().isoformat(),
+                expires_at=(
+                    datetime.now()
+                    + timedelta(
+                        hours=self.rotation_config["rotation_interval_hours"]
+                        + self.rotation_config["key_overlap_hours"]
+                    )
+                ).isoformat(),
+                status="active",
+            )
 
-        # Adicionar nova chave
-        self.active_keys.append(jwt_key)
+            # Marcar chaves antigas como 'rotating'
+            for key in self.active_keys:
+                if key.status == "active":
+                    key.status = "rotating"
 
-        # Salvar no disco
-        self._save_keys_to_disk()
+            # Adicionar nova chave
+            self.active_keys.append(jwt_key)
 
-        # Registrar evento de rotação
-        if self.active_keys:
-            old_key_id = next((k.key_id for k in self.active_keys if k.status == "rotating"), None)
-            self._record_rotation_event(old_key_id, key_id, rotation_reason)
+            # Salvar no disco
+            self._save_keys_to_disk()
 
-        logger.info(f"🔑 Nova chave JWT gerada: {key_id}")
-        return jwt_key
+            # Registrar evento de rotação
+            if self.active_keys:
+                old_key_id = next((k.key_id for k in self.active_keys if k.status == "rotating"), None)
+                self._record_rotation_event(old_key_id, key_id, rotation_reason)
+
+            logger.info(f"🔑 Nova chave JWT gerada (encriptada): {key_id}")
+            return jwt_key
 
     def _record_rotation_event(self, old_key_id: str, new_key_id: str, reason: str):
         """Registra evento de rotação"""
@@ -232,48 +254,78 @@ class JWTKeyRotationSystem:
 
         return valid_keys
 
+    def _decrypt_private_key(self, encrypted_pem: str):
+        """Decripta uma chave privada encriptada
+
+        CORRECAO 10/10: Decripta chave privada para uso
+        """
+        from cryptography.hazmat.primitives.serialization import load_pem_private_key
+
+        return load_pem_private_key(
+            encrypted_pem.encode(),
+            password=self._master_password.encode(),
+            backend=default_backend()
+        )
+
     def sign_token(self, payload: Dict[str, Any], expires_in_hours: int = 24) -> Optional[str]:
-        """Assina um token JWT"""
-        signing_key = self.get_current_signing_key()
-        if not signing_key:
-            logger.error("❌ Nenhuma chave de assinatura disponível")
-            return None
+        """Assina um token JWT
 
-        try:
-            # Adicionar claims padrão
-            now = datetime.now()
-            payload.update(
-                {
-                    "iat": now.timestamp(),
-                    "exp": (now + timedelta(hours=expires_in_hours)).timestamp(),
-                    "kid": signing_key.key_id,  # Key ID para identificar a chave
-                }
-            )
+        CORRECAO 10/10: Thread-safe e decripta chave privada
+        """
+        with self._lock:
+            signing_key = self.get_current_signing_key()
+            if not signing_key:
+                logger.error("❌ Nenhuma chave de assinatura disponível")
+                return None
 
-            # Assinar token
-            token = jwt.encode(
-                payload,
-                signing_key.private_key,
-                algorithm=signing_key.algorithm,
-                headers={"kid": signing_key.key_id},
-            )
-
-            # Incrementar contador de uso
-            signing_key.usage_count += 1
-
-            # Verificar se precisa rotacionar por uso excessivo
-            if signing_key.usage_count >= self.rotation_config["max_usage_count"]:
-                logger.info(
-                    f"🔄 Rotação necessária: chave {signing_key.key_id} atingiu limite de uso"
+            try:
+                # Adicionar claims padrão
+                now = datetime.now()
+                payload.update(
+                    {
+                        "iat": now.timestamp(),
+                        "exp": (now + timedelta(hours=expires_in_hours)).timestamp(),
+                        "kid": signing_key.key_id,  # Key ID para identificar a chave
+                    }
                 )
-                self._schedule_rotation("max_usage_reached")
 
-            logger.debug(f"🔐 Token assinado com chave {signing_key.key_id}")
-            return token
+                # CORRECAO 10/10: Decriptar chave privada antes de usar
+                try:
+                    private_key = self._decrypt_private_key(signing_key.private_key)
+                    # Serializar sem encriptacao para uso imediato
+                    private_key_pem = private_key.private_bytes(
+                        encoding=serialization.Encoding.PEM,
+                        format=serialization.PrivateFormat.PKCS8,
+                        encryption_algorithm=serialization.NoEncryption(),
+                    ).decode("utf-8")
+                except Exception:
+                    # Fallback: chave pode nao estar encriptada (legacy)
+                    private_key_pem = signing_key.private_key
 
-        except Exception as e:
-            logger.error(f"❌ Erro ao assinar token: {e}")
-            return None
+                # Assinar token
+                token = jwt.encode(
+                    payload,
+                    private_key_pem,
+                    algorithm=signing_key.algorithm,
+                    headers={"kid": signing_key.key_id},
+                )
+
+                # Incrementar contador de uso
+                signing_key.usage_count += 1
+
+                # Verificar se precisa rotacionar por uso excessivo
+                if signing_key.usage_count >= self.rotation_config["max_usage_count"]:
+                    logger.info(
+                        f"🔄 Rotação necessária: chave {signing_key.key_id} atingiu limite de uso"
+                    )
+                    self._schedule_rotation("max_usage_reached")
+
+                logger.debug(f"🔐 Token assinado com chave {signing_key.key_id}")
+                return token
+
+            except Exception as e:
+                logger.error(f"❌ Erro ao assinar token: {e}")
+                return None
 
     def verify_token(self, token: str) -> Optional[Dict[str, Any]]:
         """Verifica um token JWT"""

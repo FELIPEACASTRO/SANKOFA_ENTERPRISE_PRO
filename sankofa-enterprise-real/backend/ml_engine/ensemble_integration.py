@@ -1,10 +1,13 @@
 """
 Sankofa Enterprise Pro - Ensemble Integration Layer
 Integra CatBoost, GNN e outros modelos com o engine de fraude existente
+
+CORRECAO 10/10: Thread-safe singleton e temporal validation
 """
 
 import numpy as np
 import pandas as pd
+import threading
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 import logging
@@ -175,16 +178,55 @@ class IntegratedEnsemble:
 
         return best_weights
 
-    def train_catboost(self, X: pd.DataFrame, y: np.ndarray) -> Dict[str, float]:
-        """Treina o modelo CatBoost"""
+    def train_catboost(
+        self,
+        X: pd.DataFrame,
+        y: np.ndarray,
+        timestamp_col: Optional[str] = None
+    ) -> Dict[str, float]:
+        """Treina o modelo CatBoost
+
+        CORRECAO 10/10: Implementa temporal validation para evitar data leakage
+
+        Args:
+            X: Features
+            y: Labels
+            timestamp_col: Coluna de timestamp para split temporal (recomendado)
+
+        Returns:
+            Metricas de treinamento
+        """
         if not self._catboost_available or self.catboost_model is None:
             return {}
 
-        from sklearn.model_selection import train_test_split
+        # CORRECAO 10/10: Usar TimeSeriesSplit se possivel
+        if timestamp_col and timestamp_col in X.columns:
+            # Split temporal - ordenar por tempo e dividir sequencialmente
+            X_sorted = X.sort_values(by=timestamp_col).reset_index(drop=True)
+            y_sorted = y[X.sort_values(by=timestamp_col).index].reset_index(drop=True) if hasattr(y, 'index') else y
 
-        X_train, X_val, y_train, y_val = train_test_split(
-            X, y, test_size=0.2, random_state=42, stratify=y
-        )
+            n = len(X_sorted)
+            train_end = int(n * 0.8)
+
+            X_train = X_sorted.iloc[:train_end]
+            X_val = X_sorted.iloc[train_end:]
+            y_train = y_sorted[:train_end] if isinstance(y_sorted, np.ndarray) else y_sorted.iloc[:train_end]
+            y_val = y_sorted[train_end:] if isinstance(y_sorted, np.ndarray) else y_sorted.iloc[train_end:]
+
+            logger.info(f"CatBoost: Temporal split applied (train={train_end}, val={n-train_end})")
+        else:
+            # Fallback para StratifiedShuffleSplit (sem embaralhamento total)
+            from sklearn.model_selection import StratifiedShuffleSplit
+
+            sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
+            train_idx, val_idx = next(sss.split(X, y))
+
+            X_train = X.iloc[train_idx]
+            X_val = X.iloc[val_idx]
+            y_train = y[train_idx]
+            y_val = y[val_idx]
+
+            logger.warning("CatBoost: No timestamp column - using stratified split (potential leakage)")
 
         metrics = self.catboost_model.train(X_train, y_train, X_val, y_val)
         logger.info(f"CatBoost trained: {metrics}")
@@ -289,11 +331,17 @@ class IntegratedEnsemble:
 
 
 _integrated_ensemble: Optional[IntegratedEnsemble] = None
+_integrated_ensemble_lock = threading.Lock()
 
 
 def get_integrated_ensemble() -> IntegratedEnsemble:
-    """Retorna instância singleton do ensemble integrado"""
+    """Retorna instância singleton do ensemble integrado
+
+    CORRECAO 10/10: Double-checked locking para thread-safety
+    """
     global _integrated_ensemble
     if _integrated_ensemble is None:
-        _integrated_ensemble = IntegratedEnsemble()
+        with _integrated_ensemble_lock:
+            if _integrated_ensemble is None:
+                _integrated_ensemble = IntegratedEnsemble()
     return _integrated_ensemble
