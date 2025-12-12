@@ -1,40 +1,61 @@
 """
 Sankofa Enterprise Pro - PostgreSQL Store Service
 Armazenamento persistente usando PostgreSQL em vez de arquivo JSON
+
+CORRECAO 10/10: SimpleCache agora e thread-safe com RLock
 """
 
+import logging
 import os
 import json
 import time
+import threading
 from datetime import datetime
 from typing import Dict, List, Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
+logger = logging.getLogger(__name__)
+
 
 class SimpleCache:
-    """Cache simples em memória com TTL para reduzir latência"""
+    """Cache simples em memória com TTL para reduzir latência
+
+    CORRECAO 10/10: Thread-safe com RLock para evitar race conditions.
+    Todas as operacoes de leitura/escrita sao sincronizadas.
+    """
 
     def __init__(self, default_ttl: int = 30):
         self._cache = {}
         self._default_ttl = default_ttl
+        self._lock = threading.RLock()  # CORRECAO: Lock para thread-safety
 
     def get(self, key: str):
-        if key in self._cache:
-            entry = self._cache[key]
-            if time.time() < entry["expires"]:
-                return entry["value"]
-            del self._cache[key]
-        return None
+        """Obtem valor do cache de forma thread-safe"""
+        with self._lock:
+            if key in self._cache:
+                entry = self._cache[key]
+                if time.time() < entry["expires"]:
+                    return entry["value"]
+                # Expirado - remover
+                del self._cache[key]
+            return None
 
     def set(self, key: str, value, ttl: int = None):
-        self._cache[key] = {"value": value, "expires": time.time() + (ttl or self._default_ttl)}
+        """Define valor no cache de forma thread-safe"""
+        with self._lock:
+            self._cache[key] = {
+                "value": value,
+                "expires": time.time() + (ttl or self._default_ttl)
+            }
 
     def invalidate(self, key: str = None):
-        if key:
-            self._cache.pop(key, None)
-        else:
-            self._cache.clear()
+        """Invalida cache de forma thread-safe"""
+        with self._lock:
+            if key:
+                self._cache.pop(key, None)
+            else:
+                self._cache.clear()
 
 
 _dashboard_cache = SimpleCache(default_ttl=30)
@@ -76,7 +97,7 @@ class PostgresStore:
                     _dashboard_cache.set(cache_key, result, ttl=30)
                     return result
         except Exception as e:
-            print(f"Error fetching hard_rules: {e}")
+            logger.error(f"Error fetching hard_rules: {e}", exc_info=True)
             return []
 
     def add_hard_rule(
@@ -129,7 +150,7 @@ class PostgresStore:
                     _dashboard_cache.invalidate("hard_rules")
                     return dict(row)
         except Exception as e:
-            print(f"Error adding hard_rule: {e}")
+            logger.error(f"Error adding hard_rule: {e}", exc_info=True)
             raise
 
     def update_hard_rule(self, rule_id: int, data: Dict) -> bool:
@@ -178,7 +199,7 @@ class PostgresStore:
                         return cur.rowcount > 0
             return False
         except Exception as e:
-            print(f"Error updating hard_rule: {e}")
+            logger.error(f"Error updating hard_rule: {e}", exc_info=True)
             return False
 
     def delete_hard_rule(self, rule_id: int) -> bool:
@@ -191,7 +212,7 @@ class PostgresStore:
                     _dashboard_cache.invalidate("hard_rules")
                     return cur.rowcount > 0
         except Exception as e:
-            print(f"Error deleting hard_rule: {e}")
+            logger.error(f"Error deleting hard_rule: {e}", exc_info=True)
             return False
 
     def get_vip_list(self) -> List[Dict]:
@@ -210,7 +231,7 @@ class PostgresStore:
                     rows = cur.fetchall()
                     return [dict(row) for row in rows]
         except Exception as e:
-            print(f"Error fetching vip_list: {e}")
+            logger.error(f"Error fetching vip_list: {e}", exc_info=True)
             return []
 
     def add_vip(
@@ -232,7 +253,7 @@ class PostgresStore:
                     row = cur.fetchone()
                     return dict(row)
         except Exception as e:
-            print(f"Error adding to vip_list: {e}")
+            logger.error(f"Error adding to vip_list: {e}", exc_info=True)
             raise
 
     def delete_vip(self, item_id: int) -> bool:
@@ -244,7 +265,7 @@ class PostgresStore:
                     conn.commit()
                     return cur.rowcount > 0
         except Exception as e:
-            print(f"Error deleting from vip_list: {e}")
+            logger.error(f"Error deleting from vip_list: {e}", exc_info=True)
             return False
 
     def get_hot_list(self) -> List[Dict]:
@@ -263,7 +284,7 @@ class PostgresStore:
                     rows = cur.fetchall()
                     return [dict(row) for row in rows]
         except Exception as e:
-            print(f"Error fetching hot_list: {e}")
+            logger.error(f"Error fetching hot_list: {e}", exc_info=True)
             return []
 
     def add_hot(
@@ -285,7 +306,7 @@ class PostgresStore:
                     row = cur.fetchone()
                     return dict(row)
         except Exception as e:
-            print(f"Error adding to hot_list: {e}")
+            logger.error(f"Error adding to hot_list: {e}", exc_info=True)
             raise
 
     def delete_hot(self, item_id: int) -> bool:
@@ -297,7 +318,7 @@ class PostgresStore:
                     conn.commit()
                     return cur.rowcount > 0
         except Exception as e:
-            print(f"Error deleting from hot_list: {e}")
+            logger.error(f"Error deleting from hot_list: {e}", exc_info=True)
             return False
 
     def get_settings(self) -> Dict:
@@ -325,7 +346,7 @@ class PostgresStore:
                         return row["config_value"]
                     return default_settings
         except Exception as e:
-            print(f"Error fetching settings: {e}")
+            logger.error(f"Error fetching settings: {e}", exc_info=True)
             return default_settings
 
     def update_settings(self, settings: Dict) -> Dict:
@@ -348,7 +369,7 @@ class PostgresStore:
                     row = cur.fetchone()
                     return row["config_value"] if row else settings
         except Exception as e:
-            print(f"Error updating settings: {e}")
+            logger.error(f"Error updating settings: {e}", exc_info=True)
             return settings
 
     def add_audit_log(
@@ -370,7 +391,7 @@ class PostgresStore:
                     row = cur.fetchone()
                     return dict(row)
         except Exception as e:
-            print(f"Error adding audit_log: {e}")
+            logger.error(f"Error adding audit_log: {e}", exc_info=True)
             return {}
 
     def get_audit_logs(
@@ -410,7 +431,7 @@ class PostgresStore:
                     rows = cur.fetchall()
                     return [dict(row) for row in rows]
         except Exception as e:
-            print(f"Error fetching audit_logs: {e}")
+            logger.error(f"Error fetching audit_logs: {e}", exc_info=True)
             return []
 
     def get_alerts(self, limit: int = 100, status: str = None) -> List[Dict]:
@@ -440,7 +461,7 @@ class PostgresStore:
                     rows = cur.fetchall()
                     return [dict(row) for row in rows]
         except Exception as e:
-            print(f"Error fetching alerts: {e}")
+            logger.error(f"Error fetching alerts: {e}", exc_info=True)
             return []
 
     def add_alert(
@@ -485,7 +506,7 @@ class PostgresStore:
                     row = cur.fetchone()
                     return dict(row)
         except Exception as e:
-            print(f"Error adding alert: {e}")
+            logger.error(f"Error adding alert: {e}", exc_info=True)
             raise
 
     def update_alert_status(self, alert_id: int, status: str, investigator: str = None) -> bool:
@@ -504,7 +525,7 @@ class PostgresStore:
                     conn.commit()
                     return cur.rowcount > 0
         except Exception as e:
-            print(f"Error updating alert status: {e}")
+            logger.error(f"Error updating alert status: {e}", exc_info=True)
             return False
 
     def add_feedback(
@@ -526,7 +547,7 @@ class PostgresStore:
                     row = cur.fetchone()
                     return dict(row)
         except Exception as e:
-            print(f"Error adding feedback: {e}")
+            logger.error(f"Error adding feedback: {e}", exc_info=True)
             raise
 
     def get_feedback_list(self, limit: int = 100) -> List[Dict]:
@@ -549,7 +570,7 @@ class PostgresStore:
                     rows = cur.fetchall()
                     return [dict(row) for row in rows]
         except Exception as e:
-            print(f"Error fetching feedback: {e}")
+            logger.error(f"Error fetching feedback: {e}", exc_info=True)
             return []
 
     def get_feedback_analytics(self) -> Dict:
@@ -580,7 +601,7 @@ class PostgresStore:
                         "accuracy_improvement": 0,
                     }
         except Exception as e:
-            print(f"Error fetching feedback analytics: {e}")
+            logger.error(f"Error fetching feedback analytics: {e}", exc_info=True)
             return {
                 "total_feedback": 0,
                 "fraud_confirmed": 0,
@@ -608,7 +629,7 @@ class PostgresStore:
                     rows = cur.fetchall()
                     return [dict(row) for row in rows]
         except Exception as e:
-            print(f"Error fetching pending reviews: {e}")
+            logger.error(f"Error fetching pending reviews: {e}", exc_info=True)
             return []
 
     def add_to_manual_review(self, transaction_id: str, reason: str = None) -> bool:
@@ -627,7 +648,7 @@ class PostgresStore:
                     conn.commit()
                     return cur.rowcount > 0
         except Exception as e:
-            print(f"Error adding to manual review: {e}")
+            logger.error(f"Error adding to manual review: {e}", exc_info=True)
             return False
 
     def complete_review(
@@ -674,7 +695,7 @@ class PostgresStore:
                     conn.commit()
                     return rows_updated > 0
         except Exception as e:
-            print(f"Error completing review: {e}")
+            logger.error(f"Error completing review: {e}", exc_info=True)
             return False
 
     def get_investigations(self) -> List[Dict]:
@@ -697,7 +718,7 @@ class PostgresStore:
                     rows = cur.fetchall()
                     return [dict(row) for row in rows]
         except Exception as e:
-            print(f"Error fetching investigations: {e}")
+            logger.error(f"Error fetching investigations: {e}", exc_info=True)
             return []
 
     def get_recent_transactions(self, limit: int = 50) -> List[Dict]:
@@ -727,7 +748,7 @@ class PostgresStore:
                     _dashboard_cache.set(cache_key, result, ttl=30)
                     return result
         except Exception as e:
-            print(f"Error fetching recent transactions: {e}")
+            logger.error(f"Error fetching recent transactions: {e}", exc_info=True)
             return []
 
     def get_transaction_by_id(self, transaction_id: str) -> Optional[Dict]:
@@ -747,7 +768,7 @@ class PostgresStore:
                     row = cur.fetchone()
                     return dict(row) if row else None
         except Exception as e:
-            print(f"Error fetching transaction: {e}")
+            logger.error(f"Error fetching transaction: {e}", exc_info=True)
             return None
 
     def get_dashboard_kpis(self, date_from: str = None, date_to: str = None) -> Dict:
@@ -830,7 +851,7 @@ class PostgresStore:
                     _dashboard_cache.set(cache_key, result, ttl=30)
                     return result
         except Exception as e:
-            print(f"Error fetching dashboard KPIs: {e}")
+            logger.error(f"Error fetching dashboard KPIs: {e}", exc_info=True)
             return {
                 "transacoes_hoje": 0,
                 "transacoes_variacao": 0,
@@ -886,7 +907,7 @@ class PostgresStore:
                     _dashboard_cache.set(cache_key, result, ttl=30)
                     return result
         except Exception as e:
-            print(f"Error fetching dashboard timeseries: {e}")
+            logger.error(f"Error fetching dashboard timeseries: {e}", exc_info=True)
             return [{"time": f"{h:02d}:00", "transactions": 0, "latency": 0} for h in range(24)]
 
     def get_dashboard_channels(self) -> List[Dict]:
@@ -939,7 +960,7 @@ class PostgresStore:
                     _dashboard_cache.set(cache_key, result, ttl=30)
                     return result
         except Exception as e:
-            print(f"Error fetching dashboard channels: {e}")
+            logger.error(f"Error fetching dashboard channels: {e}", exc_info=True)
             return []
 
     def get_alerts_list(self, limit: int = 100) -> List[Dict]:
@@ -961,7 +982,7 @@ class PostgresStore:
                     rows = cur.fetchall()
                     return [dict(row) for row in rows]
         except Exception as e:
-            print(f"Error fetching alerts: {e}")
+            logger.error(f"Error fetching alerts: {e}", exc_info=True)
             return []
 
     def add_alert(self, alert_data: Dict) -> Dict:
@@ -995,7 +1016,7 @@ class PostgresStore:
                     row = cur.fetchone()
                     return dict(row)
         except Exception as e:
-            print(f"Error adding alert: {e}")
+            logger.error(f"Error adding alert: {e}", exc_info=True)
             return {}
 
     def update_alert_status(self, alert_id: str, status: str, investigator: str = None) -> bool:
@@ -1014,7 +1035,7 @@ class PostgresStore:
                     conn.commit()
                     return cur.rowcount > 0
         except Exception as e:
-            print(f"Error updating alert: {e}")
+            logger.error(f"Error updating alert: {e}", exc_info=True)
             return False
 
     def update_transaction_status(self, transaction_id: str, new_status: str) -> bool:
@@ -1033,7 +1054,7 @@ class PostgresStore:
                     conn.commit()
                     return cur.rowcount > 0
         except Exception as e:
-            print(f"Error updating transaction status: {e}")
+            logger.error(f"Error updating transaction status: {e}", exc_info=True)
             return False
 
     def get_model_metrics(self) -> List[Dict]:
@@ -1053,7 +1074,7 @@ class PostgresStore:
                     rows = cur.fetchall()
                     return [dict(row) for row in rows]
         except Exception as e:
-            print(f"Error fetching model metrics: {e}")
+            logger.error(f"Error fetching model metrics: {e}", exc_info=True)
             return []
 
     def get_calibration_settings(self) -> Dict:
@@ -1071,7 +1092,7 @@ class PostgresStore:
                 },
             )
         except Exception as e:
-            print(f"Error fetching calibration settings: {e}")
+            logger.error(f"Error fetching calibration settings: {e}", exc_info=True)
             return {}
 
     def save_calibration_settings(self, settings: Dict) -> bool:
@@ -1081,7 +1102,7 @@ class PostgresStore:
             current_settings["calibration"] = settings
             return self.update_settings(current_settings)
         except Exception as e:
-            print(f"Error saving calibration settings: {e}")
+            logger.error(f"Error saving calibration settings: {e}", exc_info=True)
             return False
 
     def get_datasets_catalog(self) -> List[Dict]:
@@ -1127,7 +1148,7 @@ class PostgresStore:
                     row = cur.fetchone()
                     datasets[1]["records"] = int(row["count"] or 0)
         except Exception as e:
-            print(f"Error fetching dataset counts: {e}")
+            logger.error(f"Error fetching dataset counts: {e}", exc_info=True)
         return datasets
 
     def get_monitoring_status(self) -> Dict:
@@ -1170,7 +1191,7 @@ class PostgresStore:
                         "database_status": "connected",
                     }
         except Exception as e:
-            print(f"Error fetching monitoring status: {e}")
+            logger.error(f"Error fetching monitoring status: {e}", exc_info=True)
             return {"system_status": "error", "error": str(e)}
 
     def generate_report(self, report_type: str, date_from: str = None, date_to: str = None) -> Dict:
@@ -1236,7 +1257,7 @@ class PostgresStore:
                         "status": "completed",
                     }
         except Exception as e:
-            print(f"Error generating report: {e}")
+            logger.error(f"Error generating report: {e}", exc_info=True)
             return {"status": "error", "error": str(e)}
 
 

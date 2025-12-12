@@ -26,6 +26,9 @@ class SecurityHeadersMiddleware:
     Proteção contra: XSS, Clickjacking, MIME sniffing, etc.
     """
 
+    # CORRECAO 10/10: CSP sem unsafe-inline/unsafe-eval em producao
+    # Em APIs REST puras, nao precisamos de inline scripts/styles
+
     # Headers de segurança recomendados pela OWASP
     SECURITY_HEADERS = {
         # HSTS - Force HTTPS
@@ -40,17 +43,19 @@ class SecurityHeadersMiddleware:
         # XSS Protection (legacy, mas ainda útil para browsers antigos)
         'X-XSS-Protection': '1; mode=block',
 
-        # Content Security Policy - Previne XSS e data injection
+        # CORRECAO 10/10: Content Security Policy SEGURO - sem unsafe-inline/unsafe-eval
+        # Para APIs REST, CSP rigoroso é possivel e recomendado
         'Content-Security-Policy': (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-            "style-src 'self' 'unsafe-inline'; "
-            "img-src 'self' data: https:; "
-            "font-src 'self' data:; "
+            "default-src 'none'; "  # CORRECAO: Bloquear tudo por padrao
+            "script-src 'self'; "  # CORRECAO: Removido unsafe-inline e unsafe-eval
+            "style-src 'self'; "  # CORRECAO: Removido unsafe-inline
+            "img-src 'self' data:; "
+            "font-src 'self'; "
             "connect-src 'self'; "
             "frame-ancestors 'none'; "
             "base-uri 'self'; "
-            "form-action 'self'"
+            "form-action 'self'; "
+            "upgrade-insecure-requests"  # CORRECAO: Force upgrade para HTTPS
         ),
 
         # Referrer Policy - Controla informação de referrer
@@ -394,20 +399,71 @@ class AdvancedRateLimiter:
 
         return durations[index]
 
+    # CORRECAO 10/10: Lista de proxies confiáveis para validar X-Forwarded-For
+    # Em produção, deve ser configurado com IPs reais dos load balancers
+    TRUSTED_PROXIES = frozenset({
+        '127.0.0.1',
+        '::1',
+        '10.0.0.0/8',  # Private network (simplificado - em prod usar ipaddress)
+        '172.16.0.0/12',
+        '192.168.0.0/16',
+    })
+
     def _get_client_ip(self) -> str:
         """
         Obtém IP real do cliente (considerando proxies)
 
+        CORRECAO 10/10: Valida que X-Forwarded-For vem de proxy confiável
+        para prevenir header spoofing e bypass de rate limiting.
+
         Returns:
             IP do cliente
         """
-        # Verifica headers de proxy
-        if request.headers.get('X-Forwarded-For'):
-            return request.headers.get('X-Forwarded-For').split(',')[0].strip()
-        elif request.headers.get('X-Real-IP'):
-            return request.headers.get('X-Real-IP')
+        import os
 
-        return request.remote_addr or '0.0.0.0'
+        # CORRECAO 10/10: Apenas confiar em X-Forwarded-For se vier de proxy confiável
+        # Em produção, configurar TRUSTED_PROXY_IPS no ambiente
+        trusted_proxies_env = os.environ.get('TRUSTED_PROXY_IPS', '')
+        trusted_proxies = set(trusted_proxies_env.split(',')) if trusted_proxies_env else set()
+
+        # Adicionar proxies locais como confiáveis por padrão
+        trusted_proxies.update({'127.0.0.1', '::1'})
+
+        remote_addr = request.remote_addr or '0.0.0.0'
+
+        # CORRECAO 10/10: Só usar X-Forwarded-For se o request vier de proxy confiável
+        if remote_addr in trusted_proxies:
+            # Request veio de proxy confiável, podemos confiar no header
+            x_forwarded_for = request.headers.get('X-Forwarded-For')
+            if x_forwarded_for:
+                # Pegar o primeiro IP (cliente original)
+                client_ip = x_forwarded_for.split(',')[0].strip()
+                # Validar que parece um IP válido
+                if self._is_valid_ip(client_ip):
+                    return client_ip
+
+            x_real_ip = request.headers.get('X-Real-IP')
+            if x_real_ip and self._is_valid_ip(x_real_ip):
+                return x_real_ip
+
+        # Se não vier de proxy confiável, usar IP direto (ignora headers spoofados)
+        return remote_addr
+
+    def _is_valid_ip(self, ip: str) -> bool:
+        """Valida formato básico de IP para prevenir injection"""
+        import re
+        # IPv4
+        ipv4_pattern = r'^(\d{1,3}\.){3}\d{1,3}$'
+        # IPv6 simplificado
+        ipv6_pattern = r'^[0-9a-fA-F:]+$'
+
+        if re.match(ipv4_pattern, ip):
+            # Verificar que octetos são válidos
+            octets = ip.split('.')
+            return all(0 <= int(o) <= 255 for o in octets)
+        elif re.match(ipv6_pattern, ip):
+            return True
+        return False
 
 
 # ============================================================================

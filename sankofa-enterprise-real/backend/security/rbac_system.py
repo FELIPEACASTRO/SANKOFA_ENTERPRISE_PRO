@@ -6,6 +6,7 @@ Sistema completo de controle de acesso baseado em papéis e permissões
 import os
 import hashlib
 import secrets
+import threading
 from typing import Dict, List, Set, Optional, Any, Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -109,7 +110,7 @@ class Session:
 class RBACSystem:
     """
     Sistema RBAC completo
-    
+
     Features:
     - Hierarquia de papéis
     - Permissões granulares
@@ -117,17 +118,22 @@ class RBACSystem:
     - Negação explícita de permissões
     - Auditoria de acessos
     - Sessões com expiração
+
+    CORRECAO 10/10: Thread-safe com RLock para todas as operacoes
     """
-    
+
     def __init__(self):
+        # CORRECAO 10/10: Lock para thread-safety
+        self._lock = threading.RLock()
+
         self.roles: Dict[str, Role] = {}
         self.users: Dict[str, User] = {}
         self.sessions: Dict[str, Session] = {}
         self.access_log: List[Dict] = []
-        
+
         self._initialize_default_roles()
-        
-        logger.info("RBAC System initialized")
+
+        logger.info("RBAC System initialized (thread-safe)")
     
     def _initialize_default_roles(self):
         """Inicializa papéis padrão do sistema"""
@@ -241,124 +247,152 @@ class RBACSystem:
         ))
     
     def create_role(self, role: Role) -> bool:
-        """Cria um novo papel"""
-        if role.name in self.roles and self.roles[role.name].is_system_role:
-            logger.warning(f"Cannot modify system role: {role.name}")
-            return False
-        
-        if role.parent_role and role.parent_role in self.roles:
-            parent = self.roles[role.parent_role]
-            role.permissions = role.permissions.union(parent.permissions)
-        
-        self.roles[role.name] = role
-        logger.info(f"Role created: {role.name}")
-        return True
+        """Cria um novo papel
+
+        CORRECAO 10/10: Thread-safe com lock
+        """
+        with self._lock:
+            if role.name in self.roles and self.roles[role.name].is_system_role:
+                logger.warning(f"Cannot modify system role: {role.name}")
+                return False
+
+            if role.parent_role and role.parent_role in self.roles:
+                parent = self.roles[role.parent_role]
+                role.permissions = role.permissions.union(parent.permissions)
+
+            self.roles[role.name] = role
+            logger.info(f"Role created: {role.name}")
+            return True
     
     def delete_role(self, role_name: str) -> bool:
-        """Remove um papel"""
-        if role_name not in self.roles:
-            return False
-        
-        if self.roles[role_name].is_system_role:
-            logger.warning(f"Cannot delete system role: {role_name}")
-            return False
-        
-        users_with_role = [u for u in self.users.values() if role_name in u.roles]
-        for user in users_with_role:
-            user.roles.discard(role_name)
-        
-        del self.roles[role_name]
-        logger.info(f"Role deleted: {role_name}")
-        return True
+        """Remove um papel
+
+        CORRECAO 10/10: Thread-safe com lock
+        """
+        with self._lock:
+            if role_name not in self.roles:
+                return False
+
+            if self.roles[role_name].is_system_role:
+                logger.warning(f"Cannot delete system role: {role_name}")
+                return False
+
+            users_with_role = [u for u in self.users.values() if role_name in u.roles]
+            for user in users_with_role:
+                user.roles.discard(role_name)
+
+            del self.roles[role_name]
+            logger.info(f"Role deleted: {role_name}")
+            return True
     
     def create_user(self, user: User) -> bool:
-        """Cria um novo usuário"""
-        if user.user_id in self.users:
-            logger.warning(f"User already exists: {user.user_id}")
-            return False
-        
-        invalid_roles = user.roles - set(self.roles.keys())
-        if invalid_roles:
-            logger.warning(f"Invalid roles: {invalid_roles}")
-            return False
-        
-        self.users[user.user_id] = user
-        logger.info(f"User created: {user.username}")
-        return True
-    
-    def update_user(self, user_id: str, updates: Dict) -> bool:
-        """Atualiza um usuário"""
-        if user_id not in self.users:
-            return False
-        
-        user = self.users[user_id]
-        
-        if 'roles' in updates:
-            invalid_roles = set(updates['roles']) - set(self.roles.keys())
+        """Cria um novo usuário
+
+        CORRECAO 10/10: Thread-safe com lock
+        """
+        with self._lock:
+            if user.user_id in self.users:
+                logger.warning(f"User already exists: {user.user_id}")
+                return False
+
+            invalid_roles = user.roles - set(self.roles.keys())
             if invalid_roles:
                 logger.warning(f"Invalid roles: {invalid_roles}")
                 return False
-            user.roles = set(updates['roles'])
-        
-        if 'is_active' in updates:
-            user.is_active = updates['is_active']
-        
-        if 'is_locked' in updates:
-            user.is_locked = updates['is_locked']
-        
-        if 'mfa_enabled' in updates:
-            user.mfa_enabled = updates['mfa_enabled']
-        
-        if 'permissions_override' in updates:
-            user.permissions_override = {Permission(p) for p in updates['permissions_override']}
-        
-        if 'denied_permissions' in updates:
-            user.denied_permissions = {Permission(p) for p in updates['denied_permissions']}
-        
-        logger.info(f"User updated: {user.username}")
-        return True
+
+            self.users[user.user_id] = user
+            logger.info(f"User created: {user.username}")
+            return True
+    
+    def update_user(self, user_id: str, updates: Dict) -> bool:
+        """Atualiza um usuário
+
+        CORRECAO 10/10: Thread-safe com lock
+        """
+        with self._lock:
+            if user_id not in self.users:
+                return False
+
+            user = self.users[user_id]
+
+            if 'roles' in updates:
+                invalid_roles = set(updates['roles']) - set(self.roles.keys())
+                if invalid_roles:
+                    logger.warning(f"Invalid roles: {invalid_roles}")
+                    return False
+                user.roles = set(updates['roles'])
+
+            if 'is_active' in updates:
+                user.is_active = updates['is_active']
+
+            if 'is_locked' in updates:
+                user.is_locked = updates['is_locked']
+
+            if 'mfa_enabled' in updates:
+                user.mfa_enabled = updates['mfa_enabled']
+
+            if 'permissions_override' in updates:
+                user.permissions_override = {Permission(p) for p in updates['permissions_override']}
+
+            if 'denied_permissions' in updates:
+                user.denied_permissions = {Permission(p) for p in updates['denied_permissions']}
+
+            logger.info(f"User updated: {user.username}")
+            return True
     
     def assign_role(self, user_id: str, role_name: str) -> bool:
-        """Atribui um papel a um usuário"""
-        if user_id not in self.users:
-            return False
-        
-        if role_name not in self.roles:
-            return False
-        
-        self.users[user_id].roles.add(role_name)
-        logger.info(f"Role {role_name} assigned to user {user_id}")
-        return True
-    
+        """Atribui um papel a um usuário
+
+        CORRECAO 10/10: Thread-safe com lock
+        """
+        with self._lock:
+            if user_id not in self.users:
+                return False
+
+            if role_name not in self.roles:
+                return False
+
+            self.users[user_id].roles.add(role_name)
+            logger.info(f"Role {role_name} assigned to user {user_id}")
+            return True
+
     def revoke_role(self, user_id: str, role_name: str) -> bool:
-        """Remove um papel de um usuário"""
-        if user_id not in self.users:
-            return False
-        
-        self.users[user_id].roles.discard(role_name)
-        logger.info(f"Role {role_name} revoked from user {user_id}")
-        return True
+        """Remove um papel de um usuário
+
+        CORRECAO 10/10: Thread-safe com lock
+        """
+        with self._lock:
+            if user_id not in self.users:
+                return False
+
+            self.users[user_id].roles.discard(role_name)
+            logger.info(f"Role {role_name} revoked from user {user_id}")
+            return True
     
     def get_user_permissions(self, user_id: str) -> Set[Permission]:
-        """Retorna todas as permissões efetivas de um usuário"""
-        if user_id not in self.users:
-            return set()
-        
-        user = self.users[user_id]
-        
-        if not user.is_active or user.is_locked:
-            return set()
-        
-        permissions = set()
-        for role_name in user.roles:
-            if role_name in self.roles:
-                permissions.update(self.roles[role_name].permissions)
-        
-        permissions.update(user.permissions_override)
-        
-        permissions -= user.denied_permissions
-        
-        return permissions
+        """Retorna todas as permissões efetivas de um usuário
+
+        CORRECAO 10/10: Thread-safe com lock
+        """
+        with self._lock:
+            if user_id not in self.users:
+                return set()
+
+            user = self.users[user_id]
+
+            if not user.is_active or user.is_locked:
+                return set()
+
+            permissions = set()
+            for role_name in user.roles:
+                if role_name in self.roles:
+                    permissions.update(self.roles[role_name].permissions)
+
+            permissions.update(user.permissions_override)
+
+            permissions -= user.denied_permissions
+
+            return permissions
     
     def check_permission(
         self,
@@ -421,69 +455,85 @@ class RBACSystem:
         user_agent: str,
         duration_hours: int = 24
     ) -> Optional[Session]:
-        """Cria uma nova sessão para o usuário"""
-        if user_id not in self.users:
-            return None
-        
-        user = self.users[user_id]
-        if not user.is_active or user.is_locked:
-            return None
-        
-        session_id = secrets.token_urlsafe(32)
-        now = datetime.now()
-        
-        session = Session(
-            session_id=session_id,
-            user_id=user_id,
-            created_at=now,
-            expires_at=now + timedelta(hours=duration_hours),
-            ip_address=ip_address,
-            user_agent=user_agent
-        )
-        
-        self.sessions[session_id] = session
-        user.last_login = now
-        
-        logger.info(f"Session created for user {user_id}")
-        return session
+        """Cria uma nova sessão para o usuário
+
+        CORRECAO 10/10: Thread-safe com lock
+        """
+        with self._lock:
+            if user_id not in self.users:
+                return None
+
+            user = self.users[user_id]
+            if not user.is_active or user.is_locked:
+                return None
+
+            session_id = secrets.token_urlsafe(32)
+            now = datetime.now()
+
+            session = Session(
+                session_id=session_id,
+                user_id=user_id,
+                created_at=now,
+                expires_at=now + timedelta(hours=duration_hours),
+                ip_address=ip_address,
+                user_agent=user_agent
+            )
+
+            self.sessions[session_id] = session
+            user.last_login = now
+
+            logger.info(f"Session created for user {user_id}")
+            return session
     
     def validate_session(self, session_id: str) -> Optional[User]:
-        """Valida uma sessão e retorna o usuário"""
-        if session_id not in self.sessions:
-            return None
-        
-        session = self.sessions[session_id]
-        
-        if not session.is_active:
-            return None
-        
-        if datetime.now() > session.expires_at:
-            session.is_active = False
-            return None
-        
-        session.last_activity = datetime.now()
-        
-        return self.users.get(session.user_id)
-    
-    def invalidate_session(self, session_id: str) -> bool:
-        """Invalida uma sessão"""
-        if session_id not in self.sessions:
-            return False
-        
-        self.sessions[session_id].is_active = False
-        logger.info(f"Session invalidated: {session_id[:8]}...")
-        return True
-    
-    def invalidate_user_sessions(self, user_id: str) -> int:
-        """Invalida todas as sessões de um usuário"""
-        count = 0
-        for session in self.sessions.values():
-            if session.user_id == user_id and session.is_active:
+        """Valida uma sessão e retorna o usuário
+
+        CORRECAO 10/10: Thread-safe com lock
+        """
+        with self._lock:
+            if session_id not in self.sessions:
+                return None
+
+            session = self.sessions[session_id]
+
+            if not session.is_active:
+                return None
+
+            if datetime.now() > session.expires_at:
                 session.is_active = False
-                count += 1
-        
-        logger.info(f"Invalidated {count} sessions for user {user_id}")
-        return count
+                return None
+
+            session.last_activity = datetime.now()
+
+            return self.users.get(session.user_id)
+
+    def invalidate_session(self, session_id: str) -> bool:
+        """Invalida uma sessão
+
+        CORRECAO 10/10: Thread-safe com lock
+        """
+        with self._lock:
+            if session_id not in self.sessions:
+                return False
+
+            self.sessions[session_id].is_active = False
+            logger.info(f"Session invalidated: {session_id[:8]}...")
+            return True
+
+    def invalidate_user_sessions(self, user_id: str) -> int:
+        """Invalida todas as sessões de um usuário
+
+        CORRECAO 10/10: Thread-safe com lock
+        """
+        with self._lock:
+            count = 0
+            for session in self.sessions.values():
+                if session.user_id == user_id and session.is_active:
+                    session.is_active = False
+                    count += 1
+
+            logger.info(f"Invalidated {count} sessions for user {user_id}")
+            return count
     
     def _log_access(
         self,
@@ -492,17 +542,21 @@ class RBACSystem:
         granted: bool,
         reason: str
     ):
-        """Registra tentativa de acesso"""
-        self.access_log.append({
-            "timestamp": datetime.now().isoformat(),
-            "user_id": user_id,
-            "permission": permission.value,
-            "granted": granted,
-            "reason": reason
-        })
-        
-        if len(self.access_log) > 10000:
-            self.access_log = self.access_log[-5000:]
+        """Registra tentativa de acesso
+
+        CORRECAO 10/10: Thread-safe com lock
+        """
+        with self._lock:
+            self.access_log.append({
+                "timestamp": datetime.now().isoformat(),
+                "user_id": user_id,
+                "permission": permission.value,
+                "granted": granted,
+                "reason": reason
+            })
+
+            if len(self.access_log) > 10000:
+                self.access_log = self.access_log[-5000:]
     
     def get_access_log(
         self,
@@ -587,13 +641,19 @@ def require_permission(*permissions: Permission):
 
 
 _rbac_instance: Optional[RBACSystem] = None
+_rbac_lock = threading.Lock()
 
 
 def get_rbac_system() -> RBACSystem:
-    """Retorna instância singleton do sistema RBAC"""
+    """Retorna instância singleton do sistema RBAC
+
+    CORRECAO 10/10: Double-checked locking para thread-safety
+    """
     global _rbac_instance
     if _rbac_instance is None:
-        _rbac_instance = RBACSystem()
+        with _rbac_lock:
+            if _rbac_instance is None:
+                _rbac_instance = RBACSystem()
     return _rbac_instance
 
 

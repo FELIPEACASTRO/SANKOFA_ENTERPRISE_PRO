@@ -2,6 +2,8 @@
 Sankofa Enterprise Pro - Prediction Cache System
 Cache de predições para latência sub-50ms
 Reduz latência de 284ms para <30ms em cache hits
+
+CORRECAO 10/10: Uso de timezone-aware datetime (datetime.utcnow() deprecated desde Python 3.12)
 """
 
 import hashlib
@@ -10,9 +12,19 @@ import time
 import threading
 from typing import Dict, Any, Optional, List, Tuple
 from dataclasses import dataclass, asdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from collections import OrderedDict
 import logging
+
+
+def _utc_now() -> datetime:
+    """Retorna datetime atual em UTC com timezone info"""
+    return datetime.now(timezone.utc)
+
+
+def _utc_now_iso_z() -> str:
+    """Retorna timestamp ISO 8601 em UTC com sufixo Z"""
+    return datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S') + "Z"
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +48,26 @@ class CachedPrediction:
         return asdict(self)
     
     def is_expired(self) -> bool:
-        return datetime.utcnow() > datetime.fromisoformat(self.expires_at.replace('Z', ''))
+        # CORRECAO 10/10: Usar timezone-aware comparison
+        # CORRECAO ADICIONAL: Tratar corretamente diferentes formatos de timestamp
+        now = datetime.now(timezone.utc)
+        expires_str = self.expires_at
+
+        # Normalizar o timestamp para parsing correto
+        # Pode vir como: '2025-12-12T15:10:56Z' ou '2025-12-12T15:10:56+00:00'
+        if expires_str.endswith('Z'):
+            expires_str = expires_str[:-1] + '+00:00'
+        elif not ('+' in expires_str or expires_str.endswith('Z')):
+            # Timestamp naive - assumir UTC
+            expires_str = expires_str + '+00:00'
+
+        try:
+            expires = datetime.fromisoformat(expires_str)
+        except ValueError:
+            # Fallback: se não conseguir parsear, considerar expirado
+            return True
+
+        return now > expires
 
 
 class PredictionCache:
@@ -163,8 +194,9 @@ class PredictionCache:
         """Armazena predição no cache"""
         tx_hash = self._generate_hash(transaction)
         ttl = self._get_ttl(risk_level)
-        
-        now = datetime.utcnow()
+
+        # CORRECAO 10/10: Usar timezone-aware datetime
+        now = _utc_now()
         expires = now + timedelta(seconds=ttl)
         
         cached = CachedPrediction(
@@ -176,8 +208,11 @@ class PredictionCache:
             confidence=confidence,
             model_version=model_version,
             detection_reason=detection_reason,
-            cached_at=now.isoformat() + "Z",
-            expires_at=expires.isoformat() + "Z",
+            # CORRECAO: Usar formato consistente sem duplicar timezone
+            # datetime.now(timezone.utc).isoformat() já inclui +00:00
+            # Usar strftime para formato limpo com Z
+            cached_at=now.strftime('%Y-%m-%dT%H:%M:%S') + "Z",
+            expires_at=expires.strftime('%Y-%m-%dT%H:%M:%S') + "Z",
             hit_count=0
         )
         
@@ -267,13 +302,19 @@ class PredictionCache:
 
 
 _prediction_cache: Optional[PredictionCache] = None
+_prediction_cache_lock = threading.Lock()
 
 
 def get_prediction_cache() -> PredictionCache:
-    """Singleton para PredictionCache"""
+    """Singleton para PredictionCache
+
+    CORRECAO 10/10: Double-checked locking para thread-safety
+    """
     global _prediction_cache
     if _prediction_cache is None:
-        _prediction_cache = PredictionCache()
+        with _prediction_cache_lock:
+            if _prediction_cache is None:
+                _prediction_cache = PredictionCache()
     return _prediction_cache
 
 
@@ -321,7 +362,7 @@ class CachedFraudEngine:
                 'detection_reason': cached.detection_reason,
                 'processing_time_ms': round(elapsed_ms, 2),
                 'cache_hit': True,
-                'timestamp': datetime.utcnow().isoformat() + "Z"
+                'timestamp': _utc_now_iso_z()
             }
         
         engine = self._get_engine()
@@ -373,7 +414,7 @@ class CachedFraudEngine:
             'detection_reason': ['No prediction available'],
             'processing_time_ms': round(elapsed_ms, 2),
             'cache_hit': False,
-            'timestamp': datetime.utcnow().isoformat() + "Z"
+            'timestamp': _utc_now_iso_z()
         }
     
     def predict_batch_with_cache(self, transactions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -390,13 +431,19 @@ class CachedFraudEngine:
 
 
 _cached_engine: Optional[CachedFraudEngine] = None
+_cached_engine_lock = threading.Lock()
 
 
 def get_cached_fraud_engine() -> CachedFraudEngine:
-    """Singleton para CachedFraudEngine"""
+    """Singleton para CachedFraudEngine
+
+    CORRECAO 10/10: Double-checked locking para thread-safety
+    """
     global _cached_engine
     if _cached_engine is None:
-        _cached_engine = CachedFraudEngine()
+        with _cached_engine_lock:
+            if _cached_engine is None:
+                _cached_engine = CachedFraudEngine()
     return _cached_engine
 
 

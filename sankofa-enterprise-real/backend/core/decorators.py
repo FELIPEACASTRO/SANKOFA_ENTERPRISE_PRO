@@ -151,7 +151,7 @@ class MetricsDecorator:
                 self._metrics.record_histogram(
                     f"{metric_name}_duration_ms",
                     duration_ms,
-                    tags={'function': func.__name__', 'status': 'success'}
+                    tags={'function': func.__name__, 'status': 'success'}
                 )
 
                 return result
@@ -161,12 +161,12 @@ class MetricsDecorator:
                 duration_ms = (time.time() - start_time) * 1000
                 self._metrics.increment_counter(
                     f"{metric_name}_failure",
-                    tags={'function': func.__name__', 'error_type': type(e).__name__}
+                    tags={'function': func.__name__, 'error_type': type(e).__name__}
                 )
                 self._metrics.record_histogram(
                     f"{metric_name}_duration_ms",
                     duration_ms,
-                    tags={'function': func.__name__', 'status': 'error'}
+                    tags={'function': func.__name__, 'status': 'error'}
                 )
 
                 raise
@@ -309,6 +309,27 @@ class RetryDecorator:
         self._exponential_base = exponential_base
         self._retryable_exceptions = retryable_exceptions
 
+    # Expor atributos para testes
+    @property
+    def max_retries(self) -> int:
+        """Retorna o número máximo de tentativas."""
+        return self._max_retries
+
+    @property
+    def initial_delay(self) -> float:
+        """Retorna o delay inicial."""
+        return self._initial_delay
+
+    @property
+    def max_delay(self) -> float:
+        """Retorna o delay máximo."""
+        return self._max_delay
+
+    @property
+    def exponential_base(self) -> float:
+        """Retorna a base exponencial."""
+        return self._exponential_base
+
     def __call__(self, func: Callable) -> Callable:
         @wraps(func)
         async def wrapper(*args, **kwargs) -> Any:
@@ -373,22 +394,51 @@ class CircuitBreakerDecorator:
         self,
         failure_threshold: int = 5,
         timeout: float = 60.0,
+        recovery_timeout: float = None,  # Alias para timeout (compatibilidade)
         expected_exception: type = Exception
     ):
         """
         Args:
             failure_threshold: Number of failures before opening circuit
             timeout: Time in seconds before attempting recovery (HALF_OPEN)
+            recovery_timeout: Alias para timeout (compatibilidade com testes)
             expected_exception: Exception type that counts as failure
         """
         self._failure_threshold = failure_threshold
-        self._timeout = timeout
+        # recovery_timeout é um alias para timeout
+        self._timeout = recovery_timeout if recovery_timeout is not None else timeout
         self._expected_exception = expected_exception
 
         # State
         self._failure_count = 0
         self._last_failure_time = None
         self._state = "CLOSED"  # CLOSED, OPEN, HALF_OPEN
+
+    # Expor atributos para testes
+    @property
+    def failure_threshold(self) -> int:
+        """Retorna o limiar de falhas."""
+        return self._failure_threshold
+
+    @property
+    def timeout(self) -> float:
+        """Retorna o timeout."""
+        return self._timeout
+
+    @property
+    def recovery_timeout(self) -> float:
+        """Alias para timeout (compatibilidade)."""
+        return self._timeout
+
+    @property
+    def state(self) -> str:
+        """Retorna o estado atual do circuit breaker."""
+        return self._state
+
+    @property
+    def failure_count(self) -> int:
+        """Retorna a contagem de falhas."""
+        return self._failure_count
 
     def __call__(self, func: Callable) -> Callable:
         @wraps(func)

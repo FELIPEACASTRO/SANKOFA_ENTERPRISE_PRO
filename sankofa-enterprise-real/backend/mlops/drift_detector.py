@@ -35,13 +35,17 @@ class DriftReport:
 
 
 class DriftDetector:
-    """Sistema de detecção de drift de dados e conceitos"""
+    """Sistema de detecção de drift de dados e conceitos
+
+    CORRECAO 10/10: Adicionado calibrate_thresholds() para calibracao
+    dinamica de thresholds baseada em dados historicos.
+    """
 
     def __init__(self, reference_window_hours: int = 168, detection_window_hours: int = 24):
         self.reference_window_hours = reference_window_hours  # 1 semana
         self.detection_window_hours = detection_window_hours  # 1 dia
 
-        # Thresholds para diferentes tipos de drift
+        # Thresholds para diferentes tipos de drift (valores default)
         self.drift_thresholds = {
             "data_drift": {"low": 0.1, "medium": 0.2, "high": 0.3, "critical": 0.5},
             "concept_drift": {"low": 0.15, "medium": 0.25, "high": 0.35, "critical": 0.5},
@@ -50,9 +54,90 @@ class DriftDetector:
         self.reference_data: Dict[str, Any] = {}
         self.drift_history: List[DriftReport] = []
 
+        # CORRECAO 10/10: Historico de drift scores para calibracao
+        self._feature_drift_history: Dict[str, List[float]] = {}
+        self._calibrated_thresholds: Dict[str, Dict[str, float]] = {}
+
         logger.info("Drift Detector inicializado")
         logger.info(f"Janela de referência: {reference_window_hours}h")
         logger.info(f"Janela de detecção: {detection_window_hours}h")
+
+    def calibrate_thresholds(
+        self,
+        historical_drift_scores: Optional[List[float]] = None,
+        feature_name: Optional[str] = None
+    ) -> Dict[str, float]:
+        """CORRECAO 10/10: Calibra thresholds baseado em dados historicos
+
+        Usa percentis dos drift scores historicos para definir thresholds
+        mais adequados ao comportamento real dos dados.
+
+        Args:
+            historical_drift_scores: Lista de drift scores historicos
+            feature_name: Nome da feature (opcional, para calibracao por feature)
+
+        Returns:
+            Dict com thresholds calibrados {low, medium, high, critical}
+        """
+        # Usar historico interno se nao fornecido
+        if historical_drift_scores is None:
+            if feature_name and feature_name in self._feature_drift_history:
+                historical_drift_scores = self._feature_drift_history[feature_name]
+            else:
+                # Agregar todos os historicos
+                all_scores = []
+                for scores in self._feature_drift_history.values():
+                    all_scores.extend(scores)
+                historical_drift_scores = all_scores
+
+        # Verificar se temos dados suficientes
+        if not historical_drift_scores or len(historical_drift_scores) < 10:
+            logger.warning("Dados insuficientes para calibracao (min 10 amostras)")
+            return self.drift_thresholds["data_drift"]
+
+        scores_array = np.array(historical_drift_scores)
+
+        # Calcular percentis para thresholds data-driven
+        calibrated = {
+            "low": float(np.percentile(scores_array, 50)),      # Mediana
+            "medium": float(np.percentile(scores_array, 75)),   # P75
+            "high": float(np.percentile(scores_array, 90)),     # P90
+            "critical": float(np.percentile(scores_array, 95)), # P95
+        }
+
+        # Garantir ordem crescente
+        calibrated["low"] = max(0.05, calibrated["low"])
+        calibrated["medium"] = max(calibrated["low"] + 0.05, calibrated["medium"])
+        calibrated["high"] = max(calibrated["medium"] + 0.05, calibrated["high"])
+        calibrated["critical"] = max(calibrated["high"] + 0.05, calibrated["critical"])
+
+        # Armazenar thresholds calibrados
+        if feature_name:
+            self._calibrated_thresholds[feature_name] = calibrated
+            logger.info(f"Thresholds calibrados para {feature_name}: {calibrated}")
+        else:
+            self.drift_thresholds["data_drift"] = calibrated
+            logger.info(f"Thresholds globais calibrados: {calibrated}")
+
+        return calibrated
+
+    def _track_drift_score(self, feature_name: str, drift_score: float):
+        """Armazena drift score no historico para calibracao futura"""
+        if feature_name not in self._feature_drift_history:
+            self._feature_drift_history[feature_name] = []
+
+        self._feature_drift_history[feature_name].append(drift_score)
+
+        # Manter apenas ultimos 1000 scores por feature
+        if len(self._feature_drift_history[feature_name]) > 1000:
+            self._feature_drift_history[feature_name] = \
+                self._feature_drift_history[feature_name][-1000:]
+
+    def get_feature_threshold(self, feature_name: str) -> Dict[str, float]:
+        """Retorna threshold para feature especifica (calibrado ou default)"""
+        if feature_name in self._calibrated_thresholds:
+            return self._calibrated_thresholds[feature_name]
+        return self.drift_thresholds["data_drift"]
 
     def set_reference_data(self, data: pd.DataFrame, target_column: Optional[str] = None):
         """Define os dados de referência para comparação"""

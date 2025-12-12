@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from datetime import datetime, timedelta
 
-from .entities import Transaction, RiskLevel
+from .entities import Transaction, RiskLevel, Money
 from .value_objects import CPF, Amount, RiskScore, TimeWindow
 
 
@@ -116,7 +116,7 @@ class RuleBasedScoring(FraudScoringStrategy):
         risk_factors = []
 
         # Rule 1: High value transactions - O(1)
-        if transaction.is_high_value(Amount(Decimal("5000"))):
+        if transaction.is_high_value(Money(Decimal("5000"))):
             score += 0.3
             risk_factors.append("high_value_transaction")
 
@@ -128,7 +128,7 @@ class RuleBasedScoring(FraudScoringStrategy):
 
         # Rule 3: New customer with high value - O(1)
         customer_txn_count = context.get('customer_transaction_count', 0)
-        if customer_txn_count < 5 and transaction.is_high_value(Amount(Decimal("1000"))):
+        if customer_txn_count < 5 and transaction.is_high_value(Money(Decimal("1000"))):
             score += 0.25
             risk_factors.append("new_customer_high_value")
 
@@ -490,3 +490,115 @@ def create_aggressive_strategy(model_gateway) -> FraudScoringStrategy:
         (MLBasedScoring(model_gateway), 0.7),
         (VelocityBasedScoring(), 0.1)
     ])
+
+
+class FallbackScoringStrategy(FraudScoringStrategy):
+    """
+    Fallback strategy when ML model is unavailable.
+
+    Used for graceful degradation when:
+    - ML model fails to load
+    - Model inference times out
+    - Primary strategy throws exception
+
+    Uses conservative rule-based approach with higher scores
+    to err on the side of caution.
+
+    Time Complexity: O(1)
+    """
+
+    def __init__(self, conservativeness: float = 1.2):
+        """
+        Initialize fallback strategy.
+
+        Args:
+            conservativeness: Multiplier for scores (>1 = more conservative)
+        """
+        self._conservativeness = conservativeness
+        self._rule_based = RuleBasedScoring()
+        self._velocity_based = VelocityBasedScoring()
+        self._invocations = 0
+
+    @property
+    def strategy_name(self) -> str:
+        return "fallback_scoring"
+
+    @property
+    def invocations(self) -> int:
+        """Number of times this fallback was used."""
+        return self._invocations
+
+    async def calculate_score(self, transaction: Transaction, context: Dict[str, Any]) -> FraudScoreResult:
+        """
+        Calculate conservative fallback score.
+
+        Combines rule-based and velocity checks with higher weights.
+
+        Time Complexity: O(1)
+        """
+        import time
+        import asyncio
+        import logging
+
+        logger = logging.getLogger(__name__)
+        start_time = time.time()
+        self._invocations += 1
+
+        logger.warning(
+            f"FallbackScoringStrategy invoked (invocation #{self._invocations}). "
+            "ML model may be unavailable."
+        )
+
+        # Run both simple strategies
+        rule_result, velocity_result = await asyncio.gather(
+            self._rule_based.calculate_score(transaction, context),
+            self._velocity_based.calculate_score(transaction, context)
+        )
+
+        # Combine scores with conservative multiplier
+        combined_score = (
+            float(rule_result.score.value) * 0.6 +
+            float(velocity_result.score.value) * 0.4
+        ) * self._conservativeness
+
+        # Cap at 1.0
+        combined_score = min(combined_score, 1.0)
+
+        # Combine risk factors
+        all_risk_factors = (
+            rule_result.risk_factors +
+            velocity_result.risk_factors +
+            ["fallback_mode_active"]
+        )
+
+        processing_time = (time.time() - start_time) * 1000
+
+        return FraudScoreResult(
+            score=RiskScore(combined_score),
+            confidence=0.5,  # Lower confidence in fallback mode
+            risk_factors=list(dict.fromkeys(all_risk_factors)),  # Dedupe
+            strategy_name=self.strategy_name,
+            processing_time_ms=processing_time,
+            metadata={
+                "fallback_reason": "ml_model_unavailable",
+                "conservativeness": self._conservativeness,
+                "rule_score": rule_result.score.value,
+                "velocity_score": velocity_result.score.value,
+                "invocation_count": self._invocations
+            }
+        )
+
+    def reset_invocation_count(self) -> None:
+        """Reset the invocation counter."""
+        self._invocations = 0
+
+
+def get_fallback_strategy() -> FallbackScoringStrategy:
+    """
+    Factory: Get singleton fallback strategy.
+
+    Returns the same instance to track invocation counts.
+    """
+    if not hasattr(get_fallback_strategy, '_instance'):
+        get_fallback_strategy._instance = FallbackScoringStrategy()
+    return get_fallback_strategy._instance

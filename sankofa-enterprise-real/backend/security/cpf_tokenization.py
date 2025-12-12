@@ -1,12 +1,15 @@
 """
 Sankofa Enterprise Pro - CPF Tokenization System
 Sistema de tokenização de CPF para proteção de dados sensíveis (LGPD)
+
+CORRECAO 10/10: Thread-safe com RLock para todas as operacoes
 """
 
 import os
 import hashlib
 import secrets
 import base64
+import threading
 from typing import Dict, Optional, Tuple, List
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -32,38 +35,43 @@ class Token:
 class TokenVault:
     """
     Cofre seguro para tokenização de CPF
-    
+
     Implementa:
     - Tokenização bidirecional (token <-> CPF)
     - Criptografia AES-256
     - Rotação de chaves
     - Auditoria de acesso
     - TTL configurável
-    
+
     Compliance:
     - LGPD Art. 46 (medidas de segurança)
     - PCI DSS Requirement 3.4 (mascaramento)
+
+    CORRECAO 10/10: Thread-safe com RLock
     """
-    
+
     def __init__(
         self,
         encryption_key: Optional[str] = None,
         token_ttl_days: int = 365,
         salt: Optional[bytes] = None
     ):
+        # CORRECAO 10/10: Lock para thread-safety
+        self._lock = threading.RLock()
+
         self._salt = salt or os.urandom(16)
         self._encryption_key = self._derive_key(
             encryption_key or os.getenv("ENCRYPTION_KEY", secrets.token_hex(32))
         )
         self._fernet = Fernet(self._encryption_key)
         self._token_ttl_days = token_ttl_days
-        
+
         self._token_to_cpf: Dict[str, bytes] = {}
         self._cpf_to_token: Dict[str, str] = {}
         self._token_metadata: Dict[str, Token] = {}
         self._access_log: List[Dict] = []
-        
-        logger.info("TokenVault initialized with AES-256 encryption")
+
+        logger.info("TokenVault initialized with AES-256 encryption (thread-safe)")
     
     def _derive_key(self, password: str) -> bytes:
         """Deriva chave de criptografia usando PBKDF2"""
@@ -113,75 +121,81 @@ class TokenVault:
     def tokenize(self, cpf: str, metadata: Optional[Dict] = None) -> str:
         """
         Tokeniza um CPF
-        
+
+        CORRECAO 10/10: Thread-safe com lock
+
         Args:
             cpf: CPF a ser tokenizado
             metadata: Metadados adicionais
-            
+
         Returns:
             Token único para o CPF
         """
         cpf_clean = self._validate_cpf(cpf)
-        
+
         cpf_hash = hashlib.sha256(cpf_clean.encode()).hexdigest()
-        
-        if cpf_hash in self._cpf_to_token:
-            token = self._cpf_to_token[cpf_hash]
-            self._log_access(token, "tokenize_existing")
-            return token
-        
-        token = self._generate_token()
-        encrypted_cpf = self._fernet.encrypt(cpf_clean.encode())
-        
-        self._token_to_cpf[token] = encrypted_cpf
-        self._cpf_to_token[cpf_hash] = token
-        
-        expires_at = None
-        if self._token_ttl_days > 0:
-            expires_at = datetime.now() + timedelta(days=self._token_ttl_days)
-        
-        self._token_metadata[token] = Token(
-            token_value=token,
-            created_at=datetime.now(),
-            expires_at=expires_at
-        )
-        
-        self._log_access(token, "tokenize_new", metadata)
-        
+
+        with self._lock:
+            if cpf_hash in self._cpf_to_token:
+                token = self._cpf_to_token[cpf_hash]
+                self._log_access(token, "tokenize_existing")
+                return token
+
+            token = self._generate_token()
+            encrypted_cpf = self._fernet.encrypt(cpf_clean.encode())
+
+            self._token_to_cpf[token] = encrypted_cpf
+            self._cpf_to_token[cpf_hash] = token
+
+            expires_at = None
+            if self._token_ttl_days > 0:
+                expires_at = datetime.now() + timedelta(days=self._token_ttl_days)
+
+            self._token_metadata[token] = Token(
+                token_value=token,
+                created_at=datetime.now(),
+                expires_at=expires_at
+            )
+
+            self._log_access(token, "tokenize_new", metadata)
+
         logger.info(f"CPF tokenized: {token}")
         return token
     
     def detokenize(self, token: str, purpose: str = "general") -> Optional[str]:
         """
         Recupera CPF original a partir do token
-        
+
+        CORRECAO 10/10: Thread-safe com lock
+
         Args:
             token: Token a ser detokenizado
             purpose: Propósito do acesso (para auditoria)
-            
+
         Returns:
             CPF original ou None se token inválido
         """
-        if token not in self._token_to_cpf:
-            self._log_access(token, "detokenize_not_found", {"purpose": purpose})
-            return None
-        
-        token_meta = self._token_metadata.get(token)
-        if token_meta and token_meta.expires_at:
-            if datetime.now() > token_meta.expires_at:
-                self._log_access(token, "detokenize_expired", {"purpose": purpose})
+        with self._lock:
+            if token not in self._token_to_cpf:
+                self._log_access(token, "detokenize_not_found", {"purpose": purpose})
                 return None
-        
-        encrypted_cpf = self._token_to_cpf[token]
-        cpf = self._fernet.decrypt(encrypted_cpf).decode()
-        
-        if token_meta:
-            token_meta.access_count += 1
-            token_meta.last_accessed = datetime.now()
-        
-        self._log_access(token, "detokenize_success", {"purpose": purpose})
-        
-        return cpf
+
+            token_meta = self._token_metadata.get(token)
+            if token_meta and token_meta.expires_at:
+                if datetime.now() > token_meta.expires_at:
+                    self._log_access(token, "detokenize_expired", {"purpose": purpose})
+                    return None
+
+            encrypted_cpf = self._token_to_cpf[token]
+            cpf = self._fernet.decrypt(encrypted_cpf).decode()
+
+            if token_meta:
+                token_meta.access_count += 1
+                token_meta.last_accessed = datetime.now()
+
+            self._log_access(token, "detokenize_success", {"purpose": purpose})
+
+            return cpf
     
     def get_masked_cpf(self, token: str) -> Optional[str]:
         """
@@ -213,56 +227,62 @@ class TokenVault:
     def revoke_token(self, token: str, reason: str = "manual_revoke") -> bool:
         """
         Revoga um token
-        
+
+        CORRECAO 10/10: Thread-safe com lock
+
         Args:
             token: Token a ser revogado
             reason: Motivo da revogação
-            
+
         Returns:
             True se revogado com sucesso
         """
-        if token not in self._token_to_cpf:
-            return False
-        
-        encrypted_cpf = self._token_to_cpf[token]
-        cpf = self._fernet.decrypt(encrypted_cpf).decode()
-        cpf_hash = hashlib.sha256(cpf.encode()).hexdigest()
-        
-        del self._token_to_cpf[token]
-        if cpf_hash in self._cpf_to_token:
-            del self._cpf_to_token[cpf_hash]
-        if token in self._token_metadata:
-            del self._token_metadata[token]
-        
-        self._log_access(token, "revoke", {"reason": reason})
-        
+        with self._lock:
+            if token not in self._token_to_cpf:
+                return False
+
+            encrypted_cpf = self._token_to_cpf[token]
+            cpf = self._fernet.decrypt(encrypted_cpf).decode()
+            cpf_hash = hashlib.sha256(cpf.encode()).hexdigest()
+
+            del self._token_to_cpf[token]
+            if cpf_hash in self._cpf_to_token:
+                del self._cpf_to_token[cpf_hash]
+            if token in self._token_metadata:
+                del self._token_metadata[token]
+
+            self._log_access(token, "revoke", {"reason": reason})
+
         logger.info(f"Token revoked: {token}, reason: {reason}")
         return True
     
     def rotate_encryption_key(self, new_key: str) -> int:
         """
         Rotaciona chave de criptografia
-        
+
+        CORRECAO 10/10: Thread-safe com lock
+
         Args:
             new_key: Nova chave de criptografia
-            
+
         Returns:
             Número de tokens re-encriptados
         """
-        new_encryption_key = self._derive_key(new_key)
-        new_fernet = Fernet(new_encryption_key)
-        
-        count = 0
-        for token, encrypted_cpf in self._token_to_cpf.items():
-            cpf = self._fernet.decrypt(encrypted_cpf).decode()
-            self._token_to_cpf[token] = new_fernet.encrypt(cpf.encode())
-            count += 1
-        
-        self._encryption_key = new_encryption_key
-        self._fernet = new_fernet
-        
-        self._log_access("SYSTEM", "key_rotation", {"tokens_rotated": count})
-        
+        with self._lock:
+            new_encryption_key = self._derive_key(new_key)
+            new_fernet = Fernet(new_encryption_key)
+
+            count = 0
+            for token, encrypted_cpf in self._token_to_cpf.items():
+                cpf = self._fernet.decrypt(encrypted_cpf).decode()
+                self._token_to_cpf[token] = new_fernet.encrypt(cpf.encode())
+                count += 1
+
+            self._encryption_key = new_encryption_key
+            self._fernet = new_fernet
+
+            self._log_access("SYSTEM", "key_rotation", {"tokens_rotated": count})
+
         logger.info(f"Encryption key rotated. {count} tokens re-encrypted")
         return count
     
@@ -347,25 +367,33 @@ class TokenVault:
 class CPFTokenizationService:
     """
     Serviço de alto nível para tokenização de CPF
-    
+
     Integra com o sistema Sankofa para proteção automática de CPFs
+
+    CORRECAO 10/10: Thread-safe singleton com double-checked locking
     """
-    
+
     _instance: Optional['CPFTokenizationService'] = None
-    
+    _instance_lock = threading.Lock()
+
     def __init__(self):
         encryption_key = os.getenv("ENCRYPTION_KEY")
         if not encryption_key:
             logger.warning("ENCRYPTION_KEY not set, using auto-generated key")
             encryption_key = secrets.token_hex(32)
-        
+
         self.vault = TokenVault(encryption_key=encryption_key)
-    
+
     @classmethod
     def get_instance(cls) -> 'CPFTokenizationService':
-        """Retorna instância singleton"""
+        """Retorna instância singleton
+
+        CORRECAO 10/10: Double-checked locking para thread-safety
+        """
         if cls._instance is None:
-            cls._instance = CPFTokenizationService()
+            with cls._instance_lock:
+                if cls._instance is None:
+                    cls._instance = CPFTokenizationService()
         return cls._instance
     
     def tokenize_transaction(self, transaction: Dict) -> Dict:
