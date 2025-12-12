@@ -7,7 +7,7 @@ Benchmark: Stripe Radar (1B+ nodes), PayPal (3B+ edges)
 import numpy as np
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import networkx as nx
 from collections import defaultdict
 import logging
@@ -40,7 +40,7 @@ class GraphEdge:
 
     def __post_init__(self):
         if self.timestamp is None:
-            self.timestamp = datetime.utcnow()
+            self.timestamp = datetime.now(timezone.utc)
         if self.metadata is None:
             self.metadata = {}
 
@@ -92,7 +92,7 @@ class FraudGraphBuilder:
                 self.node_cache[node.node_id] = node
 
         # Create edges
-        timestamp = transaction.get('timestamp', datetime.utcnow())
+        timestamp = transaction.get('timestamp', datetime.now(timezone.utc))
         amount = transaction.get('amount', 0)
 
         # CPF owns Account
@@ -255,13 +255,13 @@ class GraphFeatureExtractor:
         edges = list(self.graph.out_edges(node_id, data=True))
         if edges:
             timestamps = [
-                edge[2].get('timestamp', datetime.utcnow())
+                edge[2].get('timestamp', datetime.now(timezone.utc))
                 for edge in edges
             ]
             if timestamps:
                 latest = max(timestamps)
                 oldest = min(timestamps)
-                features['edge_recency_hours'] = (datetime.utcnow() - latest).total_seconds() / 3600
+                features['edge_recency_hours'] = (datetime.now(timezone.utc) - latest).total_seconds() / 3600
                 features['edge_span_hours'] = (latest - oldest).total_seconds() / 3600
 
         return features

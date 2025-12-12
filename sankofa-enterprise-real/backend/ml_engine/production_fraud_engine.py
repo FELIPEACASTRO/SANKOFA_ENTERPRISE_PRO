@@ -16,7 +16,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 import time
 import joblib
 import warnings
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
 
@@ -336,7 +336,7 @@ class ProductionFraudEngine:
                 "f1_score": self.metrics.f1_score if self.metrics else 0,
                 "roc_auc": self.metrics.roc_auc if self.metrics else 0,
                 "threshold": self.threshold,
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
             },
             "version": self.VERSION,
             "api_compatible": True,
@@ -749,7 +749,7 @@ class ProductionFraudEngine:
                 f1_score=float(f1_score(y_val_array, y_pred, zero_division="warn")),
                 roc_auc=float(roc_auc_score(y_val_array, y_pred_proba)),
                 threshold=self.threshold,
-                timestamp=datetime.utcnow().isoformat() + "Z",
+                timestamp=datetime.now(timezone.utc).isoformat() + "Z",
             )
 
             self.is_trained = True
@@ -1338,7 +1338,7 @@ class ProductionFraudEngine:
                     processing_time_ms=round(avg_time, 2),
                     model_version=self.VERSION,
                     detection_reason=reasons,
-                    timestamp=datetime.utcnow().isoformat() + "Z",
+                    timestamp=datetime.now(timezone.utc).isoformat() + "Z",
                 )
 
                 new_predictions[orig_idx] = prediction

@@ -18,7 +18,7 @@ Target: Complete authentication coverage
 
 import pytest
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import Mock, patch
 import base64
 
@@ -193,8 +193,8 @@ class TestAuthenticationFlow:
             "username": user_data["username"],
             "role": user_data["role"],
             "permissions": user_data["permissions"],
-            "exp": datetime.utcnow() + timedelta(hours=8),
-            "iat": datetime.utcnow()
+            "exp": datetime.now(timezone.utc) + timedelta(hours=8),
+            "iat": datetime.now(timezone.utc)
         }
 
         token = jwt.encode(token_payload, jwt_secret, algorithm="HS256")
@@ -225,7 +225,7 @@ class TestAuthenticationFlow:
         current_token_payload = {
             "user_id": "user_123",
             "role": "analyst",
-            "exp": datetime.utcnow() + timedelta(minutes=5)  # Expiring in 5 min
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=5)  # Expiring in 5 min
         }
         current_token = jwt.encode(current_token_payload, jwt_secret, algorithm="HS256")
 
@@ -236,7 +236,7 @@ class TestAuthenticationFlow:
             "new_token": jwt.encode({
                 "user_id": "user_123",
                 "role": "analyst",
-                "exp": datetime.utcnow() + timedelta(hours=8)  # Extended to 8 hours
+                "exp": datetime.now(timezone.utc) + timedelta(hours=8)  # Extended to 8 hours
             }, jwt_secret, algorithm="HS256"),
             "expires_at": (datetime.now() + timedelta(hours=8)).isoformat()
         }

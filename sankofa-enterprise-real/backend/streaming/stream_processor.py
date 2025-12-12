@@ -6,7 +6,7 @@ Coordinates Kafka consumers, ML inference, and alerting
 import asyncio
 import logging
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .kafka_producer import get_kafka_producer
 from .kafka_consumer import KafkaFraudConsumer
@@ -98,7 +98,7 @@ class StreamProcessor:
         Returns:
             True se processado com sucesso
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         try:
             # Extract transaction data
@@ -127,7 +127,7 @@ class StreamProcessor:
                 self.frauds_detected += 1
 
             # Calculate latency
-            latency_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
+            latency_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
             self._update_latency(latency_ms)
 
             logger.info(
@@ -260,7 +260,7 @@ class StreamProcessor:
                 'fraud_probability': prediction.get('fraud_probability', 0),
                 'explanation': prediction.get('explanation', {}),
                 'priority': 'HIGH' if prediction.get('risk_score', 0) > 0.9 else 'MEDIUM',
-                'requested_at': datetime.utcnow().isoformat()
+                'requested_at': datetime.now(timezone.utc).isoformat()
             }
 
             # Publish manual review request

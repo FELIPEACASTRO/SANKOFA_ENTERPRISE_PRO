@@ -9,7 +9,7 @@ import asyncio
 import time
 from decimal import Decimal
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from .entities import (
     Transaction,
@@ -166,7 +166,7 @@ class ProcessTransactionUseCase:
             customer = Customer(
                 id=customer_id,
                 email=f"customer_{customer_id}@example.com",
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
             )
             await self._customer_repo.save(customer)
 
@@ -290,7 +290,7 @@ class ApproveTransactionUseCase:
                 "transaction_id": command.transaction_id,
                 "status": "approved",
                 "approved_by": command.approved_by,
-                "approved_at": datetime.utcnow().isoformat(),
+                "approved_at": datetime.now(timezone.utc).isoformat(),
             }
 
         except Exception as e:
@@ -405,7 +405,7 @@ class GetFraudStatisticsUseCase:
                 "fraud_amount_rate_percent": round(fraud_amount_rate, 2),
             },
             "risk_distribution": risk_distribution,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
         }
 
         # Cache for 30 minutes - O(1)

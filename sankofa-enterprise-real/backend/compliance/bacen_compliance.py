@@ -26,7 +26,7 @@ Para integração real com BACEN, configurar:
 
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List
 from enum import Enum
 import json
@@ -152,7 +152,7 @@ class BacenCompliance:
         # Normalizar dados
         normalized_data = {
             **fraud_data,
-            "validated_at": datetime.utcnow().isoformat(),
+            "validated_at": datetime.now(timezone.utc).isoformat(),
             "institution_code": self._institution_code or "NOT_CONFIGURED",
             "resolution": "RES_CONJUNTA_6_2023"
         }
@@ -182,7 +182,7 @@ class BacenCompliance:
             Dict com resultado da operação
         """
         fraud_id = data.get("fraud_id")
-        timestamp = datetime.utcnow().isoformat()
+        timestamp = datetime.now(timezone.utc).isoformat()
 
         # Validar dados antes de enviar
         try:

@@ -5,7 +5,7 @@ Automated workflow for Brazilian instant refund system
 
 import logging
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from dataclasses import dataclass
 
@@ -104,7 +104,7 @@ class MEDWorkflow:
                 )
 
             # Step 2: Check deadline
-            if datetime.utcnow() > request.deadline:
+            if datetime.now(timezone.utc) > request.deadline:
                 logger.warning(f"MED past deadline: {request.request_id}")
                 # Auto-approve se passou prazo
                 return await self._auto_approve_med(request, "Past deadline")
@@ -244,7 +244,7 @@ class MEDWorkflow:
                 'is_likely_fraud': is_likely_fraud,
                 'fraud_score': fraud_result.risk_score if hasattr(fraud_result, 'risk_score') else 0.0,
                 'fraud_indicators': fraud_result.matched_rules if hasattr(fraud_result, 'matched_rules') else [],
-                'analysis_timestamp': datetime.utcnow().isoformat()
+                'analysis_timestamp': datetime.now(timezone.utc).isoformat()
             }
 
         except Exception as e:
@@ -362,7 +362,7 @@ class MEDWorkflow:
                 'status': MEDStatus.APPROVED.value,
                 'decision': decision,
                 'refund': refund_result,
-                'processed_at': datetime.utcnow().isoformat(),
+                'processed_at': datetime.now(timezone.utc).isoformat(),
                 'auto_processed': decision.get('auto_approved', False)
             }
 
@@ -372,7 +372,7 @@ class MEDWorkflow:
                 'request_id': request.request_id,
                 'status': MEDStatus.REJECTED.value,
                 'decision': decision,
-                'processed_at': datetime.utcnow().isoformat(),
+                'processed_at': datetime.now(timezone.utc).isoformat(),
                 'auto_processed': decision.get('auto_rejected', False)
             }
 
@@ -400,7 +400,7 @@ class MEDWorkflow:
         """
         # Em produção, integrar com sistema PIX/BACEN
         try:
-            refund_id = f"REF_{request.request_id}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+            refund_id = f"REF_{request.request_id}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
 
             # Simulate PIX refund
             # Em produção: chamar API do banco/PSP
@@ -415,8 +415,8 @@ class MEDWorkflow:
                 'amount': request.amount,
                 'pix_key': request.pix_key,
                 'status': 'completed',
-                'executed_at': datetime.utcnow().isoformat(),
-                'estimated_credit': (datetime.utcnow() + timedelta(minutes=5)).isoformat()
+                'executed_at': datetime.now(timezone.utc).isoformat(),
+                'estimated_credit': (datetime.now(timezone.utc) + timedelta(minutes=5)).isoformat()
             }
 
         except Exception as e:
@@ -438,7 +438,7 @@ class MEDWorkflow:
             'reason': reason,
             'auto_approved': True,
             'refund': refund_result,
-            'processed_at': datetime.utcnow().isoformat()
+            'processed_at': datetime.now(timezone.utc).isoformat()
         }
 
     def _validate_med_request(self, request: MEDRequest) -> bool:
@@ -465,7 +465,7 @@ class MEDWorkflow:
             'status': status.value,
             'reason': reason,
             'requires_manual_review': requires_manual_review,
-            'processed_at': datetime.utcnow().isoformat()
+            'processed_at': datetime.now(timezone.utc).isoformat()
         }
 
     def get_metrics(self) -> Dict[str, Any]:

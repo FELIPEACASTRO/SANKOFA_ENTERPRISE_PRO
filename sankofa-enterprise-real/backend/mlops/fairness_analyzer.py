@@ -7,7 +7,7 @@ Conformidade com práticas éticas de ML e regulações
 import json
 from typing import Dict, Any, Optional, List, Tuple
 from dataclasses import dataclass, asdict, field
-from datetime import datetime
+from datetime import datetime, timezone
 from collections import defaultdict
 import logging
 import math
@@ -176,7 +176,7 @@ class FairnessAnalyzer:
         
         return BiasReport(
             model_version=self.VERSION,
-            analysis_timestamp=datetime.utcnow().isoformat() + "Z",
+            analysis_timestamp=datetime.now(timezone.utc).isoformat() + "Z",
             protected_attributes=self.protected_attributes,
             reference_group=reference_group,
             subgroup_metrics=subgroup_metrics,

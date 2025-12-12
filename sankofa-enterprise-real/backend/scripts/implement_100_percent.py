@@ -399,7 +399,7 @@ class DSRService:
         report = {
             'request_id': request_id,
             'cpf_hash': hashlib.sha256(cpf.encode()).hexdigest()[:16],
-            'generated_at': datetime.utcnow().isoformat(),
+            'generated_at': datetime.now(timezone.utc).isoformat(),
             'data': {
                 'transactions': [],  # Would fetch from DB
                 'fraud_records': [],
@@ -425,7 +425,7 @@ class DSRService:
             'success': True,
             'request_id': request_id,
             'message': 'Data marked for deletion',
-            'deletion_scheduled': datetime.utcnow().isoformat()
+            'deletion_scheduled': datetime.now(timezone.utc).isoformat()
         }
 
         return result
@@ -568,7 +568,7 @@ Data Retention Policy Service
 Automatic purging of expired data
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -587,7 +587,7 @@ class RetentionPolicyManager:
     async def purge_expired_data(self):
         """Execute daily - removes expired data"""
         for table, retention in RETENTION_POLICIES.items():
-            cutoff_date = datetime.utcnow() - retention
+            cutoff_date = datetime.now(timezone.utc) - retention
 
             logger.info(f"Purging {table} older than {cutoff_date}")
 

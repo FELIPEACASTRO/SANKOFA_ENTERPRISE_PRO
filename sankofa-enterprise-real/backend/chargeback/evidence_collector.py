@@ -5,7 +5,7 @@ Collects transaction proof, delivery confirmation, customer data
 
 import logging
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import asyncio
 
 logger = logging.getLogger(__name__)
@@ -68,7 +68,7 @@ class EvidenceCollector:
                     logger.error(f"Error collecting evidence: {result}")
 
             # Add metadata
-            evidence['collected_at'] = datetime.utcnow().isoformat()
+            evidence['collected_at'] = datetime.now(timezone.utc).isoformat()
             evidence['evidence_count'] = len([v for v in evidence.values() if v])
             evidence['evidence_quality_score'] = self._calculate_evidence_quality(evidence)
 
@@ -91,7 +91,7 @@ class EvidenceCollector:
 
         return {
             'transaction_id': transaction_id,
-            'transaction_date': datetime.utcnow() - timedelta(days=15),
+            'transaction_date': datetime.now(timezone.utc) - timedelta(days=15),
             'amount': 1500.0,
             'currency': 'BRL',
             'payment_method': 'credit_card',
@@ -113,7 +113,7 @@ class EvidenceCollector:
             'customer_email': 'customer@example.com',
             'customer_name': 'João Silva',
             'customer_phone': '+5511999999999',
-            'customer_since': datetime.utcnow() - timedelta(days=365),
+            'customer_since': datetime.now(timezone.utc) - timedelta(days=365),
             'account_age_days': 365,
 
             # Historical data
@@ -145,7 +145,7 @@ class EvidenceCollector:
             'ip_location_match': True,  # Matches billing address
 
             # Device history
-            'device_first_seen': datetime.utcnow() - timedelta(days=180),
+            'device_first_seen': datetime.now(timezone.utc) - timedelta(days=180),
             'device_transaction_count': 5,
             'is_known_device': True,
             'device_risk_score': 0.10,  # Low risk
@@ -163,7 +163,7 @@ class EvidenceCollector:
             'has_delivery': True,
             'delivery_method': 'courier',
             'tracking_number': 'TRACK123456789',
-            'delivery_date': datetime.utcnow() - timedelta(days=10),
+            'delivery_date': datetime.now(timezone.utc) - timedelta(days=10),
             'delivery_status': 'delivered',
 
             # Proof of delivery
@@ -189,14 +189,14 @@ class EvidenceCollector:
         """Coleta logs de comunicação com cliente"""
         return {
             'has_order_confirmation_email': True,
-            'order_confirmation_sent_at': datetime.utcnow() - timedelta(days=15),
+            'order_confirmation_sent_at': datetime.now(timezone.utc) - timedelta(days=15),
             'order_confirmation_opened': True,
 
             'has_shipping_notification': True,
-            'shipping_notification_sent_at': datetime.utcnow() - timedelta(days=12),
+            'shipping_notification_sent_at': datetime.now(timezone.utc) - timedelta(days=12),
 
             'has_delivery_confirmation_email': True,
-            'delivery_confirmation_sent_at': datetime.utcnow() - timedelta(days=10),
+            'delivery_confirmation_sent_at': datetime.now(timezone.utc) - timedelta(days=10),
 
             # Customer service
             'customer_service_contacts': 0,
@@ -304,7 +304,7 @@ class EvidenceCollector:
         """
         package = {
             'transaction_id': transaction_id,
-            'generated_at': datetime.utcnow().isoformat(),
+            'generated_at': datetime.now(timezone.utc).isoformat(),
 
             # Section 1: Transaction Details
             'transaction_details': {

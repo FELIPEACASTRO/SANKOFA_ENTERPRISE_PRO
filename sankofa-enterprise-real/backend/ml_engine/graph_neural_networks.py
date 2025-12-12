@@ -7,7 +7,7 @@ import asyncio
 import logging
 import numpy as np
 from typing import Dict, Any, List, Optional, Tuple, Set
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
 from collections import defaultdict
 import pickle
@@ -220,7 +220,7 @@ class TransactionGraphBuilder:
                 target_id=merchant_id,
                 edge_type='transacts_with',
                 weight=float(transaction.get('amount', 0)) / 1000.0,
-                timestamp=datetime.fromisoformat(transaction.get('created_at', datetime.utcnow().isoformat()))
+                timestamp=datetime.fromisoformat(transaction.get('created_at', datetime.now(timezone.utc).isoformat()))
             ))
 
         if customer_id and device_id:
@@ -239,7 +239,7 @@ class TransactionGraphBuilder:
             1.0,  # Transaction count (placeholder)
             0.5,  # Average risk score (placeholder)
             1.0 if transaction.get('channel') == 'PIX' else 0.0,
-            datetime.utcnow().hour / 24.0,  # Time of day
+            datetime.now(timezone.utc).hour / 24.0,  # Time of day
         ], dtype=np.float32)
 
         return features
@@ -549,7 +549,7 @@ async def example_gnn_fraud_detection():
             'device_id': f'DEV_{i % 8}',
             'amount': np.random.uniform(100, 5000),
             'channel': 'PIX',
-            'created_at': datetime.utcnow().isoformat()
+            'created_at': datetime.now(timezone.utc).isoformat()
         }
         for i in range(100)
     ]
@@ -565,7 +565,7 @@ async def example_gnn_fraud_detection():
         'device_id': 'DEV_3',
         'amount': 10000,
         'channel': 'PIX',
-        'created_at': datetime.utcnow().isoformat()
+        'created_at': datetime.now(timezone.utc).isoformat()
     }
 
     # Predict

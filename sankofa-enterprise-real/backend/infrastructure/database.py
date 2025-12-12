@@ -37,7 +37,7 @@ try:
 except ImportError:
     PSYCOPG2_AVAILABLE = False
 
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 
 logger = logging.getLogger(__name__)
@@ -730,6 +730,6 @@ class HealthChecker:
 
         return {
             "status": overall_status,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "components": {"database": db_health, "redis": redis_health},
         }

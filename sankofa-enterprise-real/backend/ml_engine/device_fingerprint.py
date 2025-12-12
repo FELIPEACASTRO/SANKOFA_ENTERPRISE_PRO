@@ -624,7 +624,7 @@ class DeviceFingerprintAnalyzer:
     def _update_device_registry(self, user_id: str, fingerprint: str, components: Dict):
         """Atualiza registro de dispositivos usando persistência"""
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         existing = self.persistence.get_device(fingerprint)
 

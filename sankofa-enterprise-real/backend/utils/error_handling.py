@@ -7,7 +7,7 @@ from enum import Enum
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
 import traceback
-from datetime import datetime
+from datetime import datetime, timezone
 
 from utils.structured_logging import get_structured_logger
 
@@ -84,7 +84,7 @@ class SankoException(Exception):
         self.context = context or {}
         self.recovery_action = recovery_action
         self.error_id = self._generate_error_id()
-        self.timestamp = datetime.utcnow().isoformat() + "Z"
+        self.timestamp = datetime.now(timezone.utc).isoformat() + "Z"
 
     def _generate_error_id(self) -> str:
         """Gera ID único para o erro"""
@@ -210,14 +210,14 @@ def handle_error(
     else:
         # Criar contexto para exceção genérica
         error_context = ErrorContext(
-            error_id=f"ERR_GENERIC_{datetime.utcnow().timestamp()}",
+            error_id=f"ERR_GENERIC_{datetime.now(timezone.utc).timestamp()}",
             category=ErrorCategory.UNKNOWN,
             severity=ErrorSeverity.MEDIUM,
             message=str(exception),
             exception=exception,
             stack_trace=traceback.format_exc(),
             context_data=context or {},
-            timestamp=datetime.utcnow().isoformat() + "Z",
+            timestamp=datetime.now(timezone.utc).isoformat() + "Z",
             recovery_action="Review error logs and context",
         )
 

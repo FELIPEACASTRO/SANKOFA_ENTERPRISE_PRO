@@ -4,7 +4,7 @@ Implements LGPD Art. 18 requirements
 """
 
 from typing import Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 import hashlib
 import logging
 
@@ -22,7 +22,7 @@ class DSRService:
         report = {
             'request_id': request_id,
             'cpf_hash': hashlib.sha256(cpf.encode()).hexdigest()[:16],
-            'generated_at': datetime.utcnow().isoformat(),
+            'generated_at': datetime.now(timezone.utc).isoformat(),
             'data': {
                 'transactions': [],  # Would fetch from DB
                 'fraud_records': [],
@@ -48,7 +48,7 @@ class DSRService:
             'success': True,
             'request_id': request_id,
             'message': 'Data marked for deletion',
-            'deletion_scheduled': datetime.utcnow().isoformat()
+            'deletion_scheduled': datetime.now(timezone.utc).isoformat()
         }
 
         return result

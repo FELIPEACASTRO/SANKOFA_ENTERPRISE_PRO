@@ -5,7 +5,7 @@ Refactored from production_api.py for better code organization
 """
 
 from flask import Blueprint, request, jsonify
-from datetime import datetime
+from datetime import datetime, timezone
 
 from config.settings import get_config
 from utils.structured_logging import get_structured_logger
@@ -183,7 +183,7 @@ def export_feedbacks():
             "success": True,
             "format": "csv",
             "total": len(feedbacks),
-            "filename": f"feedbacks_export_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv",
+            "filename": f"feedbacks_export_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.csv",
             "download_url": download_url,
         })
     else:
@@ -191,7 +191,7 @@ def export_feedbacks():
         import base64
 
         content_json = json.dumps({
-            "exported_at": datetime.utcnow().isoformat() + "Z",
+            "exported_at": datetime.now(timezone.utc).isoformat() + "Z",
             "total": len(feedbacks),
             "feedbacks": feedbacks,
         }, indent=2, default=str)
@@ -207,6 +207,6 @@ def export_feedbacks():
             "success": True,
             "format": "json",
             "total": len(feedbacks),
-            "filename": f"feedbacks_export_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json",
+            "filename": f"feedbacks_export_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json",
             "download_url": download_url,
         })

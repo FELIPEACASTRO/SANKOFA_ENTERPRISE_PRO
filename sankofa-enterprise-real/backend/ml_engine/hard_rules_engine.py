@@ -12,7 +12,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 import time
 import re
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
 
@@ -292,7 +292,7 @@ class HardRulesEngine:
             processing_time_ms=round(processing_time, 2),
             model_version=f"HARD_RULES_{self.VERSION}",
             detection_reason=all_reasons[:5] if all_reasons else ["No rules triggered"],
-            timestamp=datetime.utcnow().isoformat() + "Z",
+            timestamp=datetime.now(timezone.utc).isoformat() + "Z",
             triggered_rules=triggered_rules,
             source="HARD_RULES",
         )
@@ -391,7 +391,7 @@ class UnifiedFraudEngine:
                 "processing_time_ms": round((time.time() - start_time) * 1000, 2),
                 "model_version": f"UNIFIED_{self.VERSION}",
                 "detection_reason": ["No fraud indicators detected"],
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
             }
 
         return final_result

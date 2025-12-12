@@ -6,7 +6,7 @@ Window-based aggregations with <5ms retrieval from Redis
 import asyncio
 import logging
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 import redis.asyncio as redis
 import json
@@ -139,7 +139,7 @@ class FlinkFeatureStore:
             #   ...
             # }
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         try:
             r = await self._get_redis()
@@ -158,7 +158,7 @@ class FlinkFeatureStore:
                 features.update(window_features)
 
             # Calculate retrieval latency
-            latency_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
+            latency_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
 
             logger.debug(
                 f"Features retrieved: entity={entity_id}, "
@@ -169,7 +169,7 @@ class FlinkFeatureStore:
             features['_metadata'] = {
                 'entity_id': entity_id,
                 'entity_type': entity_type,
-                'retrieved_at': datetime.utcnow().isoformat(),
+                'retrieved_at': datetime.now(timezone.utc).isoformat(),
                 'latency_ms': latency_ms,
                 'feature_count': len(features) - 1  # Exclude metadata
             }
@@ -347,7 +347,7 @@ class FlinkFeatureStore:
 
         features['_metadata'] = {
             'error': 'Failed to retrieve features, using defaults',
-            'retrieved_at': datetime.utcnow().isoformat()
+            'retrieved_at': datetime.now(timezone.utc).isoformat()
         }
 
         return features
@@ -384,7 +384,7 @@ class FlinkFeatureStore:
 
             # Metadata
             '_computed_by': 'realtime_fallback',
-            '_timestamp': datetime.utcnow().isoformat()
+            '_timestamp': datetime.now(timezone.utc).isoformat()
         }
 
         # Materialize features

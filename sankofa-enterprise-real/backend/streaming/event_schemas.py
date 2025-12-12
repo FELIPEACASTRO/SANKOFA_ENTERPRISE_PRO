@@ -6,7 +6,7 @@ Type-safe event definitions
 from enum import Enum
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 
@@ -66,7 +66,7 @@ class TransactionEvent:
         return cls(
             event_id=f"txn_{event_id}",
             event_type=EventType.TRANSACTION_CREATED,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             data=transaction,
             metadata={
                 'source': 'fraud-api',
@@ -117,13 +117,13 @@ class FraudPredictionEvent:
         from datetime import datetime
 
         event_id = hashlib.sha256(
-            f"{prediction.get('transaction_id')}:{datetime.utcnow()}".encode()
+            f"{prediction.get('transaction_id')}:{datetime.now(timezone.utc)}".encode()
         ).hexdigest()[:16]
 
         return cls(
             event_id=f"pred_{event_id}",
             event_type=EventType.PREDICTION_COMPLETED,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             transaction_id=prediction.get('transaction_id', ''),
             is_fraud=prediction.get('is_fraud', False),
             fraud_probability=prediction.get('fraud_probability', 0.0),
@@ -188,7 +188,7 @@ class AlertEvent:
         from datetime import datetime
 
         event_id = hashlib.sha256(
-            f"{prediction.get('transaction_id')}:alert:{datetime.utcnow()}".encode()
+            f"{prediction.get('transaction_id')}:alert:{datetime.now(timezone.utc)}".encode()
         ).hexdigest()[:16]
 
         # Determine severity based on risk score
@@ -216,7 +216,7 @@ class AlertEvent:
         return cls(
             event_id=f"alert_{event_id}",
             event_type=EventType.ALERT_CREATED,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             transaction_id=prediction.get('transaction_id', ''),
             alert_type=alert_type,
             severity=severity,

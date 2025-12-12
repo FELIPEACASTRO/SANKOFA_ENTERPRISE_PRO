@@ -7,7 +7,7 @@ Target: <10ms feature retrieval latency
 import json
 import hashlib
 from typing import Dict, Any, Optional, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import redis
 from utils.structured_logging import get_structured_logger
 
@@ -126,7 +126,7 @@ class FeatureStore:
             # Add metadata
             features_with_meta = {
                 **features,
-                "_cached_at": datetime.utcnow().isoformat(),
+                "_cached_at": datetime.now(timezone.utc).isoformat(),
                 "_ttl": ttl
             }
 

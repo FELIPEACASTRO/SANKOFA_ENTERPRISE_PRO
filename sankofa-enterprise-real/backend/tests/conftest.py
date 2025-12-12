@@ -6,7 +6,7 @@ Provides common fixtures for all tests
 import pytest
 import sys
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from unittest.mock import Mock, AsyncMock, patch
 import tempfile
@@ -60,8 +60,8 @@ def authenticated_client(client):
         "name": "Test User",
         "role": "analyst",
         "roles": ["analyst"],
-        "iat": datetime.utcnow(),
-        "exp": datetime.utcnow() + timedelta(hours=1),
+        "iat": datetime.now(timezone.utc),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
     }
 
     token = pyjwt.encode(
@@ -89,8 +89,8 @@ def admin_client(client):
         "name": "Admin User",
         "role": "admin",
         "roles": ["admin", "analyst"],
-        "iat": datetime.utcnow(),
-        "exp": datetime.utcnow() + timedelta(hours=1),
+        "iat": datetime.now(timezone.utc),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
     }
 
     token = pyjwt.encode(
@@ -201,7 +201,7 @@ def sample_vip_entry():
     return {
         'cpf': '12345678909',
         'reason': 'Premium customer - VIP status',
-        'expires_at': (datetime.utcnow() + timedelta(days=365)).isoformat()
+        'expires_at': (datetime.now(timezone.utc) + timedelta(days=365)).isoformat()
     }
 
 
@@ -214,7 +214,7 @@ def sample_hot_entry():
         'cpf': '98765432100',
         'reason': 'Confirmed fraudster - multiple fraud cases',
         'severity': 'CRITICAL',
-        'expires_at': (datetime.utcnow() + timedelta(days=180)).isoformat()
+        'expires_at': (datetime.now(timezone.utc) + timedelta(days=180)).isoformat()
     }
 
 

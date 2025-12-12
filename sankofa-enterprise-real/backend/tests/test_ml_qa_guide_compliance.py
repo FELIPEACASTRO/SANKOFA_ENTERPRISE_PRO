@@ -19,7 +19,7 @@ import time
 import numpy as np
 import pandas as pd
 from scipy import stats
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import json
 
 
@@ -480,7 +480,7 @@ class TestSection6_NaoFuncional:
             """COMPLIANCE: Existe audit trail LGPD-compliant"""
             # Simular audit trail
             audit_log = {
-                'timestamp': datetime.utcnow().isoformat(),
+                'timestamp': datetime.now(timezone.utc).isoformat(),
                 'action': 'fraud_prediction',
                 'user_id': 'masked_user',
                 'result': 'fraud_score_0.75'

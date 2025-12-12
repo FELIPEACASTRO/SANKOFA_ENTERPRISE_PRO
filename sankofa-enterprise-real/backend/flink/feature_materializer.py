@@ -6,7 +6,7 @@ Bridges Flink computation and Feature Store serving
 import asyncio
 import logging
 from typing import Dict, Any, Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .window_aggregator import get_window_aggregator
 from .feature_store import get_feature_store
@@ -340,7 +340,7 @@ async def example_usage():
         'location': 'São Paulo',
         'channel': 'PIX',
         'status': 'approved',
-        'created_at': datetime.utcnow()
+        'created_at': datetime.now(timezone.utc)
     }
 
     # Materialize features after transaction

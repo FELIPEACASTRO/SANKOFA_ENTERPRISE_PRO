@@ -8,7 +8,7 @@ import logging
 import numpy as np
 import pandas as pd
 from typing import Dict, Any, List, Optional, Tuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass, field
 from pathlib import Path
 import json
@@ -129,7 +129,7 @@ class ModelValidator:
             model_id=model_metadata.get('model_id', 'unknown'),
             model_name=model_metadata.get('model_name', 'unknown'),
             model_version=model_metadata.get('version', '1.0'),
-            validation_date=datetime.utcnow(),
+            validation_date=datetime.now(timezone.utc),
             validator='AutomatedMRM',
             auc=performance['auc'],
             precision=performance['precision'],
@@ -475,7 +475,7 @@ class ModelMonitor:
 
         monitoring_result = {
             'model_id': model_id,
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'window': monitoring_window,
             'auc': auc,
             'sample_size': len(y_true),

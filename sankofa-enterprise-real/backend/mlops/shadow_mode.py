@@ -10,7 +10,7 @@ import threading
 import random
 from typing import Dict, Any, Optional, List, Tuple, Callable
 from dataclasses import dataclass, asdict, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from collections import defaultdict
 import logging
@@ -136,7 +136,7 @@ class ShadowModeManager:
         
         self.is_active = True
         self.stats = ShadowModeStats(
-            start_time=datetime.utcnow().isoformat() + "Z"
+            start_time=datetime.now(timezone.utc).isoformat() + "Z"
         )
         
         logger.info(
@@ -222,7 +222,7 @@ class ShadowModeManager:
         
         return PredictionComparison(
             transaction_id=transaction.get('transaction_id', str(time.time())),
-            timestamp=datetime.utcnow().isoformat() + "Z",
+            timestamp=datetime.now(timezone.utc).isoformat() + "Z",
             primary_prediction=primary_is_fraud,
             primary_probability=primary_prob,
             primary_risk_level=primary_result.get('risk_level', 'UNKNOWN'),
@@ -265,8 +265,8 @@ class ShadowModeManager:
                 self._shadow_latencies = self._shadow_latencies[-1000:]
             
             self._update_aggregates()
-            
-            self.stats.last_update = datetime.utcnow().isoformat() + "Z"
+
+            self.stats.last_update = datetime.now(timezone.utc).isoformat() + "Z"
     
     def _update_aggregates(self):
         """Atualiza métricas agregadas"""
@@ -335,7 +335,7 @@ class ShadowModeManager:
                 'statistics': self.stats.to_dict(),
                 'recommendation': recommendation,
                 'mismatch_sample': mismatch_details[:20],
-                'generated_at': datetime.utcnow().isoformat() + "Z"
+                'generated_at': datetime.now(timezone.utc).isoformat() + "Z"
             }
     
     def _save_report(self, report: Dict[str, Any]):

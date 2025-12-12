@@ -6,7 +6,7 @@ Time Complexity: O(1) for all entity operations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from enum import Enum
 from typing import Dict, List, Optional, Any
@@ -102,14 +102,14 @@ class Transaction:
         self.status = TransactionStatus.REJECTED
         self.risk_level = RiskLevel.CRITICAL
         self.metadata["fraud_reason"] = reason
-        self.metadata["flagged_at"] = datetime.utcnow().isoformat()
+        self.metadata["flagged_at"] = datetime.now(timezone.utc).isoformat()
 
     def approve(self) -> None:
         """Business rule: Approve transaction - O(1)"""
         if self.risk_level == RiskLevel.CRITICAL:
             raise ValueError("Cannot approve critical risk transactions")
         self.status = TransactionStatus.APPROVED
-        self.metadata["approved_at"] = datetime.utcnow().isoformat()
+        self.metadata["approved_at"] = datetime.now(timezone.utc).isoformat()
 
     def is_high_value(self, threshold: Money) -> bool:
         """Business rule: Check if transaction is high value - O(1)"""
@@ -136,7 +136,7 @@ class FraudAnalysisResult:
     confidence_score: float
     risk_factors: List[str] = field(default_factory=list)
     model_version: str = "1.0"
-    analysis_timestamp: datetime = field(default_factory=datetime.utcnow)
+    analysis_timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     processing_time_ms: float = 0.0
 
     def __post_init__(self):
@@ -195,7 +195,7 @@ class Customer:
     def update_risk_profile(self, new_risk: RiskLevel) -> None:
         """Update customer risk profile - O(1)"""
         self.risk_profile = new_risk
-        self.metadata["risk_updated_at"] = datetime.utcnow().isoformat()
+        self.metadata["risk_updated_at"] = datetime.now(timezone.utc).isoformat()
 
 
 # Domain Events - Event Sourcing Pattern
@@ -204,7 +204,7 @@ class DomainEvent(ABC):
 
     def __init__(self):
         self.event_id = uuid4()
-        self.occurred_at = datetime.utcnow()
+        self.occurred_at = datetime.now(timezone.utc)
 
     @abstractmethod
     def event_type(self) -> str:
@@ -327,7 +327,7 @@ class TransactionFactory:
             amount=money,
             merchant_id=merchant_id,
             customer_id=customer_id,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             metadata=metadata or {},
         )
 

@@ -13,7 +13,7 @@ import time
 import threading
 from collections import deque
 from dataclasses import dataclass, asdict, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any, Optional, Callable
 from enum import Enum
 import statistics
@@ -256,7 +256,7 @@ class MetricsCollector:
                 "error_rate_percent": round(self.get_error_rate(), 4),
                 "fraud_rate_percent": round(self.get_fraud_rate(), 4),
                 "uptime_seconds": round(self.get_uptime_seconds(), 2),
-                "timestamp": datetime.utcnow().isoformat() + "Z"
+                "timestamp": datetime.now(timezone.utc).isoformat() + "Z"
             }
     
     def export_prometheus(self) -> str:
@@ -383,7 +383,7 @@ class AlertManager:
             recent_similar = [
                 a for a in self._alerts[-10:]
                 if a.metric_name == metric_name and not a.resolved
-                and (datetime.utcnow() - datetime.fromisoformat(a.timestamp.replace("Z", ""))) < timedelta(minutes=5)
+                and (datetime.now(timezone.utc) - datetime.fromisoformat(a.timestamp.replace("Z", ""))) < timedelta(minutes=5)
             ]
             if recent_similar:
                 return
@@ -396,7 +396,7 @@ class AlertManager:
                 metric_name=metric_name,
                 current_value=current_value,
                 threshold_value=threshold_value,
-                timestamp=datetime.utcnow().isoformat() + "Z"
+                timestamp=datetime.now(timezone.utc).isoformat() + "Z"
             )
             
             self._alerts.append(alert)
@@ -507,7 +507,7 @@ class HealthChecker:
                 components[name] = {
                     "status": "healthy" if is_healthy else "unhealthy",
                     "latency_ms": round(latency, 2),
-                    "last_check": datetime.utcnow().isoformat() + "Z"
+                    "last_check": datetime.now(timezone.utc).isoformat() + "Z"
                 }
                 
                 if not is_healthy:
@@ -517,7 +517,7 @@ class HealthChecker:
                 components[name] = {
                     "status": "error",
                     "error": str(e),
-                    "last_check": datetime.utcnow().isoformat() + "Z"
+                    "last_check": datetime.now(timezone.utc).isoformat() + "Z"
                 }
                 all_healthy = False
         
@@ -535,7 +535,7 @@ class HealthChecker:
         return HealthStatus(
             status=status,
             uptime_seconds=time.time() - self._start_time,
-            last_check=datetime.utcnow().isoformat() + "Z",
+            last_check=datetime.now(timezone.utc).isoformat() + "Z",
             components=components,
             sla_compliance=sla_compliance
         )
@@ -555,7 +555,7 @@ class HealthChecker:
         return {
             "alive": True,
             "uptime_seconds": time.time() - self._start_time,
-            "timestamp": datetime.utcnow().isoformat() + "Z"
+            "timestamp": datetime.now(timezone.utc).isoformat() + "Z"
         }
 
 

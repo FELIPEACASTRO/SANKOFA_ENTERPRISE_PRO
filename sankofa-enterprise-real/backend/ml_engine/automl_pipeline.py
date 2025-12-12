@@ -8,7 +8,7 @@ import logging
 import numpy as np
 import pandas as pd
 from typing import Dict, Any, List, Optional, Tuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import json
 import pickle
@@ -103,7 +103,7 @@ class H2OAutoMLFraudDetector:
         Returns:
             Training results
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         # Initialize H2O
         self._initialize_h2o()
@@ -172,7 +172,7 @@ class H2OAutoMLFraudDetector:
         precision, recall, _ = precision_recall_curve(y_val, y_pred_proba)
         auc_pr = np.trapz(recall, precision)
 
-        training_time = (datetime.utcnow() - start_time).total_seconds()
+        training_time = (datetime.now(timezone.utc) - start_time).total_seconds()
 
         # Store metadata
         self.training_metadata = {

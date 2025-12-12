@@ -5,7 +5,7 @@ Coletor de métricas em tempo real com persistência
 
 import json
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Any
@@ -254,7 +254,7 @@ class MetricsCollector:
     def get_alerts(self) -> List[Dict]:
         """Retorna alertas do sistema"""
         with self._lock:
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             alerts = []
 
             kpis = self.get_kpis()

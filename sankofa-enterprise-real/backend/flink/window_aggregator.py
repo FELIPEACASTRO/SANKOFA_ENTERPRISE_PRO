@@ -6,7 +6,7 @@ Simulates Flink window operations for feature computation
 import asyncio
 import logging
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from collections import defaultdict, deque
 from dataclasses import dataclass
 import statistics
@@ -74,7 +74,7 @@ class WindowAggregator:
             timestamp: Event timestamp (default: now)
         """
         if timestamp is None:
-            timestamp = datetime.utcnow()
+            timestamp = datetime.now(timezone.utc)
 
         # Add timestamp to event
         event['_timestamp'] = timestamp
@@ -201,7 +201,7 @@ class WindowAggregator:
         if entity_id not in self.events:
             return []
 
-        cutoff_time = datetime.utcnow() - timedelta(seconds=duration_seconds)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(seconds=duration_seconds)
 
         events_in_window = [
             e for e in self.events[entity_id]
@@ -294,7 +294,7 @@ class WindowAggregator:
         Returns:
             Number of events removed
         """
-        cutoff_time = datetime.utcnow() - timedelta(seconds=retention_seconds)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(seconds=retention_seconds)
         removed_count = 0
 
         for entity_id in list(self.events.keys()):

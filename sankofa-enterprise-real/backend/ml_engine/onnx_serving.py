@@ -7,7 +7,7 @@ import asyncio
 import logging
 import numpy as np
 from typing import Dict, Any, List, Optional, Tuple
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import pickle
 import json
@@ -308,7 +308,7 @@ class ONNXFraudModelServing:
         Returns:
             Prediction result
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         try:
             # Extract or use provided features
@@ -328,7 +328,7 @@ class ONNXFraudModelServing:
             is_fraud = fraud_probability >= self.threshold
 
             # Calculate latency
-            latency_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
+            latency_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
 
             # Update metrics
             self._update_metrics(latency_ms)
@@ -397,8 +397,8 @@ class ONNXFraudModelServing:
         # In production, use feature_engineering.py
         features = {
             'amount': float(transaction.get('amount', 0)),
-            'hour': datetime.fromisoformat(transaction.get('created_at', datetime.utcnow().isoformat())).hour,
-            'is_weekend': datetime.fromisoformat(transaction.get('created_at', datetime.utcnow().isoformat())).weekday() >= 5,
+            'hour': datetime.fromisoformat(transaction.get('created_at', datetime.now(timezone.utc).isoformat())).hour,
+            'is_weekend': datetime.fromisoformat(transaction.get('created_at', datetime.now(timezone.utc).isoformat())).weekday() >= 5,
             'channel_pix': 1.0 if transaction.get('channel') == 'PIX' else 0.0,
             'channel_credit': 1.0 if transaction.get('channel') == 'credit_card' else 0.0,
         }
@@ -505,7 +505,7 @@ async def example_onnx_serving():
         'id': 'TXN_001',
         'amount': 1000.0,
         'channel': 'PIX',
-        'created_at': datetime.utcnow().isoformat()
+        'created_at': datetime.now(timezone.utc).isoformat()
     }
 
     # Predict

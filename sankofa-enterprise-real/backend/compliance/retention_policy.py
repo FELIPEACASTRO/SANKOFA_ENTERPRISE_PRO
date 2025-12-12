@@ -3,7 +3,7 @@ Data Retention Policy Service
 Automatic purging of expired data
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class RetentionPolicyManager:
     async def purge_expired_data(self):
         """Execute daily - removes expired data"""
         for table, retention in RETENTION_POLICIES.items():
-            cutoff_date = datetime.utcnow() - retention
+            cutoff_date = datetime.now(timezone.utc) - retention
 
             logger.info(f"Purging {table} older than {cutoff_date}")
 

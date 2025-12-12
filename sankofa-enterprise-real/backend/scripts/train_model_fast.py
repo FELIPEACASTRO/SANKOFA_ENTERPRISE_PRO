@@ -13,7 +13,7 @@ import os
 import numpy as np
 import pandas as pd
 import joblib
-from datetime import datetime
+from datetime import datetime, timezone
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
@@ -163,7 +163,7 @@ metrics = {
     'f1_score': f1_score(y_test, y_pred),
     'roc_auc': roc_auc_score(y_test, ensemble_proba),
     'threshold': best_threshold,
-    'timestamp': datetime.utcnow().isoformat() + 'Z'
+    'timestamp': datetime.now(timezone.utc).isoformat() + 'Z'
 }
 
 print(f"\n   MÉTRICAS DO MODELO:")
@@ -190,7 +190,7 @@ model_data = {
     'feature_names': feature_names,
     'threshold': best_threshold,
     'metrics': metrics,
-    'trained_at': datetime.utcnow().isoformat() + 'Z'
+    'trained_at': datetime.now(timezone.utc).isoformat() + 'Z'
 }
 
 model_path = model_dir / 'fraud_engine_v1.0.0.joblib'

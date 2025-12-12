@@ -6,7 +6,7 @@ Tests for core domain entities, business rules, and use cases
 import pytest
 import numpy as np
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone
 
 import sys
 sys.path.insert(0, '.')
@@ -89,7 +89,7 @@ class TestModelMetricsEntity:
             f1_score=0.90,
             roc_auc=0.94,
             threshold=0.5,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
         
         assert metrics.accuracy == 0.95

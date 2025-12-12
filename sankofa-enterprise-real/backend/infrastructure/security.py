@@ -8,7 +8,7 @@ import hmac
 import secrets
 import jwt
 import bcrypt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional, List
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
@@ -145,7 +145,7 @@ class AuthenticationService:
                     return None
 
                 # Check expiration
-                if result["expires_at"] and result["expires_at"] < datetime.utcnow():
+                if result["expires_at"] and result["expires_at"] < datetime.now(timezone.utc):
                     return None
 
                 # Update last used
@@ -170,8 +170,8 @@ class AuthenticationService:
         payload = {
             "user_id": user_id,
             "permissions": permissions,
-            "iat": datetime.utcnow(),
-            "exp": datetime.utcnow() + self.token_expiry,
+            "iat": datetime.now(timezone.utc),
+            "exp": datetime.now(timezone.utc) + self.token_expiry,
         }
 
         return jwt.encode(payload, self.jwt_secret, algorithm=self.algorithm)
@@ -201,7 +201,7 @@ class RateLimitService:
     ) -> tuple[bool, Dict[str, Any]]:
         """Check if request is within rate limit"""
         try:
-            current_time = datetime.utcnow()
+            current_time = datetime.now(timezone.utc)
             window_start = current_time.replace(second=0, microsecond=0)
 
             # Redis key for this window
@@ -235,7 +235,7 @@ class RateLimitService:
     async def get_rate_limit_info(self, identifier: str) -> Dict[str, Any]:
         """Get current rate limit status"""
         try:
-            current_time = datetime.utcnow()
+            current_time = datetime.now(timezone.utc)
             window_start = current_time.replace(second=0, microsecond=0)
             key = f"rate_limit:{identifier}:{window_start.timestamp()}"
 
@@ -467,7 +467,7 @@ class SecurityMiddleware:
                 rate_limit=key_info["rate_limit"],
                 ip_address=self._get_client_ip(request),
                 user_agent=request.headers.get("User-Agent", ""),
-                authenticated_at=datetime.utcnow(),
+                authenticated_at=datetime.now(timezone.utc),
             )
 
         except Exception as e:

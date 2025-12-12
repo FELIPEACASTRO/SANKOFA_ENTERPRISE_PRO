@@ -9,7 +9,7 @@ import uuid
 import hashlib
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import logging
 import os
@@ -24,10 +24,10 @@ class Metric:
     value: float
     step: int = 0
     timestamp: str = ""
-    
+
     def __post_init__(self):
         if not self.timestamp:
-            self.timestamp = datetime.utcnow().isoformat() + "Z"
+            self.timestamp = datetime.now(timezone.utc).isoformat() + "Z"
 
 
 @dataclass
@@ -40,10 +40,10 @@ class Artifact:
     checksum: str = ""
     metadata: Dict[str, Any] = field(default_factory=dict)
     created_at: str = ""
-    
+
     def __post_init__(self):
         if not self.created_at:
-            self.created_at = datetime.utcnow().isoformat() + "Z"
+            self.created_at = datetime.now(timezone.utc).isoformat() + "Z"
 
 
 @dataclass
@@ -138,7 +138,7 @@ class ExperimentTracker:
             'experiment_id': experiment_id,
             'name': name,
             'description': description,
-            'created_at': datetime.utcnow().isoformat() + "Z",
+            'created_at': datetime.now(timezone.utc).isoformat() + "Z",
             'runs': []
         }
         
@@ -170,7 +170,7 @@ class ExperimentTracker:
             experiment_name=experiment_name,
             run_name=run_name,
             status="RUNNING",
-            start_time=datetime.utcnow().isoformat() + "Z",
+            start_time=datetime.now(timezone.utc).isoformat() + "Z",
             end_time=None,
             parameters=parameters or {},
             metrics=[],
@@ -259,9 +259,9 @@ class ExperimentTracker:
         """Finaliza execução do experimento"""
         if self._current_run is None:
             raise ValueError("No active run.")
-        
+
         self._current_run.status = status
-        self._current_run.end_time = datetime.utcnow().isoformat() + "Z"
+        self._current_run.end_time = datetime.now(timezone.utc).isoformat() + "Z"
         
         run_file = self._runs_dir / f"{self._current_run.run_id}.json"
         with open(run_file, 'w') as f:

@@ -7,7 +7,7 @@ import asyncio
 import logging
 import numpy as np
 from typing import Dict, Any, List, Optional, Tuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
 from enum import Enum
 import json
@@ -145,7 +145,7 @@ class ContextualBandit:
             context['amount_bucket'] = 'high'
 
         # Time period
-        hour = datetime.utcnow().hour
+        hour = datetime.now(timezone.utc).hour
         if 9 <= hour < 18:
             context['time_period'] = 'business_hours'
         elif 18 <= hour < 23:
@@ -453,7 +453,7 @@ class StepUpMFAOptimizer:
 
         if adjustment != 0.0:
             self.base_threshold = max(0.3, min(0.9, self.base_threshold + adjustment))
-            self.threshold_adjustments.append((datetime.utcnow(), self.base_threshold))
+            self.threshold_adjustments.append((datetime.now(timezone.utc), self.base_threshold))
 
             logger.info(f"Threshold adjusted: new_threshold={self.base_threshold:.3f}")
 

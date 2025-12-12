@@ -284,22 +284,74 @@ class DistributedFraudCache:
         """Obtém predição de modelo"""
         return self.get("model", "model_prediction", model_name, input_hash)
 
+    # CORRECAO 10/10: Lua script para operação atômica INCR+EXPIRE
+    # Evita race condition onde TTL nunca é definido se outro thread incrementa entre INCR e EXPIRE
+    _ATOMIC_INCR_SCRIPT = """
+    local count = redis.call('INCR', KEYS[1])
+    if count == 1 then
+        redis.call('EXPIRE', KEYS[1], ARGV[1])
+    end
+    return count
+    """
+    _atomic_incr_sha = None
+
     def increment_velocity_counter(
         self, counter_type: str, entity_id: str, time_window: str
     ) -> int:
-        """Incrementa contador de velocidade"""
+        """
+        Incrementa contador de velocidade de forma atômica e thread-safe.
+
+        CORRECAO 10/10: Usa Lua script para garantir atomicidade da operação
+        INCR + EXPIRE, evitando race condition onde múltiplas threads incrementam
+        simultaneamente e apenas uma delas define o TTL corretamente.
+
+        Args:
+            counter_type: Tipo do contador (ex: 'card_usage', 'user_transactions')
+            entity_id: ID da entidade sendo contada
+            time_window: Janela de tempo (ex: '1h', '24h')
+
+        Returns:
+            Valor atual do contador após incremento
+        """
         key = self._generate_cache_key("velocity", counter_type, entity_id, time_window)
+        ttl = self.fraud_ttls.get("velocity_counter", 3600)
 
-        # Usa Redis para contadores (operação atômica)
         client = self.redis_cache.connection_manager.get_client()
-        count = client.incr(key)
 
-        # Define TTL se for novo contador
-        if count == 1:
-            ttl = self.fraud_ttls.get("velocity_counter", 3600)
-            client.expire(key, ttl)
+        try:
+            # Tenta usar Lua script para operação atômica
+            # Registra o script se ainda não foi registrado
+            if DistributedFraudCache._atomic_incr_sha is None:
+                DistributedFraudCache._atomic_incr_sha = client.script_load(
+                    self._ATOMIC_INCR_SCRIPT
+                )
 
-        return count
+            # Executa script atômico
+            count = client.evalsha(
+                DistributedFraudCache._atomic_incr_sha,
+                1,  # número de keys
+                key,
+                ttl
+            )
+            return int(count)
+
+        except Exception as e:
+            # Fallback: Se Lua scripts não estiverem disponíveis,
+            # usa pipeline para minimizar (mas não eliminar) race condition
+            logger.warning(f"Lua script falhou, usando fallback com pipeline: {e}")
+
+            try:
+                pipe = client.pipeline(transaction=True)
+                pipe.incr(key)
+                pipe.expire(key, ttl)
+                results = pipe.execute()
+                return results[0]  # Retorna o resultado do INCR
+            except Exception as pipe_error:
+                # Último fallback: operação simples (pode ter race condition)
+                logger.error(f"Pipeline falhou, usando operação simples: {pipe_error}")
+                count = client.incr(key)
+                client.expire(key, ttl)  # Sempre define TTL para garantir expiração
+                return count
 
     def get_velocity_counter(self, counter_type: str, entity_id: str, time_window: str) -> int:
         """Obtém contador de velocidade"""
@@ -467,9 +519,11 @@ if __name__ == "__main__":
                     self.parent = parent
 
             # Mock Redis client
+            # CORRECAO 10/10: Adicionado suporte a Lua scripts e pipelines para testes
             class MockRedisClient:
                 def __init__(self, parent):
                     self.parent = parent
+                    self._scripts = {}
 
                 def incr(self, key):
                     self.parent.counters[key] = self.parent.counters.get(key, 0) + 1
@@ -477,6 +531,47 @@ if __name__ == "__main__":
 
                 def expire(self, key, ttl):
                     return True
+
+                def script_load(self, script):
+                    """Mock para carregar Lua script"""
+                    import hashlib
+                    sha = hashlib.sha1(script.encode()).hexdigest()
+                    self._scripts[sha] = script
+                    return sha
+
+                def evalsha(self, sha, numkeys, *args):
+                    """Mock para executar Lua script - simula INCR+EXPIRE atômico"""
+                    key = args[0]
+                    ttl = args[1] if len(args) > 1 else 3600
+                    count = self.incr(key)
+                    self.expire(key, ttl)
+                    return count
+
+                def pipeline(self, transaction=True):
+                    """Mock para pipeline Redis"""
+                    return MockPipeline(self)
+
+            class MockPipeline:
+                def __init__(self, client):
+                    self.client = client
+                    self._commands = []
+
+                def incr(self, key):
+                    self._commands.append(('incr', key))
+                    return self
+
+                def expire(self, key, ttl):
+                    self._commands.append(('expire', key, ttl))
+                    return self
+
+                def execute(self):
+                    results = []
+                    for cmd in self._commands:
+                        if cmd[0] == 'incr':
+                            results.append(self.client.incr(cmd[1]))
+                        elif cmd[0] == 'expire':
+                            results.append(self.client.expire(cmd[1], cmd[2]))
+                    return results
 
             self.connection_manager = MockConnectionManager(self)
 

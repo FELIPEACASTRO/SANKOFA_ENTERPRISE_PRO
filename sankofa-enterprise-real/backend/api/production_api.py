@@ -11,7 +11,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 import time
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from flask import Flask, request, jsonify, g, send_from_directory, Response, make_response
 from typing import Dict, Any, List, Optional
 from config.cors_config import apply_cors
@@ -173,7 +173,7 @@ class PostgreSQLPersistence:
                             bool(prediction.get("is_fraud", False)),
                             mask_cpf(transaction_data.get("cpf", "")),
                             transaction_data.get("location", ""),
-                            datetime.utcnow(),
+                            datetime.now(timezone.utc),
                             transaction_data.get("processing_time_ms", 0),
                             prediction.get("model_version", "1.0.0"),
                         ),
@@ -677,7 +677,7 @@ class MetricsCollector:
     def get_alerts(self) -> List[Dict]:
         """Retorna alertas do sistema"""
         with self._lock:
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             alerts = []
 
             kpis = self.get_kpis()
@@ -1211,7 +1211,7 @@ def api_info():
                 "dashboard": "/api/dashboard/kpis",
             },
             "documentation": "/api/docs",
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
         }
     )
 
@@ -1222,7 +1222,7 @@ def health_check():
     return jsonify(
         {
             "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
             "version": fraud_engine.VERSION,
             "environment": config.environment,
         }
@@ -1244,14 +1244,13 @@ def get_status():
                 "environment": config.environment,
                 "debug_mode": config.debug,
                 "api_version": fraud_engine.VERSION,
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
             },
         }
     )
 
 
 import bcrypt
-from datetime import timezone
 
 
 def get_user_from_db(username: str, max_retries: int = 3) -> Optional[Dict[str, Any]]:
@@ -1524,8 +1523,8 @@ def refresh_token():
             "sub": payload.get("sub"),
             "name": payload.get("name"),
             "role": payload.get("role"),
-            "iat": datetime.utcnow(),
-            "exp": datetime.utcnow() + timedelta(hours=24),
+            "iat": datetime.now(timezone.utc),
+            "exp": datetime.now(timezone.utc) + timedelta(hours=24),
         }
 
         new_token = pyjwt.encode(
@@ -1667,7 +1666,7 @@ def predict_fraud():
         txn_id = f"TXN{int(time.time()*1000)}{i:03d}"
         txn_data = {
             "id": txn_id,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
             "amount": transactions_data[i].get("amount", 0),
             "channel": transactions_data[i].get("channel", "PIX"),
             "status": "fraud" if pred.is_fraud else "approved",
@@ -2162,7 +2161,7 @@ def get_transactions():
     if not raw_transactions:
         raw_transactions = transaction_store.get_recent(limit * 5)
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     cities = [
         "São Paulo",
         "Rio de Janeiro",
@@ -2312,7 +2311,7 @@ def send_to_review(transaction_id):
     item = {
         "transaction_id": transaction_id,
         "reason": reason,
-        "added_at": datetime.utcnow().isoformat() + "Z",
+        "added_at": datetime.now(timezone.utc).isoformat() + "Z",
         "status": "pending",
     }
     config_store.add("manual_review_queue", item)
@@ -2339,7 +2338,7 @@ def flag_transaction(transaction_id):
         "severity": "high",
         "transaction_id": transaction_id,
         "message": f"Transação {transaction_id} marcada como suspeita",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
         "status": "active",
     }
     metrics_collector._alerts.append(alert)
@@ -2396,11 +2395,11 @@ def create_investigation():
         }), 400
 
     investigation = {
-        "id": f"INV-{datetime.utcnow().strftime('%Y%m%d')}-{np.random.randint(1000, 9999)}",
+        "id": f"INV-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{np.random.randint(1000, 9999)}",
         "transaction_id": transaction_id,
         "priority": priority,
         "status": "active",
-        "created_at": datetime.utcnow().isoformat() + "Z",
+        "created_at": datetime.now(timezone.utc).isoformat() + "Z",
         "assigned_to": "analyst",
     }
 
@@ -2470,7 +2469,7 @@ def get_metrics_dashboard():
             },
             "model": model_metrics,
             "cache": cache_stats,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
         }
     )
 
@@ -3455,7 +3454,7 @@ def update_alert_status(alert_id: int):
             "data": {
                 "id": alert_id,
                 "status": new_status,
-                "updated_at": datetime.utcnow().isoformat() + "Z",
+                "updated_at": datetime.now(timezone.utc).isoformat() + "Z",
             },
         }
     )
@@ -3637,7 +3636,7 @@ def apply_calibration_changes():
         {
             "success": True,
             "message": "Configurações aplicadas com sucesso ao motor de ML",
-            "applied_at": datetime.utcnow().isoformat() + "Z",
+            "applied_at": datetime.now(timezone.utc).isoformat() + "Z",
             "changes_count": len(new_config),
         }
     )
@@ -3696,7 +3695,7 @@ def reset_calibration():
             "success": True,
             "message": "Configurações resetadas para valores padrão",
             "config": default_config,
-            "reset_at": datetime.utcnow().isoformat() + "Z",
+            "reset_at": datetime.now(timezone.utc).isoformat() + "Z",
         }
     )
 
@@ -3912,7 +3911,7 @@ def get_reports():
             "name": "Resumo Diário de Fraudes",
             "type": "daily",
             "status": "generated",
-            "created_at": datetime.utcnow().isoformat() + "Z",
+            "created_at": datetime.now(timezone.utc).isoformat() + "Z",
             "summary": summary.get("summary", {}),
         },
         {
@@ -3920,7 +3919,7 @@ def get_reports():
             "name": "Relatório Semanal de Performance",
             "type": "weekly",
             "status": "available",
-            "created_at": (datetime.utcnow() - timedelta(days=1)).isoformat() + "Z",
+            "created_at": (datetime.now(timezone.utc) - timedelta(days=1)).isoformat() + "Z",
         },
     ]
     return jsonify({"success": True, "data": reports})
@@ -3954,7 +3953,7 @@ def download_report(report_id: str):
 
     report_content = {
         "report_id": report_id,
-        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "generated_at": datetime.now(timezone.utc).isoformat() + "Z",
         "type": "fraud_analysis",
         "data": report_data,
     }
@@ -3972,7 +3971,7 @@ def download_report(report_id: str):
         {
             "success": True,
             "report_id": report_id,
-            "filename": f"relatorio_{report_id}_{datetime.utcnow().strftime('%Y%m%d')}.json",
+            "filename": f"relatorio_{report_id}_{datetime.now(timezone.utc).strftime('%Y%m%d')}.json",
             "download_url": download_url,
             "format": "json",
             "size_bytes": len(content_json),
@@ -4171,7 +4170,7 @@ def export_feedbacks():
                 "success": True,
                 "format": "csv",
                 "total": len(feedbacks),
-                "filename": f"feedbacks_export_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv",
+                "filename": f"feedbacks_export_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.csv",
                 "download_url": download_url,
             }
         )
@@ -4181,7 +4180,7 @@ def export_feedbacks():
 
         content_json = json.dumps(
             {
-                "exported_at": datetime.utcnow().isoformat() + "Z",
+                "exported_at": datetime.now(timezone.utc).isoformat() + "Z",
                 "total": len(feedbacks),
                 "feedbacks": feedbacks,
             },
@@ -4201,7 +4200,7 @@ def export_feedbacks():
                 "success": True,
                 "format": "json",
                 "total": len(feedbacks),
-                "filename": f"feedbacks_export_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json",
+                "filename": f"feedbacks_export_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json",
                 "download_url": download_url,
             }
         )

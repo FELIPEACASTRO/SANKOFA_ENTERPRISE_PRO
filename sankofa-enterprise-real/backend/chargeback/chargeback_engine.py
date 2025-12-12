@@ -8,7 +8,7 @@ CORRECAO 10/10: Thread-safe singleton e metricas com locks
 import logging
 import threading
 from typing import Dict, Any, List, Optional, Tuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
 from enum import Enum
 
@@ -117,7 +117,7 @@ class ChargebackEngine:
                 return self._create_error_response("Invalid chargeback data")
 
             # Step 2: Check if past deadline
-            if datetime.utcnow() > chargeback.deadline:
+            if datetime.now(timezone.utc) > chargeback.deadline:
                 logger.warning(f"Chargeback past deadline: {chargeback.case_id}")
                 return self._create_decision(
                     decision=DisputeDecision.ACCEPT,
@@ -168,7 +168,7 @@ class ChargebackEngine:
                 'reason': self._get_decision_reason(decision, win_probability),
                 'recommended_actions': self._get_recommended_actions(decision),
                 'deadline': chargeback.deadline.isoformat(),
-                'processed_at': datetime.utcnow().isoformat()
+                'processed_at': datetime.now(timezone.utc).isoformat()
             }
 
         except Exception as e:
@@ -355,7 +355,7 @@ class ChargebackEngine:
         if chargeback.amount <= 0:
             return False
 
-        if chargeback.deadline < datetime.utcnow():
+        if chargeback.deadline < datetime.now(timezone.utc):
             logger.warning(f"Chargeback past deadline: {chargeback.case_id}")
             # Ainda processar, mas marcar
 

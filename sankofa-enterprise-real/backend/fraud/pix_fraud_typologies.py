@@ -6,7 +6,7 @@ Benchmark: Nubank (<200ms), Stripe Radar (150+ typologies)
 
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, timedelta, timezone
 from decimal import Decimal
 import re
 import logging
@@ -533,7 +533,7 @@ class PIXFraudTypologies:
         # Verifica tempo desde último login
         last_login = context.get('last_login_time')
         if last_login:
-            minutes_since_login = (datetime.utcnow() - last_login).total_seconds() / 60
+            minutes_since_login = (datetime.now(timezone.utc) - last_login).total_seconds() / 60
             if minutes_since_login < 5:  # PIX em <5min após login
                 return True, 0.70, "PIX muito rápido após login (possível phishing)"
 
@@ -561,7 +561,7 @@ class PIXFraudTypologies:
 
     def _check_ato_unusual_time(self, txn: Dict, context: Dict) -> Tuple[bool, float, str]:
         """PIX-005: Horário Anormal"""
-        txn_hour = datetime.utcnow().hour
+        txn_hour = datetime.now(timezone.utc).hour
         user_avg_hour = context.get('avg_transaction_hour', 14)
 
         hour_diff = abs(txn_hour - user_avg_hour)
@@ -689,7 +689,7 @@ class PIXFraudTypologies:
 
     def _check_time_early_morning(self, txn: Dict, context: Dict) -> Tuple[bool, float, str]:
         """PIX-017: Madrugada"""
-        hour = datetime.utcnow().hour
+        hour = datetime.now(timezone.utc).hour
 
         if 2 <= hour <= 5:
             return True, 0.55, f"PIX em horário de madrugada ({hour}h)"
@@ -698,7 +698,7 @@ class PIXFraudTypologies:
 
     def _check_time_weekend_late(self, txn: Dict, context: Dict) -> Tuple[bool, float, str]:
         """PIX-018: Fim de Semana Tarde"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         is_weekend = now.weekday() in [5, 6]  # Sábado/Domingo
         is_late = now.hour >= 22
 

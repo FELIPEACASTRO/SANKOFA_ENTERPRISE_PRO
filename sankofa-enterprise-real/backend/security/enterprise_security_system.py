@@ -11,7 +11,7 @@ import os
 import jwt
 import bcrypt
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
@@ -548,8 +548,8 @@ class EnterpriseSecuritySystem:
             "username": username,
             "role": role,
             "permissions": permissions,
-            "iat": datetime.utcnow(),
-            "exp": datetime.utcnow() + timedelta(hours=self.jwt_expiration_hours),
+            "iat": datetime.now(timezone.utc),
+            "exp": datetime.now(timezone.utc) + timedelta(hours=self.jwt_expiration_hours),
             "type": "access",
         }
 
@@ -561,12 +561,12 @@ class EnterpriseSecuritySystem:
         CORRECAO 10/10: Refresh tokens agora têm expiração controlada
         """
         token = secrets.token_urlsafe(64)
-        expires_at = datetime.utcnow() + timedelta(days=self.refresh_token_days)
+        expires_at = datetime.now(timezone.utc) + timedelta(days=self.refresh_token_days)
 
         return {
             "token": token,
             "expires_at": expires_at.isoformat(),
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat()
         }
 
     def verify_token(self, token: str) -> Dict[str, Any]:

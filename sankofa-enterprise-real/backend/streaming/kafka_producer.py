@@ -1,18 +1,35 @@
 """
 Kafka Producer - Async Event Publishing
 High-throughput, exactly-once semantics
+
+CORRECAO 10/10:
+- Corrigido datetime.utcnow() para datetime.now(timezone.utc)
+- Carrega bootstrap_servers de variáveis de ambiente
+- Thread-safe singleton com double-checked locking
 """
 
 import asyncio
 import json
 import logging
+import os
+import threading
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
 import hashlib
 
 logger = logging.getLogger(__name__)
+
+
+def _utc_now() -> datetime:
+    """Retorna datetime atual em UTC com timezone info (Python 3.12+ compatible)"""
+    return datetime.now(timezone.utc)
+
+
+def _utc_now_iso() -> str:
+    """Retorna timestamp ISO 8601 em UTC"""
+    return datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S') + "Z"
 
 
 class KafkaFraudProducer:
@@ -25,20 +42,26 @@ class KafkaFraudProducer:
     - Automatic retry com backoff
     - Dead letter queue para falhas
     - Partitioning por customer_id
+    - CORRECAO 10/10: Bootstrap servers de variáveis de ambiente
+    - CORRECAO 10/10: datetime.now(timezone.utc) em vez de datetime.utcnow()
     """
 
     def __init__(
         self,
-        bootstrap_servers: str = 'localhost:9092',
+        bootstrap_servers: str = None,
         enable_idempotence: bool = True,
         max_retries: int = 3
     ):
         """
         Args:
-            bootstrap_servers: Kafka cluster endpoints
+            bootstrap_servers: Kafka cluster endpoints (default: from env)
             enable_idempotence: Garante exactly-once
             max_retries: Tentativas de retry
         """
+        # CORRECAO 10/10: Carregar de variáveis de ambiente
+        if bootstrap_servers is None:
+            bootstrap_servers = os.environ.get('KAFKA_BOOTSTRAP_SERVERS', 'kafka:9092')
+
         self.bootstrap_servers = bootstrap_servers
         self.max_retries = max_retries
 
@@ -93,10 +116,11 @@ class KafkaFraudProducer:
             partition_key = transaction.get('customer_id', 'unknown')
 
             # Event envelope
+            # CORRECAO 10/10: Usar timezone-aware datetime
             event = {
                 'event_id': event_id,
                 'event_type': 'transaction.created',
-                'timestamp': datetime.utcnow().isoformat(),
+                'timestamp': _utc_now_iso(),
                 'data': transaction,
                 'metadata': {
                     'source': 'fraud-api',
@@ -151,10 +175,11 @@ class KafkaFraudProducer:
             event_id = self._generate_event_id(prediction)
             partition_key = prediction.get('transaction_id', 'unknown')
 
+            # CORRECAO 10/10: Usar timezone-aware datetime
             event = {
                 'event_id': event_id,
                 'event_type': 'prediction.completed',
-                'timestamp': datetime.utcnow().isoformat(),
+                'timestamp': _utc_now_iso(),
                 'data': prediction,
                 'metadata': {
                     'model_version': prediction.get('model_version', 'unknown'),
@@ -191,10 +216,11 @@ class KafkaFraudProducer:
             event_id = self._generate_event_id(alert)
             partition_key = alert.get('transaction_id', 'unknown')
 
+            # CORRECAO 10/10: Usar timezone-aware datetime
             event = {
                 'event_id': event_id,
                 'event_type': 'alert.created',
-                'timestamp': datetime.utcnow().isoformat(),
+                'timestamp': _utc_now_iso(),
                 'data': alert,
                 'metadata': {
                     'severity': alert.get('severity', 'MEDIUM'),
@@ -219,37 +245,49 @@ class KafkaFraudProducer:
         Usa hash do conteúdo + timestamp para garantir unicidade
         """
         content = json.dumps(data, sort_keys=True)
-        timestamp = datetime.utcnow().isoformat()
+        # CORRECAO 10/10: Usar timezone-aware datetime
+        timestamp = _utc_now_iso()
         hash_input = f"{content}:{timestamp}"
 
         event_id = hashlib.sha256(hash_input.encode()).hexdigest()[:16]
         return f"evt_{event_id}"
 
-    async def _send_to_dlq(self, data: Dict[str, Any], error: str) -> None:
+    async def _send_to_dlq(self, data: Dict[str, Any], error: str) -> bool:
         """
         Envia mensagem falhada para Dead Letter Queue
+
+        CORRECAO 10/10: Retorna bool para indicar sucesso e usa timezone-aware datetime
 
         Args:
             data: Dados originais
             error: Descrição do erro
+
+        Returns:
+            True se enviado com sucesso
         """
         try:
             dlq_event = {
                 'original_data': data,
                 'error': error,
-                'timestamp': datetime.utcnow().isoformat(),
+                # CORRECAO 10/10: Usar timezone-aware datetime
+                'timestamp': _utc_now_iso(),
                 'retry_count': 0
             }
 
-            self.producer.send(
+            future = self.producer.send(
                 'dead-letter-queue',
                 value=dlq_event
             )
 
+            # CORRECAO 10/10: Aguardar confirmação
+            future.get(timeout=10)
+
             logger.warning(f"Message sent to DLQ: {error}")
+            return True
 
         except Exception as e:
             logger.error(f"Failed to send to DLQ: {e}")
+            return False
 
     def flush(self, timeout: Optional[int] = None) -> None:
         """
@@ -273,13 +311,17 @@ class KafkaFraudProducer:
         self.close()
 
 
-# Singleton instance
+# CORRECAO 10/10: Thread-safe singleton com double-checked locking
 _producer_instance: Optional[KafkaFraudProducer] = None
+_producer_lock = threading.Lock()
 
 
 def get_kafka_producer() -> KafkaFraudProducer:
     """
     Retorna singleton do Kafka Producer
+
+    CORRECAO 10/10: Thread-safe com double-checked locking
+    CORRECAO 10/10: Bootstrap servers de variáveis de ambiente
 
     Returns:
         KafkaFraudProducer instance
@@ -287,8 +329,10 @@ def get_kafka_producer() -> KafkaFraudProducer:
     global _producer_instance
 
     if _producer_instance is None:
-        # TODO: Get from config
-        bootstrap_servers = 'localhost:9092'
-        _producer_instance = KafkaFraudProducer(bootstrap_servers=bootstrap_servers)
+        with _producer_lock:
+            if _producer_instance is None:
+                # CORRECAO 10/10: Carregar de variáveis de ambiente
+                bootstrap_servers = os.environ.get('KAFKA_BOOTSTRAP_SERVERS', 'kafka:9092')
+                _producer_instance = KafkaFraudProducer(bootstrap_servers=bootstrap_servers)
 
     return _producer_instance

@@ -5,7 +5,7 @@ Integrates chargeback engine, evidence collector, and MED workflow
 
 import logging
 from typing import Dict, Any, Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 from .chargeback_engine import ChargebackEngine, ChargebackCase, get_chargeback_engine
@@ -118,8 +118,8 @@ class DisputeManager:
             currency=data.get('currency', 'BRL'),
             reason_code=data.get('reason_code'),
             reason_category=ChargebackReason(data.get('reason_category', 'fraud')),
-            dispute_date=data.get('dispute_date', datetime.utcnow()),
-            deadline=data.get('deadline', datetime.utcnow()),
+            dispute_date=data.get('dispute_date', datetime.now(timezone.utc)),
+            deadline=data.get('deadline', datetime.now(timezone.utc)),
             merchant_id=data.get('merchant_id'),
             customer_id=data.get('customer_id'),
             acquirer=data.get('acquirer', 'unknown'),
@@ -155,8 +155,8 @@ class DisputeManager:
             med_type=MEDType(data.get('med_type', 'fraud')),
             requester_institution=data.get('requester_institution'),
             requested_institution=data.get('requested_institution'),
-            request_date=data.get('request_date', datetime.utcnow()),
-            deadline=data.get('deadline', datetime.utcnow()),
+            request_date=data.get('request_date', datetime.now(timezone.utc)),
+            deadline=data.get('deadline', datetime.now(timezone.utc)),
             customer_cpf=data.get('customer_cpf'),
             justification=data.get('justification', ''),
             evidence_urls=data.get('evidence_urls', [])
@@ -177,7 +177,7 @@ class DisputeManager:
             'refund_id': f"REF_{data.get('id')}",
             'amount': data.get('amount'),
             'status': 'approved',
-            'executed_at': datetime.utcnow().isoformat()
+            'executed_at': datetime.now(timezone.utc).isoformat()
         }
 
         return {
@@ -211,7 +211,7 @@ class DisputeManager:
             'case_id': chargeback.case_id,
             'acquirer': chargeback.acquirer,
             'card_brand': chargeback.card_brand,
-            'submission_date': datetime.utcnow().isoformat(),
+            'submission_date': datetime.now(timezone.utc).isoformat(),
             'deadline': chargeback.deadline.isoformat(),
 
             # Evidence package
@@ -247,7 +247,7 @@ class DisputeManager:
             'decision': result.get('decision'),
             'win_probability': result.get('win_probability'),
             'actual_outcome': None,  # Will be updated later when outcome known
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
 
         # In production: store feedback for model retraining
@@ -268,7 +268,7 @@ class DisputeManager:
         return {
             'dispute_id': dispute_id,
             'status': 'processing',
-            'last_updated': datetime.utcnow().isoformat()
+            'last_updated': datetime.now(timezone.utc).isoformat()
         }
 
     async def bulk_process_disputes(
