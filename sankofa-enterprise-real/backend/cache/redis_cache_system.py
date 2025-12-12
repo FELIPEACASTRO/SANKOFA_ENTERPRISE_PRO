@@ -351,21 +351,44 @@ class CacheSerializer:
 
     @staticmethod
     def serialize(data: Any) -> bytes:
-        """Serializa dados para armazenamento"""
-        if isinstance(data, (str, int, float, bool)):
+        """
+        V003 FIX: Serializa dados usando APENAS JSON (sem pickle)
+
+        Pickle foi removido por segurança - deserialização de pickle
+        pode executar código arbitrário se o cache for comprometido.
+        """
+        if isinstance(data, (str, int, float, bool, type(None))):
             return json.dumps(data).encode("utf-8")
         elif isinstance(data, (dict, list, tuple)):
             return json.dumps(data, default=str).encode("utf-8")
         else:
-            return pickle.dumps(data)
+            # V003 FIX: Converter objetos complexos para dict em vez de usar pickle
+            try:
+                # Tenta converter para dict se tiver __dict__
+                if hasattr(data, '__dict__'):
+                    return json.dumps(data.__dict__, default=str).encode("utf-8")
+                elif hasattr(data, 'to_dict'):
+                    return json.dumps(data.to_dict(), default=str).encode("utf-8")
+                else:
+                    # Fallback: converter para string
+                    return json.dumps(str(data)).encode("utf-8")
+            except Exception as e:
+                logger.warning(f"V003: Não foi possível serializar {type(data)}: {e}")
+                return json.dumps(str(data)).encode("utf-8")
 
     @staticmethod
     def deserialize(data: bytes) -> Any:
-        """Deserializa dados do cache"""
+        """
+        V003 FIX: Deserializa dados usando APENAS JSON (sem pickle)
+
+        SEGURANÇA: Pickle.loads foi REMOVIDO pois pode executar código arbitrário.
+        """
         try:
             return json.loads(data.decode("utf-8"))
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            return pickle.loads(data)
+        except (json.JSONDecodeError, UnicodeDecodeError) as e:
+            # V003 FIX: NÃO usar pickle como fallback - retornar erro
+            logger.error(f"V003: Falha ao deserializar cache (formato inválido): {e}")
+            return None
 
 
 class CacheKeyManager:

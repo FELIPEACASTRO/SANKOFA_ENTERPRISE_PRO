@@ -268,12 +268,35 @@ apply_cors(app)
 # Apply security headers
 configure_security_headers(app)
 
+# V005 FIX: Rate limiting distribuído com Redis
+# Em produção, usar Redis para rate limiting distribuído entre múltiplas instâncias
+_redis_host = os.environ.get("REDIS_HOST", "localhost")
+_redis_port = os.environ.get("REDIS_PORT", "6379")
+_redis_password = os.environ.get("REDIS_PASSWORD", "")
+_is_production = config.environment == "production"
+
+if _is_production and _redis_host:
+    # V005 FIX: Usar Redis para rate limiting distribuído em produção
+    if _redis_password:
+        _rate_limit_storage = f"redis://:{_redis_password}@{_redis_host}:{_redis_port}/1"
+    else:
+        _rate_limit_storage = f"redis://{_redis_host}:{_redis_port}/1"
+    logger.info("V005: Rate limiting configurado com Redis (distribuído)")
+else:
+    # Desenvolvimento: usar memória local
+    _rate_limit_storage = "memory://"
+    logger.warning("V005: Rate limiting usando memória local (não distribuído)")
+
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
     default_limits=["100 per minute", "1000 per hour"],
-    storage_uri="memory://",
+    storage_uri=_rate_limit_storage,
     strategy="fixed-window",
+    # V005 FIX: Configurações adicionais para robustez
+    headers_enabled=True,  # Adiciona headers X-RateLimit-*
+    default_limits_per_method=True,
+    swallow_errors=True,  # Não falhar se Redis estiver indisponível
 )
 
 ROLE_PERMISSIONS = {
