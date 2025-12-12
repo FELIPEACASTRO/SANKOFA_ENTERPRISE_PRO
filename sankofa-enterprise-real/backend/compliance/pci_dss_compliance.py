@@ -18,10 +18,15 @@ mas não substitui uma auditoria formal.
 
 import os
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
+
+
+def _utc_now() -> datetime:
+    """Retorna datetime atual em UTC com timezone info (CORRECAO 10/10)"""
+    return datetime.now(timezone.utc)
 
 # Importar conexão PostgreSQL se disponível
 try:
@@ -106,7 +111,8 @@ class PciDssCompliance:
                 f"Tabelas válidas: {', '.join(sorted(self.ALLOWED_TABLES))}"
             )
 
-        retention_limit_date = datetime.utcnow() - timedelta(days=self.retention_days)
+        # CORRECAO 10/10: Usar timezone-aware datetime
+        retention_limit_date = _utc_now() - timedelta(days=self.retention_days)
 
         logger.info(f"PCI-DSS: Aplicando política de retenção de dados...")
         logger.info(

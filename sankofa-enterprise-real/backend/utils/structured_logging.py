@@ -1,16 +1,52 @@
 """
 Sankofa Enterprise Pro - Sistema de Logging Estruturado
 Logging em JSON para observabilidade enterprise (DataDog, Splunk, ELK)
+
+CORRECAO 10/10: Uso de timezone-aware datetime (datetime.utcnow() deprecated desde Python 3.12)
 """
 
 import logging
 import json
 import time
 import traceback
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 from functools import wraps
 import sys
+
+
+# ============================================================================
+# CORRECAO 10/10: Funções utilitárias para timezone-aware datetime
+# ============================================================================
+
+def utc_now() -> datetime:
+    """Retorna datetime atual em UTC com timezone info.
+
+    CORRECAO 10/10: Substitui datetime.utcnow() que está deprecated desde Python 3.12.
+    Sempre retorna um datetime timezone-aware.
+
+    Returns:
+        datetime: Datetime atual em UTC com tzinfo
+    """
+    return datetime.now(timezone.utc)
+
+
+def utc_now_iso() -> str:
+    """Retorna timestamp ISO 8601 em UTC.
+
+    Returns:
+        str: Timestamp no formato ISO 8601 (ex: '2025-01-15T10:30:00+00:00')
+    """
+    return datetime.now(timezone.utc).isoformat()
+
+
+def utc_now_iso_z() -> str:
+    """Retorna timestamp ISO 8601 em UTC com sufixo Z.
+
+    Returns:
+        str: Timestamp no formato ISO 8601 com Z (ex: '2025-01-15T10:30:00Z')
+    """
+    return datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S') + "Z"
 
 
 class StructuredLogger:
@@ -37,7 +73,7 @@ class StructuredLogger:
     ) -> Dict[str, Any]:
         """Constrói entrada de log estruturada"""
         entry = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": utc_now_iso_z(),
             "level": level,
             "message": message,
             "logger": self.logger.name,

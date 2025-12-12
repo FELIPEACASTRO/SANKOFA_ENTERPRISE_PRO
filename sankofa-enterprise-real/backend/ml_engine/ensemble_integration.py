@@ -308,10 +308,14 @@ class IntegratedEnsemble:
             except Exception as e:
                 logger.warning(f"GNN analysis failed: {e}")
 
+        # CORRECAO 10/10: Obter copia dos weights UMA VEZ para evitar race condition
+        # (cada chamada a self.weights retorna uma nova copia, usar 3 chamadas
+        # poderia ver valores inconsistentes se outro thread modificar durante o calculo)
+        w = self.weights  # Single call - thread-safe copy
         combined_prob = (
-            base_probability * self.weights["base_ensemble"]
-            + catboost_prob * self.weights["catboost"]
-            + gnn_risk * self.weights["gnn"]
+            base_probability * w["base_ensemble"]
+            + catboost_prob * w["catboost"]
+            + gnn_risk * w["gnn"]
         )
 
         combined_prob = max(0.0, min(1.0, combined_prob))

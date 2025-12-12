@@ -237,27 +237,35 @@ class JWTKeyRotationSystem:
         logger.info(f"📝 Evento de rotação registrado: {event.event_id}")
 
     def get_current_signing_key(self) -> Optional[JWTKey]:
-        """Retorna a chave atual para assinatura"""
-        active_keys = [key for key in self.active_keys if key.status == "active"]
+        """Retorna a chave atual para assinatura
 
-        if not active_keys:
-            logger.warning("⚠️ Nenhuma chave ativa encontrada")
-            return None
+        CORRECAO 10/10: Thread-safe - usa lock para ler active_keys
+        """
+        with self._lock:
+            active_keys = [key for key in self.active_keys if key.status == "active"]
 
-        # Retornar a chave mais recente
-        return max(active_keys, key=lambda k: k.created_at)
+            if not active_keys:
+                logger.warning("⚠️ Nenhuma chave ativa encontrada")
+                return None
+
+            # Retornar a chave mais recente
+            return max(active_keys, key=lambda k: k.created_at)
 
     def get_verification_keys(self) -> List[JWTKey]:
-        """Retorna todas as chaves válidas para verificação"""
-        now = datetime.now()
+        """Retorna todas as chaves válidas para verificação
 
-        valid_keys = []
-        for key in self.active_keys:
-            expires_at = datetime.fromisoformat(key.expires_at)
-            if expires_at > now and key.status in ["active", "rotating"]:
-                valid_keys.append(key)
+        CORRECAO 10/10: Thread-safe - usa lock para ler active_keys
+        """
+        with self._lock:
+            now = datetime.now()
 
-        return valid_keys
+            valid_keys = []
+            for key in self.active_keys:
+                expires_at = datetime.fromisoformat(key.expires_at)
+                if expires_at > now and key.status in ["active", "rotating"]:
+                    valid_keys.append(key)
+
+            return valid_keys
 
     def _decrypt_private_key(self, encrypted_pem: str):
         """Decripta uma chave privada encriptada
@@ -412,13 +420,17 @@ class JWTKeyRotationSystem:
             return False
 
     def _expire_old_keys(self):
-        """Marca chaves antigas como expiradas"""
-        for key in self.active_keys:
-            if key.status == "rotating":
-                key.status = "expired"
-                logger.info(f"⏰ Chave expirada: {key.key_id}")
+        """Marca chaves antigas como expiradas
 
-        self._save_keys_to_disk()
+        CORRECAO 10/10: Thread-safe - usa lock para modificar active_keys
+        """
+        with self._lock:
+            for key in self.active_keys:
+                if key.status == "rotating":
+                    key.status = "expired"
+                    logger.info(f"⏰ Chave expirada: {key.key_id}")
+
+            self._save_keys_to_disk()
 
     def _schedule_rotation(self, reason: str):
         """Agenda rotação de chaves"""
@@ -480,24 +492,28 @@ class JWTKeyRotationSystem:
                 time.sleep(300)  # Aguardar 5 minutos em caso de erro
 
     def _cleanup_expired_keys(self):
-        """Remove chaves expiradas antigas"""
-        now = datetime.now()
-        cleanup_threshold = now - timedelta(days=7)  # Manter por 7 dias após expiração
+        """Remove chaves expiradas antigas
 
-        keys_to_remove = []
-        for key in self.active_keys:
-            if (
-                key.status == "expired"
-                and datetime.fromisoformat(key.expires_at) < cleanup_threshold
-            ):
-                keys_to_remove.append(key)
+        CORRECAO 10/10: Thread-safe - usa lock para manipular active_keys
+        """
+        with self._lock:
+            now = datetime.now()
+            cleanup_threshold = now - timedelta(days=7)  # Manter por 7 dias após expiração
 
-        for key in keys_to_remove:
-            self.active_keys.remove(key)
-            logger.info(f"🗑️ Chave antiga removida: {key.key_id}")
+            keys_to_remove = []
+            for key in self.active_keys:
+                if (
+                    key.status == "expired"
+                    and datetime.fromisoformat(key.expires_at) < cleanup_threshold
+                ):
+                    keys_to_remove.append(key)
 
-        if keys_to_remove:
-            self._save_keys_to_disk()
+            for key in keys_to_remove:
+                self.active_keys.remove(key)
+                logger.info(f"🗑️ Chave antiga removida: {key.key_id}")
+
+            if keys_to_remove:
+                self._save_keys_to_disk()
 
     def get_rotation_status(self) -> Dict[str, Any]:
         """Retorna status da rotação de chaves"""

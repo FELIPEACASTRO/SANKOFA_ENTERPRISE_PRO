@@ -2,6 +2,8 @@
 Sankofa Enterprise Pro - Prediction Cache System
 Cache de predições para latência sub-50ms
 Reduz latência de 284ms para <30ms em cache hits
+
+CORRECAO 10/10: Uso de timezone-aware datetime (datetime.utcnow() deprecated desde Python 3.12)
 """
 
 import hashlib
@@ -10,9 +12,19 @@ import time
 import threading
 from typing import Dict, Any, Optional, List, Tuple
 from dataclasses import dataclass, asdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from collections import OrderedDict
 import logging
+
+
+def _utc_now() -> datetime:
+    """Retorna datetime atual em UTC com timezone info"""
+    return datetime.now(timezone.utc)
+
+
+def _utc_now_iso_z() -> str:
+    """Retorna timestamp ISO 8601 em UTC com sufixo Z"""
+    return datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S') + "Z"
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +48,10 @@ class CachedPrediction:
         return asdict(self)
     
     def is_expired(self) -> bool:
-        return datetime.utcnow() > datetime.fromisoformat(self.expires_at.replace('Z', ''))
+        # CORRECAO 10/10: Usar timezone-aware comparison
+        now = datetime.now(timezone.utc)
+        expires = datetime.fromisoformat(self.expires_at.replace('Z', '+00:00'))
+        return now > expires
 
 
 class PredictionCache:
@@ -163,8 +178,9 @@ class PredictionCache:
         """Armazena predição no cache"""
         tx_hash = self._generate_hash(transaction)
         ttl = self._get_ttl(risk_level)
-        
-        now = datetime.utcnow()
+
+        # CORRECAO 10/10: Usar timezone-aware datetime
+        now = _utc_now()
         expires = now + timedelta(seconds=ttl)
         
         cached = CachedPrediction(
@@ -327,7 +343,7 @@ class CachedFraudEngine:
                 'detection_reason': cached.detection_reason,
                 'processing_time_ms': round(elapsed_ms, 2),
                 'cache_hit': True,
-                'timestamp': datetime.utcnow().isoformat() + "Z"
+                'timestamp': _utc_now_iso_z()
             }
         
         engine = self._get_engine()
@@ -379,7 +395,7 @@ class CachedFraudEngine:
             'detection_reason': ['No prediction available'],
             'processing_time_ms': round(elapsed_ms, 2),
             'cache_hit': False,
-            'timestamp': datetime.utcnow().isoformat() + "Z"
+            'timestamp': _utc_now_iso_z()
         }
     
     def predict_batch_with_cache(self, transactions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

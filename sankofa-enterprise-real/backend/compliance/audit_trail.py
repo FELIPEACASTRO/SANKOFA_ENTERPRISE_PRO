@@ -4,6 +4,7 @@ Módulo de Trilha de Auditoria para Compliance
 Registra todas as ações sensíveis relacionadas a compliance para garantir rastreabilidade.
 
 CORRECAO 10/10: Logs imutaveis com hash chain para detectar alteracoes
+CORRECAO 10/10: Uso de timezone-aware datetime (datetime.utcnow() deprecated desde Python 3.12)
 """
 
 import logging
@@ -11,9 +12,14 @@ import json
 import os
 import hashlib
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 from pathlib import Path
+
+
+def _utc_now_iso() -> str:
+    """Retorna timestamp ISO 8601 em UTC (timezone-aware)"""
+    return datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S') + "Z"
 
 # Configura um logger específico para a trilha de auditoria
 audit_logger = logging.getLogger("compliance_audit")
@@ -62,10 +68,11 @@ class ImmutableAuditHandler(logging.Handler):
                 msg = self.format(record)
 
                 # Criar entrada com hash chain
+                # CORRECAO 10/10: Uso de timezone-aware datetime
                 self._entry_count += 1
                 entry = {
                     "sequence": self._entry_count,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": _utc_now_iso(),
                     "previous_hash": self._previous_hash,
                     "data": msg
                 }
@@ -173,8 +180,9 @@ class AuditTrail:
             user: O usuário ou sistema que realizou a ação.
         """
         try:
+            # CORRECAO 10/10: Uso de timezone-aware datetime
             log_entry = {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": _utc_now_iso(),
                 "action": action,
                 "user": user,
                 "details": details,
