@@ -1,0 +1,27 @@
+{
+  "weights": {
+    "random_forest": 0.2001239550546587,
+    "gradient_boosting": 0.20003765187667108,
+    "extra_trees_gnn": 0.20013410836971604,
+    "mlp": 0.2001298778217755,
+    "isolation_forest": 0.1995744068771787
+  },
+  "ensemble_auc": 0.9998752948536934,
+  "individual_aucs": {
+    "random_forest": 0.9998499310951225,
+    "gradient_boosting": 0.9994187471994184,
+    "extra_trees_gnn": 0.9999006586122642,
+    "mlp": 0.9998795221467885,
+    "isolation_forest": 0.9971043042298293
+  },
+  "trained_at": "2025-12-15T18:18:26.460372",
+  "feature_cols": [
+    "amount",
+    "log_amount",
+    "hour",
+    "day_of_week",
+    "is_weekend",
+    "is_night",
+    "is_high_amount"
+  ]
+}

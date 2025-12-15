@@ -505,3 +505,8 @@ def get_self_explainer() -> InterpretativeMaskLearner:
     if _explainer_instance is None:
         _explainer_instance = InterpretativeMaskLearner()
     return _explainer_instance
+
+
+# Aliases para compatibilidade
+SelfExplainableModule = InterpretativeMaskLearner
+SelfExplainer = InterpretativeMaskLearner

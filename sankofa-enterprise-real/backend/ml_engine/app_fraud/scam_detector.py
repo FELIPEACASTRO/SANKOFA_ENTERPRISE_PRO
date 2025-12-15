@@ -690,3 +690,8 @@ class ScamDetector:
 def create_scam_detector(config: Optional[Dict[str, Any]] = None) -> ScamDetector:
     """Factory function para criar ScamDetector"""
     return ScamDetector(config)
+
+
+# Aliases para compatibilidade
+APPScamDetector = ScamDetector
+AppFraudScamDetector = ScamDetector

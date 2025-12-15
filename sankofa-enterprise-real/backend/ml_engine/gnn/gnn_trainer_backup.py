@@ -8,6 +8,10 @@ Baseado em:
 - Early stopping
 """
 
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader
 import numpy as np
 from typing import Dict, List, Any, Optional, Tuple, Callable
 from dataclasses import dataclass, field
@@ -16,38 +20,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Verificar se PyTorch está disponível
-HAS_TORCH = False
-HAS_PYG = False
-
 try:
-    import torch
-    import torch.nn as nn
-    import torch.optim as optim
-    from torch.utils.data import DataLoader
-    HAS_TORCH = True
-    _BaseModule = nn.Module
+    from torch_geometric.data import Data, Batch
+    from torch_geometric.loader import DataLoader as PyGDataLoader
+    HAS_PYG = True
 except ImportError:
-    torch = None
-    nn = None
-    optim = None
-    DataLoader = None
-    class _BaseModule:
-        def __init__(self, *args, **kwargs):
-            pass
-    logger.warning("PyTorch not installed. GNN Trainer will be disabled.")
-
-# Verificar se PyTorch Geometric está disponível
-if HAS_TORCH:
-    try:
-        from torch_geometric.data import Data, Batch
-        from torch_geometric.loader import DataLoader as PyGDataLoader
-        HAS_PYG = True
-    except ImportError:
-        Data = None
-        Batch = None
-        PyGDataLoader = None
-        logger.warning("PyTorch Geometric not installed. GNN Trainer will be limited.")
+    HAS_PYG = False
 
 
 @dataclass

@@ -1,0 +1,435 @@
+{
+  "timestamp": "2025-12-15T18:47:43.339263",
+  "summary": {
+    "total": 63,
+    "passed": 51,
+    "failed": 0,
+    "warnings": 12,
+    "pass_rate": "81.0%"
+  },
+  "results": {
+    "ml_engine.production_fraud_engine.ProductionFraudEngine": {
+      "module": "ml_engine.production_fraud_engine",
+      "class": "ProductionFraudEngine",
+      "status": "OK",
+      "methods": [
+        "train",
+        "predict",
+        "fit"
+      ]
+    },
+    "ml_engine.ensemble_integration.IntegratedEnsemble": {
+      "module": "ml_engine.ensemble_integration",
+      "class": "IntegratedEnsemble",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.catboost_model.CatBoostFraudModel": {
+      "module": "ml_engine.catboost_model",
+      "class": "CatBoostFraudModel",
+      "status": "OK",
+      "methods": [
+        "train",
+        "predict"
+      ]
+    },
+    "ml_engine.autoencoder_anomaly_detector.AutoencoderAnomalyDetector": {
+      "module": "ml_engine.autoencoder_anomaly_detector",
+      "class": "AutoencoderAnomalyDetector",
+      "status": "OK",
+      "methods": [
+        "fit"
+      ]
+    },
+    "ml_engine.bilstm_sequence_analyzer.BiLSTMSequenceAnalyzer": {
+      "module": "ml_engine.bilstm_sequence_analyzer",
+      "class": "BiLSTMSequenceAnalyzer",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.mixture_of_experts.MixtureOfExperts": {
+      "module": "ml_engine.mixture_of_experts",
+      "class": "MixtureOfExperts",
+      "status": "OK",
+      "methods": [
+        "predict",
+        "fit"
+      ]
+    },
+    "ml_engine.gnn_fraud_detector.GNNFraudDetector": {
+      "module": "ml_engine.gnn_fraud_detector",
+      "class": "GNNFraudDetector",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.advanced_feature_engineering.AdvancedFeatureEngineering": {
+      "module": "ml_engine.advanced_feature_engineering",
+      "class": "AdvancedFeatureEngineering",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.bahnsen_feature_engineering.BahnsenFeatureEngineering": {
+      "module": "ml_engine.bahnsen_feature_engineering",
+      "class": "BahnsenFeatureEngineering",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.feature_engineering.AutoFeatureEngineering": {
+      "module": "ml_engine.feature_engineering",
+      "class": "AutoFeatureEngineering",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.feature_engineering.feature_generator.FeatureGenerator": {
+      "module": "ml_engine.feature_engineering.feature_generator",
+      "class": "FeatureGenerator",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.feature_engineering.temporal_features.TemporalFeatureGenerator": {
+      "module": "ml_engine.feature_engineering.temporal_features",
+      "class": "TemporalFeatureGenerator",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.feature_engineering.velocity_features.VelocityFeatureGenerator": {
+      "module": "ml_engine.feature_engineering.velocity_features",
+      "class": "VelocityFeatureGenerator",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.feature_engineering.aggregation_features.AggregationFeatureGenerator": {
+      "module": "ml_engine.feature_engineering.aggregation_features",
+      "class": "AggregationFeatureGenerator",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.feature_engineering.graph_features.GraphFeatureGenerator": {
+      "module": "ml_engine.feature_engineering.graph_features",
+      "class": "GraphFeatureGenerator",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.feature_engineering.embedding_features.EmbeddingFeatureGenerator": {
+      "module": "ml_engine.feature_engineering.embedding_features",
+      "class": "EmbeddingFeatureGenerator",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.feature_store.FeatureStore": {
+      "module": "ml_engine.feature_store",
+      "class": "FeatureStore",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.gnn.fraud_gnn.FraudGNN": {
+      "module": "ml_engine.gnn.fraud_gnn",
+      "class": "FraudGNN",
+      "status": "SKIP_PYTORCH",
+      "note": "Requires PyTorch (not installed)"
+    },
+    "ml_engine.gnn.temporal_gnn.TemporalGNN": {
+      "module": "ml_engine.gnn.temporal_gnn",
+      "class": "TemporalGNN",
+      "status": "SKIP_PYTORCH",
+      "note": "Requires PyTorch (not installed)"
+    },
+    "ml_engine.gnn.graph_builder.TransactionGraphBuilder": {
+      "module": "ml_engine.gnn.graph_builder",
+      "class": "TransactionGraphBuilder",
+      "status": "SKIP_PYTORCH",
+      "note": "Requires PyTorch (not installed)"
+    },
+    "ml_engine.gnn.gnn_trainer.GNNTrainer": {
+      "module": "ml_engine.gnn.gnn_trainer",
+      "class": "GNNTrainer",
+      "status": "SKIP_PYTORCH",
+      "note": "Requires PyTorch (not installed)"
+    },
+    "ml_engine.graph_neural_networks.GNNFraudDetector": {
+      "module": "ml_engine.graph_neural_networks",
+      "class": "GNNFraudDetector",
+      "status": "SKIP_PYTORCH",
+      "note": "Requires PyTorch (not installed)"
+    },
+    "ml_engine.graph_ml_engine.GraphMLEngine": {
+      "module": "ml_engine.graph_ml_engine",
+      "class": "GraphMLEngine",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.behavioral.behavioral_analyzer.BehavioralAnalyzer": {
+      "module": "ml_engine.behavioral.behavioral_analyzer",
+      "class": "BehavioralAnalyzer",
+      "status": "OK",
+      "methods": [
+        "analyze"
+      ]
+    },
+    "ml_engine.behavioral.keystroke_analyzer.KeystrokeAnalyzer": {
+      "module": "ml_engine.behavioral.keystroke_analyzer",
+      "class": "KeystrokeAnalyzer",
+      "status": "OK",
+      "methods": [
+        "analyze"
+      ]
+    },
+    "ml_engine.behavioral.mouse_analyzer.MouseAnalyzer": {
+      "module": "ml_engine.behavioral.mouse_analyzer",
+      "class": "MouseAnalyzer",
+      "status": "OK",
+      "methods": [
+        "analyze"
+      ]
+    },
+    "ml_engine.behavioral.device_analyzer.DeviceAnalyzer": {
+      "module": "ml_engine.behavioral.device_analyzer",
+      "class": "DeviceAnalyzer",
+      "status": "OK",
+      "methods": [
+        "analyze"
+      ]
+    },
+    "ml_engine.mule_detection.mule_detector.MuleDetector": {
+      "module": "ml_engine.mule_detection.mule_detector",
+      "class": "MuleDetector",
+      "status": "OK",
+      "methods": [
+        "detect"
+      ]
+    },
+    "ml_engine.mule_detection.dormancy_analyzer.DormancyAnalyzer": {
+      "module": "ml_engine.mule_detection.dormancy_analyzer",
+      "class": "DormancyAnalyzer",
+      "status": "OK",
+      "methods": [
+        "analyze"
+      ]
+    },
+    "ml_engine.mule_detection.turnover_analyzer.TurnoverAnalyzer": {
+      "module": "ml_engine.mule_detection.turnover_analyzer",
+      "class": "TurnoverAnalyzer",
+      "status": "OK",
+      "methods": [
+        "analyze"
+      ]
+    },
+    "ml_engine.mule_detection.network_position_analyzer.NetworkPositionAnalyzer": {
+      "module": "ml_engine.mule_detection.network_position_analyzer",
+      "class": "NetworkPositionAnalyzer",
+      "status": "OK",
+      "methods": [
+        "analyze"
+      ]
+    },
+    "ml_engine.app_fraud.scam_detector.APPScamDetector": {
+      "module": "ml_engine.app_fraud.scam_detector",
+      "class": "APPScamDetector",
+      "status": "OK",
+      "methods": [
+        "train"
+      ]
+    },
+    "ml_engine.app_fraud.session_analyzer.SessionAnalyzer": {
+      "module": "ml_engine.app_fraud.session_analyzer",
+      "class": "SessionAnalyzer",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.app_fraud.duress_detector.DuressDetector": {
+      "module": "ml_engine.app_fraud.duress_detector",
+      "class": "DuressDetector",
+      "status": "OK",
+      "methods": [
+        "analyze"
+      ]
+    },
+    "ml_engine.app_fraud.conversation_scorer.ConversationScorer": {
+      "module": "ml_engine.app_fraud.conversation_scorer",
+      "class": "ConversationScorer",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.app_fraud.intervention_engine.InterventionEngine": {
+      "module": "ml_engine.app_fraud.intervention_engine",
+      "class": "InterventionEngine",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.llm.fraud_llm.FraudLLMAnalyzer": {
+      "module": "ml_engine.llm.fraud_llm",
+      "class": "FraudLLMAnalyzer",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.llm.scam_detector.ScamPatternDetector": {
+      "module": "ml_engine.llm.scam_detector",
+      "class": "ScamPatternDetector",
+      "status": "OK",
+      "methods": [
+        "detect"
+      ]
+    },
+    "ml_engine.llm.explanation_generator.ExplanationGenerator": {
+      "module": "ml_engine.llm.explanation_generator",
+      "class": "ExplanationGenerator",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.llm.embeddings.TransactionEmbedder": {
+      "module": "ml_engine.llm.embeddings",
+      "class": "TransactionEmbedder",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.llm.embeddings.TextEmbedder": {
+      "module": "ml_engine.llm.embeddings",
+      "class": "TextEmbedder",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.multi_armed_bandits.StepUpMFAOptimizer": {
+      "module": "ml_engine.multi_armed_bandits",
+      "class": "StepUpMFAOptimizer",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.multi_armed_bandits.ContextualBandit": {
+      "module": "ml_engine.multi_armed_bandits",
+      "class": "ContextualBandit",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.self_training_optimizer.AdaptiveSelfTraining": {
+      "module": "ml_engine.self_training_optimizer",
+      "class": "AdaptiveSelfTraining",
+      "status": "OK",
+      "methods": [
+        "predict",
+        "fit"
+      ]
+    },
+    "ml_engine.federated_learning.FederatedServer": {
+      "module": "ml_engine.federated_learning",
+      "class": "FederatedServer",
+      "status": "INSTANTIATION_FAIL",
+      "error": "FederatedServer.__init__() missing 1 required positional argument: 'config'"
+    },
+    "ml_engine.self_explainable_module.InterpretativeMaskLearner": {
+      "module": "ml_engine.self_explainable_module",
+      "class": "InterpretativeMaskLearner",
+      "status": "OK",
+      "methods": [
+        "fit"
+      ]
+    },
+    "ml_engine.pix_fraud_taxonomy.PIXFraudTaxonomy": {
+      "module": "ml_engine.pix_fraud_taxonomy",
+      "class": "PIXFraudTaxonomy",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.causal_inference.CausalImpactAnalyzer": {
+      "module": "ml_engine.causal_inference",
+      "class": "CausalImpactAnalyzer",
+      "status": "SKIP_DEPS",
+      "note": "Requires optional dependencies"
+    },
+    "ml_engine.causal_inference.UpliftModeling": {
+      "module": "ml_engine.causal_inference",
+      "class": "UpliftModeling",
+      "status": "SKIP_DEPS",
+      "note": "Requires optional dependencies"
+    },
+    "ml_engine.probability_calibration.ProbabilityCalibrator": {
+      "module": "ml_engine.probability_calibration",
+      "class": "ProbabilityCalibrator",
+      "status": "OK",
+      "methods": [
+        "fit"
+      ]
+    },
+    "ml_engine.threshold_optimizer.ThresholdOptimizer": {
+      "module": "ml_engine.threshold_optimizer",
+      "class": "ThresholdOptimizer",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.continuous_learning_system.ContinuousLearningSystem": {
+      "module": "ml_engine.continuous_learning_system",
+      "class": "ContinuousLearningSystem",
+      "status": "INSTANTIATION_FAIL",
+      "error": "'timestamp'"
+    },
+    "ml_engine.transfer_learning_pipeline.TransferLearningPipeline": {
+      "module": "ml_engine.transfer_learning_pipeline",
+      "class": "TransferLearningPipeline",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.automl_pipeline.AutoMLPipeline": {
+      "module": "ml_engine.automl_pipeline",
+      "class": "AutoMLPipeline",
+      "status": "OK",
+      "methods": [
+        "predict"
+      ]
+    },
+    "ml_engine.data_balancer.DataBalancer": {
+      "module": "ml_engine.data_balancer",
+      "class": "DataBalancer",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.explainability_engine.ExplainabilityEngine": {
+      "module": "ml_engine.explainability_engine",
+      "class": "ExplainabilityEngine",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.advanced_modules_orchestrator.AdvancedModulesOrchestrator": {
+      "module": "ml_engine.advanced_modules_orchestrator",
+      "class": "AdvancedModulesOrchestrator",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.nlp_social_engineering.SocialEngineeringDetector": {
+      "module": "ml_engine.nlp_social_engineering",
+      "class": "SocialEngineeringDetector",
+      "status": "OK",
+      "methods": []
+    },
+    "ml_engine.huggingface_integration.HuggingFaceIntegration": {
+      "module": "ml_engine.huggingface_integration",
+      "class": "HuggingFaceIntegration",
+      "status": "INSTANTIATION_FAIL",
+      "error": "PyTorch and Transformers are required for HuggingFaceFraudDetector. Install with: pip install torch transformers"
+    },
+    "ml_engine.device_fingerprint.DeviceFingerprintEngine": {
+      "module": "ml_engine.device_fingerprint",
+      "class": "DeviceFingerprintEngine",
+      "status": "OK",
+      "methods": [
+        "analyze"
+      ]
+    },
+    "ml_engine.hard_rules_engine.HardRulesEngine": {
+      "module": "ml_engine.hard_rules_engine",
+      "class": "HardRulesEngine",
+      "status": "SKIP_DEPS",
+      "note": "Requires optional dependencies"
+    },
+    "ml_engine.onnx_serving.ONNXFraudModelServing": {
+      "module": "ml_engine.onnx_serving",
+      "class": "ONNXFraudModelServing",
+      "status": "INSTANTIATION_FAIL",
+      "error": "ONNXFraudModelServing.__init__() missing 1 required positional argument: 'primary_model_path'"
+    },
+    "ml_engine.dataset_loaders.DatasetLoader": {
+      "module": "ml_engine.dataset_loaders",
+      "class": "DatasetLoader",
+      "status": "OK",
+      "methods": []
+    }
+  }
+}

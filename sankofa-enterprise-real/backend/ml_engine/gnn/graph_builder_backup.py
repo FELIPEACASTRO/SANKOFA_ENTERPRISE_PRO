@@ -8,6 +8,7 @@ Baseado em:
 - Temporal graphs
 """
 
+import torch
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Any, Optional, Tuple, Union
@@ -17,42 +18,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Verificar se PyTorch está disponível
-HAS_TORCH = False
-HAS_PYG = False
-
-try:
-    import torch
-    HAS_TORCH = True
-    _BaseModule = object
-except ImportError:
-    torch = None
-    class _BaseModule:
-        def __init__(self, *args, **kwargs):
-            pass
-    logger.warning("PyTorch not installed. Graph Builder will use numpy fallback.")
-
-# Define stub when PyTorch unavailable
-if not HAS_TORCH:
-    class torch:
-        @staticmethod
-        def tensor(*args, **kwargs):
-            import numpy as np
-            return np.array(args[0]) if args else np.array([])
-        long = int
-        float32 = float
-
 # Verificar se PyTorch Geometric está disponível
-if HAS_TORCH:
-    try:
-        from torch_geometric.data import Data, HeteroData
-        HAS_PYG = True
-    except ImportError:
-        HAS_PYG = False
-        logger.warning("PyTorch Geometric not installed. Using fallback data structures.")
-
-# Fallback classes quando PyG não está disponível
-if not HAS_PYG:
+try:
+    from torch_geometric.data import Data, HeteroData
+    HAS_PYG = True
+except ImportError:
+    HAS_PYG = False
+    # Criar classe Data fallback
     class Data:
         def __init__(self, **kwargs):
             for k, v in kwargs.items():
@@ -67,6 +39,8 @@ if not HAS_PYG:
 
         def __getitem__(self, key):
             return self._store.get(key)
+
+
 class TransactionGraphBuilder:
     """
     Construtor de grafos de transações

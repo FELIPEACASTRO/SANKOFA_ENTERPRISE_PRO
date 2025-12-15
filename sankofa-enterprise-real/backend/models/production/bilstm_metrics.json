@@ -1,0 +1,7 @@
+{
+  "sequence_length": 10,
+  "risk_threshold": 0.6,
+  "customers_tracked": 999,
+  "suspicious_rate": 0.17,
+  "trained_at": "2025-12-15T17:55:17.503900"
+}

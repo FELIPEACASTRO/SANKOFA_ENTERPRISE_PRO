@@ -521,3 +521,9 @@ if __name__ == '__main__':
     # Example usage
     asyncio.run(convert_fraud_model_to_onnx())
     asyncio.run(example_onnx_serving())
+
+
+# Aliases para compatibilidade
+ONNXModelServer = ONNXFraudModelServing
+ONNXInference = ONNXInferenceSession
+ModelConverter = ONNXModelConverter

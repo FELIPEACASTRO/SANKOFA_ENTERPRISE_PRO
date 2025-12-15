@@ -635,3 +635,8 @@ if __name__ == "__main__":
     print(f"Predicted Type: {result.predicted_fraud_type.value}")
     print(f"Recommended Action: {result.recommended_action}")
     print(f"\nExplanation:\n{result.explanation}")
+
+
+# Aliases para compatibilidade
+PixFraudDetector = PIXFraudTaxonomy
+PIXFraudClassifier = PIXFraudTaxonomy

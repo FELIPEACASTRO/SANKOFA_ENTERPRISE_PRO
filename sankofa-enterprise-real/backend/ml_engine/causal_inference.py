@@ -18,6 +18,7 @@ try:
     DOWHY_AVAILABLE = True
 except ImportError:
     DOWHY_AVAILABLE = False
+    CausalModel = None  # Placeholder for type hints
     logging.warning("DoWhy not available. Install with: pip install dowhy")
 
 try:
@@ -539,3 +540,9 @@ async def example_causal_inference():
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     asyncio.run(example_causal_inference())
+
+
+# Aliases para compatibilidade
+CausalInferenceEngine = CausalImpactAnalyzer
+CausalAnalyzer = CausalImpactAnalyzer
+UpliftModel = UpliftModeling

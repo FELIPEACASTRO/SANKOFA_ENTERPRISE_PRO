@@ -97,7 +97,6 @@ class CatBoostFraudModel:
             "pix_key_type",
             "banco_recebedor",
             "merchant_category",
-            "day_of_week",
             "hour_bucket",
         ]
 
@@ -248,7 +247,15 @@ class CatBoostFraudModel:
 
         probabilities = self.model.predict_proba(X_processed)[:, 1]
 
-        feature_importance = dict(zip(self.feature_names, self.model.feature_importances_))
+        # Obter feature importance de forma segura
+        try:
+            importances = self.model.feature_importances_
+            if hasattr(importances, '__iter__') and len(importances) > 0:
+                feature_importance = dict(zip(self.feature_names, importances))
+            else:
+                feature_importance = {}
+        except Exception:
+            feature_importance = {}
 
         processing_time = (time.time() - start_time) * 1000
 

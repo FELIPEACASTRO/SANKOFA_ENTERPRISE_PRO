@@ -680,3 +680,8 @@ def create_fraud_llm(
 ) -> FraudLLMAnalyzer:
     """Factory function para criar FraudLLMAnalyzer"""
     return FraudLLMAnalyzer(config)
+
+
+# Aliases para compatibilidade
+FraudLLM = FraudLLMAnalyzer
+LLMFraudAnalyzer = FraudLLMAnalyzer

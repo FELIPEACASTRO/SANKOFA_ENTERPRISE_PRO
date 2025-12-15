@@ -9,6 +9,9 @@ Baseado em:
 - GraphSAGE
 """
 
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field
 import numpy as np
@@ -16,52 +19,16 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Verificar se PyTorch está disponível
-HAS_TORCH = False
-HAS_PYG = False
-
-try:
-    import torch
-    import torch.nn as nn
-    import torch.nn.functional as F
-    HAS_TORCH = True
-except ImportError:
-    torch = None
-    nn = None
-    F = None
-    logger.warning("PyTorch not installed. GNN features will be disabled.")
-
 # Verificar se PyTorch Geometric está disponível
-if HAS_TORCH:
-    try:
-        import torch_geometric
-        from torch_geometric.nn import GATConv, SAGEConv, GCNConv, TransformerConv
-        from torch_geometric.nn import global_mean_pool, global_max_pool
-        from torch_geometric.data import Data, Batch
-        HAS_PYG = True
-    except ImportError:
-        logger.warning("PyTorch Geometric not installed. GNN features will be limited.")
-
-
-
-# Define base module class for compatibility when PyTorch is not available
-if HAS_TORCH:
-    _BaseModule = nn.Module
-else:
-    class _BaseModule:
-        """Stub base class when PyTorch is unavailable"""
-        def __init__(self, *args, **kwargs):
-            pass
-        def eval(self):
-            return self
-        def train(self, mode=True):
-            return self
-        def parameters(self):
-            return []
-        def state_dict(self):
-            return {}
-        def load_state_dict(self, state):
-            pass
+try:
+    import torch_geometric
+    from torch_geometric.nn import GATConv, SAGEConv, GCNConv, TransformerConv
+    from torch_geometric.nn import global_mean_pool, global_max_pool
+    from torch_geometric.data import Data, Batch
+    HAS_PYG = True
+except ImportError:
+    HAS_PYG = False
+    logger.warning("PyTorch Geometric not installed. GNN features will be limited.")
 
 
 @dataclass
@@ -81,7 +48,7 @@ class FraudGNNConfig:
     use_temporal: bool = True
 
 
-class FraudGNN(_BaseModule):
+class FraudGNN(nn.Module):
     """
     Graph Neural Network Avançado para Detecção de Fraude
 
@@ -314,7 +281,7 @@ class FraudGNN(_BaseModule):
         return h
 
 
-class TimeEncoder(_BaseModule):
+class TimeEncoder(nn.Module):
     """Encoder temporal usando funções sin/cos"""
 
     def __init__(self, hidden_dim: int):
@@ -359,7 +326,7 @@ class TimeEncoder(_BaseModule):
         return self.proj(enc)
 
 
-class GraphAttentionLayer(_BaseModule):
+class GraphAttentionLayer(nn.Module):
     """
     Camada de Graph Attention customizada
 

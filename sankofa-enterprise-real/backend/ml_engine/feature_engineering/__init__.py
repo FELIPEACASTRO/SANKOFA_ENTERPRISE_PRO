@@ -63,6 +63,17 @@ __all__ = [
     # Embeddings
     "EmbeddingFeatureGenerator",
     "create_embedding_generator",
+
+    # Aliases
+    "FeatureEngineering",
+    "FeatureEngineer",
+    "AutoFeatureEngineering",
 ]
 
 __version__ = "1.0.0"
+
+
+# Aliases para compatibilidade
+FeatureEngineering = FeatureGenerator
+FeatureEngineer = FeatureGenerator
+AutoFeatureEngineering = FeatureGenerator

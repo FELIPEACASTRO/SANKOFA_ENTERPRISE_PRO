@@ -422,3 +422,8 @@ if __name__ == "__main__":
     y_pred = clf.predict(X_test)
     accuracy = (y_pred == y_test).mean()
     print(f"\nTest Accuracy: {accuracy:.4f}")
+
+
+# Aliases para compatibilidade
+SelfTrainingOptimizer = AdaptiveSelfTraining
+SemiSupervisedOptimizer = SelfTrainingClassifier

@@ -530,3 +530,8 @@ def create_federated_system(config: Optional[Dict[str, Any]] = None) -> Federate
     """Factory function para criar sistema federado"""
     fed_config = FederatedConfig(**(config or {}))
     return FederatedFraudDetection(fed_config)
+
+
+# Aliases para compatibilidade
+FederatedLearningCoordinator = FederatedServer
+FederatedLearningSystem = FederatedFraudDetection

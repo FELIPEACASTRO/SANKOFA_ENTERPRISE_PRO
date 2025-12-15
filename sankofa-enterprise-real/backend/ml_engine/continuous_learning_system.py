@@ -164,16 +164,25 @@ class ContinuousLearningSystem:
         """Cria modelos iniciais com dataset mínimo para bootstrap."""
         self.logger.info("Criando modelos bootstrap...")
 
-        # Gerar dataset mínimo (10k transações)
-        import sys
+        # Gerar dataset mínimo (10k transações) usando dados sintéticos
+        import numpy as np
+        import pandas as pd
 
-        sys.path.append("/home/ubuntu/sankofa-enterprise-real/backend/data")
-        from real_data_generation import RealDataGenerator
+        np.random.seed(42)
+        n_transactions = 10000
+        fraud_rate = 0.02
 
-        generator = RealDataGenerator(num_customers=1000, num_merchants=200)
-        generator.create_customers()
-        generator.create_merchants()
-        bootstrap_df = generator.generate_transactions(n_transactions=10000)
+        # Gerar dados sintéticos
+        bootstrap_df = pd.DataFrame({
+            'amount': np.random.exponential(500, n_transactions) + 50,
+            'hour': np.random.randint(0, 24, n_transactions),
+            'day_of_week': np.random.randint(0, 7, n_transactions),
+            'is_weekend': np.random.choice([0, 1], n_transactions, p=[5/7, 2/7]),
+            'is_new_device': np.random.choice([0, 1], n_transactions, p=[0.9, 0.1]),
+            'is_new_recipient': np.random.choice([0, 1], n_transactions, p=[0.7, 0.3]),
+            'velocity_score': np.random.uniform(0, 1, n_transactions),
+            'is_fraud': np.random.choice([0, 1], n_transactions, p=[1-fraud_rate, fraud_rate]),
+        })
 
         # Preparar dados
         X, y = self._prepare_features(bootstrap_df)

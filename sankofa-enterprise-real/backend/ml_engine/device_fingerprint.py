@@ -838,3 +838,8 @@ if __name__ == "__main__":
     print(f"Risk Score: {result_bot.risk_score:.2f}")
     print(f"Suspeito: {result_bot.is_suspicious}")
     print(f"Razões: {result_bot.reasons}")
+
+
+# Aliases para compatibilidade
+DeviceFingerprintEngine = DeviceFingerprintAnalyzer
+FingerprintAnalyzer = DeviceFingerprintAnalyzer

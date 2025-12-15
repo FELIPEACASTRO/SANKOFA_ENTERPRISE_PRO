@@ -28,6 +28,9 @@ class EnsemblePrediction:
     catboost_probability: float
     base_probability: float
     processing_time_ms: float
+    mule_score: float = 0.0
+    mule_detected: bool = False
+    hard_rules_triggered: List[str] = None
 
 
 class IntegratedEnsemble:
@@ -58,8 +61,12 @@ class IntegratedEnsemble:
 
         self.catboost_model = None
         self.gnn_detector = None
+        self.mule_detector = None
+        self.hard_rules_engine = None
         self._catboost_available = False
         self._gnn_available = False
+        self._mule_detector_available = False
+        self._hard_rules_available = False
 
         self._initialize_models()
 
@@ -79,11 +86,28 @@ class IntegratedEnsemble:
         """Inicializa modelos opcionais (CatBoost, GNN)"""
         try:
             from ml_engine.catboost_model import CatBoostFraudModel, CATBOOST_AVAILABLE
+            from pathlib import Path
 
             if CATBOOST_AVAILABLE:
+                # Determinar path do modelo
+                model_path = self.config.get("catboost_model_path")
+                if not model_path:
+                    # Tentar path padrão em produção
+                    base_path = Path(__file__).parent.parent / "models" / "production"
+                    model_path = base_path / "catboost_fraud_model.cbm"
+
                 self.catboost_model = CatBoostFraudModel(self.config)
+
+                # Tentar carregar modelo treinado se existir
+                if Path(model_path).exists():
+                    try:
+                        self.catboost_model.load(str(model_path))
+                        logger.info(f"CatBoost model loaded from {model_path}")
+                    except Exception as load_err:
+                        logger.warning(f"Failed to load CatBoost model: {load_err}")
+
                 self._catboost_available = True
-                logger.info("CatBoost model initialized for ensemble")
+                logger.info(f"CatBoost model initialized for ensemble (trained: {self.catboost_model.is_trained})")
         except Exception as e:
             logger.warning(f"CatBoost not available: {e}")
 
@@ -96,6 +120,26 @@ class IntegratedEnsemble:
                 logger.info("GNN detector initialized for ensemble")
         except Exception as e:
             logger.warning(f"GNN not available: {e}")
+
+        # Initialize MuleDetector
+        try:
+            from ml_engine.mule_detection import MuleDetector, create_mule_detector
+
+            self.mule_detector = create_mule_detector(self.config)
+            self._mule_detector_available = True
+            logger.info("MuleDetector initialized for ensemble")
+        except Exception as e:
+            logger.warning(f"MuleDetector not available: {e}")
+
+        # Initialize HardRulesEngine
+        try:
+            from ml_engine.hard_rules_engine import HardRulesEngine
+
+            self.hard_rules_engine = HardRulesEngine()
+            self._hard_rules_available = True
+            logger.info("HardRulesEngine initialized for ensemble")
+        except Exception as e:
+            logger.warning(f"HardRulesEngine not available: {e}")
 
         self._adjust_weights()
 
@@ -320,6 +364,48 @@ class IntegratedEnsemble:
 
         combined_prob = max(0.0, min(1.0, combined_prob))
 
+        # Mule Detection
+        mule_score = 0.0
+        mule_detected = False
+        if self._mule_detector_available and self.mule_detector:
+            try:
+                customer_id = str(transaction.get("customer_id", transaction.get("cliente_cpf", "")))
+                # Create minimal account data and transaction history for detection
+                account_data = {
+                    "account_id": customer_id,
+                    "created_at": transaction.get("account_created_at", datetime.now().isoformat())
+                }
+                transaction_history = [transaction]  # Minimal history
+
+                mule_result = self.mule_detector.detect(
+                    account_id=customer_id,
+                    account_data=account_data,
+                    transaction_history=transaction_history
+                )
+                mule_score = mule_result.mule_probability
+                mule_detected = mule_result.is_mule
+                contributions["mule_detector"] = mule_score
+
+                # Boost fraud probability if mule detected
+                if mule_detected:
+                    combined_prob = max(combined_prob, mule_score * 0.8)
+            except Exception as e:
+                logger.warning(f"MuleDetector analysis failed: {e}")
+
+        # Hard Rules Check
+        hard_rules_triggered = []
+        if self._hard_rules_available and self.hard_rules_engine:
+            try:
+                rules_result = self.hard_rules_engine.evaluate(transaction)
+                if rules_result and rules_result.is_fraud:
+                    hard_rules_triggered = rules_result.detection_reason or []
+                    contributions["hard_rules"] = rules_result.fraud_probability
+                    # Override if hard rule triggered with high confidence
+                    if rules_result.fraud_probability >= 0.9:
+                        combined_prob = max(combined_prob, rules_result.fraud_probability)
+            except Exception as e:
+                logger.warning(f"HardRulesEngine evaluation failed: {e}")
+
         processing_time = (time.time() - start_time) * 1000
 
         return EnsemblePrediction(
@@ -331,6 +417,9 @@ class IntegratedEnsemble:
             catboost_probability=catboost_prob,
             base_probability=base_probability,
             processing_time_ms=processing_time,
+            mule_score=mule_score,
+            mule_detected=mule_detected,
+            hard_rules_triggered=hard_rules_triggered,
         )
 
     def get_ensemble_info(self) -> Dict[str, Any]:
@@ -348,6 +437,8 @@ class IntegratedEnsemble:
                 if self._gnn_available and self.gnn_detector
                 else {}
             ),
+            "mule_detector_available": self._mule_detector_available,
+            "hard_rules_available": self._hard_rules_available,
         }
 
 

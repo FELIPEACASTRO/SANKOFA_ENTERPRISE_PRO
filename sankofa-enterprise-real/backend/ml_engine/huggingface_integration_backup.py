@@ -3,41 +3,15 @@ Integração com Hugging Face - Modelos e Datasets de Detecção de Fraude
 Sankofa Enterprise Pro - Novembro 2025
 """
 
+import torch
 import numpy as np
 import pandas as pd
+from datasets import load_dataset
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from typing import Dict, Tuple, Any
 import logging
 
 logger = logging.getLogger(__name__)
-
-# Verificar se PyTorch e Transformers estão disponíveis
-HAS_TORCH = False
-HAS_TRANSFORMERS = False
-HAS_DATASETS = False
-
-try:
-    import torch
-    HAS_TORCH = True
-except ImportError:
-    torch = None
-    logger.warning("PyTorch not installed. HuggingFace integration will be disabled.")
-
-if HAS_TORCH:
-    try:
-        from transformers import AutoModelForSequenceClassification, AutoTokenizer
-        HAS_TRANSFORMERS = True
-    except ImportError:
-        AutoModelForSequenceClassification = None
-        AutoTokenizer = None
-        logger.warning("Transformers not installed. HuggingFace models will be disabled.")
-
-try:
-    from datasets import load_dataset
-    HAS_DATASETS = True
-except ImportError:
-    load_dataset = None
-    logger.warning("Datasets not installed. HuggingFace datasets will be disabled.")
-
 
 
 class HuggingFaceFraudDetector:
@@ -62,12 +36,6 @@ class HuggingFaceFraudDetector:
     }
 
     def __init__(self, model_name: str = "cifer_fraud_detection", use_gpu: bool = True):
-        if not HAS_TORCH or not HAS_TRANSFORMERS:
-            raise ImportError(
-                "PyTorch and Transformers are required for HuggingFaceFraudDetector. "
-                "Install with: pip install torch transformers"
-            )
-
         """
         Inicializa detector com modelo pré-treinado
 

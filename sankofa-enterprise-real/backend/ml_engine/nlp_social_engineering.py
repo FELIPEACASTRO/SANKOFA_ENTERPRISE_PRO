@@ -388,6 +388,11 @@ def create_nlp_detector(config: Optional[Dict[str, Any]] = None) -> NLPSocialEng
     return NLPSocialEngineeringDetector(config)
 
 
+# Aliases para compatibilidade
+SocialEngineeringDetector = NLPSocialEngineeringDetector
+NLPDetector = NLPSocialEngineeringDetector
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 

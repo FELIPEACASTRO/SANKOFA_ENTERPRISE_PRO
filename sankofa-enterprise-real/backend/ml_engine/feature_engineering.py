@@ -307,3 +307,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# Aliases para compatibilidade
+FeatureEngineering = AutoFeatureEngineering
+FeatureEngineer = AutoFeatureEngineering

@@ -193,13 +193,15 @@ class AutoencoderAnomalyDetector:
 
         input_dim = X_scaled.shape[1]
 
+        # Build model first
+        self._build_model(input_dim)
+
+        # Check if using simple PCA-based model
         if hasattr(self, "use_simple") and self.use_simple:
             self.pca_model.fit(X_scaled)
             X_reconstructed = self.pca_model.inverse_transform(self.pca_model.transform(X_scaled))
             reconstruction_errors = np.mean((X_scaled - X_reconstructed) ** 2, axis=1)
         else:
-            self._build_model(input_dim)
-
             history = self.model.fit(
                 X_scaled,
                 X_scaled,

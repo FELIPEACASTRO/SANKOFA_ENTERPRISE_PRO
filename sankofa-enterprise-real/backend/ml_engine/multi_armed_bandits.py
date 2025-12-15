@@ -536,3 +536,8 @@ async def example_mfa_optimization():
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     asyncio.run(example_mfa_optimization())
+
+
+# Aliases para compatibilidade
+MultiArmedBanditOptimizer = StepUpMFAOptimizer
+MABOptimizer = ContextualBandit

@@ -19,8 +19,16 @@ try:
     from torch_geometric.nn import GCNConv, SAGEConv, GATConv, global_mean_pool
     from torch_geometric.data import Data, Batch
     TORCH_GEOMETRIC_AVAILABLE = True
+    _BaseModule = nn.Module
 except ImportError:
     TORCH_GEOMETRIC_AVAILABLE = False
+    torch = None
+    nn = None
+    F = None
+    class _BaseModule:
+        """Stub base class when PyTorch is unavailable"""
+        def __init__(self, *args, **kwargs):
+            pass
     logging.warning("PyTorch Geometric not available. Install with: pip install torch torch-geometric")
 
 logger = logging.getLogger(__name__)
@@ -45,7 +53,7 @@ class GraphEdge:
     timestamp: Optional[datetime] = None
 
 
-class FraudGNNModel(nn.Module):
+class FraudGNNModel(_BaseModule):
     """
     Graph Neural Network for fraud detection
 

@@ -1,0 +1,3941 @@
+{
+  "metadata": {
+    "audit_date": "2025-12-15T18:04:22.483758",
+    "directory": "c:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\ml_engine",
+    "total_files_analyzed": 66,
+    "analysis_type": "comprehensive_code_audit"
+  },
+  "summary": {
+    "total_classes": 190,
+    "total_methods": 872,
+    "incomplete_methods": 8,
+    "files_with_issues": 2,
+    "optional_imports_unique": [
+      "featuretools",
+      "torch.utils.data",
+      "h2o",
+      "cache.prediction_cache",
+      "onnxruntime",
+      "torch_geometric.utils",
+      "tsfresh",
+      "networkx",
+      "causalml.inference.meta",
+      "sklearn.decomposition",
+      "skl2onnx.common.data_types",
+      "sklearn.neural_network",
+      "torch_geometric.loader",
+      "torch_geometric.data",
+      "onnxmltools.convert.common.data_types",
+      "torch.nn.functional",
+      "sentence_transformers",
+      "dowhy",
+      "torch_geometric.nn",
+      "torch",
+      "torch_geometric.datasets",
+      "sklearn.inspection",
+      "catboost",
+      "sklearn.preprocessing",
+      "scipy.stats",
+      "skl2onnx",
+      "dowhy.datasets",
+      "torch.nn",
+      "transformers",
+      "onnxmltools.convert",
+      "torch.optim",
+      "h2o.automl",
+      "tensorflow",
+      "datasets",
+      "tsfresh.feature_extraction",
+      "tensorflow.keras",
+      "causalml.metrics",
+      "shap",
+      "sklearn.linear_model",
+      "sklearn.ensemble",
+      "sklearn.metrics",
+      "torch_geometric"
+    ]
+  },
+  "files": {
+    "advanced_feature_engineering.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "AdvancedFeatureEngineering": {
+          "metodos": [
+            "__init__",
+            "create_features",
+            "_create_temporal_features",
+            "_create_value_features",
+            "_create_client_behavior_features",
+            "_create_device_features",
+            "_create_location_features",
+            "_create_channel_type_features",
+            "_create_velocity_features",
+            "_create_location_entropy_features",
+            "_create_transaction_pattern_features",
+            "get_feature_names"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_features",
+        "get_feature_names"
+      ],
+      "imports_opcionais": [
+        "scipy.stats"
+      ],
+      "problemas": []
+    },
+    "advanced_modules_orchestrator.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "EnrichmentLevel": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "EnrichedPrediction": {
+          "metodos": [
+            "to_dict"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "OrchestratorConfig": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "AdvancedModulesOrchestrator": {
+          "metodos": [
+            "__init__",
+            "_load_modules",
+            "enrich_prediction",
+            "_determine_enrichment_level",
+            "_enrich_parallel",
+            "_enrich_sequential",
+            "_run_autoencoder",
+            "_run_sequence_analysis",
+            "_run_moe",
+            "_run_gnn",
+            "_run_explainer",
+            "_apply_result",
+            "_adjust_final_prediction",
+            "get_module_status",
+            "train_modules"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_orchestrator",
+        "get_module_status"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "autoencoder_anomaly_detector.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "AnomalyResult": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "AutoencoderMetrics": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "AutoencoderAnomalyDetector": {
+          "metodos": [
+            "__init__",
+            "_build_model",
+            "_build_simple_model",
+            "_prepare_features",
+            "fit",
+            "detect_anomaly",
+            "_create_default_result",
+            "batch_detect",
+            "get_latent_representation",
+            "update_threshold",
+            "get_status"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": true,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_autoencoder_detector",
+        "get_latent_representation",
+        "get_status"
+      ],
+      "imports_opcionais": [
+        "sklearn.preprocessing",
+        "tensorflow",
+        "sklearn.decomposition"
+      ],
+      "problemas": []
+    },
+    "automl_pipeline.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "H2OAutoMLFraudDetector": {
+          "metodos": [
+            "__init__",
+            "_initialize_h2o",
+            "get_feature_importance",
+            "get_leaderboard",
+            "save_best_model",
+            "load_model",
+            "shutdown_h2o"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "AutoFeatureEngineering": {
+          "metodos": [
+            "engineer_features",
+            "select_features"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "AutoMLPipeline": {
+          "metodos": [
+            "__init__",
+            "save_pipeline",
+            "shutdown"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_feature_importance",
+        "get_leaderboard"
+      ],
+      "imports_opcionais": [
+        "h2o.automl",
+        "h2o"
+      ],
+      "problemas": []
+    },
+    "bahnsen_feature_engineering.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "UserBehaviorProfile": {
+          "metodos": [
+            "update"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "BahnsenFeatureEngineering": {
+          "metodos": [
+            "__init__",
+            "calculate_temporal_aggregations",
+            "calculate_periodic_features",
+            "calculate_behavioral_deviation",
+            "calculate_velocity_features",
+            "calculate_channel_risk",
+            "add_transaction_to_history",
+            "generate_all_features",
+            "transform_dataframe",
+            "get_feature_names",
+            "get_feature_importance_weights"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_bahnsen_engineer",
+        "get_feature_names",
+        "get_feature_importance_weights"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "bilstm_sequence_analyzer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "SequencePattern": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "SequenceAnalysisResult": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "TransactionSequenceBuffer": {
+          "metodos": [
+            "__init__",
+            "add_transaction",
+            "get_sequence",
+            "get_sequence_features"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "AttentionLayer": {
+          "metodos": [
+            "__init__",
+            "compute_attention"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "BiLSTMSequenceAnalyzer": {
+          "metodos": [
+            "__init__",
+            "_build_model",
+            "update_user_baseline",
+            "add_transaction",
+            "analyze_sequence",
+            "_analyze_temporal_patterns",
+            "_analyze_velocity",
+            "_detect_pattern_breaks",
+            "_detect_suspicious_patterns",
+            "_compute_attention_weights",
+            "_generate_recommendation",
+            "_create_default_result",
+            "get_user_profile",
+            "get_status"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_bilstm_analyzer",
+        "get_sequence",
+        "get_sequence_features",
+        "get_user_profile",
+        "get_status"
+      ],
+      "imports_opcionais": [
+        "sklearn.preprocessing",
+        "tensorflow.keras",
+        "tensorflow"
+      ],
+      "problemas": []
+    },
+    "catboost_model.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "CatBoostPrediction": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "CatBoostFraudModel": {
+          "metodos": [
+            "__init__",
+            "_initialize_model",
+            "get_categorical_features",
+            "preprocess_data",
+            "train",
+            "predict",
+            "predict_proba",
+            "get_feature_importance",
+            "get_shap_values",
+            "save",
+            "load"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": true,
+          "tem_predict": true,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo",
+          "tem_predict_proba": true
+        },
+        "CatBoostEnsembleIntegration": {
+          "metodos": [
+            "__init__",
+            "get_ensemble_prediction"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_catboost_model",
+        "get_categorical_features",
+        "get_feature_importance",
+        "get_shap_values",
+        "get_ensemble_prediction"
+      ],
+      "imports_opcionais": [
+        "catboost"
+      ],
+      "problemas": []
+    },
+    "causal_inference.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "CausalEffect": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "CausalImpactAnalyzer": {
+          "metodos": [
+            "__init__",
+            "analyze_rule_impact",
+            "_create_causal_graph",
+            "run_sensitivity_analysis"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "UpliftModeling": {
+          "metodos": [
+            "__init__",
+            "fit",
+            "predict_uplift",
+            "get_top_responders"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": true,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ABTestCausalAnalyzer": {
+          "metodos": [
+            "__init__",
+            "analyze_ab_test",
+            "_apply_cuped"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_top_responders"
+      ],
+      "imports_opcionais": [
+        "scipy.stats",
+        "causalml.inference.meta",
+        "causalml.metrics",
+        "dowhy",
+        "dowhy.datasets"
+      ],
+      "problemas": []
+    },
+    "continuous_learning_system.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "ContinuousLearningSystem": {
+          "metodos": [
+            "__init__",
+            "_initialize_database",
+            "_initialize_models",
+            "_create_bootstrap_models",
+            "_prepare_features",
+            "store_transaction",
+            "add_analyst_feedback",
+            "_check_retrain_trigger",
+            "_trigger_retrain",
+            "_save_current_models",
+            "_log_model_metrics",
+            "_log_retrain",
+            "predict_fraud",
+            "get_learning_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_learning_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "dataset_loaders.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "DatasetInfo": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "DatasetLoader": {
+          "metodos": [
+            "__init__",
+            "list_available",
+            "load_ciferai",
+            "load_ieee_cis",
+            "load_elliptic",
+            "load_paysim",
+            "load_credit_card_ulb",
+            "_add_pix_features",
+            "prepare_for_training"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "PIXFeatureEngineer": {
+          "metodos": [
+            "__init__",
+            "extract_features",
+            "_extract_bacen_features",
+            "_extract_velocity_features",
+            "_extract_behavioral_features",
+            "update_user_history"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [],
+      "imports_opcionais": [
+        "torch_geometric.datasets",
+        "datasets",
+        "torch"
+      ],
+      "problemas": []
+    },
+    "data_balancer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "DataBalancer": {
+          "metodos": [
+            "__init__",
+            "balance",
+            "_undersample",
+            "_oversample",
+            "_hybrid_sampling",
+            "get_class_weights"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_class_weights"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "device_fingerprint.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "DeviceRiskScore": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "DeviceProfile": {
+          "metodos": [
+            "__post_init__"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "DeviceFingerprintPersistence": {
+          "metodos": [
+            "save_device",
+            "get_device",
+            "get_user_devices",
+            "get_device_users",
+            "update_device"
+          ],
+          "metodos_incompletos": [
+            "save_device",
+            "get_device",
+            "get_user_devices",
+            "get_device_users",
+            "update_device"
+          ],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "incompleto"
+        },
+        "InMemoryPersistence": {
+          "metodos": [
+            "__init__",
+            "save_device",
+            "get_device",
+            "get_user_devices",
+            "get_device_users",
+            "update_device"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "PostgresPersistence": {
+          "metodos": [
+            "__init__",
+            "save_device",
+            "get_device",
+            "get_user_devices",
+            "get_device_users",
+            "update_device"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "DeviceFingerprintAnalyzer": {
+          "metodos": [
+            "__init__",
+            "analyze",
+            "_generate_fingerprint",
+            "_is_known_device",
+            "_check_timezone",
+            "_detect_vpn_proxy",
+            "_detect_emulator",
+            "_detect_headless",
+            "_check_multiple_users",
+            "_check_hardware_anomalies",
+            "_hash_components",
+            "_update_device_registry",
+            "register_trusted_device",
+            "get_user_devices",
+            "get_device_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": true,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_device",
+        "get_user_devices",
+        "get_device_users",
+        "get_device",
+        "get_user_devices",
+        "get_device_users",
+        "get_device",
+        "get_user_devices",
+        "get_device_users",
+        "get_user_devices",
+        "get_device_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "ensemble_integration.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "EnsemblePrediction": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "IntegratedEnsemble": {
+          "metodos": [
+            "__init__",
+            "weights",
+            "weights",
+            "_initialize_models",
+            "_adjust_weights",
+            "calibrate_weights",
+            "train_catboost",
+            "add_transactions_to_gnn",
+            "predict_combined",
+            "get_ensemble_info"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_integrated_ensemble",
+        "get_ensemble_info"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "explainability_engine.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "FeatureContribution": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "PredictionExplanation": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ExplainabilityEngine": {
+          "metodos": [
+            "__init__",
+            "initialize_shap",
+            "_calculate_fallback_importance",
+            "explain_prediction",
+            "get_fast_explanation",
+            "_get_shap_contributions",
+            "_get_fallback_contributions",
+            "_contribution_to_dict",
+            "_get_risk_level",
+            "_generate_explanation_text",
+            "_create_fallback_explanation",
+            "get_global_importance",
+            "get_top_features",
+            "explain_batch",
+            "to_compliance_report"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_fast_explanation",
+        "get_global_importance",
+        "get_top_features"
+      ],
+      "imports_opcionais": [
+        "shap"
+      ],
+      "problemas": []
+    },
+    "feature_engineering.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "AutoFeatureEngineering": {
+          "metodos": [
+            "__init__",
+            "generate_features_featuretools",
+            "generate_features_tsfresh",
+            "generate_business_features",
+            "transform"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": true,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [],
+      "imports_opcionais": [
+        "tsfresh.feature_extraction",
+        "tsfresh",
+        "featuretools"
+      ],
+      "problemas": []
+    },
+    "feature_store.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "FeatureStore": {
+          "metodos": [
+            "__init__",
+            "_make_key",
+            "get_features",
+            "set_features",
+            "get_or_compute",
+            "invalidate",
+            "get_hit_rate",
+            "get_stats",
+            "bulk_get",
+            "health_check"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_feature_store",
+        "get_features",
+        "get_or_compute",
+        "get_hit_rate",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "federated_learning.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "FederatedConfig": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ClientUpdate": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "GlobalModel": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "DifferentialPrivacy": {
+          "metodos": [
+            "__init__",
+            "clip_gradients",
+            "add_noise",
+            "get_privacy_spent"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "SecureAggregation": {
+          "metodos": [
+            "__init__",
+            "generate_mask",
+            "mask_update",
+            "aggregate_masked"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "FederatedClient": {
+          "metodos": [
+            "__init__",
+            "set_local_data",
+            "train_local",
+            "evaluate_local"
+          ],
+          "metodos_incompletos": [
+            "set_local_data",
+            "train_local",
+            "evaluate_local"
+          ],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "incompleto"
+        },
+        "SklearnFederatedClient": {
+          "metodos": [
+            "__init__",
+            "set_local_data",
+            "_get_model_weights",
+            "_set_model_weights",
+            "train_local",
+            "evaluate_local"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "FederatedServer": {
+          "metodos": [
+            "__init__",
+            "register_client",
+            "initialize_global_model",
+            "select_clients",
+            "aggregate_updates",
+            "_fedavg_aggregate",
+            "run_round",
+            "train",
+            "_check_convergence",
+            "get_global_weights",
+            "get_training_history",
+            "save_global_model"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": true,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "FederatedFraudDetection": {
+          "metodos": [
+            "__init__",
+            "add_bank_data",
+            "train",
+            "get_global_model",
+            "predict"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": true,
+          "tem_predict": true,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_federated_system",
+        "get_privacy_spent",
+        "get_global_weights",
+        "get_training_history",
+        "get_global_model"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "gnn_fraud_detector.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "GraphNode": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "GraphEdge": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "GNNPrediction": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "TransactionGraph": {
+          "metodos": [
+            "__init__",
+            "_evict_stale_nodes",
+            "_enforce_size_limits",
+            "_remove_node_safely",
+            "_update_node_access_time",
+            "_generate_node_id",
+            "add_transaction",
+            "_add_or_update_node",
+            "_update_node_fraud_count",
+            "_update_node_transaction_count",
+            "_recalculate_node_risk",
+            "get_neighbor_fraud_rate",
+            "get_centrality_score",
+            "detect_communities",
+            "get_community_risk",
+            "detect_suspicious_patterns"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "GNNFraudDetector": {
+          "metodos": [
+            "__init__",
+            "add_historical_transactions",
+            "analyze_transaction",
+            "get_graph_stats",
+            "get_high_risk_entities"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_gnn_detector",
+        "get_neighbor_fraud_rate",
+        "get_centrality_score",
+        "get_community_risk",
+        "get_graph_stats",
+        "get_high_risk_entities"
+      ],
+      "imports_opcionais": [
+        "networkx"
+      ],
+      "problemas": []
+    },
+    "graph_ml_engine.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "GraphNode": {
+          "metodos": [
+            "__post_init__"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "GraphEdge": {
+          "metodos": [
+            "__post_init__"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "FraudGraphBuilder": {
+          "metodos": [
+            "__init__",
+            "add_transaction",
+            "detect_fraud_rings",
+            "detect_mules"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "GraphFeatureExtractor": {
+          "metodos": [
+            "__init__",
+            "extract_features",
+            "extract_batch_features"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "FraudPropagationScore": {
+          "metodos": [
+            "__init__",
+            "propagate_risk"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "GraphMLEngine": {
+          "metodos": [
+            "__init__",
+            "ingest_transactions",
+            "analyze_transaction",
+            "get_graph_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_graph_ml_engine",
+        "get_graph_stats"
+      ],
+      "imports_opcionais": [
+        "networkx"
+      ],
+      "problemas": []
+    },
+    "graph_neural_networks.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "GraphNode": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "GraphEdge": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "FraudGNNModel": {
+          "metodos": [
+            "__init__",
+            "forward",
+            "predict_proba"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo",
+          "tem_predict_proba": true
+        },
+        "TransactionGraphBuilder": {
+          "metodos": [
+            "__init__",
+            "add_transaction",
+            "_extract_customer_features",
+            "_extract_merchant_features",
+            "_extract_device_features",
+            "build_pytorch_geometric_data",
+            "get_graph_statistics"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "GNNFraudDetector": {
+          "metodos": [
+            "__init__",
+            "_load_model",
+            "_get_neighbors",
+            "save_model"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_gnn_detector",
+        "build_pytorch_geometric_data",
+        "get_graph_statistics"
+      ],
+      "imports_opcionais": [
+        "torch_geometric.data",
+        "torch.nn.functional",
+        "torch",
+        "torch_geometric.nn",
+        "torch.nn"
+      ],
+      "problemas": []
+    },
+    "hard_rules_engine.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "HardRulePrediction": {
+          "metodos": [
+            "to_dict",
+            "to_unified_response"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "HardRulesEngine": {
+          "metodos": [
+            "__init__",
+            "_get_connection",
+            "_load_rules",
+            "_evaluate_condition",
+            "_evaluate_rule",
+            "evaluate",
+            "evaluate_batch",
+            "get_rules_count",
+            "get_rules_summary"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo",
+          "tem_evaluate": true
+        },
+        "UnifiedFraudEngine": {
+          "metodos": [
+            "__init__",
+            "evaluate"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo",
+          "tem_evaluate": true
+        }
+      },
+      "aliases": [
+        "get_hard_rules_engine",
+        "get_rules_count",
+        "get_rules_summary"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "huggingface_integration.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "HuggingFaceFraudDetector": {
+          "metodos": [
+            "__init__",
+            "_load_model",
+            "predict_fraud",
+            "predict_batch",
+            "_features_to_string"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "HuggingFaceDatasetLoader": {
+          "metodos": [
+            "load_cifer_dataset",
+            "load_credit_card_dataset",
+            "prepare_for_sankofa",
+            "_preprocess",
+            "get_feature_statistics"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "HuggingFaceTransferLearning": {
+          "metodos": [
+            "__init__",
+            "fine_tune",
+            "save_model"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_feature_statistics"
+      ],
+      "imports_opcionais": [
+        "torch",
+        "transformers"
+      ],
+      "problemas": []
+    },
+    "mixture_of_experts.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "ExpertType": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ExpertPrediction": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "MoEResult": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "Expert": {
+          "metodos": [
+            "__init__",
+            "_create_model",
+            "fit",
+            "predict",
+            "_generate_reasoning"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": true,
+          "tem_fit": true,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "GatingNetwork": {
+          "metodos": [
+            "__init__",
+            "fit",
+            "route"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": true,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "MixtureOfExperts": {
+          "metodos": [
+            "__init__",
+            "_initialize_experts",
+            "fit",
+            "predict",
+            "_aggregate_predictions",
+            "_calculate_consensus",
+            "_determine_routing",
+            "get_expert_status"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": true,
+          "tem_fit": true,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_mixture_of_experts",
+        "get_expert_status"
+      ],
+      "imports_opcionais": [
+        "sklearn.linear_model",
+        "sklearn.ensemble",
+        "sklearn.preprocessing",
+        "sklearn.neural_network"
+      ],
+      "problemas": []
+    },
+    "multi_armed_bandits.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "ChallengeType": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "BanditArm": {
+          "metodos": [
+            "sample",
+            "update",
+            "get_expected_value",
+            "get_confidence_interval"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ContextualBandit": {
+          "metodos": [
+            "__init__",
+            "_extract_context",
+            "get_arm_stats",
+            "get_metrics"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "StepUpMFAOptimizer": {
+          "metodos": [
+            "__init__",
+            "get_performance_metrics"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_mfa_optimizer",
+        "get_expected_value",
+        "get_confidence_interval",
+        "get_arm_stats",
+        "get_metrics",
+        "get_performance_metrics"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "nlp_social_engineering.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "SocialEngineeringAnalysis": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "NLPSocialEngineeringDetector": {
+          "metodos": [
+            "__init__",
+            "_compile_patterns",
+            "analyze_text",
+            "_normalize_text",
+            "_calculate_urgency_score",
+            "_calculate_emotional_score",
+            "_check_bank_impersonation",
+            "_check_phishing_links",
+            "_check_pix_fraud",
+            "_check_whatsapp_clone",
+            "_check_blacklist_keywords",
+            "batch_analyze",
+            "get_pattern_summary"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_nlp_detector",
+        "get_pattern_summary"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "onnx_serving.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "ONNXModelConverter": {
+          "metodos": [
+            "convert_sklearn_model",
+            "convert_xgboost_model",
+            "save_onnx_model"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ONNXInferenceSession": {
+          "metodos": [
+            "__init__",
+            "predict",
+            "predict_batch"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": true,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ONNXFraudModelServing": {
+          "metodos": [
+            "__init__",
+            "_extract_features",
+            "_features_to_array",
+            "_update_metrics",
+            "get_metrics"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_metrics"
+      ],
+      "imports_opcionais": [
+        "skl2onnx.common.data_types",
+        "onnxmltools.convert.common.data_types",
+        "onnxruntime",
+        "skl2onnx",
+        "onnxmltools.convert"
+      ],
+      "problemas": []
+    },
+    "pix_fraud_taxonomy.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "PIXFraudType": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "PIXFraudIndicator": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "PIXFraudAnalysis": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "PIXFraudTaxonomy": {
+          "metodos": [
+            "__init__",
+            "analyze_transaction",
+            "_analyze_temporal_patterns",
+            "_analyze_amount_patterns",
+            "_analyze_receiver_patterns",
+            "_analyze_device_patterns",
+            "_calculate_fraud_type_score",
+            "_generate_explanation",
+            "_generate_compliance_flags",
+            "get_fraud_types_summary"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_pix_taxonomy",
+        "get_fraud_types_summary"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "probability_calibration.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "CalibrationMetrics": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ProbabilityCalibrator": {
+          "metodos": [
+            "__init__",
+            "fit",
+            "calibrate",
+            "evaluate_calibration",
+            "_calculate_ece",
+            "_calculate_mce",
+            "_calculate_brier_score",
+            "get_metrics_summary"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": true,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "EnsembleCalibrator": {
+          "metodos": [
+            "__init__",
+            "fit",
+            "calibrate",
+            "get_best_calibrator"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": true,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_metrics_summary",
+        "get_best_calibrator"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "production_fraud_engine.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "FraudPrediction": {
+          "metodos": [
+            "to_dict"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ModelMetrics": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ProductionFraudEngine": {
+          "metodos": [
+            "__init__",
+            "_try_load_pretrained_model",
+            "_load_model_data",
+            "_train_and_save_api_model",
+            "_initialize_precision_rules",
+            "_create_derived_features",
+            "train_with_api_features",
+            "_preprocess_data",
+            "_apply_precision_rules",
+            "_calibrate_threshold",
+            "fit",
+            "train",
+            "train_with_bahnsen_features",
+            "_validate_required_features",
+            "predict",
+            "_get_cache",
+            "_check_cache",
+            "_cache_prediction",
+            "get_cache_stats",
+            "predict_detailed",
+            "save",
+            "load",
+            "get_performance_metrics"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": true,
+          "tem_predict": true,
+          "tem_fit": true,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_fraud_engine",
+        "get_cache_stats",
+        "get_performance_metrics"
+      ],
+      "imports_opcionais": [
+        "cache.prediction_cache"
+      ],
+      "problemas": [
+        "Contém 1 TODOs"
+      ]
+    },
+    "self_explainable_module.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "ExplanationMask": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "SelfExplanation": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "InterpretativeMaskLearner": {
+          "metodos": [
+            "__init__",
+            "fit",
+            "generate_explanation",
+            "_predict",
+            "_compute_local_importance",
+            "_identify_rule_triggers",
+            "_identify_behavioral_deviations",
+            "_generate_natural_language",
+            "_create_audit_trail",
+            "get_audit_log",
+            "generate_lgpd_report",
+            "get_status"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": true,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "get_self_explainer",
+        "get_audit_log",
+        "get_status"
+      ],
+      "imports_opcionais": [
+        "sklearn.preprocessing",
+        "sklearn.ensemble",
+        "sklearn.inspection"
+      ],
+      "problemas": []
+    },
+    "self_training_optimizer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "SelfTrainingMetrics": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "SelfTrainingClassifier": {
+          "metodos": [
+            "__init__",
+            "fit",
+            "_evaluate_model",
+            "predict",
+            "predict_proba",
+            "get_training_history",
+            "get_metrics_summary"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": true,
+          "tem_fit": true,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo",
+          "tem_predict_proba": true
+        },
+        "AdaptiveSelfTraining": {
+          "metodos": [
+            "__init__",
+            "fit",
+            "_check_quality",
+            "predict",
+            "predict_proba"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": true,
+          "tem_fit": true,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo",
+          "tem_predict_proba": true
+        }
+      },
+      "aliases": [
+        "create_unlabeled_from_production",
+        "get_training_history",
+        "get_metrics_summary"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "threshold_optimizer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "ThresholdOptimizer": {
+          "metodos": [
+            "__init__",
+            "find_optimal_threshold",
+            "plot_threshold_analysis"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "transfer_learning_pipeline.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "DatasetConfig": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "TransferLearningResult": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "TransferLearningPipeline": {
+          "metodos": [
+            "__init__",
+            "load_dataset",
+            "prepare_features",
+            "train_base_model",
+            "evaluate_model",
+            "transfer_learn",
+            "get_dataset_compatibility",
+            "list_supported_datasets",
+            "save_pipeline_state"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_transfer_pipeline",
+        "get_dataset_compatibility"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "conversation_scorer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "ConversationRisk": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ConversationScorer": {
+          "metodos": [
+            "__init__",
+            "_compile_patterns",
+            "analyze_conversation",
+            "analyze_single_message",
+            "_normalize_text",
+            "_analyze_urgency",
+            "_analyze_emotional",
+            "_analyze_authority",
+            "_analyze_data_requests",
+            "_analyze_scam_patterns",
+            "_analyze_links",
+            "_calculate_risk_score",
+            "_get_risk_level",
+            "_get_recommended_action",
+            "_generate_explanation",
+            "_calculate_confidence"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_conversation_scorer"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "duress_detector.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "DuressAnalysis": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "DuressDetector": {
+          "metodos": [
+            "__init__",
+            "analyze",
+            "_analyze_typing_pattern",
+            "_analyze_mouse_pattern",
+            "_analyze_session_pattern",
+            "_calculate_duress_probability",
+            "_get_recommended_action",
+            "_generate_explanation",
+            "_calculate_confidence",
+            "update_user_baseline"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": true,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_duress_detector"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "intervention_engine.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "InterventionType": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "VerificationMethod": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "InterventionDecision": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "InterventionEngine": {
+          "metodos": [
+            "__init__",
+            "decide_intervention",
+            "_generate_message",
+            "_get_next_steps",
+            "process_user_response",
+            "_validate_verification_code",
+            "get_intervention_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_intervention_engine",
+        "get_intervention_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "scam_detector.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "ScamType": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ScamIndicator": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ScamDetectionResult": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ScamPatternDetector": {
+          "metodos": [
+            "__init__",
+            "_compile_patterns",
+            "detect",
+            "_detect_scam_types",
+            "_detect_manipulation_techniques",
+            "_calculate_urgency_score",
+            "_calculate_coercion_score",
+            "_determine_scam_type",
+            "_create_indicators",
+            "_calculate_risk_score",
+            "_calculate_confidence",
+            "_recommend_action",
+            "_get_intervention_message",
+            "_generate_explanation",
+            "_empty_result",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": true,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_scam_detector",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "session_analyzer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "SessionRisk": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "SessionAnalyzer": {
+          "metodos": [
+            "__init__",
+            "start_session",
+            "track_page_visit",
+            "track_field_interaction",
+            "track_event",
+            "analyze_session",
+            "_analyze_navigation_pattern",
+            "_analyze_page_times",
+            "_analyze_field_interactions",
+            "_detect_automation",
+            "_compare_to_baseline",
+            "_analyze_session_speed",
+            "_get_risk_level",
+            "_calculate_confidence",
+            "_is_subsequence",
+            "_path_similarity",
+            "update_user_baseline",
+            "end_session"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_session_analyzer"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "__init__.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {},
+      "aliases": [],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "behavioral_analyzer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "BehavioralScore": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "SessionProfile": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "UserBaseline": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "BehavioralAnalyzer": {
+          "metodos": [
+            "__init__",
+            "analyze",
+            "_get_or_create_baseline",
+            "_analyze_session",
+            "_calculate_overall_score",
+            "_detect_bot",
+            "_detect_duress",
+            "_calculate_confidence",
+            "_generate_explanation",
+            "_update_baseline",
+            "_update_keystroke_baseline",
+            "_update_mouse_baseline",
+            "_update_session_baseline",
+            "_update_device_baseline",
+            "_extract_timings",
+            "_calculate_mouse_linearity",
+            "_calculate_mouse_velocities",
+            "_calculate_mouse_jitter",
+            "_detect_perfect_repetition",
+            "_count_long_pauses",
+            "_calculate_typing_speed",
+            "_calculate_error_rate",
+            "_hash_device",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": true,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_behavioral_analyzer",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "device_analyzer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "DeviceFingerprint": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "DeviceHistory": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "DeviceAnalyzer": {
+          "metodos": [
+            "__init__",
+            "analyze",
+            "_generate_fingerprint_hash",
+            "_is_known_device",
+            "_calculate_device_age",
+            "_detect_emulator",
+            "_detect_headless",
+            "_detect_proxy",
+            "_detect_vpn",
+            "_detect_tor",
+            "_check_timezone_mismatch",
+            "_check_language_mismatch",
+            "_check_webgl_anomaly",
+            "_check_canvas_anomaly",
+            "_check_audio_anomaly",
+            "_check_screen_anomaly",
+            "_calculate_confidence",
+            "register_device",
+            "get_device_reputation",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": true,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_device_analyzer",
+        "get_device_reputation",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "keystroke_analyzer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "KeystrokePattern": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "KeyEvent": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "KeystrokeAnalyzer": {
+          "metodos": [
+            "__init__",
+            "analyze",
+            "_parse_events",
+            "_calculate_hold_times",
+            "_calculate_flight_times",
+            "_calculate_typing_speed",
+            "_calculate_error_rate",
+            "_count_pauses",
+            "_calculate_rhythm_consistency",
+            "_calculate_digraph_timings",
+            "_detect_anomalies_with_baseline",
+            "_detect_anomalies_reference",
+            "_compare_digraphs",
+            "_calculate_confidence",
+            "_empty_pattern",
+            "extract_baseline_features",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": true,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_keystroke_analyzer",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "mouse_analyzer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "MousePattern": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "MouseEvent": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "MouseAnalyzer": {
+          "metodos": [
+            "__init__",
+            "analyze",
+            "_parse_events",
+            "_calculate_velocities",
+            "_calculate_accelerations",
+            "_calculate_curvature",
+            "_calculate_jitter",
+            "_calculate_efficiency",
+            "_count_direction_changes",
+            "_calculate_click_accuracy",
+            "_count_pauses",
+            "_detect_anomalies_with_baseline",
+            "_detect_anomalies_reference",
+            "_calculate_confidence",
+            "_empty_pattern",
+            "extract_baseline_features",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": true,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_mouse_analyzer",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "aggregation_features.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "AggregationFeatureGenerator": {
+          "metodos": [
+            "__init__",
+            "generate",
+            "_generate_entity_features",
+            "_add_value_stats",
+            "_add_count_features",
+            "_add_distribution_features",
+            "_add_recency_features",
+            "_add_relationship_features",
+            "_generate_cross_entity_features",
+            "get_feature_names",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_aggregation_generator",
+        "get_feature_names",
+        "get_stats"
+      ],
+      "imports_opcionais": [
+        "scipy.stats"
+      ],
+      "problemas": []
+    },
+    "embedding_features.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "EmbeddingFeatureGenerator": {
+          "metodos": [
+            "__init__",
+            "generate",
+            "_add_hash_embeddings",
+            "_add_co_occurrence_features",
+            "_add_sequence_features",
+            "_add_target_encoding",
+            "_add_similarity_features",
+            "fit_entity_embeddings",
+            "get_feature_names",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_embedding_generator",
+        "get_feature_names",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "feature_generator.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "FeatureConfig": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "FeatureGenerator": {
+          "metodos": [
+            "__init__",
+            "generate_features",
+            "_prepare_data",
+            "_generate_temporal_features",
+            "_generate_value_features",
+            "_generate_velocity_features",
+            "_create_rolling_features",
+            "_generate_aggregation_features",
+            "_generate_interaction_features",
+            "_generate_deviation_features",
+            "_generate_frequency_features",
+            "_generate_rfm_features",
+            "_cleanup_temp_columns",
+            "get_feature_names",
+            "get_feature_count",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_feature_generator",
+        "get_feature_names",
+        "get_feature_count",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "graph_features.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "GraphFeatureGenerator": {
+          "metodos": [
+            "__init__",
+            "generate",
+            "_build_graph",
+            "_add_degree_features",
+            "_add_centrality_features",
+            "_calculate_pagerank",
+            "_estimate_betweenness",
+            "_add_clustering_features",
+            "_calculate_clustering",
+            "_add_transaction_pattern_features",
+            "_add_community_features",
+            "_detect_communities",
+            "get_feature_names",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_graph_feature_generator",
+        "get_feature_names",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "temporal_features.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "TemporalFeatureGenerator": {
+          "metodos": [
+            "__init__",
+            "generate",
+            "_generate_basic_features",
+            "_generate_cyclic_features",
+            "_generate_period_features",
+            "_generate_holiday_features",
+            "_generate_seasonality_features",
+            "_generate_pattern_features",
+            "get_feature_names"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_temporal_generator",
+        "get_feature_names"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "velocity_features.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "VelocityFeatureGenerator": {
+          "metodos": [
+            "__init__",
+            "generate",
+            "_generate_velocity_for_key",
+            "_create_rolling_features",
+            "_generate_cross_velocity_features",
+            "generate_historical_velocity",
+            "get_feature_names",
+            "get_feature_count",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_velocity_generator",
+        "get_feature_names",
+        "get_feature_count",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "fraud_gnn.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "FraudGNNConfig": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "FraudGNN": {
+          "metodos": [
+            "__init__",
+            "_init_fallback",
+            "_init_layers",
+            "forward",
+            "forward_batch",
+            "get_embeddings"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "TimeEncoder": {
+          "metodos": [
+            "__init__",
+            "forward"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "GraphAttentionLayer": {
+          "metodos": [
+            "__init__",
+            "_reset_parameters",
+            "forward"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_fraud_gnn",
+        "get_embeddings"
+      ],
+      "imports_opcionais": [
+        "torch_geometric.data",
+        "torch.nn.functional",
+        "torch",
+        "torch_geometric.nn",
+        "torch.nn",
+        "torch_geometric"
+      ],
+      "problemas": []
+    },
+    "gnn_trainer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "TrainerConfig": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "GNNTrainer": {
+          "metodos": [
+            "__init__",
+            "_create_scheduler",
+            "train",
+            "_train_epoch",
+            "_validate",
+            "_calculate_auc",
+            "_calculate_f1",
+            "_check_early_stopping",
+            "_save_checkpoint",
+            "load_checkpoint",
+            "predict"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": true,
+          "tem_predict": true,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_trainer"
+      ],
+      "imports_opcionais": [
+        "torch.utils.data",
+        "torch_geometric.loader",
+        "torch_geometric.data",
+        "torch",
+        "sklearn.metrics",
+        "torch.nn",
+        "torch.optim"
+      ],
+      "problemas": []
+    },
+    "graph_builder.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "TransactionGraphBuilder": {
+          "metodos": [
+            "__init__",
+            "build",
+            "_add_node",
+            "_build_edge_index",
+            "_build_edge_features",
+            "_build_node_features",
+            "get_node_id",
+            "get_node_index"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "HeteroGraphBuilder": {
+          "metodos": [
+            "__init__",
+            "build",
+            "_add_node",
+            "_build_edge_index"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "Data": {
+          "metodos": [
+            "__init__"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "HeteroData": {
+          "metodos": [
+            "__init__",
+            "__setitem__",
+            "__getitem__"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_graph_builder",
+        "get_node_id",
+        "get_node_index"
+      ],
+      "imports_opcionais": [
+        "torch",
+        "torch_geometric.data"
+      ],
+      "problemas": []
+    },
+    "temporal_gnn.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "TGNConfig": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "TemporalGraphNetwork": {
+          "metodos": [
+            "__init__",
+            "_init_fallback",
+            "_init_modules",
+            "reset_memory",
+            "forward",
+            "get_embeddings"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "TimeEncoderTGN": {
+          "metodos": [
+            "__init__",
+            "forward"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "MessageFunction": {
+          "metodos": [
+            "__init__",
+            "forward"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "LastAggregator": {
+          "metodos": [
+            "forward"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "AttentionAggregator": {
+          "metodos": [
+            "__init__",
+            "forward"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "GRUMemoryUpdater": {
+          "metodos": [
+            "__init__",
+            "forward"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "RNNMemoryUpdater": {
+          "metodos": [
+            "__init__",
+            "forward"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "TemporalAttention": {
+          "metodos": [
+            "__init__",
+            "forward"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_tgn",
+        "get_embeddings"
+      ],
+      "imports_opcionais": [
+        "torch_geometric.utils",
+        "torch.nn.functional",
+        "torch",
+        "torch_geometric.nn",
+        "torch.nn"
+      ],
+      "problemas": []
+    },
+    "embeddings.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "EmbeddingResult": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "TransactionEmbedder": {
+          "metodos": [
+            "__init__",
+            "embed",
+            "embed_batch",
+            "get_similarity"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "TextEmbedder": {
+          "metodos": [
+            "__init__",
+            "embed",
+            "embed_batch",
+            "_fallback_embed",
+            "get_similarity"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_transaction_embedder",
+        "create_text_embedder",
+        "get_similarity",
+        "get_similarity"
+      ],
+      "imports_opcionais": [
+        "sentence_transformers"
+      ],
+      "problemas": []
+    },
+    "explanation_generator.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "ExplanationAudience": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "FraudExplanation": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "FactorExplanation": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ExplanationGenerator": {
+          "metodos": [
+            "__init__",
+            "generate",
+            "_generate_summary",
+            "_process_factors",
+            "_explain_factor",
+            "_simplify_explanation",
+            "_generate_detailed_explanation",
+            "_customer_detailed_explanation",
+            "_analyst_detailed_explanation",
+            "_regulator_detailed_explanation",
+            "_technical_detailed_explanation",
+            "_generate_counterfactual",
+            "_generate_recommendations",
+            "_calculate_confidence",
+            "_get_risk_level",
+            "_get_threshold",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_explanation_generator",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": [
+        "Contém 1 TODOs"
+      ]
+    },
+    "fraud_llm.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "RiskLevel": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ConversationRisk": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "ScamAnalysis": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "TransactionNarrative": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "FraudLLMAnalyzer": {
+          "metodos": [
+            "__init__",
+            "_load_model",
+            "analyze_conversation",
+            "analyze_scam",
+            "generate_transaction_narrative",
+            "_format_conversation",
+            "_detect_patterns",
+            "_extract_suspicious_links",
+            "_extract_key_phrases",
+            "_calculate_risk_score",
+            "_calculate_scam_probability",
+            "_get_model_prediction",
+            "_determine_risk_level",
+            "_generate_explanation",
+            "_generate_recommendations",
+            "_determine_scam_type",
+            "_analyze_victim_profile",
+            "_recommend_action",
+            "_generate_transaction_summary",
+            "_generate_context",
+            "_generate_transaction_recommendation",
+            "_empty_risk",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_fraud_llm",
+        "get_stats"
+      ],
+      "imports_opcionais": [
+        "transformers"
+      ],
+      "problemas": []
+    },
+    "dormancy_analyzer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "DormancyPeriod": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "DormancyPattern": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "DormancyAnalyzer": {
+          "metodos": [
+            "__init__",
+            "analyze",
+            "_sort_transactions",
+            "_identify_dormancy_periods",
+            "_calculate_activity_around_date",
+            "_calculate_recent_activity",
+            "_calculate_historical_activity",
+            "_determine_current_state",
+            "_calculate_activation_intensity",
+            "_determine_activity_trend",
+            "_days_since_last_activity",
+            "_calculate_dormancy_score",
+            "_is_dormant_activated",
+            "_generate_explanation",
+            "_get_tx_date",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": true,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_dormancy_analyzer",
+        "get_stats",
+        "get_date"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "mule_detector.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "MuleType": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "RiskLevel": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "MuleIndicator": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "MuleScore": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "MuleDetector": {
+          "metodos": [
+            "__init__",
+            "set_analyzers",
+            "detect",
+            "_analyze_dormancy",
+            "_analyze_turnover",
+            "_analyze_circular_flows",
+            "_analyze_behavioral_change",
+            "_analyze_network_position",
+            "_analyze_recruitment_connection",
+            "_analyze_age_activity_mismatch",
+            "_analyze_geographic_anomalies",
+            "_calculate_total_score",
+            "_determine_mule_type",
+            "_determine_risk_level",
+            "_calculate_confidence",
+            "_generate_explanation",
+            "_get_recommended_actions",
+            "_identify_suspicious_patterns",
+            "_count_network_connections",
+            "_is_recent",
+            "add_known_mule",
+            "add_suspicious_account",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": true,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_mule_detector",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "network_position_analyzer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "NetworkPosition": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "NetworkPositionAnalyzer": {
+          "metodos": [
+            "__init__",
+            "analyze",
+            "_build_local_graph",
+            "_calculate_degree_metrics",
+            "_estimate_local_pagerank",
+            "_estimate_betweenness",
+            "_calculate_clustering",
+            "_count_mule_connections",
+            "_count_fraudster_connections",
+            "_detect_suspicious_cluster",
+            "_identify_network_patterns",
+            "_detect_cycles",
+            "_count_reciprocal",
+            "_detect_chain",
+            "_propagate_risk",
+            "_calculate_network_score",
+            "_is_central_node",
+            "_generate_explanation",
+            "add_known_mule",
+            "add_known_fraudster",
+            "set_account_risk",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": true,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_network_analyzer",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    },
+    "turnover_analyzer.py": {
+      "pode_importar": true,
+      "erro_import": null,
+      "classes": {
+        "TurnoverEvent": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "TurnoverPattern": {
+          "metodos": [],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": false,
+          "tem_detect": false,
+          "status": "completo"
+        },
+        "TurnoverAnalyzer": {
+          "metodos": [
+            "__init__",
+            "analyze",
+            "_separate_flows",
+            "_identify_turnover_events",
+            "_calculate_avg_turnover_time",
+            "_calculate_min_turnover_time",
+            "_analyze_daily_patterns",
+            "_analyze_hourly_patterns",
+            "_identify_suspicious_behaviors",
+            "_calculate_turnover_score",
+            "_is_rapid_turnover",
+            "_determine_risk_level",
+            "_generate_explanation",
+            "_get_timestamp",
+            "get_stats"
+          ],
+          "metodos_incompletos": [],
+          "tem_train": false,
+          "tem_predict": false,
+          "tem_fit": false,
+          "tem_transform": false,
+          "tem_analyze": true,
+          "tem_detect": false,
+          "status": "completo"
+        }
+      },
+      "aliases": [
+        "create_turnover_analyzer",
+        "get_stats"
+      ],
+      "imports_opcionais": [],
+      "problemas": []
+    }
+  }
+}

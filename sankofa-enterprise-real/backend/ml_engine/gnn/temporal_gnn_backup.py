@@ -8,6 +8,9 @@ Baseado em:
 - DyRep (Dynamic Representation Learning)
 """
 
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from collections import defaultdict
@@ -16,31 +19,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Verificar se PyTorch está disponível
-HAS_TORCH = False
-HAS_PYG = False
-
-try:
-    import torch
-    import torch.nn as nn
-    import torch.nn.functional as F
-    HAS_TORCH = True
-except ImportError:
-    torch = None
-    nn = None
-    F = None
-    logger.warning("PyTorch not installed. Temporal GNN features will be disabled.")
-
 # Verificar se PyTorch Geometric está disponível
-if HAS_TORCH:
-    try:
-        from torch_geometric.nn import MessagePassing
-        from torch_geometric.utils import softmax
-        HAS_PYG = True
-    except ImportError:
-        MessagePassing = None
-        softmax = None
-        logger.warning("PyTorch Geometric not installed. Temporal GNN features will be limited.")
+try:
+    from torch_geometric.nn import MessagePassing
+    from torch_geometric.utils import softmax
+    HAS_PYG = True
+except ImportError:
+    HAS_PYG = False
 
 
 @dataclass
@@ -58,7 +43,7 @@ class TGNConfig:
     memory_updater: str = "gru"  # gru, rnn
 
 
-class TemporalGraphNetwork(_BaseModule):
+class TemporalGraphNetwork(nn.Module):
     """
     Temporal Graph Network para grafos dinâmicos
 
@@ -257,7 +242,7 @@ class TemporalGraphNetwork(_BaseModule):
         return self.embedding_module(node_memory, time_enc)
 
 
-class TimeEncoderTGN(_BaseModule):
+class TimeEncoderTGN(nn.Module):
     """Time encoder usando funções de base"""
 
     def __init__(self, dim: int):
@@ -280,7 +265,7 @@ class TimeEncoderTGN(_BaseModule):
         return torch.cos(self.w(t))
 
 
-class MessageFunction(_BaseModule):
+class MessageFunction(nn.Module):
     """Função de mensagem para gerar mensagens de eventos"""
 
     def __init__(
@@ -318,7 +303,7 @@ class MessageFunction(_BaseModule):
         return self.mlp(torch.cat(inputs, dim=-1))
 
 
-class LastAggregator(_BaseModule):
+class LastAggregator(nn.Module):
     """Agregador que usa última mensagem"""
 
     def forward(
@@ -330,7 +315,7 @@ class LastAggregator(_BaseModule):
         return messages  # Já é a última
 
 
-class AttentionAggregator(_BaseModule):
+class AttentionAggregator(nn.Module):
     """Agregador com atenção"""
 
     def __init__(self, dim: int):
@@ -348,7 +333,7 @@ class AttentionAggregator(_BaseModule):
         return weights * messages
 
 
-class GRUMemoryUpdater(_BaseModule):
+class GRUMemoryUpdater(nn.Module):
     """Atualizador de memória baseado em GRU"""
 
     def __init__(self, memory_dim: int, message_dim: int):
@@ -363,7 +348,7 @@ class GRUMemoryUpdater(_BaseModule):
         return self.gru(message, memory)
 
 
-class RNNMemoryUpdater(_BaseModule):
+class RNNMemoryUpdater(nn.Module):
     """Atualizador de memória baseado em RNN"""
 
     def __init__(self, memory_dim: int, message_dim: int):
@@ -378,7 +363,7 @@ class RNNMemoryUpdater(_BaseModule):
         return self.rnn(message, memory)
 
 
-class TemporalAttention(_BaseModule):
+class TemporalAttention(nn.Module):
     """Módulo de atenção temporal para embeddings"""
 
     def __init__(

@@ -588,3 +588,8 @@ def create_scam_detector(
 ) -> ScamPatternDetector:
     """Factory function para criar ScamPatternDetector"""
     return ScamPatternDetector(config)
+
+
+# Aliases para compatibilidade
+LLMScamDetector = ScamPatternDetector
+ScamDetector = ScamPatternDetector

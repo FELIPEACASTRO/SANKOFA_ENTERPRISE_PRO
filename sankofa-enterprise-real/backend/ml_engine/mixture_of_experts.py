@@ -536,3 +536,8 @@ def get_mixture_of_experts() -> MixtureOfExperts:
     if _moe_instance is None:
         _moe_instance = MixtureOfExperts()
     return _moe_instance
+
+
+# Aliases para compatibilidade
+MixtureOfExpertsDetector = MixtureOfExperts
+MoEDetector = MixtureOfExperts
