@@ -1,0 +1,34 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.6, pytest-8.4.1, pluggy-1.6.0 -- C:\Users\davis\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\davis\Workspace\SANKOFA_ENTERPRISE_PRO\sankofa-enterprise-real\backend
+configfile: pytest.ini
+plugins: anyio-4.10.0, asyncio-1.1.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 23 items
+
+tests/unit/test_ml_engine/test_production_fraud_engine_api.py::TestProductionFraudEnginePredict::test_API_001_predict_accepts_dataframe PASSED [  4%]
+tests/unit/test_ml_engine/test_production_fraud_engine_api.py::TestProductionFraudEnginePredict::test_API_002_predict_returns_ndarray PASSED [  8%]
+tests/unit/test_ml_engine/test_production_fraud_engine_api.py::TestProductionFraudEnginePredict::test_API_003_predict_scores_in_valid_range PASSED [ 13%]
+tests/unit/test_ml_engine/test_production_fraud_engine_api.py::TestProductionFraudEnginePredict::test_API_004_predict_with_dict_behavior PASSED [ 17%]
+tests/unit/test_ml_engine/test_production_fraud_engine_api.py::TestProductionFraudEnginePredict::test_API_005_has_predict_proba_method PASSED [ 21%]
+tests/unit/test_ml_engine/test_production_fraud_engine_api.py::TestProductionFraudEnginePredict::test_API_006_predict_proba_returns_2d_array PASSED [ 26%]
+tests/unit/test_ml_engine/test_production_fraud_engine_api.py::TestProductionFraudEnginePredict::test_API_007_predict_proba_sums_to_one PASSED [ 30%]
+tests/unit/test_ml_engine/test_production_fraud_engine_api.py::TestProductionFraudEngineDeterminism::test_DET_001_same_input_same_output PASSED [ 34%]
+tests/unit/test_ml_engine/test_integrated_ensemble_api.py::TestIntegratedEnsemblePredictCombined::test_ENS_001_has_predict_combined_method PASSED [ 39%]
+tests/unit/test_ml_engine/test_integrated_ensemble_api.py::TestIntegratedEnsemblePredictCombined::test_ENS_002_predict_combined_signature PASSED [ 43%]
+tests/unit/test_ml_engine/test_integrated_ensemble_api.py::TestIntegratedEnsemblePredictCombined::test_ENS_003_predict_combined_returns_structured PASSED [ 47%]
+tests/unit/test_ml_engine/test_integrated_ensemble_api.py::TestIntegratedEnsemblePredictCombined::test_ENS_004_predict_combined_score_range PASSED [ 52%]
+tests/unit/test_ml_engine/test_integrated_ensemble_api.py::TestIntegratedEnsemblePredictAlias::test_ENS_005_has_predict_alias PASSED [ 56%]
+tests/unit/test_ml_engine/test_integrated_ensemble_api.py::TestIntegratedEnsemblePredictAlias::test_ENS_006_predict_alias_callable PASSED [ 60%]
+tests/unit/test_ml_engine/test_integrated_ensemble_api.py::TestIntegratedEnsemblePredictAlias::test_ENS_006b_predict_alias_works PASSED [ 65%]
+tests/unit/test_ml_engine/test_integrated_ensemble_api.py::TestIntegratedEnsembleCalibrateWeights::test_ENS_007_has_calibrate_weights PASSED [ 69%]
+tests/unit/test_ml_engine/test_integrated_ensemble_api.py::TestIntegratedEnsembleCalibrateWeights::test_ENS_008_calibrate_weights_returns_dict PASSED [ 73%]
+tests/unit/test_ml_engine/test_mule_detector_api.py::TestMuleDetectorDetect::test_MULE_001_has_detect_method PASSED [ 78%]
+tests/unit/test_ml_engine/test_mule_detector_api.py::TestMuleDetectorDetect::test_MULE_002_detect_signature PASSED [ 82%]
+tests/unit/test_ml_engine/test_mule_detector_api.py::TestMuleDetectorDetect::test_MULE_003_detect_has_score PASSED [ 86%]
+tests/unit/test_ml_engine/test_mule_detector_api.py::TestMuleDetectorDetect::test_MULE_004_score_in_range PASSED [ 91%]
+tests/unit/test_ml_engine/test_mule_detector_api.py::TestMuleDetectorDetect::test_MULE_005_has_add_suspicious_account PASSED [ 95%]
+tests/unit/test_ml_engine/test_mule_detector_api.py::TestMuleDetectorDetect::test_MULE_006_add_suspicious_accepts_score PASSED [100%]
+
+======================= 23 passed in 204.75s (0:03:24) ========================
