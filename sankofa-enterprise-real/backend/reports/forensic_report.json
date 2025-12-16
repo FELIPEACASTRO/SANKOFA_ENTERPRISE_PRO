@@ -1,0 +1,3455 @@
+{
+  "timestamp": "2025-12-15T19:12:13.972580",
+  "summary": {
+    "total_tests": 26,
+    "passed": 5,
+    "failed": 20,
+    "warnings": 1,
+    "pass_rate": 19.230769230769234
+  },
+  "panels": {
+    "data_scientist": {
+      "passed": 1,
+      "failed": 5,
+      "warnings": 0,
+      "verdict": "[FAIL] REPROVADO"
+    },
+    "ml_engineer": {
+      "passed": 1,
+      "failed": 4,
+      "warnings": 1,
+      "verdict": "[FAIL] REPROVADO"
+    },
+    "backend_engineer": {
+      "passed": 0,
+      "failed": 5,
+      "warnings": 0,
+      "verdict": "[FAIL] REPROVADO"
+    },
+    "mlops": {
+      "passed": 2,
+      "failed": 2,
+      "warnings": 0,
+      "verdict": "[FAIL] REPROVADO"
+    },
+    "banking": {
+      "passed": 1,
+      "failed": 4,
+      "warnings": 0,
+      "verdict": "[FAIL] REPROVADO"
+    }
+  },
+  "tests": [
+    {
+      "test_name": "DS-001: Bahnsen Feature Generation",
+      "file_path": "ml_engine/feature_engineering.py",
+      "class_name": "BahnsenFeatureGenerator",
+      "method_name": "generate_features",
+      "input_used": "DataFrame with amount, timestamp",
+      "expected_output": "DataFrame with additional features",
+      "observed_output": "Exception: cannot import name 'BahnsenFeatureGenerator' from 'ml_engine.feature_engineering' (C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\ml_engine\\feature_engineering\\__init__.py)",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 227, in panel_data_scientist\n    from ml_engine.feature_engineering import BahnsenFeatureGenerator\nImportError: cannot import name 'BahnsenFeatureGenerator' from 'ml_engine.feature_engineering' (C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\ml_engine\\feature_engineering\\__init__.py)\n",
+      "status": "FAIL",
+      "correction": "Fix BahnsenFeatureGenerator.generate_features() to handle DataFrame input",
+      "execution_time_ms": 1585.5107307434082
+    },
+    {
+      "test_name": "DS-002: Data Leakage Prevention",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "fit",
+      "input_used": "Source code inspection",
+      "expected_output": "Split BEFORE preprocessing",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 273, in panel_data_scientist\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.3383159637451172
+    },
+    {
+      "test_name": "DS-003: Class Imbalance Handling",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "__init__",
+      "input_used": "Source code inspection",
+      "expected_output": "Has imbalance handling mechanism",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 317, in panel_data_scientist\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.3135204315185547
+    },
+    {
+      "test_name": "DS-004: Autoencoder Anomaly Detection",
+      "file_path": "ml_engine/autoencoder.py",
+      "class_name": "AutoencoderAnomalyDetector",
+      "method_name": "detect",
+      "input_used": "NumPy arrays",
+      "expected_output": "Anomaly score higher for suspicious transaction",
+      "observed_output": "Exception: No module named 'ml_engine.autoencoder'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 358, in panel_data_scientist\n    from ml_engine.autoencoder import AutoencoderAnomalyDetector\nModuleNotFoundError: No module named 'ml_engine.autoencoder'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.32711029052734375
+    },
+    {
+      "test_name": "DS-005: BiLSTM Sequence Analysis",
+      "file_path": "ml_engine/bilstm.py",
+      "class_name": "BiLSTMSequenceAnalyzer",
+      "method_name": "analyze_sequence",
+      "input_used": "Transaction sequence list",
+      "expected_output": "Risk assessment with score",
+      "observed_output": "Exception: No module named 'ml_engine.bilstm'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 405, in panel_data_scientist\n    from ml_engine.bilstm import BiLSTMSequenceAnalyzer\nModuleNotFoundError: No module named 'ml_engine.bilstm'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.3571510314941406
+    },
+    {
+      "test_name": "DS-006: Mixture of Experts Prediction",
+      "file_path": "ml_engine/mixture_of_experts.py",
+      "class_name": "MixtureOfExperts",
+      "method_name": "predict",
+      "input_used": "{'amount': 1500.0, 'channel': 'pix', 'hour': 14, 'is_new_device': False}",
+      "expected_output": "MoEResult with expert predictions and final probability",
+      "observed_output": "MoEResult(transaction_id='TXN_47f44802', final_prediction=False, final_probability=0.5, expert_weights={'transaction_pattern': 0.125, 'behavioral_anomaly': 0.125, 'velocity_analysis': 0.125, 'device_fingerprint': 0.125, 'social_engineering': 0.125, 'pix_specific': 0.125, 'high_value': 0.125, 'night_",
+      "evidence": "Has probability: True, Has expert breakdown: True",
+      "status": "PASS",
+      "correction": "",
+      "execution_time_ms": 641.5450572967529
+    },
+    {
+      "test_name": "ML-001: Production Engine DataFrame Predict",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "DataFrame with 2 transactions",
+      "expected_output": "Array of predictions",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 535, in panel_ml_engineer\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "Ensure ProductionFraudEngine.predict() accepts DataFrame input",
+      "execution_time_ms": 0.5884170532226562
+    },
+    {
+      "test_name": "ML-002: Model Persistence",
+      "file_path": "models/production/",
+      "class_name": "N/A",
+      "method_name": "N/A",
+      "input_used": "Check 8 required models",
+      "expected_output": "All 8 models present",
+      "observed_output": "Found: 8, Missing: 0",
+      "evidence": "Found: ['random_forest.pkl', 'gradient_boosting.pkl', 'extra_trees_gnn.pkl', 'mlp.pkl', 'isolation_forest.pkl', 'autoencoder_model.pkl', 'bilstm_model.pkl', 'scaler.pkl'], Missing: []",
+      "status": "PASS",
+      "correction": "",
+      "execution_time_ms": 0.4794597625732422
+    },
+    {
+      "test_name": "ML-003: Ensemble Model Predictions",
+      "file_path": "models/production/",
+      "class_name": "Ensemble Models",
+      "method_name": "predict",
+      "input_used": "Test array",
+      "expected_output": "Predictions from all models",
+      "observed_output": "Exception: X has 5 features, but RandomForestClassifier is expecting 7 features as input.",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 646, in panel_ml_engineer\n    pred = model.predict(test_data)\n  File \"C:\\Users\\davis\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\sklearn\\ensemble\\_forest.py\", line 903, in predict\n    proba = self.predict_proba(X)\n  File \"C:\\Users\\davis\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\sklearn\\ensemble\\_forest.p",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 22.365808486938477
+    },
+    {
+      "test_name": "ML-004: CatBoost Model",
+      "file_path": "models/production/catboost_model.cbm",
+      "class_name": "CatBoostClassifier",
+      "method_name": "predict",
+      "input_used": "N/A",
+      "expected_output": "Model file exists",
+      "observed_output": "File not found",
+      "evidence": "CatBoost model not trained",
+      "status": "WARN",
+      "correction": "",
+      "execution_time_ms": 0.10061264038085938
+    },
+    {
+      "test_name": "ML-005: Inference Latency",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Single transaction",
+      "expected_output": "<100ms average latency",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 750, in panel_ml_engineer\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.5054473876953125
+    },
+    {
+      "test_name": "ML-006: Integrated Ensemble",
+      "file_path": "ml_engine/integration.py",
+      "class_name": "IntegratedEnsemble",
+      "method_name": "predict_combined",
+      "input_used": "Transaction dict",
+      "expected_output": "Combined prediction result",
+      "observed_output": "Exception: No module named 'ml_engine.integration'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 803, in panel_ml_engineer\n    from ml_engine.integration import IntegratedEnsemble\nModuleNotFoundError: No module named 'ml_engine.integration'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.47707557678222656
+    },
+    {
+      "test_name": "BE-001: API Contract - Dict to DataFrame",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Dict from API",
+      "expected_output": "Prediction after conversion",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 887, in panel_backend_engineer\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "Ensure API layer converts dict to DataFrame before calling predict()",
+      "execution_time_ms": 0.5080699920654297
+    },
+    {
+      "test_name": "BE-002: Missing Fields Handling",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Partial input",
+      "expected_output": "Graceful handling",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 936, in panel_backend_engineer\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.4439353942871094
+    },
+    {
+      "test_name": "BE-003: Invalid Input Types",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Invalid types",
+      "expected_output": "Error or coercion",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 996, in panel_backend_engineer\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.4131793975830078
+    },
+    {
+      "test_name": "BE-004: Batch Processing",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Batch of 100 transactions",
+      "expected_output": "100 predictions",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1052, in panel_backend_engineer\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.4487037658691406
+    },
+    {
+      "test_name": "BE-005: Mule Detector API",
+      "file_path": "ml_engine/mule_detection.py",
+      "class_name": "MuleDetector",
+      "method_name": "detect",
+      "input_used": "Account data",
+      "expected_output": "Detection result",
+      "observed_output": "Exception: MuleDetector.detect() missing 2 required positional arguments: 'account_data' and 'transaction_history'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1119, in panel_backend_engineer\n    result = detector.detect(account_data)\nTypeError: MuleDetector.detect() missing 2 required positional arguments: 'account_data' and 'transaction_history'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 13.451099395751953
+    },
+    {
+      "test_name": "OPS-001: Model Versioning",
+      "file_path": "models/production/ensemble_config.json",
+      "class_name": "N/A",
+      "method_name": "N/A",
+      "input_used": "Config file inspection",
+      "expected_output": "Version info and metrics",
+      "observed_output": "Keys: ['weights', 'ensemble_auc', 'individual_aucs', 'trained_at', 'feature_cols']",
+      "evidence": "Has version: True, Has metrics: False",
+      "status": "PASS",
+      "correction": "",
+      "execution_time_ms": 1.165151596069336
+    },
+    {
+      "test_name": "OPS-002: Logging Infrastructure",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "N/A",
+      "input_used": "Source inspection",
+      "expected_output": "Logger configured",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1249, in panel_mlops\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.4105567932128906
+    },
+    {
+      "test_name": "OPS-003: Graceful Degradation",
+      "file_path": "ml_engine/",
+      "class_name": "Various",
+      "method_name": "N/A",
+      "input_used": "Optional deps",
+      "expected_output": "Fallback mode",
+      "observed_output": "Exception: 'NoneType' object has no attribute 'Tensor'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1290, in panel_mlops\n    from ml_engine.gnn.fraud_gnn import HAS_TORCH, HAS_PYG\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\ml_engine\\gnn\\__init__.py\", line 12, in <module>\n    from .fraud_gnn import (\n    ...<3 lines>...\n    )\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 6.897687911987305
+    },
+    {
+      "test_name": "OPS-004: Model Size Check",
+      "file_path": "models/production/",
+      "class_name": "N/A",
+      "method_name": "N/A",
+      "input_used": "File size inspection",
+      "expected_output": "Total size < 100MB for fast loading",
+      "observed_output": "Total: 3.74MB, Files: 14",
+      "evidence": "Sizes (KB): {'autoencoder_metrics.json': 0.30859375, 'autoencoder_model.pkl': 88.244140625, 'bilstm_metrics.json': 0.1552734375, 'bilstm_model.pkl': 681.2666015625, 'catboost_fraud_model.cbm': 13.00390625, 'catboost_fraud_model.cbm.meta': 0.5478515625, 'catboost_metrics.json': 1.7353515625, 'ensemble_config.json': 0.6943359375, 'extra_trees_gnn.pkl': 568.9501953125, 'gradient_boosting.pkl': 270.3525390625, 'isolation_forest.pkl': 1618.2373046875, 'mlp.pkl': 89.818359375, 'random_forest.pkl': 496.4453125, 'scaler.pkl': 0.603515625}",
+      "status": "PASS",
+      "correction": "",
+      "execution_time_ms": 1.3093948364257812
+    },
+    {
+      "test_name": "BANK-001: End-to-End Fraud Detection",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Fraud and normal scenarios",
+      "expected_output": "Correct classification",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1415, in panel_banking_production\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.5385875701904297
+    },
+    {
+      "test_name": "BANK-002: PIX Channel Detection",
+      "file_path": "ml_engine/mixture_of_experts.py",
+      "class_name": "MixtureOfExperts",
+      "method_name": "predict",
+      "input_used": "{'amount': 5000.0, 'channel': 'pix', 'hour': 22, 'is_new_device': True}",
+      "expected_output": "PIX expert activation",
+      "observed_output": "MoEResult(transaction_id='TXN_23fde27e', final_prediction=False, final_probability=0.5, expert_weights={'transaction_pattern': 0.125, 'behavioral_anomaly': 0.125, 'velocity_analysis': 0.125, 'device_fingerprint': 0.125, 'social_engineering': 0.125, 'pix_specific': 0.125, 'high_value': 0.125, 'night_",
+      "evidence": "Channel-specific handling: True",
+      "status": "PASS",
+      "correction": "",
+      "execution_time_ms": 0.15497207641601562
+    },
+    {
+      "test_name": "BANK-003: Explainability for Audit",
+      "file_path": "ml_engine/explainability.py",
+      "class_name": "Various",
+      "method_name": "N/A",
+      "input_used": "Module inspection",
+      "expected_output": "Explainability support",
+      "observed_output": "Exception: cannot import name 'explainability' from 'ml_engine' (unknown location)",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1521, in panel_banking_production\n    from ml_engine import explainability\nImportError: cannot import name 'explainability' from 'ml_engine' (unknown location)\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.42700767517089844
+    },
+    {
+      "test_name": "BANK-004: PII Protection in Logs",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "N/A",
+      "input_used": "Source inspection",
+      "expected_output": "No PII risks",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1559, in panel_banking_production\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.335693359375
+    },
+    {
+      "test_name": "BANK-005: Deterministic Predictions",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Same transaction 5x",
+      "expected_output": "Deterministic results",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1606, in panel_banking_production\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.35858154296875
+    }
+  ],
+  "inventory": {
+    "files": [
+      "ml_engine\\advanced_feature_engineering.py",
+      "ml_engine\\advanced_modules_orchestrator.py",
+      "ml_engine\\autoencoder_anomaly_detector.py",
+      "ml_engine\\automl_pipeline.py",
+      "ml_engine\\bahnsen_feature_engineering.py",
+      "ml_engine\\bilstm_sequence_analyzer.py",
+      "ml_engine\\catboost_model.py",
+      "ml_engine\\causal_inference.py",
+      "ml_engine\\continuous_learning_system.py",
+      "ml_engine\\dataset_loaders.py",
+      "ml_engine\\data_balancer.py",
+      "ml_engine\\device_fingerprint.py",
+      "ml_engine\\ensemble_integration.py",
+      "ml_engine\\explainability_engine.py",
+      "ml_engine\\feature_engineering.py",
+      "ml_engine\\feature_store.py",
+      "ml_engine\\federated_learning.py",
+      "ml_engine\\gnn_fraud_detector.py",
+      "ml_engine\\graph_ml_engine.py",
+      "ml_engine\\graph_neural_networks.py",
+      "ml_engine\\hard_rules_engine.py",
+      "ml_engine\\huggingface_integration.py",
+      "ml_engine\\huggingface_integration_backup.py",
+      "ml_engine\\mixture_of_experts.py",
+      "ml_engine\\multi_armed_bandits.py",
+      "ml_engine\\nlp_social_engineering.py",
+      "ml_engine\\onnx_serving.py",
+      "ml_engine\\pix_fraud_taxonomy.py",
+      "ml_engine\\probability_calibration.py",
+      "ml_engine\\production_fraud_engine.py",
+      "ml_engine\\self_explainable_module.py",
+      "ml_engine\\self_training_optimizer.py",
+      "ml_engine\\threshold_optimizer.py",
+      "ml_engine\\transfer_learning_pipeline.py",
+      "ml_engine\\app_fraud\\conversation_scorer.py",
+      "ml_engine\\app_fraud\\duress_detector.py",
+      "ml_engine\\app_fraud\\intervention_engine.py",
+      "ml_engine\\app_fraud\\scam_detector.py",
+      "ml_engine\\app_fraud\\session_analyzer.py",
+      "ml_engine\\app_fraud\\__init__.py",
+      "ml_engine\\behavioral\\behavioral_analyzer.py",
+      "ml_engine\\behavioral\\device_analyzer.py",
+      "ml_engine\\behavioral\\keystroke_analyzer.py",
+      "ml_engine\\behavioral\\mouse_analyzer.py",
+      "ml_engine\\behavioral\\__init__.py",
+      "ml_engine\\feature_engineering\\aggregation_features.py",
+      "ml_engine\\feature_engineering\\embedding_features.py",
+      "ml_engine\\feature_engineering\\feature_generator.py",
+      "ml_engine\\feature_engineering\\graph_features.py",
+      "ml_engine\\feature_engineering\\temporal_features.py",
+      "ml_engine\\feature_engineering\\velocity_features.py",
+      "ml_engine\\feature_engineering\\__init__.py",
+      "ml_engine\\gnn\\fraud_gnn.py",
+      "ml_engine\\gnn\\fraud_gnn_backup.py",
+      "ml_engine\\gnn\\gnn_trainer.py",
+      "ml_engine\\gnn\\gnn_trainer_backup.py",
+      "ml_engine\\gnn\\graph_builder.py",
+      "ml_engine\\gnn\\graph_builder_backup.py",
+      "ml_engine\\gnn\\temporal_gnn.py",
+      "ml_engine\\gnn\\temporal_gnn_backup.py",
+      "ml_engine\\gnn\\__init__.py",
+      "ml_engine\\llm\\embeddings.py",
+      "ml_engine\\llm\\explanation_generator.py",
+      "ml_engine\\llm\\fraud_llm.py",
+      "ml_engine\\llm\\scam_detector.py",
+      "ml_engine\\llm\\__init__.py",
+      "ml_engine\\mule_detection\\dormancy_analyzer.py",
+      "ml_engine\\mule_detection\\mule_detector.py",
+      "ml_engine\\mule_detection\\network_position_analyzer.py",
+      "ml_engine\\mule_detection\\turnover_analyzer.py",
+      "ml_engine\\mule_detection\\__init__.py"
+    ],
+    "classes": [
+      {
+        "file": "ml_engine\\advanced_feature_engineering.py",
+        "name": "AdvancedFeatureEngineering",
+        "line": 18,
+        "methods": [
+          "__init__",
+          "create_features",
+          "_create_temporal_features",
+          "_create_value_features",
+          "_create_client_behavior_features",
+          "_create_device_features",
+          "_create_location_features",
+          "_create_channel_type_features",
+          "_create_velocity_features",
+          "_create_location_entropy_features",
+          "_create_transaction_pattern_features",
+          "get_feature_names"
+        ]
+      },
+      {
+        "file": "ml_engine\\advanced_modules_orchestrator.py",
+        "name": "EnrichmentLevel",
+        "line": 19,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\advanced_modules_orchestrator.py",
+        "name": "EnrichedPrediction",
+        "line": 29,
+        "methods": [
+          "to_dict"
+        ]
+      },
+      {
+        "file": "ml_engine\\advanced_modules_orchestrator.py",
+        "name": "OrchestratorConfig",
+        "line": 56,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\advanced_modules_orchestrator.py",
+        "name": "AdvancedModulesOrchestrator",
+        "line": 70,
+        "methods": [
+          "__init__",
+          "_load_modules",
+          "enrich_prediction",
+          "_determine_enrichment_level",
+          "_enrich_parallel",
+          "_enrich_sequential",
+          "_run_autoencoder",
+          "_run_sequence_analysis",
+          "_run_moe",
+          "_run_gnn",
+          "_run_explainer",
+          "_apply_result",
+          "_adjust_final_prediction",
+          "get_module_status",
+          "train_modules"
+        ]
+      },
+      {
+        "file": "ml_engine\\autoencoder_anomaly_detector.py",
+        "name": "AnomalyResult",
+        "line": 35,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\autoencoder_anomaly_detector.py",
+        "name": "AutoencoderMetrics",
+        "line": 50,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\autoencoder_anomaly_detector.py",
+        "name": "AutoencoderAnomalyDetector",
+        "line": 60,
+        "methods": [
+          "__init__",
+          "_build_model",
+          "_build_simple_model",
+          "_prepare_features",
+          "fit",
+          "detect_anomaly",
+          "_create_default_result",
+          "batch_detect",
+          "get_latent_representation",
+          "update_threshold",
+          "get_status"
+        ]
+      },
+      {
+        "file": "ml_engine\\automl_pipeline.py",
+        "name": "H2OAutoMLFraudDetector",
+        "line": 30,
+        "methods": [
+          "__init__",
+          "_initialize_h2o",
+          "get_feature_importance",
+          "get_leaderboard",
+          "save_best_model",
+          "load_model",
+          "shutdown_h2o"
+        ]
+      },
+      {
+        "file": "ml_engine\\automl_pipeline.py",
+        "name": "AutoFeatureEngineering",
+        "line": 284,
+        "methods": [
+          "engineer_features",
+          "select_features"
+        ]
+      },
+      {
+        "file": "ml_engine\\automl_pipeline.py",
+        "name": "AutoMLPipeline",
+        "line": 396,
+        "methods": [
+          "__init__",
+          "save_pipeline",
+          "shutdown"
+        ]
+      },
+      {
+        "file": "ml_engine\\bahnsen_feature_engineering.py",
+        "name": "UserBehaviorProfile",
+        "line": 29,
+        "methods": [
+          "update"
+        ]
+      },
+      {
+        "file": "ml_engine\\bahnsen_feature_engineering.py",
+        "name": "BahnsenFeatureEngineering",
+        "line": 83,
+        "methods": [
+          "__init__",
+          "calculate_temporal_aggregations",
+          "calculate_periodic_features",
+          "calculate_behavioral_deviation",
+          "calculate_velocity_features",
+          "calculate_channel_risk",
+          "add_transaction_to_history",
+          "generate_all_features",
+          "transform_dataframe",
+          "get_feature_names",
+          "get_feature_importance_weights"
+        ]
+      },
+      {
+        "file": "ml_engine\\bilstm_sequence_analyzer.py",
+        "name": "SequencePattern",
+        "line": 36,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\bilstm_sequence_analyzer.py",
+        "name": "SequenceAnalysisResult",
+        "line": 46,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\bilstm_sequence_analyzer.py",
+        "name": "TransactionSequenceBuffer",
+        "line": 61,
+        "methods": [
+          "__init__",
+          "add_transaction",
+          "get_sequence",
+          "get_sequence_features"
+        ]
+      },
+      {
+        "file": "ml_engine\\bilstm_sequence_analyzer.py",
+        "name": "AttentionLayer",
+        "line": 105,
+        "methods": [
+          "__init__",
+          "compute_attention"
+        ]
+      },
+      {
+        "file": "ml_engine\\bilstm_sequence_analyzer.py",
+        "name": "BiLSTMSequenceAnalyzer",
+        "line": 126,
+        "methods": [
+          "__init__",
+          "_build_model",
+          "update_user_baseline",
+          "add_transaction",
+          "analyze_sequence",
+          "_analyze_temporal_patterns",
+          "_analyze_velocity",
+          "_detect_pattern_breaks",
+          "_detect_suspicious_patterns",
+          "_compute_attention_weights",
+          "_generate_recommendation",
+          "_create_default_result",
+          "get_user_profile",
+          "get_status"
+        ]
+      },
+      {
+        "file": "ml_engine\\catboost_model.py",
+        "name": "CatBoostPrediction",
+        "line": 28,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\catboost_model.py",
+        "name": "CatBoostFraudModel",
+        "line": 38,
+        "methods": [
+          "__init__",
+          "_initialize_model",
+          "get_categorical_features",
+          "preprocess_data",
+          "train",
+          "predict",
+          "predict_proba",
+          "get_feature_importance",
+          "get_shap_values",
+          "save",
+          "load"
+        ]
+      },
+      {
+        "file": "ml_engine\\catboost_model.py",
+        "name": "CatBoostEnsembleIntegration",
+        "line": 343,
+        "methods": [
+          "__init__",
+          "get_ensemble_prediction"
+        ]
+      },
+      {
+        "file": "ml_engine\\causal_inference.py",
+        "name": "CausalEffect",
+        "line": 40,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\causal_inference.py",
+        "name": "CausalImpactAnalyzer",
+        "line": 52,
+        "methods": [
+          "__init__",
+          "analyze_rule_impact",
+          "_create_causal_graph",
+          "run_sensitivity_analysis"
+        ]
+      },
+      {
+        "file": "ml_engine\\causal_inference.py",
+        "name": "UpliftModeling",
+        "line": 233,
+        "methods": [
+          "__init__",
+          "fit",
+          "predict_uplift",
+          "get_top_responders"
+        ]
+      },
+      {
+        "file": "ml_engine\\causal_inference.py",
+        "name": "ABTestCausalAnalyzer",
+        "line": 337,
+        "methods": [
+          "__init__",
+          "analyze_ab_test",
+          "_apply_cuped"
+        ]
+      },
+      {
+        "file": "ml_engine\\continuous_learning_system.py",
+        "name": "ContinuousLearningSystem",
+        "line": 19,
+        "methods": [
+          "__init__",
+          "_initialize_database",
+          "_initialize_models",
+          "_create_bootstrap_models",
+          "_prepare_features",
+          "store_transaction",
+          "add_analyst_feedback",
+          "_check_retrain_trigger",
+          "_trigger_retrain",
+          "_save_current_models",
+          "_log_model_metrics",
+          "_log_retrain",
+          "predict_fraud",
+          "get_learning_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\dataset_loaders.py",
+        "name": "DatasetInfo",
+        "line": 24,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\dataset_loaders.py",
+        "name": "DatasetLoader",
+        "line": 34,
+        "methods": [
+          "__init__",
+          "list_available",
+          "load_ciferai",
+          "load_ieee_cis",
+          "load_elliptic",
+          "load_paysim",
+          "load_credit_card_ulb",
+          "_add_pix_features",
+          "prepare_for_training"
+        ]
+      },
+      {
+        "file": "ml_engine\\dataset_loaders.py",
+        "name": "PIXFeatureEngineer",
+        "line": 391,
+        "methods": [
+          "__init__",
+          "extract_features",
+          "_extract_bacen_features",
+          "_extract_velocity_features",
+          "_extract_behavioral_features",
+          "update_user_history"
+        ]
+      },
+      {
+        "file": "ml_engine\\data_balancer.py",
+        "name": "DataBalancer",
+        "line": 17,
+        "methods": [
+          "__init__",
+          "balance",
+          "_undersample",
+          "_oversample",
+          "_hybrid_sampling",
+          "get_class_weights"
+        ]
+      },
+      {
+        "file": "ml_engine\\device_fingerprint.py",
+        "name": "DeviceRiskScore",
+        "line": 36,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\device_fingerprint.py",
+        "name": "DeviceProfile",
+        "line": 49,
+        "methods": [
+          "__post_init__"
+        ]
+      },
+      {
+        "file": "ml_engine\\device_fingerprint.py",
+        "name": "DeviceFingerprintPersistence",
+        "line": 86,
+        "methods": [
+          "save_device",
+          "get_device",
+          "get_user_devices",
+          "get_device_users",
+          "update_device"
+        ]
+      },
+      {
+        "file": "ml_engine\\device_fingerprint.py",
+        "name": "InMemoryPersistence",
+        "line": 108,
+        "methods": [
+          "__init__",
+          "save_device",
+          "get_device",
+          "get_user_devices",
+          "get_device_users",
+          "update_device"
+        ]
+      },
+      {
+        "file": "ml_engine\\device_fingerprint.py",
+        "name": "PostgresPersistence",
+        "line": 158,
+        "methods": [
+          "__init__",
+          "save_device",
+          "get_device",
+          "get_user_devices",
+          "get_device_users",
+          "update_device"
+        ]
+      },
+      {
+        "file": "ml_engine\\device_fingerprint.py",
+        "name": "DeviceFingerprintAnalyzer",
+        "line": 301,
+        "methods": [
+          "__init__",
+          "analyze",
+          "_generate_fingerprint",
+          "_is_known_device",
+          "_check_timezone",
+          "_detect_vpn_proxy",
+          "_detect_emulator",
+          "_detect_headless",
+          "_check_multiple_users",
+          "_check_hardware_anomalies",
+          "_hash_components",
+          "_update_device_registry",
+          "register_trusted_device",
+          "get_user_devices",
+          "get_device_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\ensemble_integration.py",
+        "name": "EnsemblePrediction",
+        "line": 20,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\ensemble_integration.py",
+        "name": "IntegratedEnsemble",
+        "line": 36,
+        "methods": [
+          "__init__",
+          "weights",
+          "weights",
+          "_initialize_models",
+          "_adjust_weights",
+          "calibrate_weights",
+          "train_catboost",
+          "add_transactions_to_gnn",
+          "predict_combined",
+          "get_ensemble_info"
+        ]
+      },
+      {
+        "file": "ml_engine\\explainability_engine.py",
+        "name": "FeatureContribution",
+        "line": 20,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\explainability_engine.py",
+        "name": "PredictionExplanation",
+        "line": 31,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\explainability_engine.py",
+        "name": "ExplainabilityEngine",
+        "line": 44,
+        "methods": [
+          "__init__",
+          "initialize_shap",
+          "_calculate_fallback_importance",
+          "explain_prediction",
+          "get_fast_explanation",
+          "_get_shap_contributions",
+          "_get_fallback_contributions",
+          "_contribution_to_dict",
+          "_get_risk_level",
+          "_generate_explanation_text",
+          "_create_fallback_explanation",
+          "get_global_importance",
+          "get_top_features",
+          "explain_batch",
+          "to_compliance_report"
+        ]
+      },
+      {
+        "file": "ml_engine\\feature_engineering.py",
+        "name": "AutoFeatureEngineering",
+        "line": 41,
+        "methods": [
+          "__init__",
+          "generate_features_featuretools",
+          "generate_features_tsfresh",
+          "generate_business_features",
+          "transform"
+        ]
+      },
+      {
+        "file": "ml_engine\\feature_store.py",
+        "name": "FeatureStore",
+        "line": 17,
+        "methods": [
+          "__init__",
+          "_make_key",
+          "get_features",
+          "set_features",
+          "get_or_compute",
+          "invalidate",
+          "get_hit_rate",
+          "get_stats",
+          "bulk_get",
+          "health_check"
+        ]
+      },
+      {
+        "file": "ml_engine\\federated_learning.py",
+        "name": "FederatedConfig",
+        "line": 22,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\federated_learning.py",
+        "name": "ClientUpdate",
+        "line": 38,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\federated_learning.py",
+        "name": "GlobalModel",
+        "line": 50,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\federated_learning.py",
+        "name": "DifferentialPrivacy",
+        "line": 60,
+        "methods": [
+          "__init__",
+          "clip_gradients",
+          "add_noise",
+          "get_privacy_spent"
+        ]
+      },
+      {
+        "file": "ml_engine\\federated_learning.py",
+        "name": "SecureAggregation",
+        "line": 109,
+        "methods": [
+          "__init__",
+          "generate_mask",
+          "mask_update",
+          "aggregate_masked"
+        ]
+      },
+      {
+        "file": "ml_engine\\federated_learning.py",
+        "name": "FederatedClient",
+        "line": 149,
+        "methods": [
+          "__init__",
+          "set_local_data",
+          "train_local",
+          "evaluate_local"
+        ]
+      },
+      {
+        "file": "ml_engine\\federated_learning.py",
+        "name": "SklearnFederatedClient",
+        "line": 179,
+        "methods": [
+          "__init__",
+          "set_local_data",
+          "_get_model_weights",
+          "_set_model_weights",
+          "train_local",
+          "evaluate_local"
+        ]
+      },
+      {
+        "file": "ml_engine\\federated_learning.py",
+        "name": "FederatedServer",
+        "line": 282,
+        "methods": [
+          "__init__",
+          "register_client",
+          "initialize_global_model",
+          "select_clients",
+          "aggregate_updates",
+          "_fedavg_aggregate",
+          "run_round",
+          "train",
+          "_check_convergence",
+          "get_global_weights",
+          "get_training_history",
+          "save_global_model"
+        ]
+      },
+      {
+        "file": "ml_engine\\federated_learning.py",
+        "name": "FederatedFraudDetection",
+        "line": 467,
+        "methods": [
+          "__init__",
+          "add_bank_data",
+          "train",
+          "get_global_model",
+          "predict"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn_fraud_detector.py",
+        "name": "GraphNode",
+        "line": 30,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\gnn_fraud_detector.py",
+        "name": "GraphEdge",
+        "line": 42,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\gnn_fraud_detector.py",
+        "name": "GNNPrediction",
+        "line": 54,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\gnn_fraud_detector.py",
+        "name": "TransactionGraph",
+        "line": 68,
+        "methods": [
+          "__init__",
+          "_evict_stale_nodes",
+          "_enforce_size_limits",
+          "_remove_node_safely",
+          "_update_node_access_time",
+          "_generate_node_id",
+          "add_transaction",
+          "_add_or_update_node",
+          "_update_node_fraud_count",
+          "_update_node_transaction_count",
+          "_recalculate_node_risk",
+          "get_neighbor_fraud_rate",
+          "get_centrality_score",
+          "detect_communities",
+          "get_community_risk",
+          "detect_suspicious_patterns"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn_fraud_detector.py",
+        "name": "GNNFraudDetector",
+        "line": 472,
+        "methods": [
+          "__init__",
+          "add_historical_transactions",
+          "analyze_transaction",
+          "get_graph_stats",
+          "get_high_risk_entities"
+        ]
+      },
+      {
+        "file": "ml_engine\\graph_ml_engine.py",
+        "name": "GraphNode",
+        "line": 19,
+        "methods": [
+          "__post_init__"
+        ]
+      },
+      {
+        "file": "ml_engine\\graph_ml_engine.py",
+        "name": "GraphEdge",
+        "line": 32,
+        "methods": [
+          "__post_init__"
+        ]
+      },
+      {
+        "file": "ml_engine\\graph_ml_engine.py",
+        "name": "FraudGraphBuilder",
+        "line": 48,
+        "methods": [
+          "__init__",
+          "add_transaction",
+          "detect_fraud_rings",
+          "detect_mules"
+        ]
+      },
+      {
+        "file": "ml_engine\\graph_ml_engine.py",
+        "name": "GraphFeatureExtractor",
+        "line": 192,
+        "methods": [
+          "__init__",
+          "extract_features",
+          "extract_batch_features"
+        ]
+      },
+      {
+        "file": "ml_engine\\graph_ml_engine.py",
+        "name": "FraudPropagationScore",
+        "line": 287,
+        "methods": [
+          "__init__",
+          "propagate_risk"
+        ]
+      },
+      {
+        "file": "ml_engine\\graph_ml_engine.py",
+        "name": "GraphMLEngine",
+        "line": 343,
+        "methods": [
+          "__init__",
+          "ingest_transactions",
+          "analyze_transaction",
+          "get_graph_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\graph_neural_networks.py",
+        "name": "GraphNode",
+        "line": 38,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\graph_neural_networks.py",
+        "name": "GraphEdge",
+        "line": 47,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\graph_neural_networks.py",
+        "name": "FraudGNNModel",
+        "line": 56,
+        "methods": [
+          "__init__",
+          "forward",
+          "predict_proba"
+        ]
+      },
+      {
+        "file": "ml_engine\\graph_neural_networks.py",
+        "name": "TransactionGraphBuilder",
+        "line": 164,
+        "methods": [
+          "__init__",
+          "add_transaction",
+          "_extract_customer_features",
+          "_extract_merchant_features",
+          "_extract_device_features",
+          "build_pytorch_geometric_data",
+          "get_graph_statistics"
+        ]
+      },
+      {
+        "file": "ml_engine\\graph_neural_networks.py",
+        "name": "GNNFraudDetector",
+        "line": 341,
+        "methods": [
+          "__init__",
+          "_load_model",
+          "_get_neighbors",
+          "save_model"
+        ]
+      },
+      {
+        "file": "ml_engine\\graph_neural_networks.py",
+        "name": "_BaseModule",
+        "line": 28,
+        "methods": [
+          "__init__"
+        ]
+      },
+      {
+        "file": "ml_engine\\hard_rules_engine.py",
+        "name": "HardRulePrediction",
+        "line": 24,
+        "methods": [
+          "to_dict",
+          "to_unified_response"
+        ]
+      },
+      {
+        "file": "ml_engine\\hard_rules_engine.py",
+        "name": "HardRulesEngine",
+        "line": 69,
+        "methods": [
+          "__init__",
+          "_get_connection",
+          "_load_rules",
+          "_evaluate_condition",
+          "_evaluate_rule",
+          "evaluate",
+          "evaluate_batch",
+          "get_rules_count",
+          "get_rules_summary"
+        ]
+      },
+      {
+        "file": "ml_engine\\hard_rules_engine.py",
+        "name": "UnifiedFraudEngine",
+        "line": 342,
+        "methods": [
+          "__init__",
+          "evaluate"
+        ]
+      },
+      {
+        "file": "ml_engine\\huggingface_integration.py",
+        "name": "HuggingFaceFraudDetector",
+        "line": 43,
+        "methods": [
+          "__init__",
+          "_load_model",
+          "predict_fraud",
+          "predict_batch",
+          "_features_to_string"
+        ]
+      },
+      {
+        "file": "ml_engine\\huggingface_integration.py",
+        "name": "HuggingFaceDatasetLoader",
+        "line": 158,
+        "methods": [
+          "load_cifer_dataset",
+          "load_credit_card_dataset",
+          "prepare_for_sankofa",
+          "_preprocess",
+          "get_feature_statistics"
+        ]
+      },
+      {
+        "file": "ml_engine\\huggingface_integration.py",
+        "name": "HuggingFaceTransferLearning",
+        "line": 279,
+        "methods": [
+          "__init__",
+          "fine_tune",
+          "save_model"
+        ]
+      },
+      {
+        "file": "ml_engine\\huggingface_integration_backup.py",
+        "name": "HuggingFaceFraudDetector",
+        "line": 17,
+        "methods": [
+          "__init__",
+          "_load_model",
+          "predict_fraud",
+          "predict_batch",
+          "_features_to_string"
+        ]
+      },
+      {
+        "file": "ml_engine\\huggingface_integration_backup.py",
+        "name": "HuggingFaceDatasetLoader",
+        "line": 126,
+        "methods": [
+          "load_cifer_dataset",
+          "load_credit_card_dataset",
+          "prepare_for_sankofa",
+          "_preprocess",
+          "get_feature_statistics"
+        ]
+      },
+      {
+        "file": "ml_engine\\huggingface_integration_backup.py",
+        "name": "HuggingFaceTransferLearning",
+        "line": 247,
+        "methods": [
+          "__init__",
+          "fine_tune",
+          "save_model"
+        ]
+      },
+      {
+        "file": "ml_engine\\mixture_of_experts.py",
+        "name": "ExpertType",
+        "line": 29,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\mixture_of_experts.py",
+        "name": "ExpertPrediction",
+        "line": 43,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\mixture_of_experts.py",
+        "name": "MoEResult",
+        "line": 54,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\mixture_of_experts.py",
+        "name": "Expert",
+        "line": 68,
+        "methods": [
+          "__init__",
+          "_create_model",
+          "fit",
+          "predict",
+          "_generate_reasoning"
+        ]
+      },
+      {
+        "file": "ml_engine\\mixture_of_experts.py",
+        "name": "GatingNetwork",
+        "line": 186,
+        "methods": [
+          "__init__",
+          "fit",
+          "route"
+        ]
+      },
+      {
+        "file": "ml_engine\\mixture_of_experts.py",
+        "name": "MixtureOfExperts",
+        "line": 232,
+        "methods": [
+          "__init__",
+          "_initialize_experts",
+          "fit",
+          "predict",
+          "_aggregate_predictions",
+          "_calculate_consensus",
+          "_determine_routing",
+          "get_expert_status"
+        ]
+      },
+      {
+        "file": "ml_engine\\multi_armed_bandits.py",
+        "name": "ChallengeType",
+        "line": 19,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\multi_armed_bandits.py",
+        "name": "BanditArm",
+        "line": 31,
+        "methods": [
+          "sample",
+          "update",
+          "get_expected_value",
+          "get_confidence_interval"
+        ]
+      },
+      {
+        "file": "ml_engine\\multi_armed_bandits.py",
+        "name": "ContextualBandit",
+        "line": 71,
+        "methods": [
+          "__init__",
+          "_extract_context",
+          "get_arm_stats",
+          "get_metrics"
+        ]
+      },
+      {
+        "file": "ml_engine\\multi_armed_bandits.py",
+        "name": "StepUpMFAOptimizer",
+        "line": 310,
+        "methods": [
+          "__init__",
+          "get_performance_metrics"
+        ]
+      },
+      {
+        "file": "ml_engine\\nlp_social_engineering.py",
+        "name": "SocialEngineeringAnalysis",
+        "line": 23,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\nlp_social_engineering.py",
+        "name": "NLPSocialEngineeringDetector",
+        "line": 38,
+        "methods": [
+          "__init__",
+          "_compile_patterns",
+          "analyze_text",
+          "_normalize_text",
+          "_calculate_urgency_score",
+          "_calculate_emotional_score",
+          "_check_bank_impersonation",
+          "_check_phishing_links",
+          "_check_pix_fraud",
+          "_check_whatsapp_clone",
+          "_check_blacklist_keywords",
+          "batch_analyze",
+          "get_pattern_summary"
+        ]
+      },
+      {
+        "file": "ml_engine\\onnx_serving.py",
+        "name": "ONNXModelConverter",
+        "line": 33,
+        "methods": [
+          "convert_sklearn_model",
+          "convert_xgboost_model",
+          "save_onnx_model"
+        ]
+      },
+      {
+        "file": "ml_engine\\onnx_serving.py",
+        "name": "ONNXInferenceSession",
+        "line": 126,
+        "methods": [
+          "__init__",
+          "predict",
+          "predict_batch"
+        ]
+      },
+      {
+        "file": "ml_engine\\onnx_serving.py",
+        "name": "ONNXFraudModelServing",
+        "line": 250,
+        "methods": [
+          "__init__",
+          "_extract_features",
+          "_features_to_array",
+          "_update_metrics",
+          "get_metrics"
+        ]
+      },
+      {
+        "file": "ml_engine\\pix_fraud_taxonomy.py",
+        "name": "PIXFraudType",
+        "line": 31,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\pix_fraud_taxonomy.py",
+        "name": "PIXFraudIndicator",
+        "line": 50,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\pix_fraud_taxonomy.py",
+        "name": "PIXFraudAnalysis",
+        "line": 61,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\pix_fraud_taxonomy.py",
+        "name": "PIXFraudTaxonomy",
+        "line": 74,
+        "methods": [
+          "__init__",
+          "analyze_transaction",
+          "_analyze_temporal_patterns",
+          "_analyze_amount_patterns",
+          "_analyze_receiver_patterns",
+          "_analyze_device_patterns",
+          "_calculate_fraud_type_score",
+          "_generate_explanation",
+          "_generate_compliance_flags",
+          "get_fraud_types_summary"
+        ]
+      },
+      {
+        "file": "ml_engine\\probability_calibration.py",
+        "name": "CalibrationMetrics",
+        "line": 23,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\probability_calibration.py",
+        "name": "ProbabilityCalibrator",
+        "line": 33,
+        "methods": [
+          "__init__",
+          "fit",
+          "calibrate",
+          "evaluate_calibration",
+          "_calculate_ece",
+          "_calculate_mce",
+          "_calculate_brier_score",
+          "get_metrics_summary"
+        ]
+      },
+      {
+        "file": "ml_engine\\probability_calibration.py",
+        "name": "EnsembleCalibrator",
+        "line": 201,
+        "methods": [
+          "__init__",
+          "fit",
+          "calibrate",
+          "get_best_calibrator"
+        ]
+      },
+      {
+        "file": "ml_engine\\production_fraud_engine.py",
+        "name": "FraudPrediction",
+        "line": 83,
+        "methods": [
+          "to_dict"
+        ]
+      },
+      {
+        "file": "ml_engine\\production_fraud_engine.py",
+        "name": "ModelMetrics",
+        "line": 103,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\production_fraud_engine.py",
+        "name": "ProductionFraudEngine",
+        "line": 115,
+        "methods": [
+          "__init__",
+          "_try_load_pretrained_model",
+          "_load_model_data",
+          "_train_and_save_api_model",
+          "_initialize_precision_rules",
+          "_create_derived_features",
+          "train_with_api_features",
+          "_preprocess_data",
+          "_apply_precision_rules",
+          "_calibrate_threshold",
+          "fit",
+          "train",
+          "train_with_bahnsen_features",
+          "_validate_required_features",
+          "predict",
+          "_get_cache",
+          "_check_cache",
+          "_cache_prediction",
+          "get_cache_stats",
+          "predict_detailed",
+          "save",
+          "load",
+          "get_performance_metrics"
+        ]
+      },
+      {
+        "file": "ml_engine\\self_explainable_module.py",
+        "name": "ExplanationMask",
+        "line": 28,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\self_explainable_module.py",
+        "name": "SelfExplanation",
+        "line": 41,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\self_explainable_module.py",
+        "name": "InterpretativeMaskLearner",
+        "line": 56,
+        "methods": [
+          "__init__",
+          "fit",
+          "generate_explanation",
+          "_predict",
+          "_compute_local_importance",
+          "_identify_rule_triggers",
+          "_identify_behavioral_deviations",
+          "_generate_natural_language",
+          "_create_audit_trail",
+          "get_audit_log",
+          "generate_lgpd_report",
+          "get_status"
+        ]
+      },
+      {
+        "file": "ml_engine\\self_training_optimizer.py",
+        "name": "SelfTrainingMetrics",
+        "line": 23,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\self_training_optimizer.py",
+        "name": "SelfTrainingClassifier",
+        "line": 34,
+        "methods": [
+          "__init__",
+          "fit",
+          "_evaluate_model",
+          "predict",
+          "predict_proba",
+          "get_training_history",
+          "get_metrics_summary"
+        ]
+      },
+      {
+        "file": "ml_engine\\self_training_optimizer.py",
+        "name": "AdaptiveSelfTraining",
+        "line": 224,
+        "methods": [
+          "__init__",
+          "fit",
+          "_check_quality",
+          "predict",
+          "predict_proba"
+        ]
+      },
+      {
+        "file": "ml_engine\\threshold_optimizer.py",
+        "name": "ThresholdOptimizer",
+        "line": 17,
+        "methods": [
+          "__init__",
+          "find_optimal_threshold",
+          "plot_threshold_analysis"
+        ]
+      },
+      {
+        "file": "ml_engine\\transfer_learning_pipeline.py",
+        "name": "DatasetConfig",
+        "line": 47,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\transfer_learning_pipeline.py",
+        "name": "TransferLearningResult",
+        "line": 65,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\transfer_learning_pipeline.py",
+        "name": "TransferLearningPipeline",
+        "line": 78,
+        "methods": [
+          "__init__",
+          "load_dataset",
+          "prepare_features",
+          "train_base_model",
+          "evaluate_model",
+          "transfer_learn",
+          "get_dataset_compatibility",
+          "list_supported_datasets",
+          "save_pipeline_state"
+        ]
+      },
+      {
+        "file": "ml_engine\\app_fraud\\conversation_scorer.py",
+        "name": "ConversationRisk",
+        "line": 22,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\app_fraud\\conversation_scorer.py",
+        "name": "ConversationScorer",
+        "line": 38,
+        "methods": [
+          "__init__",
+          "_compile_patterns",
+          "analyze_conversation",
+          "analyze_single_message",
+          "_normalize_text",
+          "_analyze_urgency",
+          "_analyze_emotional",
+          "_analyze_authority",
+          "_analyze_data_requests",
+          "_analyze_scam_patterns",
+          "_analyze_links",
+          "_calculate_risk_score",
+          "_get_risk_level",
+          "_get_recommended_action",
+          "_generate_explanation",
+          "_calculate_confidence"
+        ]
+      },
+      {
+        "file": "ml_engine\\app_fraud\\duress_detector.py",
+        "name": "DuressAnalysis",
+        "line": 20,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\app_fraud\\duress_detector.py",
+        "name": "DuressDetector",
+        "line": 34,
+        "methods": [
+          "__init__",
+          "analyze",
+          "_analyze_typing_pattern",
+          "_analyze_mouse_pattern",
+          "_analyze_session_pattern",
+          "_calculate_duress_probability",
+          "_get_recommended_action",
+          "_generate_explanation",
+          "_calculate_confidence",
+          "update_user_baseline"
+        ]
+      },
+      {
+        "file": "ml_engine\\app_fraud\\intervention_engine.py",
+        "name": "InterventionType",
+        "line": 21,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\app_fraud\\intervention_engine.py",
+        "name": "VerificationMethod",
+        "line": 32,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\app_fraud\\intervention_engine.py",
+        "name": "InterventionDecision",
+        "line": 44,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\app_fraud\\intervention_engine.py",
+        "name": "InterventionEngine",
+        "line": 60,
+        "methods": [
+          "__init__",
+          "decide_intervention",
+          "_generate_message",
+          "_get_next_steps",
+          "process_user_response",
+          "_validate_verification_code",
+          "get_intervention_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\app_fraud\\scam_detector.py",
+        "name": "ScamType",
+        "line": 25,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\app_fraud\\scam_detector.py",
+        "name": "ScamAnalysis",
+        "line": 41,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\app_fraud\\scam_detector.py",
+        "name": "ScamDetector",
+        "line": 56,
+        "methods": [
+          "__init__",
+          "analyze_transaction",
+          "_extract_transaction_features",
+          "_analyze_behavioral_signals",
+          "_analyze_user_pattern",
+          "_identify_risk_indicators",
+          "_calculate_scam_probability",
+          "_classify_scam_type",
+          "_get_risk_level",
+          "_get_recommended_action",
+          "_get_cooling_off_period",
+          "_generate_explanation",
+          "_calculate_confidence",
+          "_is_suspicious_amount",
+          "train",
+          "update_user_pattern",
+          "save_model",
+          "load_model"
+        ]
+      },
+      {
+        "file": "ml_engine\\app_fraud\\session_analyzer.py",
+        "name": "SessionRisk",
+        "line": 21,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\app_fraud\\session_analyzer.py",
+        "name": "SessionAnalyzer",
+        "line": 35,
+        "methods": [
+          "__init__",
+          "start_session",
+          "track_page_visit",
+          "track_field_interaction",
+          "track_event",
+          "analyze_session",
+          "_analyze_navigation_pattern",
+          "_analyze_page_times",
+          "_analyze_field_interactions",
+          "_detect_automation",
+          "_compare_to_baseline",
+          "_analyze_session_speed",
+          "_get_risk_level",
+          "_calculate_confidence",
+          "_is_subsequence",
+          "_path_similarity",
+          "update_user_baseline",
+          "end_session"
+        ]
+      },
+      {
+        "file": "ml_engine\\behavioral\\behavioral_analyzer.py",
+        "name": "BehavioralScore",
+        "line": 22,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\behavioral\\behavioral_analyzer.py",
+        "name": "SessionProfile",
+        "line": 38,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\behavioral\\behavioral_analyzer.py",
+        "name": "UserBaseline",
+        "line": 52,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\behavioral\\behavioral_analyzer.py",
+        "name": "BehavioralAnalyzer",
+        "line": 64,
+        "methods": [
+          "__init__",
+          "analyze",
+          "_get_or_create_baseline",
+          "_analyze_session",
+          "_calculate_overall_score",
+          "_detect_bot",
+          "_detect_duress",
+          "_calculate_confidence",
+          "_generate_explanation",
+          "_update_baseline",
+          "_update_keystroke_baseline",
+          "_update_mouse_baseline",
+          "_update_session_baseline",
+          "_update_device_baseline",
+          "_extract_timings",
+          "_calculate_mouse_linearity",
+          "_calculate_mouse_velocities",
+          "_calculate_mouse_jitter",
+          "_detect_perfect_repetition",
+          "_count_long_pauses",
+          "_calculate_typing_speed",
+          "_calculate_error_rate",
+          "_hash_device",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\behavioral\\device_analyzer.py",
+        "name": "DeviceFingerprint",
+        "line": 22,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\behavioral\\device_analyzer.py",
+        "name": "DeviceHistory",
+        "line": 46,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\behavioral\\device_analyzer.py",
+        "name": "DeviceAnalyzer",
+        "line": 57,
+        "methods": [
+          "__init__",
+          "analyze",
+          "_generate_fingerprint_hash",
+          "_is_known_device",
+          "_calculate_device_age",
+          "_detect_emulator",
+          "_detect_headless",
+          "_detect_proxy",
+          "_detect_vpn",
+          "_detect_tor",
+          "_check_timezone_mismatch",
+          "_check_language_mismatch",
+          "_check_webgl_anomaly",
+          "_check_canvas_anomaly",
+          "_check_audio_anomaly",
+          "_check_screen_anomaly",
+          "_calculate_confidence",
+          "register_device",
+          "get_device_reputation",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\behavioral\\keystroke_analyzer.py",
+        "name": "KeystrokePattern",
+        "line": 22,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\behavioral\\keystroke_analyzer.py",
+        "name": "KeyEvent",
+        "line": 40,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\behavioral\\keystroke_analyzer.py",
+        "name": "KeystrokeAnalyzer",
+        "line": 47,
+        "methods": [
+          "__init__",
+          "analyze",
+          "_parse_events",
+          "_calculate_hold_times",
+          "_calculate_flight_times",
+          "_calculate_typing_speed",
+          "_calculate_error_rate",
+          "_count_pauses",
+          "_calculate_rhythm_consistency",
+          "_calculate_digraph_timings",
+          "_detect_anomalies_with_baseline",
+          "_detect_anomalies_reference",
+          "_compare_digraphs",
+          "_calculate_confidence",
+          "_empty_pattern",
+          "extract_baseline_features",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\behavioral\\mouse_analyzer.py",
+        "name": "MousePattern",
+        "line": 21,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\behavioral\\mouse_analyzer.py",
+        "name": "MouseEvent",
+        "line": 40,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\behavioral\\mouse_analyzer.py",
+        "name": "MouseAnalyzer",
+        "line": 50,
+        "methods": [
+          "__init__",
+          "analyze",
+          "_parse_events",
+          "_calculate_velocities",
+          "_calculate_accelerations",
+          "_calculate_curvature",
+          "_calculate_jitter",
+          "_calculate_efficiency",
+          "_count_direction_changes",
+          "_calculate_click_accuracy",
+          "_count_pauses",
+          "_detect_anomalies_with_baseline",
+          "_detect_anomalies_reference",
+          "_calculate_confidence",
+          "_empty_pattern",
+          "extract_baseline_features",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\feature_engineering\\aggregation_features.py",
+        "name": "AggregationFeatureGenerator",
+        "line": 19,
+        "methods": [
+          "__init__",
+          "generate",
+          "_generate_entity_features",
+          "_add_value_stats",
+          "_add_count_features",
+          "_add_distribution_features",
+          "_add_recency_features",
+          "_add_relationship_features",
+          "_generate_cross_entity_features",
+          "get_feature_names",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\feature_engineering\\embedding_features.py",
+        "name": "EmbeddingFeatureGenerator",
+        "line": 21,
+        "methods": [
+          "__init__",
+          "generate",
+          "_add_hash_embeddings",
+          "_add_co_occurrence_features",
+          "_add_sequence_features",
+          "_add_target_encoding",
+          "_add_similarity_features",
+          "fit_entity_embeddings",
+          "get_feature_names",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\feature_engineering\\feature_generator.py",
+        "name": "FeatureConfig",
+        "line": 23,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\feature_engineering\\feature_generator.py",
+        "name": "FeatureGenerator",
+        "line": 36,
+        "methods": [
+          "__init__",
+          "generate_features",
+          "_prepare_data",
+          "_generate_temporal_features",
+          "_generate_value_features",
+          "_generate_velocity_features",
+          "_create_rolling_features",
+          "_generate_aggregation_features",
+          "_generate_interaction_features",
+          "_generate_deviation_features",
+          "_generate_frequency_features",
+          "_generate_rfm_features",
+          "_cleanup_temp_columns",
+          "get_feature_names",
+          "get_feature_count",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\feature_engineering\\graph_features.py",
+        "name": "GraphFeatureGenerator",
+        "line": 21,
+        "methods": [
+          "__init__",
+          "generate",
+          "_build_graph",
+          "_add_degree_features",
+          "_add_centrality_features",
+          "_calculate_pagerank",
+          "_estimate_betweenness",
+          "_add_clustering_features",
+          "_calculate_clustering",
+          "_add_transaction_pattern_features",
+          "_add_community_features",
+          "_detect_communities",
+          "get_feature_names",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\feature_engineering\\temporal_features.py",
+        "name": "TemporalFeatureGenerator",
+        "line": 19,
+        "methods": [
+          "__init__",
+          "generate",
+          "_generate_basic_features",
+          "_generate_cyclic_features",
+          "_generate_period_features",
+          "_generate_holiday_features",
+          "_generate_seasonality_features",
+          "_generate_pattern_features",
+          "get_feature_names"
+        ]
+      },
+      {
+        "file": "ml_engine\\feature_engineering\\velocity_features.py",
+        "name": "VelocityFeatureGenerator",
+        "line": 21,
+        "methods": [
+          "__init__",
+          "generate",
+          "_generate_velocity_for_key",
+          "_create_rolling_features",
+          "_generate_cross_velocity_features",
+          "generate_historical_velocity",
+          "get_feature_names",
+          "get_feature_count",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\fraud_gnn.py",
+        "name": "FraudGNNConfig",
+        "line": 68,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\gnn\\fraud_gnn.py",
+        "name": "FraudGNN",
+        "line": 84,
+        "methods": [
+          "__init__",
+          "_init_fallback",
+          "_init_layers",
+          "forward",
+          "forward_batch",
+          "get_embeddings"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\fraud_gnn.py",
+        "name": "TimeEncoder",
+        "line": 317,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\fraud_gnn.py",
+        "name": "GraphAttentionLayer",
+        "line": 362,
+        "methods": [
+          "__init__",
+          "_reset_parameters",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\fraud_gnn.py",
+        "name": "_BaseModule",
+        "line": 51,
+        "methods": [
+          "__init__",
+          "eval",
+          "train",
+          "parameters",
+          "state_dict",
+          "load_state_dict"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\fraud_gnn_backup.py",
+        "name": "FraudGNNConfig",
+        "line": 35,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\gnn\\fraud_gnn_backup.py",
+        "name": "FraudGNN",
+        "line": 51,
+        "methods": [
+          "__init__",
+          "_init_fallback",
+          "_init_layers",
+          "forward",
+          "forward_batch",
+          "get_embeddings"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\fraud_gnn_backup.py",
+        "name": "TimeEncoder",
+        "line": 284,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\fraud_gnn_backup.py",
+        "name": "GraphAttentionLayer",
+        "line": 329,
+        "methods": [
+          "__init__",
+          "_reset_parameters",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\gnn_trainer.py",
+        "name": "TrainerConfig",
+        "line": 54,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\gnn\\gnn_trainer.py",
+        "name": "GNNTrainer",
+        "line": 71,
+        "methods": [
+          "__init__",
+          "_create_scheduler",
+          "train",
+          "_train_epoch",
+          "_validate",
+          "_calculate_auc",
+          "_calculate_f1",
+          "_check_early_stopping",
+          "_save_checkpoint",
+          "load_checkpoint",
+          "predict"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\gnn_trainer.py",
+        "name": "_BaseModule",
+        "line": 35,
+        "methods": [
+          "__init__"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\gnn_trainer_backup.py",
+        "name": "TrainerConfig",
+        "line": 32,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\gnn\\gnn_trainer_backup.py",
+        "name": "GNNTrainer",
+        "line": 49,
+        "methods": [
+          "__init__",
+          "_create_scheduler",
+          "train",
+          "_train_epoch",
+          "_validate",
+          "_calculate_auc",
+          "_calculate_f1",
+          "_check_early_stopping",
+          "_save_checkpoint",
+          "load_checkpoint",
+          "predict"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\graph_builder.py",
+        "name": "TransactionGraphBuilder",
+        "line": 70,
+        "methods": [
+          "__init__",
+          "build",
+          "_add_node",
+          "_build_edge_index",
+          "_build_edge_features",
+          "_build_node_features",
+          "get_node_id",
+          "get_node_index"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\graph_builder.py",
+        "name": "HeteroGraphBuilder",
+        "line": 313,
+        "methods": [
+          "__init__",
+          "build",
+          "_add_node",
+          "_build_edge_index"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\graph_builder.py",
+        "name": "torch",
+        "line": 37,
+        "methods": [
+          "tensor"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\graph_builder.py",
+        "name": "Data",
+        "line": 56,
+        "methods": [
+          "__init__"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\graph_builder.py",
+        "name": "HeteroData",
+        "line": 61,
+        "methods": [
+          "__init__",
+          "__setitem__",
+          "__getitem__"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\graph_builder.py",
+        "name": "_BaseModule",
+        "line": 30,
+        "methods": [
+          "__init__"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\graph_builder_backup.py",
+        "name": "TransactionGraphBuilder",
+        "line": 44,
+        "methods": [
+          "__init__",
+          "build",
+          "_add_node",
+          "_build_edge_index",
+          "_build_edge_features",
+          "_build_node_features",
+          "get_node_id",
+          "get_node_index"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\graph_builder_backup.py",
+        "name": "HeteroGraphBuilder",
+        "line": 287,
+        "methods": [
+          "__init__",
+          "build",
+          "_add_node",
+          "_build_edge_index"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\graph_builder_backup.py",
+        "name": "Data",
+        "line": 28,
+        "methods": [
+          "__init__"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\graph_builder_backup.py",
+        "name": "HeteroData",
+        "line": 33,
+        "methods": [
+          "__init__",
+          "__setitem__",
+          "__getitem__"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn.py",
+        "name": "TGNConfig",
+        "line": 47,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn.py",
+        "name": "TemporalGraphNetwork",
+        "line": 61,
+        "methods": [
+          "__init__",
+          "_init_fallback",
+          "_init_modules",
+          "reset_memory",
+          "forward",
+          "get_embeddings"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn.py",
+        "name": "TimeEncoderTGN",
+        "line": 260,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn.py",
+        "name": "MessageFunction",
+        "line": 283,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn.py",
+        "name": "LastAggregator",
+        "line": 321,
+        "methods": [
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn.py",
+        "name": "AttentionAggregator",
+        "line": 333,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn.py",
+        "name": "GRUMemoryUpdater",
+        "line": 351,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn.py",
+        "name": "RNNMemoryUpdater",
+        "line": 366,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn.py",
+        "name": "TemporalAttention",
+        "line": 381,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+        "name": "TGNConfig",
+        "line": 32,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+        "name": "TemporalGraphNetwork",
+        "line": 46,
+        "methods": [
+          "__init__",
+          "_init_fallback",
+          "_init_modules",
+          "reset_memory",
+          "forward",
+          "get_embeddings"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+        "name": "TimeEncoderTGN",
+        "line": 245,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+        "name": "MessageFunction",
+        "line": 268,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+        "name": "LastAggregator",
+        "line": 306,
+        "methods": [
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+        "name": "AttentionAggregator",
+        "line": 318,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+        "name": "GRUMemoryUpdater",
+        "line": 336,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+        "name": "RNNMemoryUpdater",
+        "line": 351,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+        "name": "TemporalAttention",
+        "line": 366,
+        "methods": [
+          "__init__",
+          "forward"
+        ]
+      },
+      {
+        "file": "ml_engine\\llm\\embeddings.py",
+        "name": "EmbeddingResult",
+        "line": 28,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\llm\\embeddings.py",
+        "name": "TransactionEmbedder",
+        "line": 35,
+        "methods": [
+          "__init__",
+          "embed",
+          "embed_batch",
+          "get_similarity"
+        ]
+      },
+      {
+        "file": "ml_engine\\llm\\embeddings.py",
+        "name": "TextEmbedder",
+        "line": 141,
+        "methods": [
+          "__init__",
+          "embed",
+          "embed_batch",
+          "_fallback_embed",
+          "get_similarity"
+        ]
+      },
+      {
+        "file": "ml_engine\\llm\\explanation_generator.py",
+        "name": "ExplanationAudience",
+        "line": 20,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\llm\\explanation_generator.py",
+        "name": "FraudExplanation",
+        "line": 29,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\llm\\explanation_generator.py",
+        "name": "FactorExplanation",
+        "line": 44,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\llm\\explanation_generator.py",
+        "name": "ExplanationGenerator",
+        "line": 55,
+        "methods": [
+          "__init__",
+          "generate",
+          "_generate_summary",
+          "_process_factors",
+          "_explain_factor",
+          "_simplify_explanation",
+          "_generate_detailed_explanation",
+          "_customer_detailed_explanation",
+          "_analyst_detailed_explanation",
+          "_regulator_detailed_explanation",
+          "_technical_detailed_explanation",
+          "_generate_counterfactual",
+          "_generate_recommendations",
+          "_calculate_confidence",
+          "_get_risk_level",
+          "_get_threshold",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\llm\\fraud_llm.py",
+        "name": "RiskLevel",
+        "line": 30,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\llm\\fraud_llm.py",
+        "name": "ConversationRisk",
+        "line": 39,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\llm\\fraud_llm.py",
+        "name": "ScamAnalysis",
+        "line": 56,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\llm\\fraud_llm.py",
+        "name": "TransactionNarrative",
+        "line": 71,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\llm\\fraud_llm.py",
+        "name": "FraudLLMAnalyzer",
+        "line": 79,
+        "methods": [
+          "__init__",
+          "_load_model",
+          "analyze_conversation",
+          "analyze_scam",
+          "generate_transaction_narrative",
+          "_format_conversation",
+          "_detect_patterns",
+          "_extract_suspicious_links",
+          "_extract_key_phrases",
+          "_calculate_risk_score",
+          "_calculate_scam_probability",
+          "_get_model_prediction",
+          "_determine_risk_level",
+          "_generate_explanation",
+          "_generate_recommendations",
+          "_determine_scam_type",
+          "_analyze_victim_profile",
+          "_recommend_action",
+          "_generate_transaction_summary",
+          "_generate_context",
+          "_generate_transaction_recommendation",
+          "_empty_risk",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\llm\\scam_detector.py",
+        "name": "ScamType",
+        "line": 21,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\llm\\scam_detector.py",
+        "name": "ScamIndicator",
+        "line": 53,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\llm\\scam_detector.py",
+        "name": "ScamDetectionResult",
+        "line": 63,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\llm\\scam_detector.py",
+        "name": "ScamPatternDetector",
+        "line": 79,
+        "methods": [
+          "__init__",
+          "_compile_patterns",
+          "detect",
+          "_detect_scam_types",
+          "_detect_manipulation_techniques",
+          "_calculate_urgency_score",
+          "_calculate_coercion_score",
+          "_determine_scam_type",
+          "_create_indicators",
+          "_calculate_risk_score",
+          "_calculate_confidence",
+          "_recommend_action",
+          "_get_intervention_message",
+          "_generate_explanation",
+          "_empty_result",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\mule_detection\\dormancy_analyzer.py",
+        "name": "DormancyPeriod",
+        "line": 20,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\mule_detection\\dormancy_analyzer.py",
+        "name": "DormancyPattern",
+        "line": 30,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\mule_detection\\dormancy_analyzer.py",
+        "name": "DormancyAnalyzer",
+        "line": 45,
+        "methods": [
+          "__init__",
+          "analyze",
+          "_sort_transactions",
+          "_identify_dormancy_periods",
+          "_calculate_activity_around_date",
+          "_calculate_recent_activity",
+          "_calculate_historical_activity",
+          "_determine_current_state",
+          "_calculate_activation_intensity",
+          "_determine_activity_trend",
+          "_days_since_last_activity",
+          "_calculate_dormancy_score",
+          "_is_dormant_activated",
+          "_generate_explanation",
+          "_get_tx_date",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\mule_detection\\mule_detector.py",
+        "name": "MuleType",
+        "line": 22,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\mule_detection\\mule_detector.py",
+        "name": "RiskLevel",
+        "line": 33,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\mule_detection\\mule_detector.py",
+        "name": "MuleIndicator",
+        "line": 43,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\mule_detection\\mule_detector.py",
+        "name": "MuleScore",
+        "line": 54,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\mule_detection\\mule_detector.py",
+        "name": "MuleDetector",
+        "line": 71,
+        "methods": [
+          "__init__",
+          "set_analyzers",
+          "detect",
+          "_analyze_dormancy",
+          "_analyze_turnover",
+          "_analyze_circular_flows",
+          "_analyze_behavioral_change",
+          "_analyze_network_position",
+          "_analyze_recruitment_connection",
+          "_analyze_age_activity_mismatch",
+          "_analyze_geographic_anomalies",
+          "_calculate_total_score",
+          "_determine_mule_type",
+          "_determine_risk_level",
+          "_calculate_confidence",
+          "_generate_explanation",
+          "_get_recommended_actions",
+          "_identify_suspicious_patterns",
+          "_count_network_connections",
+          "_is_recent",
+          "add_known_mule",
+          "add_suspicious_account",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\mule_detection\\network_position_analyzer.py",
+        "name": "NetworkPosition",
+        "line": 22,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\mule_detection\\network_position_analyzer.py",
+        "name": "NetworkPositionAnalyzer",
+        "line": 44,
+        "methods": [
+          "__init__",
+          "analyze",
+          "_build_local_graph",
+          "_calculate_degree_metrics",
+          "_estimate_local_pagerank",
+          "_estimate_betweenness",
+          "_calculate_clustering",
+          "_count_mule_connections",
+          "_count_fraudster_connections",
+          "_detect_suspicious_cluster",
+          "_identify_network_patterns",
+          "_detect_cycles",
+          "_count_reciprocal",
+          "_detect_chain",
+          "_propagate_risk",
+          "_calculate_network_score",
+          "_is_central_node",
+          "_generate_explanation",
+          "add_known_mule",
+          "add_known_fraudster",
+          "set_account_risk",
+          "get_stats"
+        ]
+      },
+      {
+        "file": "ml_engine\\mule_detection\\turnover_analyzer.py",
+        "name": "TurnoverEvent",
+        "line": 22,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\mule_detection\\turnover_analyzer.py",
+        "name": "TurnoverPattern",
+        "line": 33,
+        "methods": []
+      },
+      {
+        "file": "ml_engine\\mule_detection\\turnover_analyzer.py",
+        "name": "TurnoverAnalyzer",
+        "line": 52,
+        "methods": [
+          "__init__",
+          "analyze",
+          "_separate_flows",
+          "_identify_turnover_events",
+          "_calculate_avg_turnover_time",
+          "_calculate_min_turnover_time",
+          "_analyze_daily_patterns",
+          "_analyze_hourly_patterns",
+          "_identify_suspicious_behaviors",
+          "_calculate_turnover_score",
+          "_is_rapid_turnover",
+          "_determine_risk_level",
+          "_generate_explanation",
+          "_get_timestamp",
+          "get_stats"
+        ]
+      }
+    ],
+    "methods": [
+      {
+        "file": "ml_engine\\advanced_modules_orchestrator.py",
+        "name": "get_orchestrator",
+        "line": 573
+      },
+      {
+        "file": "ml_engine\\autoencoder_anomaly_detector.py",
+        "name": "get_autoencoder_detector",
+        "line": 424
+      },
+      {
+        "file": "ml_engine\\bahnsen_feature_engineering.py",
+        "name": "create_bahnsen_engineer",
+        "line": 547
+      },
+      {
+        "file": "ml_engine\\bilstm_sequence_analyzer.py",
+        "name": "get_bilstm_analyzer",
+        "line": 508
+      },
+      {
+        "file": "ml_engine\\catboost_model.py",
+        "name": "create_catboost_model",
+        "line": 382
+      },
+      {
+        "file": "ml_engine\\ensemble_integration.py",
+        "name": "get_integrated_ensemble",
+        "line": 449
+      },
+      {
+        "file": "ml_engine\\feature_engineering.py",
+        "name": "main",
+        "line": 271
+      },
+      {
+        "file": "ml_engine\\feature_store.py",
+        "name": "get_feature_store",
+        "line": 306
+      },
+      {
+        "file": "ml_engine\\federated_learning.py",
+        "name": "create_federated_system",
+        "line": 529
+      },
+      {
+        "file": "ml_engine\\gnn_fraud_detector.py",
+        "name": "create_gnn_detector",
+        "line": 653
+      },
+      {
+        "file": "ml_engine\\graph_ml_engine.py",
+        "name": "get_graph_ml_engine",
+        "line": 447
+      },
+      {
+        "file": "ml_engine\\graph_neural_networks.py",
+        "name": "get_gnn_detector",
+        "line": 524
+      },
+      {
+        "file": "ml_engine\\hard_rules_engine.py",
+        "name": "get_hard_rules_engine",
+        "line": 334
+      },
+      {
+        "file": "ml_engine\\mixture_of_experts.py",
+        "name": "get_mixture_of_experts",
+        "line": 533
+      },
+      {
+        "file": "ml_engine\\multi_armed_bandits.py",
+        "name": "get_mfa_optimizer",
+        "line": 478
+      },
+      {
+        "file": "ml_engine\\nlp_social_engineering.py",
+        "name": "create_nlp_detector",
+        "line": 386
+      },
+      {
+        "file": "ml_engine\\pix_fraud_taxonomy.py",
+        "name": "create_pix_taxonomy",
+        "line": 613
+      },
+      {
+        "file": "ml_engine\\probability_calibration.py",
+        "name": "calibrate_model_predictions",
+        "line": 257
+      },
+      {
+        "file": "ml_engine\\production_fraud_engine.py",
+        "name": "_get_lazy_integrated_ensemble",
+        "line": 55
+      },
+      {
+        "file": "ml_engine\\production_fraud_engine.py",
+        "name": "get_fraud_engine",
+        "line": 1468
+      },
+      {
+        "file": "ml_engine\\self_explainable_module.py",
+        "name": "get_self_explainer",
+        "line": 502
+      },
+      {
+        "file": "ml_engine\\self_training_optimizer.py",
+        "name": "create_unlabeled_from_production",
+        "line": 341
+      },
+      {
+        "file": "ml_engine\\transfer_learning_pipeline.py",
+        "name": "create_transfer_pipeline",
+        "line": 516
+      },
+      {
+        "file": "ml_engine\\app_fraud\\conversation_scorer.py",
+        "name": "create_conversation_scorer",
+        "line": 472
+      },
+      {
+        "file": "ml_engine\\app_fraud\\duress_detector.py",
+        "name": "create_duress_detector",
+        "line": 478
+      },
+      {
+        "file": "ml_engine\\app_fraud\\intervention_engine.py",
+        "name": "create_intervention_engine",
+        "line": 507
+      },
+      {
+        "file": "ml_engine\\app_fraud\\scam_detector.py",
+        "name": "create_scam_detector",
+        "line": 690
+      },
+      {
+        "file": "ml_engine\\app_fraud\\session_analyzer.py",
+        "name": "create_session_analyzer",
+        "line": 573
+      },
+      {
+        "file": "ml_engine\\behavioral\\behavioral_analyzer.py",
+        "name": "create_behavioral_analyzer",
+        "line": 752
+      },
+      {
+        "file": "ml_engine\\behavioral\\device_analyzer.py",
+        "name": "create_device_analyzer",
+        "line": 627
+      },
+      {
+        "file": "ml_engine\\behavioral\\keystroke_analyzer.py",
+        "name": "create_keystroke_analyzer",
+        "line": 537
+      },
+      {
+        "file": "ml_engine\\behavioral\\mouse_analyzer.py",
+        "name": "create_mouse_analyzer",
+        "line": 568
+      },
+      {
+        "file": "ml_engine\\feature_engineering\\aggregation_features.py",
+        "name": "create_aggregation_generator",
+        "line": 362
+      },
+      {
+        "file": "ml_engine\\feature_engineering\\embedding_features.py",
+        "name": "create_embedding_generator",
+        "line": 390
+      },
+      {
+        "file": "ml_engine\\feature_engineering\\feature_generator.py",
+        "name": "create_feature_generator",
+        "line": 674
+      },
+      {
+        "file": "ml_engine\\feature_engineering\\graph_features.py",
+        "name": "create_graph_feature_generator",
+        "line": 428
+      },
+      {
+        "file": "ml_engine\\feature_engineering\\temporal_features.py",
+        "name": "create_temporal_generator",
+        "line": 334
+      },
+      {
+        "file": "ml_engine\\feature_engineering\\velocity_features.py",
+        "name": "create_velocity_generator",
+        "line": 304
+      },
+      {
+        "file": "ml_engine\\gnn\\fraud_gnn.py",
+        "name": "create_fraud_gnn",
+        "line": 466
+      },
+      {
+        "file": "ml_engine\\gnn\\fraud_gnn_backup.py",
+        "name": "create_fraud_gnn",
+        "line": 433
+      },
+      {
+        "file": "ml_engine\\gnn\\gnn_trainer.py",
+        "name": "create_trainer",
+        "line": 466
+      },
+      {
+        "file": "ml_engine\\gnn\\gnn_trainer_backup.py",
+        "name": "create_trainer",
+        "line": 444
+      },
+      {
+        "file": "ml_engine\\gnn\\graph_builder.py",
+        "name": "create_graph_builder",
+        "line": 452
+      },
+      {
+        "file": "ml_engine\\gnn\\graph_builder_backup.py",
+        "name": "create_graph_builder",
+        "line": 426
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn.py",
+        "name": "create_tgn",
+        "line": 439
+      },
+      {
+        "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+        "name": "create_tgn",
+        "line": 424
+      },
+      {
+        "file": "ml_engine\\llm\\embeddings.py",
+        "name": "create_transaction_embedder",
+        "line": 264
+      },
+      {
+        "file": "ml_engine\\llm\\embeddings.py",
+        "name": "create_text_embedder",
+        "line": 271
+      },
+      {
+        "file": "ml_engine\\llm\\explanation_generator.py",
+        "name": "create_explanation_generator",
+        "line": 606
+      },
+      {
+        "file": "ml_engine\\llm\\fraud_llm.py",
+        "name": "create_fraud_llm",
+        "line": 678
+      },
+      {
+        "file": "ml_engine\\llm\\scam_detector.py",
+        "name": "create_scam_detector",
+        "line": 586
+      },
+      {
+        "file": "ml_engine\\mule_detection\\dormancy_analyzer.py",
+        "name": "create_dormancy_analyzer",
+        "line": 478
+      },
+      {
+        "file": "ml_engine\\mule_detection\\mule_detector.py",
+        "name": "create_mule_detector",
+        "line": 1096
+      },
+      {
+        "file": "ml_engine\\mule_detection\\network_position_analyzer.py",
+        "name": "create_network_analyzer",
+        "line": 676
+      },
+      {
+        "file": "ml_engine\\mule_detection\\turnover_analyzer.py",
+        "name": "create_turnover_analyzer",
+        "line": 521
+      }
+    ],
+    "todos": [
+      {
+        "file": "ml_engine\\production_fraud_engine.py",
+        "line": 427,
+        "content": "- Fraudes em TODOS os horarios (nao apenas noturno)"
+      },
+      {
+        "file": "ml_engine\\llm\\explanation_generator.py",
+        "line": 443,
+        "content": "lines.append(f\"\\n2. METODOLOGIA\")"
+      }
+    ],
+    "fixmes": [],
+    "not_implemented": [
+      {
+        "file": "ml_engine\\device_fingerprint.py",
+        "line": 93,
+        "content": "raise NotImplementedError"
+      },
+      {
+        "file": "ml_engine\\device_fingerprint.py",
+        "line": 96,
+        "content": "raise NotImplementedError"
+      },
+      {
+        "file": "ml_engine\\device_fingerprint.py",
+        "line": 99,
+        "content": "raise NotImplementedError"
+      },
+      {
+        "file": "ml_engine\\device_fingerprint.py",
+        "line": 102,
+        "content": "raise NotImplementedError"
+      },
+      {
+        "file": "ml_engine\\device_fingerprint.py",
+        "line": 105,
+        "content": "raise NotImplementedError"
+      },
+      {
+        "file": "ml_engine\\graph_neural_networks.py",
+        "line": 31,
+        "content": "pass after def __init__(self, *args, **kwargs):"
+      },
+      {
+        "file": "ml_engine\\gnn\\fraud_gnn.py",
+        "line": 54,
+        "content": "pass after def __init__(self, *args, **kwargs):"
+      },
+      {
+        "file": "ml_engine\\gnn\\fraud_gnn.py",
+        "line": 64,
+        "content": "pass after def load_state_dict(self, state):"
+      },
+      {
+        "file": "ml_engine\\gnn\\gnn_trainer.py",
+        "line": 37,
+        "content": "pass after def __init__(self, *args, **kwargs):"
+      },
+      {
+        "file": "ml_engine\\gnn\\graph_builder.py",
+        "line": 32,
+        "content": "pass after def __init__(self, *args, **kwargs):"
+      }
+    ]
+  },
+  "final_verdict": "[FAIL] NAO PRONTA PARA PRODUCAO",
+  "critical_failures": [
+    {
+      "test_name": "DS-001: Bahnsen Feature Generation",
+      "file_path": "ml_engine/feature_engineering.py",
+      "class_name": "BahnsenFeatureGenerator",
+      "method_name": "generate_features",
+      "input_used": "DataFrame with amount, timestamp",
+      "expected_output": "DataFrame with additional features",
+      "observed_output": "Exception: cannot import name 'BahnsenFeatureGenerator' from 'ml_engine.feature_engineering' (C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\ml_engine\\feature_engineering\\__init__.py)",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 227, in panel_data_scientist\n    from ml_engine.feature_engineering import BahnsenFeatureGenerator\nImportError: cannot import name 'BahnsenFeatureGenerator' from 'ml_engine.feature_engineering' (C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\ml_engine\\feature_engineering\\__init__.py)\n",
+      "status": "FAIL",
+      "correction": "Fix BahnsenFeatureGenerator.generate_features() to handle DataFrame input",
+      "execution_time_ms": 1585.5107307434082
+    },
+    {
+      "test_name": "DS-002: Data Leakage Prevention",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "fit",
+      "input_used": "Source code inspection",
+      "expected_output": "Split BEFORE preprocessing",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 273, in panel_data_scientist\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.3383159637451172
+    },
+    {
+      "test_name": "DS-003: Class Imbalance Handling",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "__init__",
+      "input_used": "Source code inspection",
+      "expected_output": "Has imbalance handling mechanism",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 317, in panel_data_scientist\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.3135204315185547
+    },
+    {
+      "test_name": "DS-004: Autoencoder Anomaly Detection",
+      "file_path": "ml_engine/autoencoder.py",
+      "class_name": "AutoencoderAnomalyDetector",
+      "method_name": "detect",
+      "input_used": "NumPy arrays",
+      "expected_output": "Anomaly score higher for suspicious transaction",
+      "observed_output": "Exception: No module named 'ml_engine.autoencoder'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 358, in panel_data_scientist\n    from ml_engine.autoencoder import AutoencoderAnomalyDetector\nModuleNotFoundError: No module named 'ml_engine.autoencoder'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.32711029052734375
+    },
+    {
+      "test_name": "DS-005: BiLSTM Sequence Analysis",
+      "file_path": "ml_engine/bilstm.py",
+      "class_name": "BiLSTMSequenceAnalyzer",
+      "method_name": "analyze_sequence",
+      "input_used": "Transaction sequence list",
+      "expected_output": "Risk assessment with score",
+      "observed_output": "Exception: No module named 'ml_engine.bilstm'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 405, in panel_data_scientist\n    from ml_engine.bilstm import BiLSTMSequenceAnalyzer\nModuleNotFoundError: No module named 'ml_engine.bilstm'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.3571510314941406
+    },
+    {
+      "test_name": "ML-001: Production Engine DataFrame Predict",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "DataFrame with 2 transactions",
+      "expected_output": "Array of predictions",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 535, in panel_ml_engineer\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "Ensure ProductionFraudEngine.predict() accepts DataFrame input",
+      "execution_time_ms": 0.5884170532226562
+    },
+    {
+      "test_name": "ML-003: Ensemble Model Predictions",
+      "file_path": "models/production/",
+      "class_name": "Ensemble Models",
+      "method_name": "predict",
+      "input_used": "Test array",
+      "expected_output": "Predictions from all models",
+      "observed_output": "Exception: X has 5 features, but RandomForestClassifier is expecting 7 features as input.",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 646, in panel_ml_engineer\n    pred = model.predict(test_data)\n  File \"C:\\Users\\davis\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\sklearn\\ensemble\\_forest.py\", line 903, in predict\n    proba = self.predict_proba(X)\n  File \"C:\\Users\\davis\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\sklearn\\ensemble\\_forest.p",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 22.365808486938477
+    },
+    {
+      "test_name": "ML-005: Inference Latency",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Single transaction",
+      "expected_output": "<100ms average latency",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 750, in panel_ml_engineer\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.5054473876953125
+    },
+    {
+      "test_name": "ML-006: Integrated Ensemble",
+      "file_path": "ml_engine/integration.py",
+      "class_name": "IntegratedEnsemble",
+      "method_name": "predict_combined",
+      "input_used": "Transaction dict",
+      "expected_output": "Combined prediction result",
+      "observed_output": "Exception: No module named 'ml_engine.integration'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 803, in panel_ml_engineer\n    from ml_engine.integration import IntegratedEnsemble\nModuleNotFoundError: No module named 'ml_engine.integration'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.47707557678222656
+    },
+    {
+      "test_name": "BE-001: API Contract - Dict to DataFrame",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Dict from API",
+      "expected_output": "Prediction after conversion",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 887, in panel_backend_engineer\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "Ensure API layer converts dict to DataFrame before calling predict()",
+      "execution_time_ms": 0.5080699920654297
+    },
+    {
+      "test_name": "BE-002: Missing Fields Handling",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Partial input",
+      "expected_output": "Graceful handling",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 936, in panel_backend_engineer\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.4439353942871094
+    },
+    {
+      "test_name": "BE-003: Invalid Input Types",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Invalid types",
+      "expected_output": "Error or coercion",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 996, in panel_backend_engineer\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.4131793975830078
+    },
+    {
+      "test_name": "BE-004: Batch Processing",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Batch of 100 transactions",
+      "expected_output": "100 predictions",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1052, in panel_backend_engineer\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.4487037658691406
+    },
+    {
+      "test_name": "BE-005: Mule Detector API",
+      "file_path": "ml_engine/mule_detection.py",
+      "class_name": "MuleDetector",
+      "method_name": "detect",
+      "input_used": "Account data",
+      "expected_output": "Detection result",
+      "observed_output": "Exception: MuleDetector.detect() missing 2 required positional arguments: 'account_data' and 'transaction_history'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1119, in panel_backend_engineer\n    result = detector.detect(account_data)\nTypeError: MuleDetector.detect() missing 2 required positional arguments: 'account_data' and 'transaction_history'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 13.451099395751953
+    },
+    {
+      "test_name": "OPS-002: Logging Infrastructure",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "N/A",
+      "input_used": "Source inspection",
+      "expected_output": "Logger configured",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1249, in panel_mlops\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.4105567932128906
+    },
+    {
+      "test_name": "OPS-003: Graceful Degradation",
+      "file_path": "ml_engine/",
+      "class_name": "Various",
+      "method_name": "N/A",
+      "input_used": "Optional deps",
+      "expected_output": "Fallback mode",
+      "observed_output": "Exception: 'NoneType' object has no attribute 'Tensor'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1290, in panel_mlops\n    from ml_engine.gnn.fraud_gnn import HAS_TORCH, HAS_PYG\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\ml_engine\\gnn\\__init__.py\", line 12, in <module>\n    from .fraud_gnn import (\n    ...<3 lines>...\n    )\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 6.897687911987305
+    },
+    {
+      "test_name": "BANK-001: End-to-End Fraud Detection",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Fraud and normal scenarios",
+      "expected_output": "Correct classification",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1415, in panel_banking_production\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.5385875701904297
+    },
+    {
+      "test_name": "BANK-003: Explainability for Audit",
+      "file_path": "ml_engine/explainability.py",
+      "class_name": "Various",
+      "method_name": "N/A",
+      "input_used": "Module inspection",
+      "expected_output": "Explainability support",
+      "observed_output": "Exception: cannot import name 'explainability' from 'ml_engine' (unknown location)",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1521, in panel_banking_production\n    from ml_engine import explainability\nImportError: cannot import name 'explainability' from 'ml_engine' (unknown location)\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.42700767517089844
+    },
+    {
+      "test_name": "BANK-004: PII Protection in Logs",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "N/A",
+      "input_used": "Source inspection",
+      "expected_output": "No PII risks",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1559, in panel_banking_production\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.335693359375
+    },
+    {
+      "test_name": "BANK-005: Deterministic Predictions",
+      "file_path": "ml_engine/fraud_engine.py",
+      "class_name": "ProductionFraudEngine",
+      "method_name": "predict",
+      "input_used": "Same transaction 5x",
+      "expected_output": "Deterministic results",
+      "observed_output": "Exception: No module named 'ml_engine.fraud_engine'",
+      "evidence": "Traceback (most recent call last):\n  File \"C:\\Users\\davis\\Workspace\\SANKOFA_ENTERPRISE_PRO\\sankofa-enterprise-real\\backend\\scripts\\forensic_audit_military.py\", line 1606, in panel_banking_production\n    from ml_engine.fraud_engine import ProductionFraudEngine\nModuleNotFoundError: No module named 'ml_engine.fraud_engine'\n",
+      "status": "FAIL",
+      "correction": "",
+      "execution_time_ms": 0.35858154296875
+    }
+  ]
+}

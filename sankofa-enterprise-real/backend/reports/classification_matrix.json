@@ -1,0 +1,1220 @@
+{
+  "FeatureEngineering": [
+    {
+      "class": "AdvancedFeatureEngineering",
+      "file": "ml_engine\\advanced_feature_engineering.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "AutoencoderAnomalyDetector",
+      "file": "ml_engine\\autoencoder_anomaly_detector.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "H2OAutoMLFraudDetector",
+      "file": "ml_engine\\automl_pipeline.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "AutoFeatureEngineering",
+      "file": "ml_engine\\automl_pipeline.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "BahnsenFeatureEngineering",
+      "file": "ml_engine\\bahnsen_feature_engineering.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "TransactionSequenceBuffer",
+      "file": "ml_engine\\bilstm_sequence_analyzer.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "CatBoostFraudModel",
+      "file": "ml_engine\\catboost_model.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "ContinuousLearningSystem",
+      "file": "ml_engine\\continuous_learning_system.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "DatasetLoader",
+      "file": "ml_engine\\dataset_loaders.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "PIXFeatureEngineer",
+      "file": "ml_engine\\dataset_loaders.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "FeatureContribution",
+      "file": "ml_engine\\explainability_engine.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "ExplainabilityEngine",
+      "file": "ml_engine\\explainability_engine.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "AutoFeatureEngineering",
+      "file": "ml_engine\\feature_engineering.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "FeatureStore",
+      "file": "ml_engine\\feature_store.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "GraphFeatureExtractor",
+      "file": "ml_engine\\graph_ml_engine.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "TransactionGraphBuilder",
+      "file": "ml_engine\\graph_neural_networks.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "HuggingFaceFraudDetector",
+      "file": "ml_engine\\huggingface_integration.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "HuggingFaceDatasetLoader",
+      "file": "ml_engine\\huggingface_integration.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "HuggingFaceFraudDetector",
+      "file": "ml_engine\\huggingface_integration_backup.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "HuggingFaceDatasetLoader",
+      "file": "ml_engine\\huggingface_integration_backup.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "SocialEngineeringAnalysis",
+      "file": "ml_engine\\nlp_social_engineering.py",
+      "evidence": "Keyword 'engineer' found"
+    },
+    {
+      "class": "NLPSocialEngineeringDetector",
+      "file": "ml_engine\\nlp_social_engineering.py",
+      "evidence": "Keyword 'engineer' found"
+    },
+    {
+      "class": "ONNXFraudModelServing",
+      "file": "ml_engine\\onnx_serving.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "ProductionFraudEngine",
+      "file": "ml_engine\\production_fraud_engine.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "TransferLearningPipeline",
+      "file": "ml_engine\\transfer_learning_pipeline.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "ScamDetector",
+      "file": "ml_engine\\app_fraud\\scam_detector.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "KeystrokeAnalyzer",
+      "file": "ml_engine\\behavioral\\keystroke_analyzer.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "MouseAnalyzer",
+      "file": "ml_engine\\behavioral\\mouse_analyzer.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "AggregationFeatureGenerator",
+      "file": "ml_engine\\feature_engineering\\aggregation_features.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "EmbeddingFeatureGenerator",
+      "file": "ml_engine\\feature_engineering\\embedding_features.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "FeatureConfig",
+      "file": "ml_engine\\feature_engineering\\feature_generator.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "FeatureGenerator",
+      "file": "ml_engine\\feature_engineering\\feature_generator.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "GraphFeatureGenerator",
+      "file": "ml_engine\\feature_engineering\\graph_features.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "TemporalFeatureGenerator",
+      "file": "ml_engine\\feature_engineering\\temporal_features.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "VelocityFeatureGenerator",
+      "file": "ml_engine\\feature_engineering\\velocity_features.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "TransactionGraphBuilder",
+      "file": "ml_engine\\gnn\\graph_builder.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "TransactionGraphBuilder",
+      "file": "ml_engine\\gnn\\graph_builder_backup.py",
+      "evidence": "Keyword 'feature' found"
+    },
+    {
+      "class": "ExplanationGenerator",
+      "file": "ml_engine\\llm\\explanation_generator.py",
+      "evidence": "Keyword 'generator' found"
+    }
+  ],
+  "ML-Trainable": [
+    {
+      "class": "AdvancedModulesOrchestrator",
+      "file": "ml_engine\\advanced_modules_orchestrator.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "AutoencoderAnomalyDetector",
+      "file": "ml_engine\\autoencoder_anomaly_detector.py",
+      "evidence": "Keyword 'fit' found"
+    },
+    {
+      "class": "H2OAutoMLFraudDetector",
+      "file": "ml_engine\\automl_pipeline.py",
+      "evidence": "Keyword 'model' found"
+    },
+    {
+      "class": "BiLSTMSequenceAnalyzer",
+      "file": "ml_engine\\bilstm_sequence_analyzer.py",
+      "evidence": "Keyword 'model' found"
+    },
+    {
+      "class": "CatBoostFraudModel",
+      "file": "ml_engine\\catboost_model.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "UpliftModeling",
+      "file": "ml_engine\\causal_inference.py",
+      "evidence": "Keyword 'fit' found"
+    },
+    {
+      "class": "ContinuousLearningSystem",
+      "file": "ml_engine\\continuous_learning_system.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "DatasetLoader",
+      "file": "ml_engine\\dataset_loaders.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "IntegratedEnsemble",
+      "file": "ml_engine\\ensemble_integration.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "GlobalModel",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'model' found"
+    },
+    {
+      "class": "FederatedClient",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "SklearnFederatedClient",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "FederatedServer",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "FederatedFraudDetection",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "FraudGNNModel",
+      "file": "ml_engine\\graph_neural_networks.py",
+      "evidence": "Keyword 'model' found"
+    },
+    {
+      "class": "GNNFraudDetector",
+      "file": "ml_engine\\graph_neural_networks.py",
+      "evidence": "Keyword 'model' found"
+    },
+    {
+      "class": "HuggingFaceFraudDetector",
+      "file": "ml_engine\\huggingface_integration.py",
+      "evidence": "Keyword 'model' found"
+    },
+    {
+      "class": "HuggingFaceTransferLearning",
+      "file": "ml_engine\\huggingface_integration.py",
+      "evidence": "Keyword 'model' found"
+    },
+    {
+      "class": "HuggingFaceFraudDetector",
+      "file": "ml_engine\\huggingface_integration_backup.py",
+      "evidence": "Keyword 'model' found"
+    },
+    {
+      "class": "HuggingFaceTransferLearning",
+      "file": "ml_engine\\huggingface_integration_backup.py",
+      "evidence": "Keyword 'model' found"
+    },
+    {
+      "class": "Expert",
+      "file": "ml_engine\\mixture_of_experts.py",
+      "evidence": "Keyword 'fit' found"
+    },
+    {
+      "class": "GatingNetwork",
+      "file": "ml_engine\\mixture_of_experts.py",
+      "evidence": "Keyword 'fit' found"
+    },
+    {
+      "class": "MixtureOfExperts",
+      "file": "ml_engine\\mixture_of_experts.py",
+      "evidence": "Keyword 'fit' found"
+    },
+    {
+      "class": "ONNXModelConverter",
+      "file": "ml_engine\\onnx_serving.py",
+      "evidence": "Keyword 'model' found"
+    },
+    {
+      "class": "ONNXFraudModelServing",
+      "file": "ml_engine\\onnx_serving.py",
+      "evidence": "Keyword 'model' found"
+    },
+    {
+      "class": "ProbabilityCalibrator",
+      "file": "ml_engine\\probability_calibration.py",
+      "evidence": "Keyword 'fit' found"
+    },
+    {
+      "class": "EnsembleCalibrator",
+      "file": "ml_engine\\probability_calibration.py",
+      "evidence": "Keyword 'fit' found"
+    },
+    {
+      "class": "ModelMetrics",
+      "file": "ml_engine\\production_fraud_engine.py",
+      "evidence": "Keyword 'model' found"
+    },
+    {
+      "class": "ProductionFraudEngine",
+      "file": "ml_engine\\production_fraud_engine.py",
+      "evidence": "Keyword 'fit' found"
+    },
+    {
+      "class": "InterpretativeMaskLearner",
+      "file": "ml_engine\\self_explainable_module.py",
+      "evidence": "Keyword 'fit' found"
+    },
+    {
+      "class": "SelfTrainingMetrics",
+      "file": "ml_engine\\self_training_optimizer.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "SelfTrainingClassifier",
+      "file": "ml_engine\\self_training_optimizer.py",
+      "evidence": "Keyword 'fit' found"
+    },
+    {
+      "class": "AdaptiveSelfTraining",
+      "file": "ml_engine\\self_training_optimizer.py",
+      "evidence": "Keyword 'fit' found"
+    },
+    {
+      "class": "TransferLearningPipeline",
+      "file": "ml_engine\\transfer_learning_pipeline.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "ScamDetector",
+      "file": "ml_engine\\app_fraud\\scam_detector.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "EmbeddingFeatureGenerator",
+      "file": "ml_engine\\feature_engineering\\embedding_features.py",
+      "evidence": "Keyword 'fit' found"
+    },
+    {
+      "class": "_BaseModule",
+      "file": "ml_engine\\gnn\\fraud_gnn.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "TrainerConfig",
+      "file": "ml_engine\\gnn\\gnn_trainer.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "GNNTrainer",
+      "file": "ml_engine\\gnn\\gnn_trainer.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "TrainerConfig",
+      "file": "ml_engine\\gnn\\gnn_trainer_backup.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "GNNTrainer",
+      "file": "ml_engine\\gnn\\gnn_trainer_backup.py",
+      "evidence": "Keyword 'train' found"
+    },
+    {
+      "class": "FraudLLMAnalyzer",
+      "file": "ml_engine\\llm\\fraud_llm.py",
+      "evidence": "Keyword 'model' found"
+    }
+  ],
+  "ML-Inference": [
+    {
+      "class": "EnrichedPrediction",
+      "file": "ml_engine\\advanced_modules_orchestrator.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "AdvancedModulesOrchestrator",
+      "file": "ml_engine\\advanced_modules_orchestrator.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "CatBoostPrediction",
+      "file": "ml_engine\\catboost_model.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "CatBoostFraudModel",
+      "file": "ml_engine\\catboost_model.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "CatBoostEnsembleIntegration",
+      "file": "ml_engine\\catboost_model.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "UpliftModeling",
+      "file": "ml_engine\\causal_inference.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "ContinuousLearningSystem",
+      "file": "ml_engine\\continuous_learning_system.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "DeviceRiskScore",
+      "file": "ml_engine\\device_fingerprint.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "EnsemblePrediction",
+      "file": "ml_engine\\ensemble_integration.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "IntegratedEnsemble",
+      "file": "ml_engine\\ensemble_integration.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "PredictionExplanation",
+      "file": "ml_engine\\explainability_engine.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "ExplainabilityEngine",
+      "file": "ml_engine\\explainability_engine.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "FederatedFraudDetection",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "GNNPrediction",
+      "file": "ml_engine\\gnn_fraud_detector.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "TransactionGraph",
+      "file": "ml_engine\\gnn_fraud_detector.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "FraudPropagationScore",
+      "file": "ml_engine\\graph_ml_engine.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "FraudGNNModel",
+      "file": "ml_engine\\graph_neural_networks.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "HardRulePrediction",
+      "file": "ml_engine\\hard_rules_engine.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "HuggingFaceFraudDetector",
+      "file": "ml_engine\\huggingface_integration.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "HuggingFaceFraudDetector",
+      "file": "ml_engine\\huggingface_integration_backup.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "ExpertPrediction",
+      "file": "ml_engine\\mixture_of_experts.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "Expert",
+      "file": "ml_engine\\mixture_of_experts.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "MixtureOfExperts",
+      "file": "ml_engine\\mixture_of_experts.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "NLPSocialEngineeringDetector",
+      "file": "ml_engine\\nlp_social_engineering.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "ONNXInferenceSession",
+      "file": "ml_engine\\onnx_serving.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "PIXFraudTaxonomy",
+      "file": "ml_engine\\pix_fraud_taxonomy.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "ProbabilityCalibrator",
+      "file": "ml_engine\\probability_calibration.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "FraudPrediction",
+      "file": "ml_engine\\production_fraud_engine.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "ProductionFraudEngine",
+      "file": "ml_engine\\production_fraud_engine.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "InterpretativeMaskLearner",
+      "file": "ml_engine\\self_explainable_module.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "SelfTrainingClassifier",
+      "file": "ml_engine\\self_training_optimizer.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "AdaptiveSelfTraining",
+      "file": "ml_engine\\self_training_optimizer.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "ConversationScorer",
+      "file": "ml_engine\\app_fraud\\conversation_scorer.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "BehavioralScore",
+      "file": "ml_engine\\behavioral\\behavioral_analyzer.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "BehavioralAnalyzer",
+      "file": "ml_engine\\behavioral\\behavioral_analyzer.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "GNNTrainer",
+      "file": "ml_engine\\gnn\\gnn_trainer.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "GNNTrainer",
+      "file": "ml_engine\\gnn\\gnn_trainer_backup.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "FraudLLMAnalyzer",
+      "file": "ml_engine\\llm\\fraud_llm.py",
+      "evidence": "Keyword 'predict' found"
+    },
+    {
+      "class": "ScamPatternDetector",
+      "file": "ml_engine\\llm\\scam_detector.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "DormancyAnalyzer",
+      "file": "ml_engine\\mule_detection\\dormancy_analyzer.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "MuleScore",
+      "file": "ml_engine\\mule_detection\\mule_detector.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "MuleDetector",
+      "file": "ml_engine\\mule_detection\\mule_detector.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "NetworkPositionAnalyzer",
+      "file": "ml_engine\\mule_detection\\network_position_analyzer.py",
+      "evidence": "Keyword 'score' found"
+    },
+    {
+      "class": "TurnoverAnalyzer",
+      "file": "ml_engine\\mule_detection\\turnover_analyzer.py",
+      "evidence": "Keyword 'score' found"
+    }
+  ],
+  "Graph/GNN": [
+    {
+      "class": "AdvancedModulesOrchestrator",
+      "file": "ml_engine\\advanced_modules_orchestrator.py",
+      "evidence": "Keyword 'gnn' found"
+    },
+    {
+      "class": "BahnsenFeatureEngineering",
+      "file": "ml_engine\\bahnsen_feature_engineering.py",
+      "evidence": "Keyword 'gat' found"
+    },
+    {
+      "class": "CausalImpactAnalyzer",
+      "file": "ml_engine\\causal_inference.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "IntegratedEnsemble",
+      "file": "ml_engine\\ensemble_integration.py",
+      "evidence": "Keyword 'gnn' found"
+    },
+    {
+      "class": "SecureAggregation",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'gat' found"
+    },
+    {
+      "class": "FederatedServer",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'gat' found"
+    },
+    {
+      "class": "GraphNode",
+      "file": "ml_engine\\gnn_fraud_detector.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "GraphEdge",
+      "file": "ml_engine\\gnn_fraud_detector.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "GNNPrediction",
+      "file": "ml_engine\\gnn_fraud_detector.py",
+      "evidence": "Keyword 'gnn' found"
+    },
+    {
+      "class": "TransactionGraph",
+      "file": "ml_engine\\gnn_fraud_detector.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "GNNFraudDetector",
+      "file": "ml_engine\\gnn_fraud_detector.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "GraphNode",
+      "file": "ml_engine\\graph_ml_engine.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "GraphEdge",
+      "file": "ml_engine\\graph_ml_engine.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "FraudGraphBuilder",
+      "file": "ml_engine\\graph_ml_engine.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "GraphFeatureExtractor",
+      "file": "ml_engine\\graph_ml_engine.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "FraudPropagationScore",
+      "file": "ml_engine\\graph_ml_engine.py",
+      "evidence": "Keyword 'gat' found"
+    },
+    {
+      "class": "GraphMLEngine",
+      "file": "ml_engine\\graph_ml_engine.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "GraphNode",
+      "file": "ml_engine\\graph_neural_networks.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "GraphEdge",
+      "file": "ml_engine\\graph_neural_networks.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "FraudGNNModel",
+      "file": "ml_engine\\graph_neural_networks.py",
+      "evidence": "Keyword 'gnn' found"
+    },
+    {
+      "class": "TransactionGraphBuilder",
+      "file": "ml_engine\\graph_neural_networks.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "GNNFraudDetector",
+      "file": "ml_engine\\graph_neural_networks.py",
+      "evidence": "Keyword 'gnn' found"
+    },
+    {
+      "class": "GatingNetwork",
+      "file": "ml_engine\\mixture_of_experts.py",
+      "evidence": "Keyword 'gat' found"
+    },
+    {
+      "class": "MixtureOfExperts",
+      "file": "ml_engine\\mixture_of_experts.py",
+      "evidence": "Keyword 'gat' found"
+    },
+    {
+      "class": "ConversationScorer",
+      "file": "ml_engine\\app_fraud\\conversation_scorer.py",
+      "evidence": "Keyword 'sage' found"
+    },
+    {
+      "class": "InterventionEngine",
+      "file": "ml_engine\\app_fraud\\intervention_engine.py",
+      "evidence": "Keyword 'sage' found"
+    },
+    {
+      "class": "SessionAnalyzer",
+      "file": "ml_engine\\app_fraud\\session_analyzer.py",
+      "evidence": "Keyword 'gat' found"
+    },
+    {
+      "class": "KeystrokeAnalyzer",
+      "file": "ml_engine\\behavioral\\keystroke_analyzer.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "AggregationFeatureGenerator",
+      "file": "ml_engine\\feature_engineering\\aggregation_features.py",
+      "evidence": "Keyword 'gat' found"
+    },
+    {
+      "class": "FeatureGenerator",
+      "file": "ml_engine\\feature_engineering\\feature_generator.py",
+      "evidence": "Keyword 'gat' found"
+    },
+    {
+      "class": "GraphFeatureGenerator",
+      "file": "ml_engine\\feature_engineering\\graph_features.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "FraudGNNConfig",
+      "file": "ml_engine\\gnn\\fraud_gnn.py",
+      "evidence": "Keyword 'gnn' found"
+    },
+    {
+      "class": "FraudGNN",
+      "file": "ml_engine\\gnn\\fraud_gnn.py",
+      "evidence": "Keyword 'gnn' found"
+    },
+    {
+      "class": "GraphAttentionLayer",
+      "file": "ml_engine\\gnn\\fraud_gnn.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "FraudGNNConfig",
+      "file": "ml_engine\\gnn\\fraud_gnn_backup.py",
+      "evidence": "Keyword 'gnn' found"
+    },
+    {
+      "class": "FraudGNN",
+      "file": "ml_engine\\gnn\\fraud_gnn_backup.py",
+      "evidence": "Keyword 'gnn' found"
+    },
+    {
+      "class": "GraphAttentionLayer",
+      "file": "ml_engine\\gnn\\fraud_gnn_backup.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "GNNTrainer",
+      "file": "ml_engine\\gnn\\gnn_trainer.py",
+      "evidence": "Keyword 'gnn' found"
+    },
+    {
+      "class": "GNNTrainer",
+      "file": "ml_engine\\gnn\\gnn_trainer_backup.py",
+      "evidence": "Keyword 'gnn' found"
+    },
+    {
+      "class": "TransactionGraphBuilder",
+      "file": "ml_engine\\gnn\\graph_builder.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "HeteroGraphBuilder",
+      "file": "ml_engine\\gnn\\graph_builder.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "TransactionGraphBuilder",
+      "file": "ml_engine\\gnn\\graph_builder_backup.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "HeteroGraphBuilder",
+      "file": "ml_engine\\gnn\\graph_builder_backup.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "TemporalGraphNetwork",
+      "file": "ml_engine\\gnn\\temporal_gnn.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "MessageFunction",
+      "file": "ml_engine\\gnn\\temporal_gnn.py",
+      "evidence": "Keyword 'sage' found"
+    },
+    {
+      "class": "LastAggregator",
+      "file": "ml_engine\\gnn\\temporal_gnn.py",
+      "evidence": "Keyword 'gat' found"
+    },
+    {
+      "class": "AttentionAggregator",
+      "file": "ml_engine\\gnn\\temporal_gnn.py",
+      "evidence": "Keyword 'gat' found"
+    },
+    {
+      "class": "TemporalGraphNetwork",
+      "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "MessageFunction",
+      "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+      "evidence": "Keyword 'sage' found"
+    },
+    {
+      "class": "LastAggregator",
+      "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+      "evidence": "Keyword 'gat' found"
+    },
+    {
+      "class": "AttentionAggregator",
+      "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+      "evidence": "Keyword 'gat' found"
+    },
+    {
+      "class": "ScamPatternDetector",
+      "file": "ml_engine\\llm\\scam_detector.py",
+      "evidence": "Keyword 'sage' found"
+    },
+    {
+      "class": "MuleDetector",
+      "file": "ml_engine\\mule_detection\\mule_detector.py",
+      "evidence": "Keyword 'graph' found"
+    },
+    {
+      "class": "NetworkPositionAnalyzer",
+      "file": "ml_engine\\mule_detection\\network_position_analyzer.py",
+      "evidence": "Keyword 'graph' found"
+    }
+  ],
+  "FederatedLearning": [
+    {
+      "class": "AdvancedFeatureEngineering",
+      "file": "ml_engine\\advanced_feature_engineering.py",
+      "evidence": "Keyword 'client' found"
+    },
+    {
+      "class": "BahnsenFeatureEngineering",
+      "file": "ml_engine\\bahnsen_feature_engineering.py",
+      "evidence": "Keyword 'aggregat' found"
+    },
+    {
+      "class": "FederatedConfig",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'federated' found"
+    },
+    {
+      "class": "ClientUpdate",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'client' found"
+    },
+    {
+      "class": "SecureAggregation",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'aggregat' found"
+    },
+    {
+      "class": "FederatedClient",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'federated' found"
+    },
+    {
+      "class": "SklearnFederatedClient",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'federated' found"
+    },
+    {
+      "class": "FederatedServer",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'federated' found"
+    },
+    {
+      "class": "FederatedFraudDetection",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'federated' found"
+    },
+    {
+      "class": "MixtureOfExperts",
+      "file": "ml_engine\\mixture_of_experts.py",
+      "evidence": "Keyword 'aggregat' found"
+    },
+    {
+      "class": "AggregationFeatureGenerator",
+      "file": "ml_engine\\feature_engineering\\aggregation_features.py",
+      "evidence": "Keyword 'aggregat' found"
+    },
+    {
+      "class": "FeatureGenerator",
+      "file": "ml_engine\\feature_engineering\\feature_generator.py",
+      "evidence": "Keyword 'aggregat' found"
+    },
+    {
+      "class": "LastAggregator",
+      "file": "ml_engine\\gnn\\temporal_gnn.py",
+      "evidence": "Keyword 'aggregat' found"
+    },
+    {
+      "class": "AttentionAggregator",
+      "file": "ml_engine\\gnn\\temporal_gnn.py",
+      "evidence": "Keyword 'aggregat' found"
+    },
+    {
+      "class": "LastAggregator",
+      "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+      "evidence": "Keyword 'aggregat' found"
+    },
+    {
+      "class": "AttentionAggregator",
+      "file": "ml_engine\\gnn\\temporal_gnn_backup.py",
+      "evidence": "Keyword 'aggregat' found"
+    }
+  ],
+  "Explainability": [
+    {
+      "class": "AdvancedModulesOrchestrator",
+      "file": "ml_engine\\advanced_modules_orchestrator.py",
+      "evidence": "Keyword 'explain' found"
+    },
+    {
+      "class": "CatBoostFraudModel",
+      "file": "ml_engine\\catboost_model.py",
+      "evidence": "Keyword 'shap' found"
+    },
+    {
+      "class": "ExplainabilityEngine",
+      "file": "ml_engine\\explainability_engine.py",
+      "evidence": "Keyword 'explain' found"
+    },
+    {
+      "class": "InterpretativeMaskLearner",
+      "file": "ml_engine\\self_explainable_module.py",
+      "evidence": "Keyword 'interpret' found"
+    },
+    {
+      "class": "ExplanationGenerator",
+      "file": "ml_engine\\llm\\explanation_generator.py",
+      "evidence": "Keyword 'explain' found"
+    }
+  ],
+  "Rules/Heuristics": [
+    {
+      "class": "AutoencoderAnomalyDetector",
+      "file": "ml_engine\\autoencoder_anomaly_detector.py",
+      "evidence": "Keyword 'threshold' found"
+    },
+    {
+      "class": "H2OAutoMLFraudDetector",
+      "file": "ml_engine\\automl_pipeline.py",
+      "evidence": "Keyword 'detector' found"
+    },
+    {
+      "class": "CausalImpactAnalyzer",
+      "file": "ml_engine\\causal_inference.py",
+      "evidence": "Keyword 'rule' found"
+    },
+    {
+      "class": "GNNFraudDetector",
+      "file": "ml_engine\\gnn_fraud_detector.py",
+      "evidence": "Keyword 'detector' found"
+    },
+    {
+      "class": "GNNFraudDetector",
+      "file": "ml_engine\\graph_neural_networks.py",
+      "evidence": "Keyword 'detector' found"
+    },
+    {
+      "class": "HardRulePrediction",
+      "file": "ml_engine\\hard_rules_engine.py",
+      "evidence": "Keyword 'rule' found"
+    },
+    {
+      "class": "HardRulesEngine",
+      "file": "ml_engine\\hard_rules_engine.py",
+      "evidence": "Keyword 'rule' found"
+    },
+    {
+      "class": "HuggingFaceFraudDetector",
+      "file": "ml_engine\\huggingface_integration.py",
+      "evidence": "Keyword 'detector' found"
+    },
+    {
+      "class": "HuggingFaceFraudDetector",
+      "file": "ml_engine\\huggingface_integration_backup.py",
+      "evidence": "Keyword 'detector' found"
+    },
+    {
+      "class": "NLPSocialEngineeringDetector",
+      "file": "ml_engine\\nlp_social_engineering.py",
+      "evidence": "Keyword 'detector' found"
+    },
+    {
+      "class": "ProductionFraudEngine",
+      "file": "ml_engine\\production_fraud_engine.py",
+      "evidence": "Keyword 'rule' found"
+    },
+    {
+      "class": "InterpretativeMaskLearner",
+      "file": "ml_engine\\self_explainable_module.py",
+      "evidence": "Keyword 'rule' found"
+    },
+    {
+      "class": "ThresholdOptimizer",
+      "file": "ml_engine\\threshold_optimizer.py",
+      "evidence": "Keyword 'threshold' found"
+    },
+    {
+      "class": "DuressDetector",
+      "file": "ml_engine\\app_fraud\\duress_detector.py",
+      "evidence": "Keyword 'detector' found"
+    },
+    {
+      "class": "ScamDetector",
+      "file": "ml_engine\\app_fraud\\scam_detector.py",
+      "evidence": "Keyword 'detector' found"
+    },
+    {
+      "class": "ExplanationGenerator",
+      "file": "ml_engine\\llm\\explanation_generator.py",
+      "evidence": "Keyword 'threshold' found"
+    },
+    {
+      "class": "ScamPatternDetector",
+      "file": "ml_engine\\llm\\scam_detector.py",
+      "evidence": "Keyword 'detector' found"
+    },
+    {
+      "class": "MuleDetector",
+      "file": "ml_engine\\mule_detection\\mule_detector.py",
+      "evidence": "Keyword 'detector' found"
+    }
+  ],
+  "Serving": [
+    {
+      "class": "FederatedServer",
+      "file": "ml_engine\\federated_learning.py",
+      "evidence": "Keyword 'serve' found"
+    },
+    {
+      "class": "ONNXModelConverter",
+      "file": "ml_engine\\onnx_serving.py",
+      "evidence": "Keyword 'onnx' found"
+    },
+    {
+      "class": "ONNXInferenceSession",
+      "file": "ml_engine\\onnx_serving.py",
+      "evidence": "Keyword 'onnx' found"
+    },
+    {
+      "class": "ONNXFraudModelServing",
+      "file": "ml_engine\\onnx_serving.py",
+      "evidence": "Keyword 'onnx' found"
+    },
+    {
+      "class": "ProductionFraudEngine",
+      "file": "ml_engine\\production_fraud_engine.py",
+      "evidence": "Keyword 'api' found"
+    },
+    {
+      "class": "TurnoverAnalyzer",
+      "file": "ml_engine\\mule_detection\\turnover_analyzer.py",
+      "evidence": "Keyword 'api' found"
+    }
+  ],
+  "Orchestration": [
+    {
+      "class": "AdvancedFeatureEngineering",
+      "file": "ml_engine\\advanced_feature_engineering.py",
+      "evidence": "Keyword 'engine' found"
+    },
+    {
+      "class": "OrchestratorConfig",
+      "file": "ml_engine\\advanced_modules_orchestrator.py",
+      "evidence": "Keyword 'orchestrat' found"
+    },
+    {
+      "class": "AdvancedModulesOrchestrator",
+      "file": "ml_engine\\advanced_modules_orchestrator.py",
+      "evidence": "Keyword 'orchestrat' found"
+    },
+    {
+      "class": "AutoFeatureEngineering",
+      "file": "ml_engine\\automl_pipeline.py",
+      "evidence": "Keyword 'engine' found"
+    },
+    {
+      "class": "AutoMLPipeline",
+      "file": "ml_engine\\automl_pipeline.py",
+      "evidence": "Keyword 'pipeline' found"
+    },
+    {
+      "class": "BahnsenFeatureEngineering",
+      "file": "ml_engine\\bahnsen_feature_engineering.py",
+      "evidence": "Keyword 'engine' found"
+    },
+    {
+      "class": "PIXFeatureEngineer",
+      "file": "ml_engine\\dataset_loaders.py",
+      "evidence": "Keyword 'engine' found"
+    },
+    {
+      "class": "ExplainabilityEngine",
+      "file": "ml_engine\\explainability_engine.py",
+      "evidence": "Keyword 'engine' found"
+    },
+    {
+      "class": "AutoFeatureEngineering",
+      "file": "ml_engine\\feature_engineering.py",
+      "evidence": "Keyword 'engine' found"
+    },
+    {
+      "class": "GraphMLEngine",
+      "file": "ml_engine\\graph_ml_engine.py",
+      "evidence": "Keyword 'engine' found"
+    },
+    {
+      "class": "HardRulesEngine",
+      "file": "ml_engine\\hard_rules_engine.py",
+      "evidence": "Keyword 'engine' found"
+    },
+    {
+      "class": "UnifiedFraudEngine",
+      "file": "ml_engine\\hard_rules_engine.py",
+      "evidence": "Keyword 'engine' found"
+    },
+    {
+      "class": "SocialEngineeringAnalysis",
+      "file": "ml_engine\\nlp_social_engineering.py",
+      "evidence": "Keyword 'engine' found"
+    },
+    {
+      "class": "NLPSocialEngineeringDetector",
+      "file": "ml_engine\\nlp_social_engineering.py",
+      "evidence": "Keyword 'engine' found"
+    },
+    {
+      "class": "ProductionFraudEngine",
+      "file": "ml_engine\\production_fraud_engine.py",
+      "evidence": "Keyword 'engine' found"
+    },
+    {
+      "class": "TransferLearningPipeline",
+      "file": "ml_engine\\transfer_learning_pipeline.py",
+      "evidence": "Keyword 'pipeline' found"
+    },
+    {
+      "class": "InterventionEngine",
+      "file": "ml_engine\\app_fraud\\intervention_engine.py",
+      "evidence": "Keyword 'engine' found"
+    }
+  ]
+}

@@ -1087,7 +1087,7 @@ class ProductionFraudEngine:
             X: DataFrame com features
 
         Returns:
-            Array numpy com labels binários (0 = legítimo, 1 = fraude)
+            Array numpy com scores de probabilidade de fraude em [0, 1]
         """
         if not self.is_trained:
             raise ValueError("Model not trained. Call fit() first.")
@@ -1105,22 +1105,78 @@ class ProductionFraudEngine:
             if self.calibrated_model is None:
                 raise ValueError("Calibrated model not initialized. Call fit() first.")
 
-            # Predições
+            # Predições - retornar probabilidades (scores)
             y_proba = self.calibrated_model.predict_proba(X_processed)[:, 1]
-            y_pred = (y_proba >= self.threshold).astype(int)
 
             logger.info(
                 "Predictions completed",
-                num_predictions=len(y_pred),
-                num_frauds=int(y_pred.sum()),
+                num_predictions=len(y_proba),
+                num_high_risk=int((y_proba >= self.threshold).sum()),
                 avg_time_ms=round((time.time() * 1000) / len(X) if len(X) > 0 else 0, 2),
             )
 
-            return y_pred
+            return y_proba
 
         except Exception as e:
             logger.error("Prediction failed", exception=e)
             raise
+
+    @log_execution_time(logger)
+    def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
+        """
+        Retorna probabilidades de classe (sklearn-compatible)
+
+        Args:
+            X: DataFrame com features
+
+        Returns:
+            Array numpy 2D com shape (n_samples, 2) onde:
+            - coluna 0: P(classe=0) = P(legítimo)
+            - coluna 1: P(classe=1) = P(fraude)
+        """
+        if not self.is_trained:
+            raise ValueError("Model not trained. Call fit() first.")
+
+        try:
+            missing_features = self._validate_required_features(X)
+            if missing_features:
+                logger.warning(
+                    "Missing features detected", missing=missing_features, provided=list(X.columns)
+                )
+
+            X_processed = self._preprocess_data(X, fit_transform=False)
+
+            # Validar modelo
+            if self.calibrated_model is None:
+                raise ValueError("Calibrated model not initialized. Call fit() first.")
+
+            # Retornar probabilidades completas [P(0), P(1)]
+            probas = self.calibrated_model.predict_proba(X_processed)
+
+            logger.info(
+                "Probability predictions completed",
+                num_predictions=len(probas),
+                avg_fraud_prob=round(float(probas[:, 1].mean()), 4),
+            )
+
+            return probas
+
+        except Exception as e:
+            logger.error("Probability prediction failed", exception=e)
+            raise
+
+    def predict_binary(self, X: pd.DataFrame) -> np.ndarray:
+        """
+        Retorna predições binárias (0 ou 1)
+
+        Args:
+            X: DataFrame com features
+
+        Returns:
+            Array numpy com labels binários (0 = legítimo, 1 = fraude)
+        """
+        y_proba = self.predict(X)
+        return (y_proba >= self.threshold).astype(int)
 
     def _get_cache(self):
         """Obtém instância do cache (lazy loading)"""

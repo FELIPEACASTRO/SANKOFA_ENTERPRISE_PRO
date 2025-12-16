@@ -1,0 +1,251 @@
+{
+  "timestamp": "2025-12-15T19:04:30.351966",
+  "tests": [
+    {
+      "test": "ProductionFraudEngine import",
+      "status": "PASS",
+      "details": "",
+      "severity": "normal"
+    },
+    {
+      "test": "ProductionFraudEngine.predict()",
+      "status": "PASS",
+      "details": "Shape: (2,)",
+      "severity": "normal"
+    },
+    {
+      "test": "Prediction count",
+      "status": "PASS",
+      "details": "",
+      "severity": "normal"
+    },
+    {
+      "test": "Predictions are binary",
+      "status": "PASS",
+      "details": "",
+      "severity": "normal"
+    },
+    {
+      "test": "ProductionFraudEngine.predict_proba()",
+      "status": "FAIL",
+      "details": "'ProductionFraudEngine' object has no attribute 'predict_proba'",
+      "severity": "normal"
+    },
+    {
+      "test": "IntegratedEnsemble import",
+      "status": "PASS",
+      "details": "",
+      "severity": "normal"
+    },
+    {
+      "test": "Methods available",
+      "status": "PASS",
+      "details": "12 methods",
+      "severity": "normal"
+    },
+    {
+      "test": "Has predict_transaction",
+      "status": "WARN",
+      "details": "Method not found - checking alternatives",
+      "severity": "normal"
+    },
+    {
+      "test": "Available callable methods",
+      "status": "PASS",
+      "details": "['add_transactions_to_gnn', 'calibrate_weights', 'get_ensemble_info', 'predict_combined', 'train_catboost']",
+      "severity": "normal"
+    },
+    {
+      "test": "Autoencoder model file",
+      "status": "PASS",
+      "details": "Size: 90362 bytes",
+      "severity": "normal"
+    },
+    {
+      "test": "Autoencoder load",
+      "status": "PASS",
+      "details": "Type: AutoencoderAnomalyDetector",
+      "severity": "normal"
+    },
+    {
+      "test": "Normal detection",
+      "status": "PASS",
+      "details": "is_anomaly=True, score=1.0000",
+      "severity": "normal"
+    },
+    {
+      "test": "Fraud detection",
+      "status": "PASS",
+      "details": "is_anomaly=True, score=1.0000",
+      "severity": "normal"
+    },
+    {
+      "test": "Fraud score >= normal score",
+      "status": "PASS",
+      "details": "",
+      "severity": "normal"
+    },
+    {
+      "test": "BiLSTM model file",
+      "status": "PASS",
+      "details": "Size: 697617 bytes",
+      "severity": "normal"
+    },
+    {
+      "test": "BiLSTM load",
+      "status": "PASS",
+      "details": "Type: BiLSTMSequenceAnalyzer",
+      "severity": "normal"
+    },
+    {
+      "test": "BiLSTM analyze_sequence",
+      "status": "PASS",
+      "details": "suspicious=False, risk=0.3190",
+      "severity": "normal"
+    },
+    {
+      "test": "Risk score in [0,1]",
+      "status": "PASS",
+      "details": "",
+      "severity": "normal"
+    },
+    {
+      "test": "CatBoost model file",
+      "status": "PASS",
+      "details": "Size: 13316 bytes",
+      "severity": "normal"
+    },
+    {
+      "test": "CatBoost initialization",
+      "status": "PASS",
+      "details": "",
+      "severity": "normal"
+    },
+    {
+      "test": "CatBoost model loaded",
+      "status": "PASS",
+      "details": "",
+      "severity": "normal"
+    },
+    {
+      "test": "MuleDetector import",
+      "status": "PASS",
+      "details": "",
+      "severity": "normal"
+    },
+    {
+      "test": "Available methods",
+      "status": "PASS",
+      "details": "['add_known_mule', 'add_suspicious_account', 'detect', 'get_stats', 'set_analyzers']",
+      "severity": "normal"
+    },
+    {
+      "test": "Detection method",
+      "status": "WARN",
+      "details": "No detection method found",
+      "severity": "normal"
+    },
+    {
+      "test": "FeatureGenerator import",
+      "status": "PASS",
+      "details": "",
+      "severity": "normal"
+    },
+    {
+      "test": "generate_features(dict)",
+      "status": "WARN",
+      "details": "'dict' object has no attribute 'columns'",
+      "severity": "normal"
+    },
+    {
+      "test": "MixtureOfExperts import",
+      "status": "PASS",
+      "details": "",
+      "severity": "normal"
+    },
+    {
+      "test": "MoE predict",
+      "status": "PASS",
+      "details": "Type: MoEResult",
+      "severity": "normal"
+    },
+    {
+      "test": "Final probability in [0,1]",
+      "status": "PASS",
+      "details": "0.5000",
+      "severity": "normal"
+    },
+    {
+      "test": "Model random_forest.pkl",
+      "status": "PASS",
+      "details": "Type: RandomForestClassifier",
+      "severity": "normal"
+    },
+    {
+      "test": "random_forest.pkl predict",
+      "status": "PASS",
+      "details": "Pred: [0]",
+      "severity": "normal"
+    },
+    {
+      "test": "Model gradient_boosting.pkl",
+      "status": "PASS",
+      "details": "Type: GradientBoostingClassifier",
+      "severity": "normal"
+    },
+    {
+      "test": "gradient_boosting.pkl predict",
+      "status": "PASS",
+      "details": "Pred: [0]",
+      "severity": "normal"
+    },
+    {
+      "test": "Model extra_trees_gnn.pkl",
+      "status": "PASS",
+      "details": "Type: ExtraTreesClassifier",
+      "severity": "normal"
+    },
+    {
+      "test": "extra_trees_gnn.pkl predict",
+      "status": "PASS",
+      "details": "Pred: [0]",
+      "severity": "normal"
+    },
+    {
+      "test": "Model mlp.pkl",
+      "status": "PASS",
+      "details": "Type: MLPClassifier",
+      "severity": "normal"
+    },
+    {
+      "test": "mlp.pkl predict",
+      "status": "PASS",
+      "details": "Pred: [1]",
+      "severity": "normal"
+    },
+    {
+      "test": "Model isolation_forest.pkl",
+      "status": "PASS",
+      "details": "Type: IsolationForest",
+      "severity": "normal"
+    },
+    {
+      "test": "isolation_forest.pkl predict",
+      "status": "PASS",
+      "details": "Pred: [-1]",
+      "severity": "normal"
+    },
+    {
+      "test": "Model scaler.pkl",
+      "status": "PASS",
+      "details": "Type: StandardScaler",
+      "severity": "normal"
+    }
+  ],
+  "passed": 36,
+  "failed": 1,
+  "warnings": 3,
+  "critical_failures": [],
+  "verdict": "PARTIAL",
+  "total_tests": 40
+}

@@ -670,6 +670,26 @@ class FeatureGenerator:
             "estimated_feature_count": self.get_feature_count()
         }
 
+    def generate(self, transaction: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Gerar features para uma única transação (dict)
+        Alias para compatibilidade com API simples
+
+        Args:
+            transaction: Dicionário com dados da transação
+
+        Returns:
+            Dicionário com features geradas
+        """
+        # Converter dict para DataFrame single-row
+        df = pd.DataFrame([transaction])
+
+        # Gerar features
+        result_df = self.generate_features(df)
+
+        # Converter de volta para dict
+        return result_df.iloc[0].to_dict()
+
 
 def create_feature_generator(config: Optional[Dict[str, Any]] = None) -> FeatureGenerator:
     """Factory function para criar FeatureGenerator"""

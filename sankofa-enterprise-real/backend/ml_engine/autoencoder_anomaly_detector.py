@@ -417,6 +417,52 @@ class AutoencoderAnomalyDetector:
             "sklearn_available": SKLEARN_AVAILABLE,
         }
 
+    def detect(self, data: np.ndarray) -> Dict[str, Any]:
+        """
+        Detecta anomalia em dados numpy array
+        Alias para compatibilidade com API padrao
+
+        Args:
+            data: Array numpy com features
+
+        Returns:
+            Dicionario com resultado da deteccao
+        """
+        if not self.is_fitted:
+            return {
+                "is_anomaly": False,
+                "score": 0.0,
+                "threshold": self.threshold or 0.0
+            }
+
+        # Escalar dados
+        X_scaled = self.scaler.transform(data)
+
+        # Reconstruir
+        if hasattr(self, "use_simple") and self.use_simple:
+            X_reconstructed = self.pca_model.inverse_transform(self.pca_model.transform(X_scaled))
+        else:
+            X_reconstructed = self.model.predict(X_scaled, verbose=0)
+
+        # Calcular erro
+        reconstruction_error = float(np.mean((X_scaled - X_reconstructed) ** 2))
+
+        # Verificar anomalia
+        is_anomaly = reconstruction_error > self.threshold
+
+        # Score normalizado
+        if self.threshold > 0:
+            score = min(1.0, reconstruction_error / self.threshold)
+        else:
+            score = 0.0
+
+        return {
+            "is_anomaly": is_anomaly,
+            "score": score,
+            "threshold": self.threshold,
+            "reconstruction_error": reconstruction_error
+        }
+
 
 _autoencoder_instance = None
 

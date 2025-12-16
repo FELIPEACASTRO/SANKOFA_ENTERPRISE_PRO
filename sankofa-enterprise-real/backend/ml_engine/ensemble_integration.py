@@ -422,6 +422,21 @@ class IntegratedEnsemble:
             hard_rules_triggered=hard_rules_triggered,
         )
 
+    def predict(
+        self, transaction: Dict[str, Any], base_probability: float = 0.5
+    ) -> EnsemblePrediction:
+        """
+        Alias para predict_combined para compatibilidade sklearn-style
+
+        Args:
+            transaction: Dados da transação
+            base_probability: Probabilidade do ensemble base (default: 0.5)
+
+        Returns:
+            Predição do ensemble integrado
+        """
+        return self.predict_combined(transaction, base_probability)
+
     def get_ensemble_info(self) -> Dict[str, Any]:
         """Retorna informações do ensemble"""
         return {

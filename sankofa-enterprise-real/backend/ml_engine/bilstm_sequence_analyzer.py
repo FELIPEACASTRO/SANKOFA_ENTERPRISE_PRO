@@ -252,18 +252,31 @@ class BiLSTMSequenceAnalyzer:
         self.update_user_baseline(user_id, transaction)
 
     def analyze_sequence(
-        self, user_id: str, current_transaction: Dict[str, Any]
+        self, user_id: str, current_transaction: Optional[Dict[str, Any]] = None
     ) -> SequenceAnalysisResult:
         """
         Analisa sequência de transações do usuário
 
         Args:
             user_id: ID do usuário
-            current_transaction: Transação atual
+            current_transaction: Transação atual (opcional - se None, analisa apenas histórico)
 
         Returns:
             Resultado da análise de sequência
         """
+        # Se current_transaction não fornecido, criar uma transação dummy para análise
+        if current_transaction is None:
+            sequence = self.sequence_buffer.get_sequence(user_id)
+            if sequence:
+                # Usar última transação do histórico como referência
+                current_transaction = sequence[-1].copy()
+            else:
+                current_transaction = {
+                    "transaction_id": f"ANALYSIS_{user_id}",
+                    "amount": 0,
+                    "hour": 12,
+                    "channel": "unknown"
+                }
         transaction_id = current_transaction.get(
             "transaction_id",
             f"TXN_{hashlib.md5(str(current_transaction).encode()).hexdigest()[:8]}",

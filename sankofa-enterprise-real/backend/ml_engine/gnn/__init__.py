@@ -9,35 +9,70 @@ Baseado em:
 - PyTorch Geometric
 """
 
-from .fraud_gnn import (
-    FraudGNN,
-    FraudGNNConfig,
-    create_fraud_gnn
-)
+import logging
 
-from .temporal_gnn import (
-    TemporalGraphNetwork,
-    TGNConfig,
-    create_tgn
-)
+logger = logging.getLogger(__name__)
 
-from .graph_builder import (
-    TransactionGraphBuilder,
-    HeteroGraphBuilder,
-    create_graph_builder
-)
+# Safe imports - catch any torch-related errors
+try:
+    from .fraud_gnn import (
+        FraudGNN,
+        FraudGNNConfig,
+        create_fraud_gnn,
+        HAS_TORCH,
+        HAS_PYG
+    )
+except (ImportError, AttributeError) as e:
+    logger.warning(f"Could not import fraud_gnn: {e}")
+    FraudGNN = None
+    FraudGNNConfig = None
+    create_fraud_gnn = None
+    HAS_TORCH = False
+    HAS_PYG = False
 
-from .gnn_trainer import (
-    GNNTrainer,
-    TrainerConfig,
-    create_trainer
-)
+try:
+    from .temporal_gnn import (
+        TemporalGraphNetwork,
+        TGNConfig,
+        create_tgn
+    )
+except (ImportError, AttributeError) as e:
+    logger.warning(f"Could not import temporal_gnn: {e}")
+    TemporalGraphNetwork = None
+    TGNConfig = None
+    create_tgn = None
+
+try:
+    from .graph_builder import (
+        TransactionGraphBuilder,
+        HeteroGraphBuilder,
+        create_graph_builder
+    )
+except (ImportError, AttributeError) as e:
+    logger.warning(f"Could not import graph_builder: {e}")
+    TransactionGraphBuilder = None
+    HeteroGraphBuilder = None
+    create_graph_builder = None
+
+try:
+    from .gnn_trainer import (
+        GNNTrainer,
+        TrainerConfig,
+        create_trainer
+    )
+except (ImportError, AttributeError) as e:
+    logger.warning(f"Could not import gnn_trainer: {e}")
+    GNNTrainer = None
+    TrainerConfig = None
+    create_trainer = None
 
 __all__ = [
     # Main GNN
     "FraudGNN",
     "FraudGNNConfig",
     "create_fraud_gnn",
+    "HAS_TORCH",
+    "HAS_PYG",
 
     # Temporal GNN
     "TemporalGraphNetwork",

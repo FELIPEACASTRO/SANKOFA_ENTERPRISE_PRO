@@ -1,0 +1,253 @@
+{
+  "timestamp": "2025-12-15T19:52:13.427488",
+  "summary": {
+    "total": 24,
+    "passed": 22,
+    "failed": 0,
+    "warnings": 2,
+    "pass_rate": 91.66666666666666
+  },
+  "verdict": "[PASS] PRONTA PARA PRODUCAO",
+  "tests": [
+    {
+      "test": "DS-001: Feature Engineering (FeatureGenerator)",
+      "status": "PASS",
+      "input": "{'amount': 1500.0, 'hour': 14, 'day_of_week': 3, 'merchant_category': 'retail'}",
+      "expected": "Dict with additional features",
+      "observed": "28 features generated",
+      "evidence": "Features: ['amount', 'hour', 'day_of_week', 'merchant_category', 'value']...",
+      "correction": "",
+      "time_ms": 1411.8447303771973
+    },
+    {
+      "test": "DS-002: Bahnsen Feature Engineering",
+      "status": "WARN",
+      "input": "DataFrame with transaction data",
+      "expected": "Feature generation method available",
+      "observed": "Methods: ['AGGREGATION_WINDOWS', 'CHANNEL_RISK_SCORES', 'VERSION', 'add_transaction_to_history', 'calculate_behavioral_deviation']",
+      "evidence": "Has feature method: False",
+      "correction": "",
+      "time_ms": 8.84103775024414
+    },
+    {
+      "test": "DS-003: Autoencoder Anomaly Detection",
+      "status": "PASS",
+      "input": "Normal tx with 14 features, Fraud tx with 14 features",
+      "expected": "Anomaly scores for both",
+      "observed": "Normal score: 1.000, Fraud score: 1.000",
+      "evidence": "Both detections returned results. Has detect method: True",
+      "correction": "",
+      "time_ms": 464.79010581970215
+    },
+    {
+      "test": "DS-004: BiLSTM Sequence Analysis",
+      "status": "PASS",
+      "input": "User: TEST_USER_001, 3 transactions",
+      "expected": "SequenceAnalysisResult with risk score",
+      "observed": "Risk score: 0.331, Suspicious: False",
+      "evidence": "Analysis completed. Recommendation: APROVAR: Sequ\u00eancia dentro do padr\u00e3o",
+      "correction": "",
+      "time_ms": 17.002344131469727
+    },
+    {
+      "test": "DS-005: Mixture of Experts",
+      "status": "PASS",
+      "input": "{'amount': 1500.0, 'channel': 'pix', 'hour': 14, 'is_new_device': False}",
+      "expected": "MoEResult with probability",
+      "observed": "MoEResult(transaction_id='TXN_47f44802', final_prediction=False, final_probability=0.5, expert_weigh",
+      "evidence": "Has final_probability: True",
+      "correction": "",
+      "time_ms": 133.82363319396973
+    },
+    {
+      "test": "DS-006: Production Fraud Engine",
+      "status": "PASS",
+      "input": "DataFrame with 2 transactions",
+      "expected": "2 predictions",
+      "observed": "2 predictions: [0 1]",
+      "evidence": "Correct count: True",
+      "correction": "",
+      "time_ms": 21823.490858078003
+    },
+    {
+      "test": "ML-001: Model Persistence",
+      "status": "PASS",
+      "input": "Check 8 required models",
+      "expected": "All models present",
+      "observed": "Found: 8, Missing: 0",
+      "evidence": "All present",
+      "correction": "",
+      "time_ms": 0.8397102355957031
+    },
+    {
+      "test": "ML-002: Ensemble Configuration",
+      "status": "PASS",
+      "input": "Config file inspection",
+      "expected": "Weights and AUC metrics",
+      "observed": "Keys: ['weights', 'ensemble_auc', 'individual_aucs', 'trained_at', 'feature_cols']",
+      "evidence": "Has weights: True, Has AUC: True",
+      "correction": "",
+      "time_ms": 1.1608600616455078
+    },
+    {
+      "test": "ML-003: Base Model Predictions",
+      "status": "PASS",
+      "input": "Test array with 7 features",
+      "expected": "Predictions from all models",
+      "observed": "{'random_forest.pkl': 0, 'gradient_boosting.pkl': 0, 'mlp.pkl': 1}",
+      "evidence": "All predictions valid: True",
+      "correction": "",
+      "time_ms": 28.301477432250977
+    },
+    {
+      "test": "ML-004: CatBoost Model",
+      "status": "PASS",
+      "input": "CatBoost model inspection",
+      "expected": "predict method available",
+      "observed": "Methods: ['get_categorical_features', 'get_feature_importance', 'get_shap_values', 'load', 'predict']",
+      "evidence": "Has predict: True",
+      "correction": "",
+      "time_ms": 147.749662399292
+    },
+    {
+      "test": "ML-005: Ensemble Integration",
+      "status": "PASS",
+      "input": "IntegratedEnsemble inspection",
+      "expected": "Prediction method available",
+      "observed": "Methods: ['add_transactions_to_gnn', 'calibrate_weights', 'get_ensemble_info', 'predict_combined', 'train_catboost']",
+      "evidence": "Has predict-like method: True",
+      "correction": "",
+      "time_ms": 556.7717552185059
+    },
+    {
+      "test": "ML-006: Inference Latency",
+      "status": "PASS",
+      "input": "Single transaction prediction x10",
+      "expected": "<100ms average latency",
+      "observed": "Avg: 68.81ms, P99: 93.04ms",
+      "evidence": "All latencies: ['91.8', '93.2', '79.4', '55.9', '67.7', '57.9', '68.4', '53.7', '65.2', '55.1']",
+      "correction": "",
+      "time_ms": 23585.65902709961
+    },
+    {
+      "test": "BE-001: API Contract (Dict to DataFrame)",
+      "status": "PASS",
+      "input": "{'amount': 1500.0, 'hour': 14, 'velocity_score': 0.3, 'is_new_device': 0}",
+      "expected": "Prediction after DataFrame conversion",
+      "observed": "Prediction: 0",
+      "evidence": "Dict -> DataFrame -> predict() works",
+      "correction": "",
+      "time_ms": 21824.039220809937
+    },
+    {
+      "test": "BE-002: Batch Processing",
+      "status": "PASS",
+      "input": "Batch of 100 transactions",
+      "expected": "100 predictions in <1000ms",
+      "observed": "100 predictions in 55.50ms",
+      "evidence": "0.55ms per transaction",
+      "correction": "",
+      "time_ms": 22355.60417175293
+    },
+    {
+      "test": "BE-003: Mule Detector API",
+      "status": "PASS",
+      "input": "MuleDetector inspection",
+      "expected": "detect method available",
+      "observed": "Methods: ['add_known_mule', 'add_suspicious_account', 'detect', 'get_stats', 'set_analyzers']",
+      "evidence": "Has detect: True",
+      "correction": "",
+      "time_ms": 0.04744529724121094
+    },
+    {
+      "test": "BE-004: Hard Rules Engine",
+      "status": "PASS",
+      "input": "{'amount': 50000.0, 'hour': 3, 'is_new_device': True}",
+      "expected": "Rule evaluation result",
+      "observed": "HardRulePrediction(transaction_id='TXN_1765839089392', is_fraud=False, fraud_probability=0.0, risk_s",
+      "evidence": "Hard rules evaluated",
+      "correction": "",
+      "time_ms": 4136.260032653809
+    },
+    {
+      "test": "OPS-001: Model Size Check",
+      "status": "PASS",
+      "input": "Model directory inspection",
+      "expected": "Total size < 100MB",
+      "observed": "Total: 3.74MB, Files: 14",
+      "evidence": "Largest: ('isolation_forest.pkl', 1618.2373046875)",
+      "correction": "",
+      "time_ms": 2.430438995361328
+    },
+    {
+      "test": "OPS-002: Graceful Degradation (GNN)",
+      "status": "PASS",
+      "input": "PyTorch: False, PyG: False",
+      "expected": "Fallback mode when deps missing",
+      "observed": "Has fallback_mode: True",
+      "evidence": "Graceful degradation: True",
+      "correction": "",
+      "time_ms": 12.473344802856445
+    },
+    {
+      "test": "OPS-003: ONNX Serving",
+      "status": "PASS",
+      "input": "ONNXModelConverter inspection",
+      "expected": "Convert method available",
+      "observed": "Methods: ['convert_sklearn_model', 'convert_xgboost_model', 'save_onnx_model']",
+      "evidence": "Has convert: True",
+      "correction": "",
+      "time_ms": 3.535747528076172
+    },
+    {
+      "test": "BANK-001: End-to-End Fraud Detection",
+      "status": "PASS",
+      "input": "Fraud and normal transactions",
+      "expected": "Fraud=1, Normal=0",
+      "observed": "Fraud pred: 1, Normal pred: 0",
+      "evidence": "At least one correct: True",
+      "correction": "",
+      "time_ms": 21975.069999694824
+    },
+    {
+      "test": "BANK-002: PIX Fraud Taxonomy",
+      "status": "WARN",
+      "input": "PIXFraudTaxonomy inspection",
+      "expected": "Classification method available",
+      "observed": "Methods: ['analyze_transaction', 'get_fraud_types_summary']",
+      "evidence": "Has classify: False",
+      "correction": "",
+      "time_ms": 3.262758255004883
+    },
+    {
+      "test": "BANK-003: Explainability for Audit",
+      "status": "PASS",
+      "input": "ExplainabilityEngine inspection",
+      "expected": "Explain method available",
+      "observed": "Methods: ['explain_batch', 'explain_prediction', 'get_fast_explanation', 'get_global_importance', 'get_top_features', 'initialize_shap', 'to_compliance_report']",
+      "evidence": "Has explain: True",
+      "correction": "",
+      "time_ms": 1.9574165344238281
+    },
+    {
+      "test": "BANK-004: Deterministic Predictions",
+      "status": "PASS",
+      "input": "Same transaction 5x",
+      "expected": "Same prediction every time",
+      "observed": "Results: [np.int64(0), np.int64(0), np.int64(0), np.int64(0), np.int64(0)]",
+      "evidence": "Deterministic: True",
+      "correction": "",
+      "time_ms": 22031.513690948486
+    },
+    {
+      "test": "BANK-005: Device Fingerprint",
+      "status": "PASS",
+      "input": "DeviceFingerprintAnalyzer inspection",
+      "expected": "Analyze method available",
+      "observed": "Methods: ['analyze', 'get_device_stats', 'get_user_devices', 'register_trusted_device']",
+      "evidence": "Has analyze: True",
+      "correction": "",
+      "time_ms": 4.205226898193359
+    }
+  ]
+}
